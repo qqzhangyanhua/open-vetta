@@ -1,0 +1,118 @@
+packages/coding-agent/src/sessions/external/grok-conversation.ts
+  s_bb2593b2df3a72::t_03b57632e7acbc 38
+  s_bb2593b2df3a72::t_8d3c1760af9eef 239,243-245,247
+  s_bb2593b2df3a72::t_771886b7a0a6f1 1-37,39-108,110-117,119-130,151-152,160,162-233,235-238,240-242,246,248-296
+  s_bb2593b2df3a72::t_ffc21329595c03 161
+  s_bb2593b2df3a72::t_480f134ea16cc5 234
+  s_bb2593b2df3a72::t_801fe1a44fb967 109,118
+  s_bb2593b2df3a72::t_55da690f857625 131-150,153-159
+packages/coding-agent/src/sessions/external/index.ts
+  s_bb2593b2df3a72::t_0acb315ceb55ed 26
+  s_bb2593b2df3a72::t_03523c50560642 7-11
+  s_bb2593b2df3a72::t_b2059af7e8176c 6
+apps/desktop/src/main/agent-runtime/composition.ts
+  s_bb2593b2df3a72::t_720a96c3b8b12b 264
+packages/theme-ui/src/chat/SessionViewerPageView.tsx
+  s_bb2593b2df3a72::t_f5bc356e3c171f 30
+  s_bb2593b2df3a72::t_43355bf35a65c0 55,57-58
+  s_bb2593b2df3a72::t_6b2127d9f7d199 56
+  s_bb2593b2df3a72::t_a30b471be2f8ab 2,12-13
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.tsx
+  s_bb2593b2df3a72::t_73e182ccc42ea4 69-71
+  s_bb2593b2df3a72::t_29efa9a94e9374 24-28
+apps/desktop/src/renderer/shared/store/chat-atoms.ts
+  s_bb2593b2df3a72::t_ffbea53fe8f1a3 34
+apps/desktop/src/renderer/domains/conversation/external-history-display.ts
+  s_bb2593b2df3a72::t_ff15eff939151f 1-12
+apps/desktop/src/renderer/domains/project/hooks/sidebar-conversation-selection.test.tsx
+  s_bb2593b2df3a72::t_6ab98fdecd027b 225-267
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/shared/parse-tool.row.test.ts
+  s_bb2593b2df3a72::t_dc7264515f62c6 67-77
+packages/coding-agent/test/public-api-subpaths.test.ts
+  s_bb2593b2df3a72::t_7cc69f23c5461b 21
+  s_bb2593b2df3a72::t_f2036ffdca7f5c 112
+packages/coding-agent/src/public-api/external-sessions.ts
+  s_bb2593b2df3a72::t_10433d5fc3e735 1,6,15,18,26-27,36-40
+  s_bb2593b2df3a72::t_788a0c9d759ac6 41
+packages/coding-agent/test/sessions/external/external-session-history-reader.test.ts
+  s_bb2593b2df3a72::t_b5d17be034b66c 278-323
+  s_bb2593b2df3a72::t_9d5cdef9454ba8 31-41
+  s_bb2593b2df3a72::t_f6809e32211a02 138
+  s_bb2593b2df3a72::t_3057cb1b9c4ab5 259
+  s_bb2593b2df3a72::t_51f4c1fe4fcc91 125-127,168-170,390-393
+  s_bb2593b2df3a72::t_aafd955db5babb 1-30,42-124,128-137,139-167,171-258,260-277,324-389,394-434
+.github/release-notes/v0.5.58.md
+  s_bb2593b2df3a72::t_c621e770be80b5 11
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.external.test.tsx
+  s_bb2593b2df3a72::t_3883bb28504945 1-56,61-69
+  s_bb2593b2df3a72::t_2fc4897736c692 57
+  s_bb2593b2df3a72::t_f2b13114d4bc75 58-60
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_bb2593b2df3a72::t_fac0930bca0989 807-814
+packages/theme-ui/src/chat/index.ts
+  s_bb2593b2df3a72::t_68fa6dfc11cd09 175,181
+apps/desktop/src/renderer/domains/conversation/services/chat-service.ts
+  s_bb2593b2df3a72::t_b9a545f147e943 765-766
+  s_bb2593b2df3a72::t_dd40a17611f3c6 23,587-590
+  s_bb2593b2df3a72::t_58d1555cd1be2c 585
+  s_bb2593b2df3a72::t_5d633ef96cafd0 586,591-601
+packages/runtime-desktop/src/external-session-format.test.ts
+  s_bb2593b2df3a72::t_1dfe58f0012444 33-41
+  s_bb2593b2df3a72::t_e1a7d32be5e041 63-70
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/shared/parse-tool.ts
+  s_bb2593b2df3a72::t_849d48a59ad7e7 211,223-226
+  s_bb2593b2df3a72::t_51f4c1fe4fcc91 212-222
+  s_bb2593b2df3a72::t_5c3f9aff578943 227-230
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerPageModel.ts
+  s_bb2593b2df3a72::t_61b3e9e536de37 11
+  s_bb2593b2df3a72::t_7ae98043ed2e38 94,98,103
+  s_bb2593b2df3a72::t_db3e0e8535a40c 59
+  s_bb2593b2df3a72::t_4fb24fb3fcad39 111
+  s_bb2593b2df3a72::t_3bbc5856deabb3 126
+  s_bb2593b2df3a72::t_8b22de840ffd41 132,134-139,141-145,147-154
+  s_bb2593b2df3a72::t_dd40a17611f3c6 140
+  s_bb2593b2df3a72::t_0fe30e59fb9621 133
+  s_bb2593b2df3a72::t_a88730317a51ea 146
+  s_bb2593b2df3a72::t_a717e3b3e9823a 10
+  s_bb2593b2df3a72::t_e9dc56aa4fc278 15-19
+  s_bb2593b2df3a72::t_d72f45db75635c 45
+packages/theme-ui/src/chat/MessageBoundaryViews.tsx
+  s_bb2593b2df3a72::t_bd75a7d93b518f 3-19
+packages/runtime-desktop/src/external-session-format.ts
+  s_bb2593b2df3a72::t_a04de05fb180b6 3,6,11
+  s_bb2593b2df3a72::t_993b64f91b6c3e 21,23-28
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerPageModel.test.tsx
+  s_bb2593b2df3a72::t_ce7f03969b7453 1-2,5-9,11-112
+  s_bb2593b2df3a72::t_46f9db69734830 3
+  s_bb2593b2df3a72::t_4c70c5dccf352e 4,10
+apps/desktop/src/renderer/domains/conversation/services/chat-service-error.test.ts
+  s_bb2593b2df3a72::t_f64d26a87247ba 138-186
+  s_bb2593b2df3a72::t_ee3fb636d64675 187-199
+packages/coding-agent/src/sessions/external/history-reader.ts
+  s_bb2593b2df3a72::t_dd40a17611f3c6 18-20
+  s_bb2593b2df3a72::t_487d95cde9db1d 1,3-17,21-38
+  s_bb2593b2df3a72::t_71c4f1919d245a 2
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_bb2593b2df3a72::t_e440d6780e55f5 807-814
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.tsx
+  s_bb2593b2df3a72::t_328c47a6548669 109
+  s_bb2593b2df3a72::t_2dd176374c5d9e 17-18
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.test.tsx
+  s_bb2593b2df3a72::t_dcb3446ff81338 43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "0ec3a97a5d4cb4c14e34bbf6ae5f6a714c9a8592",
+  "prompts": {},
+  "sessions": {
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
