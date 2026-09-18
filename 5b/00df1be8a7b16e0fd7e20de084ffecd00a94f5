@@ -1,0 +1,33 @@
+apps/docs-site/content/docs/en/product/abilities.mdx
+  s_5ea5b99bdc7bd4::t_414752524088f8 80
+CONTRIBUTING.md
+  s_5ea5b99bdc7bd4::t_997fe8fa6880c6 20
+docs/desktop/build-modes.md
+  s_5ea5b99bdc7bd4::t_7ed902eb6b1f42 206
+docs/desktop/build-modes.en.md
+  s_5ea5b99bdc7bd4::t_0ec7968260ccec 211
+apps/docs-site/content/docs/product/abilities.mdx
+  s_5ea5b99bdc7bd4::t_82d3564f9f53f3 81
+apps/desktop/src/main/abilities/open-marketplace/official-marketplace-source.ts
+  s_5ea5b99bdc7bd4::t_e9b1376d51fab4 10
+CONTRIBUTING.zh-CN.md
+  s_5ea5b99bdc7bd4::t_3fbe22927a191f 20
+apps/desktop/.env.example
+  s_5ea5b99bdc7bd4::t_7e931d2a7f100f 40,43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "5b00df1be8a7b16e0fd7e20de084ffecd00a94f5",
+  "prompts": {},
+  "sessions": {
+    "s_5ea5b99bdc7bd4": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0b29a-d097-7263-941c-6bbf3e62bcb9",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
