@@ -1,0 +1,40 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 9
+bun.lock
+  h_4132837b09b7e7 473-492,2738-2739,5794-5797,6712-6713
+packages/plugins/externals/github-issue-board/.gitignore
+  h_4132837b09b7e7 1-3
+packages/plugins/externals/github-issue-board/locales/en.json
+  h_4132837b09b7e7 1-7
+packages/plugins/externals/github-issue-board/locales/zh.json
+  h_4132837b09b7e7 1-7
+packages/plugins/externals/github-issue-board/package.json
+  h_4132837b09b7e7 1-27
+packages/plugins/externals/github-issue-board/plugin.json
+  h_4132837b09b7e7 1-26
+packages/plugins/externals/github-issue-board/src/BoardView.tsx
+  h_4132837b09b7e7 1-10
+packages/plugins/externals/github-issue-board/src/index.tsx
+  h_4132837b09b7e7 1-25
+packages/plugins/externals/github-issue-board/src/style.css
+  h_4132837b09b7e7 1-12
+packages/plugins/externals/github-issue-board/test/board-view.dom.test.tsx
+  h_4132837b09b7e7 1-52
+packages/plugins/externals/github-issue-board/tsconfig.json
+  h_4132837b09b7e7 1-18
+packages/plugins/externals/github-issue-board/vite.config.ts
+  h_4132837b09b7e7 1-17
+packages/plugins/externals/github-issue-board/vitest.config.ts
+  h_4132837b09b7e7 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "2578a7b1dd7f503bd5c91ee885277cc408b1f890",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
