@@ -1,0 +1,29 @@
+packages/coding-agent/test/auth-storage.test.ts
+  s_e9dc56c274d99e::t_34b790469bfe63 384-398
+packages/ai/src/utils/oauth/index.ts
+  s_e9dc56c274d99e::t_cb71c752f75a79 57-63,68-71
+  s_e9dc56c274d99e::t_9c5e9091cf56ec 56
+packages/ai/test/xai-oauth.test.ts
+  s_e9dc56c274d99e::t_e28a86a8b5ffd6 2,336-348
+  s_e9dc56c274d99e::t_71b95c0f799df5 349
+apps/desktop/src/main/agent-runtime/host-services.ts
+  s_e9dc56c274d99e::t_a44ba09084299e 21,29
+apps/desktop/src/main/agent-runtime/composition-boundary.test.ts
+  s_e9dc56c274d99e::t_abdf56d8ec2640 17-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "adf9b83df624ec6424aa4c7831077e8da4d9d8f7",
+  "prompts": {},
+  "sessions": {
+    "s_e9dc56c274d99e": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0b3f5-b39f-7830-8d6f-14b8472b0c31",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
