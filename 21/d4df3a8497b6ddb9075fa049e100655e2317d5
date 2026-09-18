@@ -1,0 +1,33 @@
+docs/agents/issue-tracker.md
+  s_e645e928ba3022::t_dc626145dac022 1-45
+docs/agents/domain.md
+  s_e645e928ba3022::t_85843e55fe1440 1-53
+AGENTS.md
+  s_4add5a7932fbac::t_ef4625b64d174f 293-306
+docs/agents/triage-labels.md
+  s_e645e928ba3022::t_a2e1b7ba626c62 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "21d4df3a8497b6ddb9075fa049e100655e2317d5",
+  "prompts": {},
+  "sessions": {
+    "s_4add5a7932fbac": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0b337-3cfe-71c3-a4e4-60c0de0840da",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_e645e928ba3022": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0b312-1502-7c73-9b32-ba60390595ff",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
