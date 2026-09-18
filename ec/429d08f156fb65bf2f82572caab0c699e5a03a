@@ -1,0 +1,44 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 11
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-host-apis.ts
+  h_4132837b09b7e7 48-51
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-host-bridge.team-conversation.test.ts
+  h_4132837b09b7e7 15-17,110-125
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-host-bridge.ts
+  h_4132837b09b7e7 783-791
+docs/plugin/README.md
+  h_4132837b09b7e7 73
+docs/plugin/conversation-and-agent.md
+  h_4132837b09b7e7 25,70,83-84
+docs/plugin/permissions.md
+  h_4132837b09b7e7 53
+packages/plugins/externals/github-issue-board/locales/en.json
+  h_4132837b09b7e7 21,30
+packages/plugins/externals/github-issue-board/locales/zh.json
+  h_4132837b09b7e7 21,30
+packages/plugins/externals/github-issue-board/src/BoardView.tsx
+  h_4132837b09b7e7 134-146,228-249
+packages/plugins/externals/github-issue-board/src/run-task.ts
+  h_4132837b09b7e7 65-67
+packages/plugins/externals/github-issue-board/test/board-view.dom.test.tsx
+  h_4132837b09b7e7 42,95,114,137,291-314
+packages/plugins/externals/github-issue-board/test/run-task.test.ts
+  h_4132837b09b7e7 69,87,119
+packages/plugins/plugin-sdk/CHANGELOG.md
+  h_4132837b09b7e7 7-8
+packages/plugins/plugin-sdk/src/conversation.ts
+  h_4132837b09b7e7 66-72,93-97
+packages/plugins/plugin-sdk/src/index.ts
+  h_4132837b09b7e7 54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "ec429d08f156fb65bf2f82572caab0c699e5a03a",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
