@@ -1,0 +1,19 @@
+.github/release-notes/v0.5.58.md
+  s_bb2593b2df3a72::t_84a5a0a5eb2fe4 17-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "04143a03ecf3295de3ebe1c1df5d9e3420cf851e",
+  "prompts": {},
+  "sessions": {
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
