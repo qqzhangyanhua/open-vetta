@@ -1,0 +1,382 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 7-8,30-33,37-44,48-54,64-65,71,77-79
+apps/desktop/scripts/packaged-e2e-binary.mjs
+  h_4132837b09b7e7 52-60
+apps/desktop/scripts/packaged-e2e-binary.node-test.mjs
+  h_4132837b09b7e7 2,7,94-109
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-service.test.ts
+  h_4132837b09b7e7 1,517-577
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-service.ts
+  h_4132837b09b7e7 3,23,300-301,537,550-597
+apps/desktop/src/main/agent-teams/resolve-team-member-model.ts
+  h_4132837b09b7e7 1-16
+apps/desktop/src/main/agent-teams/team-member-model-preferences.test.ts
+  h_4132837b09b7e7 1,4,6-7,9,11,14-25,27-40,43-59,62-67,69,71-86,88
+apps/desktop/src/main/agent-teams/team-member-model-preferences.ts
+  h_4132837b09b7e7 1-107
+apps/desktop/src/main/agent-teams/team-session-concurrency.test.ts
+  h_4132837b09b7e7 1725-1765,1838-1844,2011,2073
+apps/desktop/src/main/agent-teams/team-session-service.test.ts
+  h_4132837b09b7e7 287-288,330,383-484
+apps/desktop/src/main/agent-teams/team-session-service.ts
+  h_4132837b09b7e7 55,80-83,162,885,889,892-901,907,913-925,928-929,1108
+apps/desktop/src/main/agent-teams/team-turn-coordinator.ts
+  h_4132837b09b7e7 25,29,51-54,602-611,613
+apps/desktop/src/main/builtin-skills.test.ts
+  h_4132837b09b7e7 5,11,13,25,43-44,59,64-80
+apps/desktop/src/main/builtin-skills.ts
+  h_4132837b09b7e7 89-92
+apps/desktop/src/main/conversations/slim-session-event-for-ipc.test.ts
+  h_4132837b09b7e7 1-80
+apps/desktop/src/main/conversations/slim-session-event-for-ipc.ts
+  h_4132837b09b7e7 1-23
+apps/desktop/src/main/ipc/agent-teams.test.ts
+  h_4132837b09b7e7 54-57,373-395
+apps/desktop/src/main/ipc/agent-teams.ts
+  h_4132837b09b7e7 28-31,57-58,96,164,218-229
+apps/desktop/src/main/ipc/session.ts
+  h_4132837b09b7e7 61,1559
+apps/desktop/src/main/models/presets/catalog.ts
+  h_4132837b09b7e7 18,21
+apps/desktop/src/main/models/presets/model-tiers.test.ts
+  h_4132837b09b7e7 1-130
+apps/desktop/src/main/models/presets/model-tiers.ts
+  h_4132837b09b7e7 1-123
+apps/desktop/src/main/models/presets/models-dev-snapshot.generated.ts
+  h_4132837b09b7e7 6-7,10,12-13,15,20-41,44,63,65-66,68,73-76,79,81-83,85-86,88,90,93-96,99,101,103-104,108,111-114,117,119,121-122,124,126,129-132,135,137,139-140,142,144-145,147-150,153,155,157-158,160,162-163,165-168,171,173,175-176,178,180-181,183-186,189,191,193-194,196,198-199,201-204,207,209,211-212,214,216,219-222,225,227,229-230,232,234-235,237-240,243,245,247-248,250,252,256,261,263,265-266,268,270,274,276,279,281-283,285-286,288-291,293-296,299,301,303-304,306,308-309,311-313,317,319-321,323-324,326-328,330-332,336,338,340-341,343,346,348-350,354,356,358-360,362-363,365-367,371,373,375-376,378,381,383-385,389,391,393-394,396-398,400-402,406,408-410,412-414,416-417,419-421,425,427,429-430,432-435,437-439,443,445-447,449-452,454-455,457-459,463,465,467-473,475-477,481,483,485-486,488-502,504-506,510,512-514,516-517,520-521,523-526,529,531,533-534,536,538-539,541-543,547,549-551,553-555,557,560-563,566,568,570-571,573-575,577-578,583,585,587-589,591-592,594-595,600,602,604-609,611-612,617,636,638-639,645-648,651,653,655-656,658,660-661,663-666,669,671,673-679,681-684,687,689,691-693,695-696,698-701,704
+apps/desktop/src/main/models/presets/models-dev.test.ts
+  h_4132837b09b7e7 4,7,29-33,75-99,106-107,202-213,215,217,221,224-234,237,239-242,245-263,265-269,272-284,286-290,293-294,296
+apps/desktop/src/main/models/presets/models-dev.ts
+  h_4132837b09b7e7 2,4,18-19,28,45-49,57,60,111-117,120-134,137,197-198,200-202,204,209-219
+apps/desktop/src/main/models/presets/sync.ts
+  h_4132837b09b7e7 13,81-82,225-227
+apps/desktop/src/main/pet-window.ts
+  h_4132837b09b7e7 34-44,64-68,121-130,154-155,158-176,180,182-183,256-263,269,288-295,324-336,341,349-362,366,403,405,430,432,444-458,563-564,577-579,615-616,650-651,656-663,667-668,680-681,715-726,741-742,761-763,804-805
+apps/desktop/src/main/pet/pet-idle-guard.ts
+  h_4132837b09b7e7 3-4,10,18-26,37-39
+apps/desktop/src/main/pet/pet-mouse-poll.test.ts
+  h_4132837b09b7e7 1-48
+apps/desktop/src/main/pet/pet-mouse-poll.ts
+  h_4132837b09b7e7 1-35
+apps/desktop/src/main/pet/pet-playback-policy.test.ts
+  h_4132837b09b7e7 1-40
+apps/desktop/src/main/pet/pet-playback-policy.ts
+  h_4132837b09b7e7 1-17
+apps/desktop/src/main/pet/pet-widget-bounds.test.ts
+  h_4132837b09b7e7 1-232
+apps/desktop/src/main/pet/pet-widget-bounds.ts
+  h_4132837b09b7e7 1-172
+apps/desktop/src/main/plugins/coding-agent-plugin-runtime-source.test.ts
+  h_4132837b09b7e7 69
+apps/desktop/src/preload/api-types/agent-teams.ts
+  h_4132837b09b7e7 21,49-54
+apps/desktop/src/preload/apis/agent-teams.test.ts
+  h_4132837b09b7e7 38-40,82-87
+apps/desktop/src/preload/apis/agent-teams.ts
+  h_4132837b09b7e7 38-40
+apps/desktop/src/renderer/domains/abilities/components/AbilitiesPageView.tsx
+  h_4132837b09b7e7 13,25-34,159,170-200
+apps/desktop/src/renderer/domains/abilities/components/AbilityBadges.test.tsx
+  h_4132837b09b7e7 1-60
+apps/desktop/src/renderer/domains/abilities/components/AbilityBadges.tsx
+  h_4132837b09b7e7 24-27,30-34
+apps/desktop/src/renderer/domains/abilities/components/AbilityCard.tsx
+  h_4132837b09b7e7 163-164,166-168,174
+apps/desktop/src/renderer/domains/abilities/hooks/useAbilitiesModel.test.tsx
+  h_4132837b09b7e7 149-150,212,299-335
+apps/desktop/src/renderer/domains/abilities/lib/ability-catalog-query.test.ts
+  h_4132837b09b7e7 3,36-69,81,95,102-193,226-240
+apps/desktop/src/renderer/domains/abilities/lib/ability-catalog-query.ts
+  h_4132837b09b7e7 33-58,60-65,74,76
+apps/desktop/src/renderer/domains/abilities/types.ts
+  h_4132837b09b7e7 20-25,48-53
+apps/desktop/src/renderer/domains/agent-teams/components/AgentProfileEditor.test.tsx
+  h_4132837b09b7e7 3,78-87,158-215
+apps/desktop/src/renderer/domains/agent-teams/components/AgentProfileEditor.tsx
+  h_4132837b09b7e7 71-74,95,101-109,115,120,147,219,409,494
+apps/desktop/src/renderer/domains/agent-teams/components/TeamSettingsSheet.test.tsx
+  h_4132837b09b7e7 7,28-39,92-103,129-146,159
+apps/desktop/src/renderer/domains/agent-teams/components/TeamSettingsSheet.tsx
+  h_4132837b09b7e7 2-5,77-104,186,226,291-293,374-390
+apps/desktop/src/renderer/domains/command-menu/hooks/useCommandMenuModel.test.tsx
+  h_4132837b09b7e7 18,21,73,95-103
+apps/desktop/src/renderer/domains/command-menu/hooks/useCommandMenuModel.ts
+  h_4132837b09b7e7 20,239-244
+apps/desktop/src/renderer/domains/conversation/components/ChatView.tsx
+  h_4132837b09b7e7 2,16-17,37-39,59,66
+apps/desktop/src/renderer/domains/conversation/components/MessageList.tsx
+  h_4132837b09b7e7 10-13,17-19,21-23,29-45
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.test.tsx
+  h_4132837b09b7e7 16-22,76,80-88
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.tsx
+  h_4132837b09b7e7 9,21,25-26,46-47,112,119
+apps/desktop/src/renderer/domains/conversation/components/blocks/LiveThinkingView.test.tsx
+  h_4132837b09b7e7 1-15
+apps/desktop/src/renderer/domains/conversation/components/blocks/MarkdownContent.stable-blocks.test.tsx
+  h_4132837b09b7e7 1-87
+apps/desktop/src/renderer/domains/conversation/components/blocks/SyntaxHighlightedCode.test.tsx
+  h_4132837b09b7e7 1-38
+apps/desktop/src/renderer/domains/conversation/components/blocks/stable-markdown-blocks.test.ts
+  h_4132837b09b7e7 1-15
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.memo.test.tsx
+  h_4132837b09b7e7 1-64
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.tsx
+  h_4132837b09b7e7 8,30-69,90
+apps/desktop/src/renderer/domains/conversation/components/input-bar/DefaultInputBarConnector.tsx
+  h_4132837b09b7e7 3,26,185
+apps/desktop/src/renderer/domains/conversation/components/loadNewSessionPage.test.ts
+  h_4132837b09b7e7 1-14
+apps/desktop/src/renderer/domains/conversation/components/loadNewSessionPage.ts
+  h_4132837b09b7e7 5-13,15-16
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageListView.tsx
+  h_4132837b09b7e7 3,9,75-77,94
+apps/desktop/src/renderer/domains/conversation/components/message-list/SubagentCardsScope.tsx
+  h_4132837b09b7e7 1-11
+apps/desktop/src/renderer/domains/conversation/components/message-list/SubagentReplyCard.tsx
+  h_4132837b09b7e7 1-33
+apps/desktop/src/renderer/domains/conversation/components/message-list/SubagentReplyCards.tsx
+  h_4132837b09b7e7 1-16
+apps/desktop/src/renderer/domains/conversation/components/message-list/ToolCallPresentation.test.tsx
+  h_4132837b09b7e7 2-4,20-23,26-46
+apps/desktop/src/renderer/domains/conversation/components/message-list/ToolCallPresentation.tsx
+  h_4132837b09b7e7 4,41-43
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-list-derived.test.ts
+  h_4132837b09b7e7 1-57
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-list-derived.ts
+  h_4132837b09b7e7 1-37
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionHeroEntry.test.tsx
+  h_4132837b09b7e7 1-32
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionHeroEntry.ts
+  h_4132837b09b7e7 1-29
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionPageModel.ts
+  h_4132837b09b7e7 32,51,128
+apps/desktop/src/renderer/domains/conversation/components/question-panel/QuestionPanelView.tsx
+  h_4132837b09b7e7 332,334,338,356,360-388
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatDelegationFlow.test.tsx
+  h_4132837b09b7e7 58-59
+apps/desktop/src/renderer/domains/conversation/connectors/team/team-chat-session-service.test.ts
+  h_4132837b09b7e7 5-10,16-27
+apps/desktop/src/renderer/domains/conversation/connectors/team/team-chat-session-service.ts
+  h_4132837b09b7e7 100,116,137,159,163-169,174-179,184-204
+apps/desktop/src/renderer/domains/conversation/connectors/team/useTeamChatModel.test.tsx
+  h_4132837b09b7e7 43-44,239-289,787-832
+apps/desktop/src/renderer/domains/conversation/connectors/team/useTeamChatModel.ts
+  h_4132837b09b7e7 34-35,74,76-82,182-197,237,260,280,371,764
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageListModel.ts
+  h_4132837b09b7e7 2-3,25-39
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionEventController.ts
+  h_4132837b09b7e7 59,68-69,263,265,270-271,294
+apps/desktop/src/renderer/domains/conversation/services/live-history-patch.test.ts
+  h_4132837b09b7e7 1-177
+apps/desktop/src/renderer/domains/conversation/services/live-history-patch.ts
+  h_4132837b09b7e7 1-127
+apps/desktop/src/renderer/domains/file-explorer/FileTreeView.test.tsx
+  h_4132837b09b7e7 1-29,31-54,56-59,62-87,91-98,101-104,107-111,113-115,117-123,125-128,130-131,133-143,145-150,152,154-161,163-168,170-173,175-270
+apps/desktop/src/renderer/domains/file-explorer/file-tree-rows.test.ts
+  h_4132837b09b7e7 1-129
+apps/desktop/src/renderer/domains/file-explorer/hooks/file-tree-watch-coalesce.test.ts
+  h_4132837b09b7e7 1-52
+apps/desktop/src/renderer/domains/file-explorer/hooks/file-tree-watch-coalesce.ts
+  h_4132837b09b7e7 1-31
+apps/desktop/src/renderer/domains/file-explorer/hooks/useFileExplorerSelection.ts
+  h_4132837b09b7e7 121-125,196,212
+apps/desktop/src/renderer/domains/file-explorer/hooks/useFileTree.ts
+  h_4132837b09b7e7 12,246,252-258
+apps/desktop/src/renderer/domains/file-explorer/hooks/useFilesPanelModel.tsx
+  h_4132837b09b7e7 39,274-275,278-279,281
+apps/desktop/src/renderer/domains/pet/components/PetApp.tsx
+  h_4132837b09b7e7 26,57,123-124,126,232-239,242-243,254,257,261-262,277
+apps/desktop/src/renderer/domains/pet/components/PetApp.widget-layout.test.tsx
+  h_4132837b09b7e7 1-78
+apps/desktop/src/renderer/domains/pet/components/PetSpeechBubble.test.tsx
+  h_4132837b09b7e7 1-25
+apps/desktop/src/renderer/domains/pet/components/PetSpeechBubble.tsx
+  h_4132837b09b7e7 20
+apps/desktop/src/renderer/domains/pet/components/PetVideoSurface.tsx
+  h_4132837b09b7e7 101-108
+apps/desktop/src/renderer/domains/pet/hooks/pet-widget-content.test.ts
+  h_4132837b09b7e7 1-56
+apps/desktop/src/renderer/domains/pet/hooks/pet-widget-content.ts
+  h_4132837b09b7e7 1-75
+apps/desktop/src/renderer/domains/pet/hooks/usePetWidgetLayout.test.tsx
+  h_4132837b09b7e7 1-124
+apps/desktop/src/renderer/domains/pet/hooks/usePetWidgetLayout.ts
+  h_4132837b09b7e7 1-3,5-6,8,10-12,14-18,20-36,38-42,45-51,54-57,60-67
+apps/desktop/src/renderer/domains/pet/services/pet-url-options.ts
+  h_4132837b09b7e7 70
+apps/desktop/src/renderer/domains/project/components/sidebar/SidebarNavigationIndicator.test.tsx
+  h_4132837b09b7e7 2,5,8-10,34-80,86,90,97-104,107-108,111,122
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/sidebar-selection-state.ts
+  h_4132837b09b7e7 1-37
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/useProjectsPanelModel.selectSession.test.tsx
+  h_4132837b09b7e7 232-360
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/useProjectsPanelModel.ts
+  h_4132837b09b7e7 20,32,71,91-101,211-221,233,235,261,264
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/useSidebarSelectionIntent.ts
+  h_4132837b09b7e7 4,6-10,12-23,25,44,64-77,85-93
+apps/desktop/src/renderer/domains/project/components/sidebar/useSidebarModel.ts
+  h_4132837b09b7e7 12,499
+apps/desktop/src/renderer/domains/project/hooks/useTeamSidebarConversations.test.tsx
+  h_4132837b09b7e7 1-46
+apps/desktop/src/renderer/domains/project/hooks/useTeamSidebarConversations.ts
+  h_4132837b09b7e7 17-18
+apps/desktop/src/renderer/domains/settings/components/PresetProviderModelsList.test.tsx
+  h_4132837b09b7e7 1-114
+apps/desktop/src/renderer/domains/settings/components/PresetProviderModelsList.tsx
+  h_4132837b09b7e7 5,18-26,28-30,33,36-44
+apps/desktop/src/renderer/domains/settings/components/SettingsPage.tsx
+  h_4132837b09b7e7 6,12-28
+apps/desktop/src/renderer/domains/settings/components/SettingsSidebar.test.tsx
+  h_4132837b09b7e7 2,47-58
+apps/desktop/src/renderer/domains/settings/components/SettingsSidebar.tsx
+  h_4132837b09b7e7 2,16
+apps/desktop/src/renderer/domains/settings/components/settings-tab-loaders.test.ts
+  h_4132837b09b7e7 1-21
+apps/desktop/src/renderer/domains/settings/components/settings-tab-loaders.ts
+  h_4132837b09b7e7 1-33
+apps/desktop/src/renderer/domains/settings/components/usePresetProvidersSectionModel.ts
+  h_4132837b09b7e7 60-63,190,452-455,483-496
+apps/desktop/src/renderer/pet-entry.tsx
+  h_4132837b09b7e7 8
+apps/desktop/src/renderer/pet-shell.css
+  h_4132837b09b7e7 1-11
+apps/desktop/src/renderer/pet.html
+  h_4132837b09b7e7 7-18
+apps/desktop/src/renderer/root-layout/nav-route-prefetch.test.ts
+  h_4132837b09b7e7 1-82
+apps/desktop/src/renderer/root-layout/nav-route-prefetch.ts
+  h_4132837b09b7e7 1-67
+apps/desktop/src/renderer/route-page-loaders.ts
+  h_4132837b09b7e7 1-36
+apps/desktop/src/renderer/router.tsx
+  h_4132837b09b7e7 5-15,29-32,36-37,41,45,252-254
+apps/desktop/src/renderer/shared/lib/builtin-skill-icons.ts
+  h_4132837b09b7e7 11
+apps/desktop/src/renderer/shared/store/message-queue-atoms.ts
+  h_4132837b09b7e7 75-77
+apps/desktop/src/renderer/shared/store/subagents-atoms.ts
+  h_4132837b09b7e7 12
+apps/desktop/src/shared/agent-team-member-model.ts
+  h_4132837b09b7e7 1-8
+apps/desktop/src/shared/i18n/locales/en/abilities.json
+  h_4132837b09b7e7 19-20,35-36,93-94
+apps/desktop/src/shared/i18n/locales/en/agent-teams.json
+  h_4132837b09b7e7 124-129
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  h_4132837b09b7e7 798-811
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  h_4132837b09b7e7 1197-1200
+apps/desktop/src/shared/i18n/locales/en/skills.json
+  h_4132837b09b7e7 63-64,77-80
+apps/desktop/src/shared/i18n/locales/zh/abilities.json
+  h_4132837b09b7e7 19-20,35-36,93-94
+apps/desktop/src/shared/i18n/locales/zh/agent-teams.json
+  h_4132837b09b7e7 124-129
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  h_4132837b09b7e7 798-811
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  h_4132837b09b7e7 1197-1200
+apps/desktop/src/shared/i18n/locales/zh/skills.json
+  h_4132837b09b7e7 63-64,77-80
+apps/desktop/src/shared/pet-ipc.ts
+  h_4132837b09b7e7 48-56,70-71
+apps/desktop/wdio.conf.ts
+  h_4132837b09b7e7 13,66
+docs/adr/0050-preset-providers-move-client-side-with-dynamic-model-lists.md
+  h_4132837b09b7e7 3,13,15,17,19,27,30
+docs/adr/0119-subagent-transcript-links-and-team-member-model-preferences.md
+  h_4132837b09b7e7 1-29
+packages/coding-agent/src/composition/subagent/state-persistence.ts
+  h_4132837b09b7e7 33
+packages/coding-agent/src/composition/subagent/subagent-session-extension-contract.ts
+  h_4132837b09b7e7 29
+packages/coding-agent/src/composition/subagent/tools/dispatch-workflows/dispatch-workflows-tool.ts
+  h_4132837b09b7e7 56,69
+packages/coding-agent/src/composition/subagent/tools/spawn-agent/spawn-agent-tool.ts
+  h_4132837b09b7e7 37,44
+packages/coding-agent/test/runtime-core/subagent-control-tools.test.ts
+  h_4132837b09b7e7 85,122
+packages/coding-agent/test/runtime-core/subagent-session-extension-contract.test.ts
+  h_4132837b09b7e7 29-36
+packages/coding-agent/test/runtime-core/subagent-state-persistence.test.ts
+  h_4132837b09b7e7 23
+packages/plugins/presets/build-apple-apps/plugin.json
+  h_4132837b09b7e7 5
+packages/plugins/presets/preset-agent/plugin.json
+  h_4132837b09b7e7 5
+packages/plugins/presets/vetta-ui-design/src/canvas/cover-compose.ts
+  h_4132837b09b7e7 27-28,31-43,94-99,104,108,111,114,136
+packages/plugins/presets/vetta-ui-design/src/gallery/GalleryView.tsx
+  h_4132837b09b7e7 30,60,64-66,75-76,78-80,82-85,96
+packages/plugins/presets/vetta-ui-design/src/gallery/gallery-store.ts
+  h_4132837b09b7e7 34-61,67-68,71,73-74,88-92,95,98-101,104-108,119-120,126-127,129,131-138,140-141,149-150,152,154
+packages/plugins/presets/vetta-ui-design/test/cover-compose-abort.test.ts
+  h_4132837b09b7e7 1-44
+packages/plugins/presets/vetta-ui-design/test/gallery-catalog-refresh.test.tsx
+  h_4132837b09b7e7 1,23,26-27,72,109-119
+packages/plugins/presets/vetta-ui-design/test/gallery-store.test.ts
+  h_4132837b09b7e7 1-96
+packages/runtime-subagents/src/contracts.ts
+  h_4132837b09b7e7 21-22,39
+packages/runtime-subagents/src/subagent-dispatcher.ts
+  h_4132837b09b7e7 204,274
+packages/runtime-subagents/test/coordinator-scheduling.test.ts
+  h_4132837b09b7e7 8-20
+packages/theme-sdk/src/sidebar/types.ts
+  h_4132837b09b7e7 127-128
+packages/theme-ui/CHANGELOG.md
+  h_4132837b09b7e7 10,14-15
+packages/theme-ui/src/chat/AskUserQuestionView.tsx
+  h_4132837b09b7e7 131,133,137,145,150,154-166
+packages/theme-ui/src/chat/LiveThinkingView.tsx
+  h_4132837b09b7e7 16-17,19,29-32,40-45,47,49-55,69-71,75,77-82,93-96,98-106,109
+packages/theme-ui/src/file-explorer/FileTreeNodeView.tsx
+  h_4132837b09b7e7 16-17,25-30,65-77,95,103-104,118-119,123-125,127-133,135-139,142-146,235
+packages/theme-ui/src/file-explorer/FileTreeView.tsx
+  h_4132837b09b7e7 1-14,16,19-25,90-100,102,132-134,136-196,207-208,211-246,255,260,284-334,336-343,345,349-351,354,361,370,372-378,380-384,386-405
+packages/theme-ui/src/file-explorer/file-tree-dom.ts
+  h_4132837b09b7e7 1-23
+packages/theme-ui/src/file-explorer/file-tree-rows.test.ts
+  h_4132837b09b7e7 1-74
+packages/theme-ui/src/file-explorer/file-tree-rows.ts
+  h_4132837b09b7e7 1-168
+packages/theme-ui/src/file-explorer/index.ts
+  h_4132837b09b7e7 20-34
+packages/theme-ui/src/file-explorer/useFileTreeMarqueeSelection.ts
+  h_4132837b09b7e7 2-7,24-27,31,41,47-48,50,54-57,94-98
+packages/theme-ui/src/markdown/CodeBlock.tsx
+  h_4132837b09b7e7 76-79
+packages/theme-ui/src/markdown/MarkdownContent.tsx
+  h_4132837b09b7e7 1,29-30,37-38,69-133,192-193,200,338-346,350-370
+packages/theme-ui/src/markdown/definition.tsx
+  h_4132837b09b7e7 12-13
+packages/theme-ui/src/markdown/index.ts
+  h_4132837b09b7e7 7-8
+packages/theme-ui/src/markdown/stable-blocks.test.ts
+  h_4132837b09b7e7 1-82
+packages/theme-ui/src/markdown/stable-blocks.ts
+  h_4132837b09b7e7 1-106
+packages/theme-ui/src/settings/PresetProviderModelsListView.tsx
+  h_4132837b09b7e7 1,14-16,19,26-28,34-36,40-66,68-83,85-102,105-106
+packages/theme-ui/src/settings/SettingsSidebarView.tsx
+  h_4132837b09b7e7 27,46,84-85
+packages/theme-ui/src/sidebar/DefaultSidebar.tsx
+  h_4132837b09b7e7 67
+packages/theme-ui/src/sidebar/SidebarNavMorePanel.tsx
+  h_4132837b09b7e7 26,49,58,88-89,135,170,197
+packages/theme-ui/src/sidebar/SidebarNavigation.tsx
+  h_4132837b09b7e7 32,56,82-84,88,92,127-128,194,205-210
+packages/themes/builtin/xianxia/vite.config.ts
+  h_4132837b09b7e7 49-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "229f693ead02ff8b1b88867ed111294b76bb45c6",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
