@@ -1,0 +1,122 @@
+.github/release-notes/v0.5.58.md
+  s_bb2593b2df3a72::t_7a7aa30a54ba97 14
+packages/runtime-node/src/host/result-artifact-storage.test.ts
+  s_bb2593b2df3a72::t_048013f173e053 6
+  s_bb2593b2df3a72::t_610771070a6248 65-87
+  s_bb2593b2df3a72::t_9d8ea27463dfcd 2
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.test.ts
+  s_bb2593b2df3a72::t_a68b6b89929311 10,16,18-19
+  s_bb2593b2df3a72::t_2d6caa805d5ea1 137-240,242-251,253-265
+  s_bb2593b2df3a72::t_3b0a40d3e3f523 241,252
+  s_bb2593b2df3a72::t_559a31abba7f07 49-50,65
+  s_bb2593b2df3a72::t_34114318698d08 115-116,127
+packages/runtime-node/src/host/index.ts
+  s_bb2593b2df3a72::t_90c5b0e792c3d1 72
+packages/coding-agent/src/public-api/external-sessions.ts
+  s_bb2593b2df3a72::t_597526d277776f 10,16-20
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerContinueFrom.ts
+  s_bb2593b2df3a72::t_51ee5575ce6b76 34,36-37,39-50,57,59-61
+  s_bb2593b2df3a72::t_12586d021a94d3 184-198
+  s_bb2593b2df3a72::t_e2a7721d8a664a 35,38,58
+  s_bb2593b2df3a72::t_9a7a1819cd64b9 72-81,85-115,119,130,132-135
+  s_bb2593b2df3a72::t_ed2fbda77f2e19 82-84
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_bb2593b2df3a72::t_32032f65c015fb 841-842,844-846
+  s_bb2593b2df3a72::t_759bec172e2356 843
+packages/runtime-node/src/host/result-artifact-storage.ts
+  s_bb2593b2df3a72::t_0633f13ca20e8b 93-96
+  s_bb2593b2df3a72::t_49c33cfeaf39e9 42
+  s_bb2593b2df3a72::t_a9421f0dda0c0b 26
+apps/desktop/src/renderer/shared/hooks/useConfirmDialogModel.ts
+  s_bb2593b2df3a72::t_16a011ec91c980 14-16,20-22,26-28
+  s_bb2593b2df3a72::t_7b5cd700d816b3 25
+  s_bb2593b2df3a72::t_25fc0ddc82240c 49-51
+  s_bb2593b2df3a72::t_6dba3356fd36e3 66,74,80
+  s_bb2593b2df3a72::t_ea6f0b620d55d7 23-24
+packages/coding-agent/src/sessions/external/index.ts
+  s_bb2593b2df3a72::t_318cd881ac2512 8,14-15
+apps/desktop/src/preload/api-types/session.ts
+  s_bb2593b2df3a72::t_a2e113211d37c5 286
+  s_bb2593b2df3a72::t_748c2bad4a74b0 284,289-294,310-312
+  s_bb2593b2df3a72::t_9b108f2839df25 287-288,313
+packages/coding-agent/test/sessions/external/external-session-continue-from.test.ts
+  s_bb2593b2df3a72::t_8bb11cdd0a4a98 174-175,179-184
+  s_bb2593b2df3a72::t_b225e1860eaaaf 311-319,321,333-340,342-356,362-363,368,378-381
+  s_bb2593b2df3a72::t_a2e113211d37c5 341
+  s_bb2593b2df3a72::t_c4ae378be881bd 192
+  s_bb2593b2df3a72::t_c71db4efb0303a 170-173,176-178,185-191,193-308
+  s_bb2593b2df3a72::t_7a629e56586ed2 1-11,19,21
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerContinueFrom.test.tsx
+  s_bb2593b2df3a72::t_62c6c642dcae68 12
+  s_bb2593b2df3a72::t_020a61bca10cbc 19-20
+  s_bb2593b2df3a72::t_a0759a358f2d08 49
+  s_bb2593b2df3a72::t_6a49d1b5b803c3 66
+  s_bb2593b2df3a72::t_75ab5c4b3fd1b9 140
+  s_bb2593b2df3a72::t_94eaa66f39c6a1 116
+  s_bb2593b2df3a72::t_7e9f416f550152 70
+  s_bb2593b2df3a72::t_963a6811adfc0e 93
+  s_bb2593b2df3a72::t_e4f8d234bb8dfa 29
+  s_bb2593b2df3a72::t_8689d02852ac25 194-197
+  s_bb2593b2df3a72::t_712ed29c47fbdc 122-139,141-186
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.ts
+  s_bb2593b2df3a72::t_9da3b5b7dd28a9 1
+  s_bb2593b2df3a72::t_34176232e69e05 45-54,66
+  s_bb2593b2df3a72::t_a07af2694dabbd 108
+  s_bb2593b2df3a72::t_b4c864e732ee07 174-232,239-246
+  s_bb2593b2df3a72::t_3644b294479969 233-238
+  s_bb2593b2df3a72::t_ff49c123a20002 2-3,6,9,15,20,29,33
+  s_bb2593b2df3a72::t_96247903395b1f 16-17
+  s_bb2593b2df3a72::t_c3bf3edb3b26dd 30-32
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_bb2593b2df3a72::t_24323e0a16d9df 841-842,844-846
+  s_bb2593b2df3a72::t_b5cd144f4f92e4 843
+apps/desktop/src/preload/apis/session.ts
+  s_bb2593b2df3a72::t_cda76722a9fd89 184
+  s_bb2593b2df3a72::t_ab7e7fa214c426 85
+apps/desktop/src/main/ipc/session.ts
+  s_bb2593b2df3a72::t_4ac7a7a82f2ed8 241
+  s_bb2593b2df3a72::t_904b79e1bcf89c 1695,1698-1700,1704,1708-1714
+  s_bb2593b2df3a72::t_6eee3a9cf85da5 66
+  s_bb2593b2df3a72::t_a0548bcbc795a2 63-65
+  s_bb2593b2df3a72::t_1243cb5d3fe525 1715-1716
+apps/desktop/src/preload/apis/session.test.ts
+  s_bb2593b2df3a72::t_fda1fa471f7fb3 97-108
+packages/coding-agent/src/sessions/external/continue-from.ts
+  s_bb2593b2df3a72::t_0c4a3eb6074065 114-121,123-127,133-138,140-141,143-150,152-175,179-226,229-232,234-236
+  s_bb2593b2df3a72::t_c0a2da84453574 24-39,51-53,237
+  s_bb2593b2df3a72::t_a2e113211d37c5 130
+  s_bb2593b2df3a72::t_4cd88876074b19 66,78-87,99
+  s_bb2593b2df3a72::t_2f0e19e8f36d6f 139
+  s_bb2593b2df3a72::t_ba04066dacea92 233
+  s_bb2593b2df3a72::t_204a60e8fe8349 132
+  s_bb2593b2df3a72::t_fc9b6a93919190 54
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from-host.ts
+  s_bb2593b2df3a72::t_a2e113211d37c5 13
+  s_bb2593b2df3a72::t_0099880ecf74ba 1-7,11,14,16-56
+  s_bb2593b2df3a72::t_14dcff2a499097 8-10,12,15
+apps/desktop/src/renderer/shared/hooks/useConfirmDialogModel.test.tsx
+  s_bb2593b2df3a72::t_caead3f07b4732 1-66
+apps/desktop/src/renderer/shared/store/ui-atoms.ts
+  s_bb2593b2df3a72::t_12e7db2a34800b 97,105
+packages/theme-ui/src/overlays/ConfirmDialogView.tsx
+  s_bb2593b2df3a72::t_e9eb2dd3dc714e 41
+  s_bb2593b2df3a72::t_5c967d81c27b48 28
+  s_bb2593b2df3a72::t_9009bbbb6974da 13
+  s_bb2593b2df3a72::t_99fa202766ec65 94-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "38823ab6be910404424f271ca6a5cc5cd4cc0e6e",
+  "prompts": {},
+  "sessions": {
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
