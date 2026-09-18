@@ -1,0 +1,51 @@
+packages/plugins/plugin-sdk/src/official.ts
+  s_bb2593b2df3a72::t_c2ded0ff6994b6 415-443,451-452
+  s_bb2593b2df3a72::t_07e641cbba738c 741-747
+.github/release-notes/v0.5.58.md
+  s_bb2593b2df3a72::t_cd3b2473a09d72 12
+packages/plugins/plugin-sdk/package.json
+  s_bb2593b2df3a72::t_9864af50904c72 3
+packages/plugins/plugin-sdk/src/index.ts
+  s_bb2593b2df3a72::t_d3add31a75fa77 226
+  s_bb2593b2df3a72::t_7ae99f78056428 216-218
+packages/plugins/plugin-sdk/test/public-api.test.ts
+  s_bb2593b2df3a72::t_c4b9ecd2288144 8-9,11
+  s_bb2593b2df3a72::t_0d89b0d99444e4 52
+  s_bb2593b2df3a72::t_bf3d47b031045b 48-51,53-60
+docs/plugin/conversation-and-agent.md
+  s_bb2593b2df3a72::t_d3618f06364fed 82-104
+apps/desktop/src/main/plugins/plugin-protocol.ts
+  s_bb2593b2df3a72::t_d111e8a60ce183 123
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-sessions.test.ts
+  s_bb2593b2df3a72::t_d6059bedd6d43d 101-139,191
+  s_bb2593b2df3a72::t_7ff0ca7567569d 183-190
+  s_bb2593b2df3a72::t_8f1058ab24ebc5 140-182
+packages/plugins/plugin-sdk/CHANGELOG.md
+  s_bb2593b2df3a72::t_af2c9bd8a25925 7-8
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-sessions.ts
+  s_bb2593b2df3a72::t_54249d77cc44d8 46-47,50-53,57-65
+  s_bb2593b2df3a72::t_329644d274d846 11
+  s_bb2593b2df3a72::t_6f2fa46a622b78 134
+  s_bb2593b2df3a72::t_cb39f0b7753e43 54-56
+  s_bb2593b2df3a72::t_e3ae94ff28126a 3-10
+  s_bb2593b2df3a72::t_e85317ef894aa2 126,129,131-133,135-145
+  s_bb2593b2df3a72::t_0db806cf14c2f2 48-49
+bun.lock
+  s_bb2593b2df3a72::t_9058f36f089f94 570
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "ef629b8d12b3a5124fa88be69928cd8ab21c8d35",
+  "prompts": {},
+  "sessions": {
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
