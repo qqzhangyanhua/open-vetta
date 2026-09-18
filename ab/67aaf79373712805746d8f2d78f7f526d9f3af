@@ -1,0 +1,180 @@
+apps/desktop/src/renderer/domains/project/hooks/useProjectsPanelMenusModel.test.tsx
+  s_bb2593b2df3a72::t_dd9e3186dc3edb 64-75
+  s_bb2593b2df3a72::t_077ce05ac78cd8 2
+  s_bb2593b2df3a72::t_c4083eb87d1ee9 31-34,36
+apps/desktop/src/renderer/domains/project/hooks/session-open-target.test.ts
+  s_bb2593b2df3a72::t_36224ec494c3c2 24-30
+  s_bb2593b2df3a72::t_7bd7103863216d 44-48
+packages/coding-agent/test/sessions/external/external-session-catalog.test.ts
+  s_bb2593b2df3a72::t_13f529475b02f3 202
+  s_bb2593b2df3a72::t_c5715b54f74c89 2-82,92-201,203-213,219-224
+  s_bb2593b2df3a72::t_7ecab2aec544cd 84-91
+  s_bb2593b2df3a72::t_0370b9bc6df760 1
+  s_bb2593b2df3a72::t_d46a0883f30939 83,214-218
+apps/desktop/src/renderer/domains/project/hooks/useSidebarFilterSelectModel.ts
+  s_bb2593b2df3a72::t_a02c746ef0c686 59,61,68,75,83
+  s_bb2593b2df3a72::t_7c0d546cb5497a 69-74
+  s_bb2593b2df3a72::t_76aabce7029697 25-29
+  s_bb2593b2df3a72::t_632ca7ff4ab5f5 5
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultConversationSection.test.tsx
+  s_bb2593b2df3a72::t_529ad73c3d7ea7 50
+  s_bb2593b2df3a72::t_ba7a71303ce68b 84-89
+packages/coding-agent/src/sessions/external/catalog.ts
+  s_bb2593b2df3a72::t_ae05f3122dca17 1-151
+packages/runtime-desktop/src/index.ts
+  s_bb2593b2df3a72::t_0ba415c34a90ed 3
+packages/coding-agent/src/sessions/external/index.ts
+  s_bb2593b2df3a72::t_7526706dcb7f44 2-5,11-20
+  s_bb2593b2df3a72::t_7c0d546cb5497a 1,10
+packages/runtime-desktop/src/external-session-format.ts
+  s_bb2593b2df3a72::t_03c0d7d5128099 1-25
+apps/desktop/src/renderer/shared/store/project-atoms.ts
+  s_bb2593b2df3a72::t_eca68f18355a89 31-35
+  s_bb2593b2df3a72::t_bfafd5c7059186 249
+  s_bb2593b2df3a72::t_7d1f2e84b24adc 233-234
+  s_bb2593b2df3a72::t_53d1e2533febfa 72-75
+  s_bb2593b2df3a72::t_47111f21715245 211-212
+apps/desktop/src/renderer/domains/project/hooks/external-session-caption.ts
+  s_bb2593b2df3a72::t_f6870cf7ec4e44 1-33
+apps/desktop/src/main/agent-runtime/composition.ts
+  s_bb2593b2df3a72::t_7c0d546cb5497a 13,63
+  s_bb2593b2df3a72::t_274654159616cd 129
+  s_bb2593b2df3a72::t_d677f71320bb4a 269-271
+  s_bb2593b2df3a72::t_1a33d285a85ac9 268
+apps/desktop/src/renderer/domains/project/hooks/default-session-list-tag-filter.test.tsx
+  s_bb2593b2df3a72::t_bc14acae19ad81 83-114,116-149
+  s_bb2593b2df3a72::t_46c426e3717226 115
+apps/desktop/src/renderer/domains/project/hooks/useSidebarFilterSelectModel.test.tsx
+  s_bb2593b2df3a72::t_575ec713f927f3 2-10,12-14,20-30
+apps/desktop/src/renderer/domains/settings/components/useExternalSessionImportSettingsModel.ts
+  s_bb2593b2df3a72::t_18ad01bb78ed77 27-28
+  s_bb2593b2df3a72::t_48d3c52e7e22db 36-38,41
+  s_bb2593b2df3a72::t_35d1d7858b9df8 1-2
+  s_bb2593b2df3a72::t_e17a2bd6eedf16 60
+  s_bb2593b2df3a72::t_313aa013840954 63
+  s_bb2593b2df3a72::t_d46a0883f30939 46-54
+  s_bb2593b2df3a72::t_f485a3116e8824 44
+packages/runtime-core/src/index.ts
+  s_bb2593b2df3a72::t_8d2ac5eb0e4754 29
+apps/desktop/src/renderer/shared/store/default-conversation-filter.test.ts
+  s_bb2593b2df3a72::t_254cc2bb7e2907 18-20
+  s_bb2593b2df3a72::t_d46a0883f30939 21-25
+  s_bb2593b2df3a72::t_a870cf7cea9545 26-27
+apps/desktop/src/renderer/domains/project/hooks/useProjects.ts
+  s_bb2593b2df3a72::t_49793a5a5d0cfd 75-78
+apps/desktop/src/main/external-sessions/resolve-grok-sessions-list-directory.ts
+  s_bb2593b2df3a72::t_83ad94b03a495e 1-9,26-33
+  s_bb2593b2df3a72::t_e9994242673521 10-25
+packages/coding-agent/test/public-api-subpaths.test.ts
+  s_bb2593b2df3a72::t_9a59c4ed15489a 110
+  s_bb2593b2df3a72::t_3b9741ca86d74d 19-22
+apps/desktop/src/renderer/domains/project/hooks/useDefaultSessionListModel.ts
+  s_bb2593b2df3a72::t_08b44098e460a0 195
+  s_bb2593b2df3a72::t_77943a92acc2dd 272
+  s_bb2593b2df3a72::t_5e1bf87d7e397f 213
+  s_bb2593b2df3a72::t_d79c7a526f40ce 209-210
+  s_bb2593b2df3a72::t_662430de44bd17 175
+  s_bb2593b2df3a72::t_8075dd32110d98 145-146
+  s_bb2593b2df3a72::t_1e90aa79dafb6d 58
+  s_bb2593b2df3a72::t_7c0d546cb5497a 24,248-256
+  s_bb2593b2df3a72::t_ff1a592b73f31b 242,244-245,247
+packages/theme-ui/src/project/DefaultSessionRowView.tsx
+  s_bb2593b2df3a72::t_9740fcd00a2f80 123-125
+  s_bb2593b2df3a72::t_a630aa91f81fa0 22-23
+  s_bb2593b2df3a72::t_913577df896ac7 47
+apps/desktop/src/main/conversations/desktop-conversation-service.test.ts
+  s_bb2593b2df3a72::t_5dbb8b979fb9f6 15-27
+  s_bb2593b2df3a72::t_33e4b095e4812c 104-107
+  s_bb2593b2df3a72::t_0d209c596389b6 244-275
+  s_bb2593b2df3a72::t_fe462eb42acfe9 12-14,28-30,47,53
+  s_bb2593b2df3a72::t_df9ae12f1c2dfd 44-46,48-52,54,56
+apps/desktop/src/renderer/domains/project/hooks/useDefaultConversationSectionModel.ts
+  s_bb2593b2df3a72::t_abedac9340496e 25
+apps/desktop/src/renderer/domains/project/hooks/useDefaultSessionRowModel.ts
+  s_bb2593b2df3a72::t_c5c1ed4ec1939e 36
+  s_bb2593b2df3a72::t_7eeb572910f19d 41
+  s_bb2593b2df3a72::t_6d97cab89e8dfb 5
+packages/coding-agent/src/sessions/external/grok-summary.ts
+  s_bb2593b2df3a72::t_7c0d546cb5497a 29-32,41-43
+  s_bb2593b2df3a72::t_87d33ec54e0aa9 1-28,33-40,44-112
+packages/coding-agent/src/public-api/external-sessions.ts
+  s_bb2593b2df3a72::t_7c0d546cb5497a 12-13
+  s_bb2593b2df3a72::t_f2da6ce73ab7aa 1-7,14-30
+packages/runtime-desktop/src/external-session-host.ts
+  s_bb2593b2df3a72::t_710994f43c7680 2-9,11-22,28-33
+  s_bb2593b2df3a72::t_988fc60a6774f1 1
+  s_bb2593b2df3a72::t_7c0d546cb5497a 10,23-27
+scripts/quality/check-package-boundaries.mjs
+  s_bb2593b2df3a72::t_ee8dc5df040243 1314-1315
+  s_bb2593b2df3a72::t_cdc9ca520a84be 1313,1316-1319
+apps/desktop/src/main/external-sessions/resolve-grok-sessions-list-directory.test.ts
+  s_bb2593b2df3a72::t_d86270a3297a77 38-50
+  s_bb2593b2df3a72::t_beb0d960bdc6e7 1
+  s_bb2593b2df3a72::t_faacd98e1b4621 2-37,51-72
+apps/desktop/src/main/conversations/desktop-conversation-service.ts
+  s_bb2593b2df3a72::t_54aa94a73f6526 392-394
+  s_bb2593b2df3a72::t_a93078326f3a30 23-26
+  s_bb2593b2df3a72::t_7c0d546cb5497a 4
+  s_bb2593b2df3a72::t_45dd22538a7d1b 395-398
+  s_bb2593b2df3a72::t_6e076edc2e35eb 22
+  s_bb2593b2df3a72::t_b00ca0bb02a9b0 391,399
+apps/desktop/src/renderer/domains/project/hooks/useProjectsPanelMenusModel.ts
+  s_bb2593b2df3a72::t_bdf8fb4b7ba034 28-29,31
+apps/desktop/src/main/external-sessions/desktop-external-session-format.ts
+  s_bb2593b2df3a72::t_48279cbbc92913 1-11
+.github/release-notes/v0.5.58.md
+  s_bb2593b2df3a72::t_03a9d9c064dc9c 10
+apps/desktop/src/shared/i18n/locales/zh/project.json
+  s_bb2593b2df3a72::t_adff9fceec3338 96-97
+  s_bb2593b2df3a72::t_86ba24e2d3939a 43,46-47
+  s_bb2593b2df3a72::t_b2088f9771e275 58-62
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/useProjectsPanelModel.ts
+  s_bb2593b2df3a72::t_f26fdcbfea9f06 170-175
+  s_bb2593b2df3a72::t_c411b21d9f0a2b 107
+  s_bb2593b2df3a72::t_02e9ee5e7f3339 532-535
+  s_bb2593b2df3a72::t_518a783641617b 523-527
+  s_bb2593b2df3a72::t_9190bd24d14d75 72-73
+  s_bb2593b2df3a72::t_302e097043adc3 14-15
+  s_bb2593b2df3a72::t_7c1afe3c8680ad 522
+packages/runtime-desktop/src/external-session-format.test.ts
+  s_bb2593b2df3a72::t_eba8ce8e3901d6 28
+  s_bb2593b2df3a72::t_d6a5a287ca4d16 39
+  s_bb2593b2df3a72::t_2a12439a1cffe7 1-27,29-38,40-55
+packages/runtime-desktop/vitest.config.ts
+  s_bb2593b2df3a72::t_fb2d97bb1d7f9e 50-54
+  s_bb2593b2df3a72::t_efc982904241bb 49
+apps/desktop/src/renderer/domains/conversation/hooks/useAppInit.ts
+  s_bb2593b2df3a72::t_e6ad2f5f1d1514 25-26
+  s_bb2593b2df3a72::t_5c6b66e8076ccb 9-10
+  s_bb2593b2df3a72::t_b85c6d65ae8bff 94-95
+  s_bb2593b2df3a72::t_8be1a1d15f904b 54-55
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultSessionList.tsx
+  s_bb2593b2df3a72::t_e673d52775e3bb 51
+apps/desktop/src/renderer/domains/project/hooks/stableSessionViews.ts
+  s_bb2593b2df3a72::t_d4ff1300be39cc 47
+  s_bb2593b2df3a72::t_c376f5546d33a7 21
+packages/runtime-core/src/contracts.ts
+  s_bb2593b2df3a72::t_92cd428363555d 342-347,363-366
+packages/coding-agent/src/sessions/external/host-contracts.ts
+  s_bb2593b2df3a72::t_4ce7c52e628cb9 1-5,8-9,11,13-17
+apps/desktop/src/shared/i18n/locales/en/project.json
+  s_bb2593b2df3a72::t_54488533eb5318 43,46-47
+  s_bb2593b2df3a72::t_d303b1e54e4ad4 58-62
+  s_bb2593b2df3a72::t_ae1de6647c5c89 96-97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "ab67aaf79373712805746d8f2d78f7f526d9f3af",
+  "prompts": {},
+  "sessions": {
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
