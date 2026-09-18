@@ -1,0 +1,98 @@
+docs/plugin/conversation-and-agent.md
+  s_bb2593b2df3a72::t_cd18c72f42c23b 83-84
+  s_bb2593b2df3a72::t_bd42685284cdd7 25,70
+AGENTS.md
+  s_bb2593b2df3a72::t_ecad9e3c5dd53f 293-306
+CONTRIBUTING.md
+  s_bb2593b2df3a72::t_23dcb133c4dc72 20
+CONTRIBUTING.zh-CN.md
+  s_bb2593b2df3a72::t_0ec414390226e7 20
+apps/desktop/.env.example
+  s_bb2593b2df3a72::t_e049063e76911b 40,43
+apps/desktop/src/main/abilities/open-marketplace/official-marketplace-source.ts
+  s_bb2593b2df3a72::t_913612adef1a06 10
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-host-apis.ts
+  s_bb2593b2df3a72::t_36dc8cfb573411 48-51
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-host-bridge.team-conversation.test.ts
+  s_bb2593b2df3a72::t_c6efc7865bca7c 15-17,110-125
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-host-bridge.ts
+  s_bb2593b2df3a72::t_090930982e78b7 783-791
+apps/docs-site/content/docs/en/product/abilities.mdx
+  s_bb2593b2df3a72::t_d34a8342ab8c69 80
+apps/docs-site/content/docs/product/abilities.mdx
+  s_bb2593b2df3a72::t_5a1f2e8adeb26d 81
+bun.lock
+  s_bb2593b2df3a72::t_b08276a58c70bb 473-492,2738-2739,5794-5797,6712-6713
+docs/agents/domain.md
+  s_bb2593b2df3a72::t_3f1670216f9dd8 1-53
+docs/agents/issue-tracker.md
+  s_bb2593b2df3a72::t_810ff832ea7aa7 1-45
+docs/agents/triage-labels.md
+  s_bb2593b2df3a72::t_83328d25f9a8ab 1-15
+docs/desktop/build-modes.en.md
+  s_bb2593b2df3a72::t_c0d4bcc3cd8e90 211
+docs/desktop/build-modes.md
+  s_bb2593b2df3a72::t_d2e61a17f9a8b3 206
+docs/plugin/README.md
+  s_bb2593b2df3a72::t_7d2d35f5928496 73
+docs/plugin/permissions.md
+  s_bb2593b2df3a72::t_622b5803936166 53
+packages/plugins/externals/github-issue-board/.gitignore
+  s_bb2593b2df3a72::t_330b3f6025d40a 1-3
+packages/plugins/externals/github-issue-board/locales/en.json
+  s_bb2593b2df3a72::t_b3dd91b60f7902 1-32
+packages/plugins/externals/github-issue-board/locales/zh.json
+  s_bb2593b2df3a72::t_7195f11652a763 1-32
+packages/plugins/externals/github-issue-board/package.json
+  s_bb2593b2df3a72::t_ef4a11cf150bee 1-27
+packages/plugins/externals/github-issue-board/plugin.json
+  s_bb2593b2df3a72::t_8f819375d8bc4c 1-26
+packages/plugins/externals/github-issue-board/src/BoardView.tsx
+  s_bb2593b2df3a72::t_ca323c4fcd3045 1-258
+packages/plugins/externals/github-issue-board/src/github-issues.ts
+  s_bb2593b2df3a72::t_c5690d9ce68122 1-122
+packages/plugins/externals/github-issue-board/src/index.tsx
+  s_bb2593b2df3a72::t_da6943f17bdf70 1-25
+packages/plugins/externals/github-issue-board/src/run-task.ts
+  s_bb2593b2df3a72::t_04a1060f42433b 1-87
+packages/plugins/externals/github-issue-board/src/state.ts
+  s_bb2593b2df3a72::t_ad1e8a715c7fe5 1-181
+packages/plugins/externals/github-issue-board/src/style.css
+  s_bb2593b2df3a72::t_9f0dbb3d743ced 1-12
+packages/plugins/externals/github-issue-board/test/board-view.dom.test.tsx
+  s_bb2593b2df3a72::t_30f9629c2e822e 1-381
+packages/plugins/externals/github-issue-board/test/github-issues.test.ts
+  s_bb2593b2df3a72::t_6744c96e7a4702 1-116
+packages/plugins/externals/github-issue-board/test/run-task.test.ts
+  s_bb2593b2df3a72::t_92649757f8ae08 1-139
+packages/plugins/externals/github-issue-board/tsconfig.json
+  s_bb2593b2df3a72::t_d62b9d016ffae4 1-18
+packages/plugins/externals/github-issue-board/vite.config.ts
+  s_bb2593b2df3a72::t_a2ec0fd80f6b1c 1-17
+packages/plugins/externals/github-issue-board/vitest.config.ts
+  s_bb2593b2df3a72::t_b68ccb6f6b38d3 1-7
+packages/plugins/plugin-sdk/src/conversation.ts
+  s_bb2593b2df3a72::t_4dcabd3f1b4221 66-72,93-97
+packages/plugins/plugin-sdk/src/index.ts
+  s_bb2593b2df3a72::t_d5d0269a4adafc 54
+.github/release-notes/v0.5.58.md
+  s_bb2593b2df3a72::t_94062631b0f7eb 15-18
+packages/plugins/plugin-sdk/CHANGELOG.md
+  s_bb2593b2df3a72::t_356f71300470b4 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "1b9be90769a2a5c888986b4253c9daff45c90bbb",
+  "prompts": {},
+  "sessions": {
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
