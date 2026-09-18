@@ -1,0 +1,67 @@
+packages/plugins/presets/github-issue-board/plugin.json
+  s_4ed6706b41d9d0::t_ac97451c158c57 22
+  s_4ed6706b41d9d0::t_12a7472160797a 18
+packages/plugins/presets/github-issue-board/test/board-view.dom.test.tsx
+  s_4ed6706b41d9d0::t_580bd83e5efd3a 76,111-123
+  s_4ed6706b41d9d0::t_5c6aa843b4a8da 10,42-43,46-47,63-69,75
+  s_4ed6706b41d9d0::t_fd999079411ace 422-455,504-506,509-521,524-528
+  s_4ed6706b41d9d0::t_881e759bb2e0e6 456-478,480-486,502-503
+  s_4ed6706b41d9d0::t_2d203138901c5e 507-508,522-523
+  s_4ed6706b41d9d0::t_e426aaa19a41fa 45,487-501
+  s_4ed6706b41d9d0::t_d46d082c4c3849 479
+  s_4ed6706b41d9d0::t_e8430086b3ea80 127-128,152,167,209-218,220,222
+packages/plugins/presets/github-issue-board/test/github-issues.test.ts
+  s_4ed6706b41d9d0::t_8a1adfa680fa9c 1-2,4,7
+  s_4ed6706b41d9d0::t_0c84b72ee1115e 150
+  s_4ed6706b41d9d0::t_a893e9c0226e40 120-149,151-189,206
+  s_4ed6706b41d9d0::t_4ceeedbce9656b 190-205
+.github/release-notes/v0.5.58.md
+  s_4ed6706b41d9d0::t_e1fb3eea95ab65 9
+  s_4ed6706b41d9d0::t_93aadd4b75a73e 12
+apps/desktop/src/renderer/styles.css
+  s_4ed6706b41d9d0::t_162c78e9570eb3 30
+packages/plugins/presets/github-issue-board/src/github-issues.ts
+  s_4ed6706b41d9d0::t_e76300850d7aff 111-117
+  s_4ed6706b41d9d0::t_a6b5d0350170bb 140
+  s_4ed6706b41d9d0::t_84341c927838f7 1,105-110,122-139,141-153,156-184
+  s_4ed6706b41d9d0::t_716ae3ea414f33 154-155
+apps/desktop/scripts/stage-system-plugins.node-test.mjs
+  s_4ed6706b41d9d0::t_9ea2a7d5ece9fd 14-18
+packages/plugins/tenants.json
+  s_4ed6706b41d9d0::t_0e396859351190 16,35
+packages/plugins/presets/github-issue-board/locales/zh.json
+  s_4ed6706b41d9d0::t_62b6cafcfc5797 27-28,33-35
+  s_4ed6706b41d9d0::t_60a2a04f044391 29
+packages/plugins/presets/github-issue-board/src/git-remote.ts
+  s_4ed6706b41d9d0::t_851b70d27560dc 1-54
+packages/plugins/presets/github-issue-board/src/BoardView.tsx
+  s_4ed6706b41d9d0::t_8715924a80620a 9
+  s_4ed6706b41d9d0::t_557325fd697f7f 98-114
+  s_4ed6706b41d9d0::t_174a183fd600a4 116
+  s_4ed6706b41d9d0::t_d6f41fea9f1ec9 122
+  s_4ed6706b41d9d0::t_7f33cb3efe6c08 3-6,31-36,64,95,208-212
+  s_4ed6706b41d9d0::t_3ec0c4cc93ca9e 117-119
+packages/plugins/presets/github-issue-board/locales/en.json
+  s_4ed6706b41d9d0::t_d9e83e75aca678 29
+  s_4ed6706b41d9d0::t_0b42171acbaa50 27-28,33-35
+packages/plugins/presets/github-issue-board/test/git-remote.test.ts
+  s_4ed6706b41d9d0::t_11a7151d0b8a61 1-90
+bun.lock
+  s_4ed6706b41d9d0::t_c71dbb2e14a696 742-761,2738
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "106916f9530068aa62bcd9b9dd2239dbd8f0b6b8",
+  "prompts": {},
+  "sessions": {
+    "s_4ed6706b41d9d0": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0b42a-b8b2-72ba-9d49-0a0b560fdecf",
+        "model": "grok-4.6"
+      },
+      "human_author": null
+    }
+  }
+}
