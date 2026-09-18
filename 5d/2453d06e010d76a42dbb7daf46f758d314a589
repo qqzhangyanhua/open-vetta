@@ -1,0 +1,76 @@
+packages/plugins/presets/github-issue-board/test/git-remote.test.ts
+  s_4ed6706b41d9d0::t_11a7151d0b8a61 1-90
+packages/plugins/presets/github-issue-board/src/github-issues.ts
+  s_4ed6706b41d9d0::t_84341c927838f7 1-110,119-139,141-153,156-186,195,197-198
+  s_4ed6706b41d9d0::t_e76300850d7aff 111-117
+  s_4ed6706b41d9d0::t_716ae3ea414f33 154-155
+  s_4ed6706b41d9d0::t_a6b5d0350170bb 140
+packages/plugins/presets/github-issue-board/locales/en.json
+  s_4ed6706b41d9d0::t_d9e83e75aca678 29
+  s_4ed6706b41d9d0::t_0b42171acbaa50 27-28,33-35
+packages/plugins/tenants.json
+  s_4ed6706b41d9d0::t_0e396859351190 16,35
+packages/plugins/presets/github-issue-board/test/github-issues.test.ts
+  s_4ed6706b41d9d0::t_8a1adfa680fa9c 1-7
+  s_4ed6706b41d9d0::t_a893e9c0226e40 38,47-48,51,66,90,100,106,108,114,116,119-149,151-189,206
+  s_4ed6706b41d9d0::t_4ceeedbce9656b 71,81,89,118,190-205
+  s_4ed6706b41d9d0::t_0c84b72ee1115e 150
+packages/plugins/presets/github-issue-board/src/BoardView.tsx
+  s_4ed6706b41d9d0::t_d6f41fea9f1ec9 122
+  s_4ed6706b41d9d0::t_8715924a80620a 9
+  s_4ed6706b41d9d0::t_174a183fd600a4 116
+  s_4ed6706b41d9d0::t_3ec0c4cc93ca9e 117-119
+  s_4ed6706b41d9d0::t_7f33cb3efe6c08 3-7,15,29-95,208-212
+  s_4ed6706b41d9d0::t_557325fd697f7f 98-114,121,155
+.github/release-notes/v0.5.58.md
+  s_e9dc56c274d99e::t_aaccafd4f7314b 36
+  s_4ed6706b41d9d0::t_93aadd4b75a73e 12
+  s_4ed6706b41d9d0::t_e1fb3eea95ab65 9
+apps/desktop/src/renderer/styles.css
+  s_4ed6706b41d9d0::t_162c78e9570eb3 30
+packages/plugins/presets/github-issue-board/src/git-remote.ts
+  s_4ed6706b41d9d0::t_851b70d27560dc 1-54
+packages/plugins/presets/github-issue-board/test/board-view.dom.test.tsx
+  s_4ed6706b41d9d0::t_e426aaa19a41fa 45,235,238,242,248-249,260,271-273,298-300,314-316,334-336,376-377,380,394,403,412-414,420,487-501
+  s_4ed6706b41d9d0::t_580bd83e5efd3a 76-123
+  s_4ed6706b41d9d0::t_d46d082c4c3849 479
+  s_4ed6706b41d9d0::t_2d203138901c5e 507-508,522-523
+  s_4ed6706b41d9d0::t_e8430086b3ea80 127-222,224,228
+  s_4ed6706b41d9d0::t_5c6aa843b4a8da 10-43,46-75
+  s_4ed6706b41d9d0::t_fd999079411ace 223,244,264,267,285,289,294,305,310,321,327,330,341,346,352,354,358-366,373-375,381,387,390,397-400,411,417,421-455,504-506,509-521,524-528
+  s_4ed6706b41d9d0::t_881e759bb2e0e6 293,383,410,456-478,480-486,502-503
+packages/plugins/presets/github-issue-board/plugin.json
+  s_4ed6706b41d9d0::t_12a7472160797a 18
+  s_4ed6706b41d9d0::t_ac97451c158c57 22
+apps/desktop/scripts/stage-system-plugins.node-test.mjs
+  s_4ed6706b41d9d0::t_9ea2a7d5ece9fd 14-18
+packages/plugins/presets/github-issue-board/locales/zh.json
+  s_4ed6706b41d9d0::t_62b6cafcfc5797 27-28,33-35
+  s_4ed6706b41d9d0::t_60a2a04f044391 29
+bun.lock
+  s_4ed6706b41d9d0::t_c71dbb2e14a696 742-761,2738
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "5d2453d06e010d76a42dbb7daf46f758d314a589",
+  "prompts": {},
+  "sessions": {
+    "s_4ed6706b41d9d0": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0b42a-b8b2-72ba-9d49-0a0b560fdecf",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_e9dc56c274d99e": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0b3f5-b39f-7830-8d6f-14b8472b0c31",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
