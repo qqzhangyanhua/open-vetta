@@ -1,0 +1,256 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 9-14,51
+apps/desktop/src/main/agent-runtime/composition.ts
+  h_4132837b09b7e7 13,63,129,264,269-272
+apps/desktop/src/main/config/desktop-config-store.test.ts
+  h_4132837b09b7e7 12-15,58-78
+apps/desktop/src/main/config/desktop-config-store.ts
+  h_4132837b09b7e7 48-49,75-81,109,201-215,275
+apps/desktop/src/main/conversations/desktop-conversation-service.test.ts
+  h_4132837b09b7e7 12-30,44-54,56,104-107,244-275
+apps/desktop/src/main/conversations/desktop-conversation-service.ts
+  h_4132837b09b7e7 4,22-26,391-399
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from-host.ts
+  h_4132837b09b7e7 1-56
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.test.ts
+  h_4132837b09b7e7 1-315
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.ts
+  h_4132837b09b7e7 1-253
+apps/desktop/src/main/external-sessions/desktop-external-session-format.ts
+  h_4132837b09b7e7 1-11
+apps/desktop/src/main/external-sessions/grok-session-locator.test.ts
+  h_4132837b09b7e7 1-40
+apps/desktop/src/main/external-sessions/grok-session-locator.ts
+  h_4132837b09b7e7 1-36
+apps/desktop/src/main/external-sessions/resolve-grok-sessions-list-directory.test.ts
+  h_4132837b09b7e7 1-72
+apps/desktop/src/main/external-sessions/resolve-grok-sessions-list-directory.ts
+  h_4132837b09b7e7 1-33
+apps/desktop/src/main/ipc/fs.ts
+  h_4132837b09b7e7 43,51,54,99-100,117,406,439-442
+apps/desktop/src/main/ipc/session.ts
+  h_4132837b09b7e7 63-66,240-241,1689-1716
+apps/desktop/src/main/plugins/plugin-protocol.ts
+  h_4132837b09b7e7 123
+apps/desktop/src/preload/api-types/config.ts
+  h_4132837b09b7e7 50-58
+apps/desktop/src/preload/api-types/session.ts
+  h_4132837b09b7e7 277-286,288-317
+apps/desktop/src/preload/apis/session.test.ts
+  h_4132837b09b7e7 84-108
+apps/desktop/src/preload/apis/session.ts
+  h_4132837b09b7e7 84-85,183-184
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.external.test.tsx
+  h_4132837b09b7e7 1-79
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.test.tsx
+  h_4132837b09b7e7 29-36,51-52
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.tsx
+  h_4132837b09b7e7 12,18-19,26-29,52-71,103-106,138
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/shared/parse-tool.row.test.ts
+  h_4132837b09b7e7 67-77
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/shared/parse-tool.ts
+  h_4132837b09b7e7 211-230
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.tsx
+  h_4132837b09b7e7 24-28,69-71
+apps/desktop/src/renderer/domains/conversation/external-history-display.ts
+  h_4132837b09b7e7 1-12
+apps/desktop/src/renderer/domains/conversation/hooks/useAppInit.ts
+  h_4132837b09b7e7 9-10,25-26,54-55,94-95
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerContinueFrom.test.tsx
+  h_4132837b09b7e7 1-205
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerContinueFrom.ts
+  h_4132837b09b7e7 1-216
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerPageModel.test.tsx
+  h_4132837b09b7e7 1-114
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerPageModel.ts
+  h_4132837b09b7e7 10-11,15-19,45-46,60-61,92,97-98,102-103,108,116,131-132,138-169
+apps/desktop/src/renderer/domains/conversation/services/chat-service-error.test.ts
+  h_4132837b09b7e7 138-199
+apps/desktop/src/renderer/domains/conversation/services/chat-service.ts
+  h_4132837b09b7e7 23,585-601,765-766
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-sessions.test.ts
+  h_4132837b09b7e7 101-191
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-sessions.ts
+  h_4132837b09b7e7 3-11,46-65,126,129,131-145
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultConversationSection.test.tsx
+  h_4132837b09b7e7 50,84-89
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultSessionList.tsx
+  h_4132837b09b7e7 51
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/useProjectsPanelModel.ts
+  h_4132837b09b7e7 14-15,72-73,107,170-175,522-527,532-535
+apps/desktop/src/renderer/domains/project/hooks/default-session-list-tag-filter.test.tsx
+  h_4132837b09b7e7 83-149
+apps/desktop/src/renderer/domains/project/hooks/external-session-caption.ts
+  h_4132837b09b7e7 1-33
+apps/desktop/src/renderer/domains/project/hooks/session-open-target.test.ts
+  h_4132837b09b7e7 24-30,44-48
+apps/desktop/src/renderer/domains/project/hooks/sidebar-conversation-selection.test.tsx
+  h_4132837b09b7e7 225-267
+apps/desktop/src/renderer/domains/project/hooks/stableSessionViews.ts
+  h_4132837b09b7e7 21,47
+apps/desktop/src/renderer/domains/project/hooks/useDefaultConversationSectionModel.ts
+  h_4132837b09b7e7 25
+apps/desktop/src/renderer/domains/project/hooks/useDefaultSessionListModel.ts
+  h_4132837b09b7e7 24,58,145-146,175,195,209-210,213,242,244-245,247-256,272
+apps/desktop/src/renderer/domains/project/hooks/useDefaultSessionRowModel.ts
+  h_4132837b09b7e7 5,36,41
+apps/desktop/src/renderer/domains/project/hooks/useProjects.ts
+  h_4132837b09b7e7 75-78
+apps/desktop/src/renderer/domains/project/hooks/useProjectsPanelMenusModel.test.tsx
+  h_4132837b09b7e7 2,31-34,36,64-75
+apps/desktop/src/renderer/domains/project/hooks/useProjectsPanelMenusModel.ts
+  h_4132837b09b7e7 28-29,31
+apps/desktop/src/renderer/domains/project/hooks/useSidebarFilterSelectModel.test.tsx
+  h_4132837b09b7e7 2-10,12-14,20-30
+apps/desktop/src/renderer/domains/project/hooks/useSidebarFilterSelectModel.ts
+  h_4132837b09b7e7 5,25-29,59,61,68-75,83
+apps/desktop/src/renderer/domains/settings/components/AgentSettings.tsx
+  h_4132837b09b7e7 4,12
+apps/desktop/src/renderer/domains/settings/components/AgentSettingsView.tsx
+  h_4132837b09b7e7 1,7,9-11,13,18,22-27,100-101
+apps/desktop/src/renderer/domains/settings/components/ExternalSessionImportSettingsSection.test.tsx
+  h_4132837b09b7e7 1-62
+apps/desktop/src/renderer/domains/settings/components/ExternalSessionImportSettingsSection.tsx
+  h_4132837b09b7e7 1-45
+apps/desktop/src/renderer/domains/settings/components/useExternalSessionImportSettingsModel.test.tsx
+  h_4132837b09b7e7 1-122
+apps/desktop/src/renderer/domains/settings/components/useExternalSessionImportSettingsModel.ts
+  h_4132837b09b7e7 1-96
+apps/desktop/src/renderer/domains/settings/registry.ts
+  h_4132837b09b7e7 134
+apps/desktop/src/renderer/shared/hooks/useConfirmDialogModel.test.tsx
+  h_4132837b09b7e7 1-66
+apps/desktop/src/renderer/shared/hooks/useConfirmDialogModel.ts
+  h_4132837b09b7e7 14-16,20-28,49-51,66,74,80
+apps/desktop/src/renderer/shared/store/chat-atoms.ts
+  h_4132837b09b7e7 34
+apps/desktop/src/renderer/shared/store/default-conversation-filter.test.ts
+  h_4132837b09b7e7 18-27
+apps/desktop/src/renderer/shared/store/project-atoms.ts
+  h_4132837b09b7e7 31-35,72-75,211-212,233-234,249
+apps/desktop/src/renderer/shared/store/ui-atoms.ts
+  h_4132837b09b7e7 97,105
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  h_4132837b09b7e7 807-814,828-852
+apps/desktop/src/shared/i18n/locales/en/project.json
+  h_4132837b09b7e7 43,46-47,58-62,96-97
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  h_4132837b09b7e7 613-621,1163
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  h_4132837b09b7e7 807-814,828-852
+apps/desktop/src/shared/i18n/locales/zh/project.json
+  h_4132837b09b7e7 43,46-47,58-62,96-97
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  h_4132837b09b7e7 613-621,1163
+apps/desktop/tsconfig.json
+  h_4132837b09b7e7 50-52
+apps/desktop/vitest.config.ts
+  h_4132837b09b7e7 88-91
+bun.lock
+  h_4132837b09b7e7 570
+docs/adr/0119-external-sessions-are-read-only-format.md
+  h_4132837b09b7e7 1-28
+docs/dev/quality-gates.md
+  h_4132837b09b7e7 125
+docs/plugin/conversation-and-agent.md
+  h_4132837b09b7e7 85-107
+packages/coding-agent/AGENTS.md
+  h_4132837b09b7e7 40
+packages/coding-agent/package.json
+  h_4132837b09b7e7 28-31
+packages/coding-agent/src/public-api/external-sessions.ts
+  h_4132837b09b7e7 1-54
+packages/coding-agent/src/sessions/external/catalog.ts
+  h_4132837b09b7e7 1-151
+packages/coding-agent/src/sessions/external/continue-from-briefing.ts
+  h_4132837b09b7e7 1-94
+packages/coding-agent/src/sessions/external/continue-from-seed.ts
+  h_4132837b09b7e7 1-57
+packages/coding-agent/src/sessions/external/continue-from.ts
+  h_4132837b09b7e7 1-237
+packages/coding-agent/src/sessions/external/grok-conversation.ts
+  h_4132837b09b7e7 1-341
+packages/coding-agent/src/sessions/external/grok-session-directory.ts
+  h_4132837b09b7e7 1-15
+packages/coding-agent/src/sessions/external/grok-summary.ts
+  h_4132837b09b7e7 1-112
+packages/coding-agent/src/sessions/external/history-reader.ts
+  h_4132837b09b7e7 1-38
+packages/coding-agent/src/sessions/external/host-contracts.ts
+  h_4132837b09b7e7 1-19
+packages/coding-agent/src/sessions/external/index.ts
+  h_4132837b09b7e7 1-39
+packages/coding-agent/test/public-api-subpaths.test.ts
+  h_4132837b09b7e7 19-23,110-112,164-167
+packages/coding-agent/test/sessions/external/external-session-catalog.test.ts
+  h_4132837b09b7e7 1-228
+packages/coding-agent/test/sessions/external/external-session-continue-from.test.ts
+  h_4132837b09b7e7 1-468
+packages/coding-agent/test/sessions/external/external-session-history-reader.test.ts
+  h_4132837b09b7e7 1-438
+packages/coding-agent/test/sessions/external/grok-session-directory.test.ts
+  h_4132837b09b7e7 1-34
+packages/plugins/plugin-sdk/CHANGELOG.md
+  h_4132837b09b7e7 7
+packages/plugins/plugin-sdk/package.json
+  h_4132837b09b7e7 3
+packages/plugins/plugin-sdk/src/index.ts
+  h_4132837b09b7e7 217-219,227
+packages/plugins/plugin-sdk/src/official.ts
+  h_4132837b09b7e7 415-443,451-452,749-755
+packages/plugins/plugin-sdk/test/public-api.test.ts
+  h_4132837b09b7e7 8-9,11,48-60
+packages/runtime-core/src/contracts.ts
+  h_4132837b09b7e7 342-360,376-381
+packages/runtime-core/src/index.ts
+  h_4132837b09b7e7 28,30,41
+packages/runtime-desktop/src/external-session-format.test.ts
+  h_4132837b09b7e7 1-72
+packages/runtime-desktop/src/external-session-format.ts
+  h_4132837b09b7e7 1-33
+packages/runtime-desktop/src/external-session-host.ts
+  h_4132837b09b7e7 1-37
+packages/runtime-desktop/src/index.ts
+  h_4132837b09b7e7 3-4
+packages/runtime-desktop/vitest.config.ts
+  h_4132837b09b7e7 49-54
+packages/runtime-node/src/conversation/file-conversation-session-services.ts
+  h_4132837b09b7e7 9,202,214,218-233
+packages/runtime-node/src/host/index.ts
+  h_4132837b09b7e7 72
+packages/runtime-node/src/host/result-artifact-storage.test.ts
+  h_4132837b09b7e7 2,6,65-87
+packages/runtime-node/src/host/result-artifact-storage.ts
+  h_4132837b09b7e7 26,42,93-96
+packages/runtime-node/test/conversation/file-conversation-session-services.test.ts
+  h_4132837b09b7e7 13,58-105
+packages/theme-ui/src/chat/MessageBoundaryViews.tsx
+  h_4132837b09b7e7 3-19
+packages/theme-ui/src/chat/SessionViewerPageView.tsx
+  h_4132837b09b7e7 2,12-13,30,55-58
+packages/theme-ui/src/chat/index.ts
+  h_4132837b09b7e7 175,181
+packages/theme-ui/src/overlays/ConfirmDialogView.tsx
+  h_4132837b09b7e7 13,28,41,94-102
+packages/theme-ui/src/project/DefaultSessionRowView.tsx
+  h_4132837b09b7e7 22-23,47,123-125
+scripts/quality/check-coding-agent-architecture.mjs
+  h_4132837b09b7e7 12,181-188,212-216
+scripts/quality/check-package-boundaries.mjs
+  h_4132837b09b7e7 1313-1320,1329-1331,1351-1352,1356-1358,1363-1365,1394
+scripts/quality/coding-agent-architecture.test.mjs
+  h_4132837b09b7e7 292-320
+tsconfig.json
+  h_4132837b09b7e7 42-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "57b0037e3ff5544ff46d13ffe8f9b7ba15bea02e",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
