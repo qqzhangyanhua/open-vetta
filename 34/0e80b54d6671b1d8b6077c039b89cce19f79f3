@@ -1,0 +1,137 @@
+packages/runtime-core/src/contracts.ts
+  s_bb2593b2df3a72::t_0ceef85805a8fc 348-360,378-379
+apps/desktop/src/preload/api-types/session.ts
+  s_bb2593b2df3a72::t_cb50791dbcf41e 277-284,286-303
+packages/coding-agent/test/sessions/external/external-session-history-reader.test.ts
+  s_bb2593b2df3a72::t_4bfe17fbacb432 432-435
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.tsx
+  s_bb2593b2df3a72::t_8fc9fc422deca1 26-29
+  s_bb2593b2df3a72::t_5cd5ac1c8d6244 12
+  s_bb2593b2df3a72::t_084fc80657d518 52,71
+  s_bb2593b2df3a72::t_87107efbfca5a4 103-106
+  s_bb2593b2df3a72::t_f26f6bdbf6a46f 53-70
+.github/release-notes/v0.5.58.md
+  s_bb2593b2df3a72::t_fc9016dab39ec8 13
+packages/coding-agent/src/sessions/external/continue-from-briefing.ts
+  s_bb2593b2df3a72::t_c70288b36d6521 1-94
+packages/runtime-desktop/src/external-session-format.ts
+  s_bb2593b2df3a72::t_21637a7c29712d 25
+  s_bb2593b2df3a72::t_9b79aa990070a9 5,11
+packages/coding-agent/src/sessions/external/host-contracts.ts
+  s_bb2593b2df3a72::t_952c7a263e72db 17
+packages/coding-agent/src/sessions/external/continue-from.ts
+  s_bb2593b2df3a72::t_50700ec3ea6071 1-2,12
+  s_bb2593b2df3a72::t_21d39435c3d419 3-10,18-74,81-161
+  s_bb2593b2df3a72::t_f555433a6efe2c 11,13-17
+  s_bb2593b2df3a72::t_3ba4798c8eea7d 75-80
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.external.test.tsx
+  s_bb2593b2df3a72::t_705bf244bd5e7e 44
+  s_bb2593b2df3a72::t_dac7e20c410a58 71
+  s_bb2593b2df3a72::t_0e10f7deaad42c 21-28
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.ts
+  s_bb2593b2df3a72::t_5270580cae04d4 1,3-16,18-175
+  s_bb2593b2df3a72::t_f210c72dd5f420 2
+  s_bb2593b2df3a72::t_4e6cb19e6f9aa0 17
+packages/runtime-node/src/conversation/file-conversation-session-services.ts
+  s_bb2593b2df3a72::t_34e3cee1d9f413 214,221,223-231
+  s_bb2593b2df3a72::t_0d880053b5b66b 202
+  s_bb2593b2df3a72::t_97c6dd388ca496 222
+  s_bb2593b2df3a72::t_c8a78cfc3589ff 9
+  s_bb2593b2df3a72::t_b1393251c97891 218-220
+  s_bb2593b2df3a72::t_9c45e8393f451d 232-233
+packages/runtime-desktop/src/external-session-host.ts
+  s_bb2593b2df3a72::t_16af73f27eab76 31-34
+packages/coding-agent/src/sessions/external/continue-from-seed.ts
+  s_bb2593b2df3a72::t_70dc7258dc4a32 1,3,7-46,48-57
+  s_bb2593b2df3a72::t_2b39411ea2195c 2,4-6
+  s_bb2593b2df3a72::t_ab30217a42f377 47
+packages/coding-agent/src/public-api/external-sessions.ts
+  s_bb2593b2df3a72::t_1f023663fac6c2 9-15
+  s_bb2593b2df3a72::t_f555433a6efe2c 16
+packages/coding-agent/test/sessions/external/external-session-continue-from.test.ts
+  s_bb2593b2df3a72::t_929275e45c7712 1-4,7-19,21,23-29,31-57,65-70,72-82,84-92,94-111,113-135,139-153,155,157-159,161-178,180-194,199-208,210-279
+  s_bb2593b2df3a72::t_7036575cc4a348 209
+  s_bb2593b2df3a72::t_59f77384ff8a61 71
+  s_bb2593b2df3a72::t_6e294a93e3cb12 136-138,154,156
+  s_bb2593b2df3a72::t_a14a05bb7eb32d 6
+  s_bb2593b2df3a72::t_4f3c701602d8bf 30
+  s_bb2593b2df3a72::t_3bddd3d7f77dc7 5
+  s_bb2593b2df3a72::t_d1f5109b175d8c 112
+  s_bb2593b2df3a72::t_7db95a11e6c5da 179
+  s_bb2593b2df3a72::t_a098ab642dd3f7 64
+  s_bb2593b2df3a72::t_8a6d1fbed14e69 20,22
+  s_bb2593b2df3a72::t_da574d662477f3 93
+  s_bb2593b2df3a72::t_926e83c90fb0af 83,160
+  s_bb2593b2df3a72::t_7e84ee784eb465 58-63
+  s_bb2593b2df3a72::t_f7cf632e94a05c 195-198
+packages/runtime-core/src/index.ts
+  s_bb2593b2df3a72::t_7f6f3e39705003 41
+  s_bb2593b2df3a72::t_9b055d98d090fc 28
+packages/coding-agent/src/sessions/external/index.ts
+  s_bb2593b2df3a72::t_dba47dfcd1c864 7-13,17
+  s_bb2593b2df3a72::t_b8bd22d81f41f2 6
+packages/runtime-node/test/conversation/file-conversation-session-services.test.ts
+  s_bb2593b2df3a72::t_86b41f85c0c270 13
+  s_bb2593b2df3a72::t_0d5ce7b6b38fa6 58-105
+packages/runtime-desktop/src/index.ts
+  s_bb2593b2df3a72::t_14d00e1b7ee366 4
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.test.ts
+  s_bb2593b2df3a72::t_78876346c01d2a 62-65
+  s_bb2593b2df3a72::t_f8489a7072c6fa 1-8,11-42,44-61,66-106,108-178
+  s_bb2593b2df3a72::t_6249eb75229d76 9-10
+  s_bb2593b2df3a72::t_73efc5462b38ac 43,107
+apps/desktop/src/preload/apis/session.ts
+  s_bb2593b2df3a72::t_edb05ce01bf148 84
+  s_bb2593b2df3a72::t_af1091dc10a881 182
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerContinueFrom.test.tsx
+  s_bb2593b2df3a72::t_f9bfa25504e6ae 1-130
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_bb2593b2df3a72::t_50347a460c7d85 828-846
+packages/coding-agent/src/sessions/external/grok-conversation.ts
+  s_bb2593b2df3a72::t_f412e7c3891941 42-86
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_bb2593b2df3a72::t_b281af18b2bbe3 828-846
+scripts/quality/check-package-boundaries.mjs
+  s_bb2593b2df3a72::t_5ffcc5ac68dbe3 1316
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.test.tsx
+  s_bb2593b2df3a72::t_af0fee39e38b51 29-36
+  s_bb2593b2df3a72::t_4c943fb1b495ad 52
+apps/desktop/src/main/ipc/session.ts
+  s_bb2593b2df3a72::t_82fbab52a36eb4 63
+  s_bb2593b2df3a72::t_6fcfc9d16f07b0 1685-1698
+  s_bb2593b2df3a72::t_6cc0a3f4b95127 237
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerPageModel.test.tsx
+  s_bb2593b2df3a72::t_29d562a6bbd2bd 82
+  s_bb2593b2df3a72::t_9c23629ff04b0f 111
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerContinueFrom.ts
+  s_bb2593b2df3a72::t_f555433a6efe2c 2
+  s_bb2593b2df3a72::t_31fd1957e6329f 4-12,15-61,63-64,66-85,87-88,90-91,93-102,105-109,111-120,122,124-126,128-139
+  s_bb2593b2df3a72::t_30a638b169bec8 1,3,13-14,62,65,86,89,92,103-104,110,121,123,127
+packages/coding-agent/test/sessions/external/external-session-catalog.test.ts
+  s_bb2593b2df3a72::t_9e0484bfc540a6 222-225
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerPageModel.ts
+  s_bb2593b2df3a72::t_a14b2060212387 132
+  s_bb2593b2df3a72::t_16e64d6d3ff5aa 46
+  s_bb2593b2df3a72::t_31a10d8ea9f8ac 92
+  s_bb2593b2df3a72::t_d5e144da5cb975 98,103
+  s_bb2593b2df3a72::t_2d07cf99c176a2 140-150,154,156-158
+  s_bb2593b2df3a72::t_0b574fb15292dd 61
+apps/desktop/src/preload/apis/session.test.ts
+  s_bb2593b2df3a72::t_40a78a9b1f491f 84-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "340e80b54d6671b1d8b6077c039b89cce19f79f3",
+  "prompts": {},
+  "sessions": {
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
