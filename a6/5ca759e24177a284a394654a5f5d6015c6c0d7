@@ -1,0 +1,29 @@
+.github/release-notes/v0.5.58.md
+  s_bb2593b2df3a72::t_a94457daba03bd 9-10,12
+packages/plugins/externals/github-issue-board/locales/en.json
+  s_bb2593b2df3a72::t_c90fc0c2921cba 21-28
+packages/plugins/externals/github-issue-board/locales/zh.json
+  s_bb2593b2df3a72::t_1029fc059da771 21-28
+packages/plugins/externals/github-issue-board/src/BoardView.tsx
+  s_bb2593b2df3a72::t_af122104f6e745 3-8,11,20-28,38-39,44-46,53,58-63,83-112,137-167,178,185
+packages/plugins/externals/github-issue-board/src/github-issues.ts
+  s_bb2593b2df3a72::t_58f630ef6ed7c1 1-122
+packages/plugins/externals/github-issue-board/src/index.tsx
+  s_bb2593b2df3a72::t_e8d29b31e747b9 9-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "a65ca759e24177a284a394654a5f5d6015c6c0d7",
+  "prompts": {},
+  "sessions": {
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
