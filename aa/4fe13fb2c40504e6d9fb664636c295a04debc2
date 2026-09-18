@@ -1,0 +1,39 @@
+.github/release-notes/v0.5.58.md
+  s_4ed6706b41d9d0::t_492012e5587898 41
+packages/plugins/presets/github-issue-board/test/run-task.test.ts
+  s_bb2593b2df3a72::t_3fdc77a1512c78 4,8-9,75-95
+packages/plugins/presets/github-issue-board/test/github-issues.test.ts
+  s_c675674535388c::t_5d0dc75cd0b242 4,6-9,71-73,98-118,179,235-330
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "aa4fe13fb2c40504e6d9fb664636c295a04debc2",
+  "prompts": {},
+  "sessions": {
+    "s_4ed6706b41d9d0": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0b42a-b8b2-72ba-9d49-0a0b560fdecf",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_bb2593b2df3a72": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4abc4f9f-a61a-4202-b3d4-e667d0a98231",
+        "model": "default"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_c675674535388c": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0b47c-64ac-7c4f-a0d2-14ba2e365ede",
+        "model": "unknown"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
