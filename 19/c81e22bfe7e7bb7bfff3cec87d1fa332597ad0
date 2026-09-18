@@ -1,0 +1,27 @@
+apps/desktop/src/renderer/domains/settings/components/PresetProvidersSectionView.test.tsx
+  s_5ea5b99bdc7bd4::t_a36a9b0d8b9c70 92
+  s_5ea5b99bdc7bd4::t_f94208b47249df 89-91
+  s_5ea5b99bdc7bd4::t_cb4d0c1d88179e 93-95
+.github/release-notes/v0.5.58.md
+  s_5ea5b99bdc7bd4::t_5eccbf57bfb20b 12
+apps/desktop/src/renderer/domains/settings/components/GrokSubscriptionDialog.test.tsx
+  s_5ea5b99bdc7bd4::t_a36a9b0d8b9c70 27-28
+  s_5ea5b99bdc7bd4::t_2324005b75c8d3 24-26
+  s_5ea5b99bdc7bd4::t_f4726f33183545 29-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "19c81e22bfe7e7bb7bfff3cec87d1fa332597ad0",
+  "prompts": {},
+  "sessions": {
+    "s_5ea5b99bdc7bd4": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0b29a-d097-7263-941c-6bbf3e62bcb9",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
