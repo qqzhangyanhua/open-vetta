@@ -1,0 +1,19 @@
+apps/desktop/src/renderer/domains/settings/components/PresetProvidersSectionView.test.tsx
+  s_8cc612a540e42e::t_46e2a1fd640d33 76-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "8d4527da54329a8d789d61220530fc8ba0d9f4da",
+  "prompts": {},
+  "sessions": {
+    "s_8cc612a540e42e": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0bde3-a532-72e3-8025-32550e67d948",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
