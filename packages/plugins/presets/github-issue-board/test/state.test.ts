@@ -57,6 +57,7 @@ describe("parsePluginState", () => {
 			lastFetch: null,
 			issueSync: null,
 			fetchFilter: DEFAULT_ISSUE_FETCH_FILTER,
+			autoAdvance: false,
 		});
 		expect(parsePluginState({ repoTarget: null, tasks: [] })).toEqual({
 			repoTarget: null,
@@ -66,6 +67,7 @@ describe("parsePluginState", () => {
 			lastFetch: null,
 			issueSync: null,
 			fetchFilter: DEFAULT_ISSUE_FETCH_FILTER,
+			autoAdvance: false,
 		});
 		expect(parsePluginState(null)).toEqual(EMPTY_STATE);
 	});
@@ -314,6 +316,12 @@ describe("applyOpenIssueSnapshot", () => {
 				fetchFilter: { assignee: "someone", label: "   " },
 			}).fetchFilter,
 		).toEqual(DEFAULT_ISSUE_FETCH_FILTER);
+	});
+
+	it("reads missing autoAdvance as off and keeps an explicit true", () => {
+		expect(parsePluginState({ repoTarget: null, tasks: [] }).autoAdvance).toBe(false);
+		expect(parsePluginState({ repoTarget: null, tasks: [], autoAdvance: true }).autoAdvance).toBe(true);
+		expect(parsePluginState({ repoTarget: null, tasks: [], autoAdvance: "yes" }).autoAdvance).toBe(false);
 	});
 });
 

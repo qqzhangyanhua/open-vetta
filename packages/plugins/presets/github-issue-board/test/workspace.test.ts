@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
-import type { GithubTask } from "../src/state";
+import { EMPTY_STATE, type GithubTask, type PluginState } from "../src/state";
 import {
 	CONVERSATION_WORKSPACE,
 	extraWorkspacePath,
+	filterBoardTasks,
+	nextAutoAdvanceTask,
+	nextPendingBoardTask,
 	parseWorkspaceSelectValue,
 	parseWorkspaceSource,
 	pathBasename,
 	resolveWorkspaceCwd,
 	tasksVisibleForBoard,
-	filterBoardTasks,
 	workspaceSelectValue,
 } from "../src/workspace";
 
@@ -208,5 +210,90 @@ describe("filterBoardTasks", () => {
 		expect(
 			filterBoardTasks([login, docs], { query: "   ", status: "all", label: "all" }).map((task) => task.title),
 		).toEqual(["Fix login", "Add docs"]);
+	});
+});
+
+describe("nextAutoAdvanceTask", () => {
+	function queued(overrides: Partial<PluginState> = {}): PluginState {
+		return {
+			...EMPTY_STATE,
+			...overrides,
+			tasks: overrides.tasks ?? [
+				issueTask("acme", "app", "Fix login"),
+				{ ...issueTask("acme", "app", "Add docs"), id: "Add docs" },
+			],
+		};
+	}
+
+	it("returns the first pending visible board task after tasksVisibleForBoard", () => {
+		const hiddenOtherRepo = issueTask("acme", "web", "Other repo");
+		const closed = {
+			...issueTask("acme", "app", "Closed leftover"),
+			id: "closed",
+			source: {
+				kind: "issue" as const,
+				owner: "acme",
+				repo: "app",
+				issueNumber: 2,
+				issueUrl: "https://github.com/acme/app/issues/2",
+				issueUpdatedAt: "2026-01-01T00:00:00Z",
+				issueState: "closed" as const,
+			},
+		};
+		const first = { ...issueTask("acme", "app", "Fix login"), status: "completed" as const };
+		const next = { ...issueTask("acme", "app", "Add docs"), id: "Add docs" };
+		expect(
+			nextPendingBoardTask([hiddenOtherRepo, closed, first, next], { owner: "acme", repo: "app" }, "/repo")?.id,
+		).toBe("Add docs");
+	});
+
+	it("does not skip a pending task that the table filter would hide", () => {
+		const completed = { ...issueTask("acme", "app", "Fix login"), status: "completed" as const };
+		const pending = { ...issueTask("acme", "app", "Add docs"), id: "Add docs", labels: ["docs"] };
+		const visible = [completed, pending];
+		expect(filterBoardTasks(visible, { query: "login", status: "all", label: "all" }).map((task) => task.id)).toEqual([
+			"Fix login",
+		]);
+		expect(nextPendingBoardTask(visible, { owner: "acme", repo: "app" }, "/repo")?.id).toBe("Add docs");
+	});
+
+	it("advances only when autoAdvance is on, the finished task completed, and nothing is running", () => {
+		const completed = queued({
+			autoAdvance: true,
+			tasks: [
+				{ ...issueTask("acme", "app", "Fix login"), status: "completed" },
+				{ ...issueTask("acme", "app", "Add docs"), id: "Add docs" },
+			],
+		});
+		expect(
+			nextAutoAdvanceTask(completed, { notice: null, finishedTaskId: "Fix login", cwd: "/repo" })?.id,
+		).toBe("Add docs");
+	});
+
+	it("does not advance after a failed or stopped task, when the switch is off, or when there is no project", () => {
+		const failed = queued({
+			autoAdvance: true,
+			tasks: [
+				{ ...issueTask("acme", "app", "Fix login"), status: "failed", error: "Stopped" },
+				{ ...issueTask("acme", "app", "Add docs"), id: "Add docs" },
+			],
+		});
+		expect(nextAutoAdvanceTask(failed, { notice: null, finishedTaskId: "Fix login", cwd: "/repo" })).toBeUndefined();
+		expect(
+			nextAutoAdvanceTask(
+				{ ...failed, autoAdvance: false, tasks: [{ ...failed.tasks[0]!, status: "completed" }, failed.tasks[1]!] },
+				{ notice: null, finishedTaskId: "Fix login", cwd: "/repo" },
+			),
+		).toBeUndefined();
+		expect(
+			nextAutoAdvanceTask(
+				{
+					...EMPTY_STATE,
+					autoAdvance: true,
+					tasks: [{ ...issueTask("acme", "app", "Fix login"), status: "pending" }],
+				},
+				{ notice: "no-project", finishedTaskId: "Fix login", cwd: null },
+			),
+		).toBeUndefined();
 	});
 });

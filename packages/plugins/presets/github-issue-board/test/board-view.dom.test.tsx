@@ -51,6 +51,7 @@ const COPY: Record<string, string> = {
 	"board.run.direct": "Run directly",
 	"board.run.withSkill": "Run with {{name}}",
 	"board.run.includeComments": "Include comments",
+	"board.autoAdvance": "Run the next task automatically",
 	"board.error.commentsFallback": "Could not load comments; sent the description only",
 	"board.retry": "Retry",
 	"board.stop": "Stop",
@@ -1976,5 +1977,226 @@ describe("GitHub Issue board view", () => {
 		});
 		expect(notifications).toContain(COPY["board.error.commentsFallback"]);
 		expect(sendPrompt).toHaveBeenCalledWith("sess-1", "The button does nothing.");
+	});
+
+	it("reuses include-comments when auto-advance runs the next issue", async () => {
+		const { ctx, registered, sendPrompt, openSession } = fakeContext({
+			gitRemote: githubRemote("acme", "app"),
+			comments: [
+				{
+					id: 99,
+					body: "Looks good.",
+					created_at: "2026-01-04T00:00:00Z",
+					user: { login: "bob" },
+				},
+			],
+			initialState: {
+				repoTarget: { owner: "acme", repo: "app" },
+				workspace: { kind: "conversation" },
+				autoAdvance: true,
+				tasks: [
+					{
+						id: "issue-1",
+						title: "Fix login",
+						promptText: "Fix login",
+						source: {
+							kind: "issue",
+							owner: "acme",
+							repo: "app",
+							issueNumber: 10,
+							issueUrl: "https://github.com/acme/app/issues/10",
+							issueUpdatedAt: "2026-01-01T00:00:00Z",
+							issueState: "open",
+						},
+						status: "pending",
+						body: "The button does nothing.",
+						createdAt: 1,
+						updatedAt: 1,
+					},
+					{
+						id: "issue-2",
+						title: "Add docs",
+						promptText: "Add docs",
+						source: {
+							kind: "issue",
+							owner: "acme",
+							repo: "app",
+							issueNumber: 11,
+							issueUrl: "https://github.com/acme/app/issues/11",
+							issueUpdatedAt: "2026-01-01T00:00:00Z",
+							issueState: "open",
+						},
+						status: "pending",
+						body: "Write the docs.",
+						createdAt: 2,
+						updatedAt: 2,
+					},
+				],
+				issueNextPage: null,
+				lastFetch: { owner: "acme", repo: "app" },
+			},
+		});
+		plugin.activate(ctx);
+		const view = boardView(registered);
+		render(<view.component pluginId="github-issue-board" viewId="board" />);
+
+		expect(await screen.findByRole("cell", { name: "#10 Fix login" })).toBeTruthy();
+		await openRunMenu("Fix login");
+		await act(async () => {
+			fireEvent.click(await screen.findByRole("checkbox", { name: COPY["board.run.includeComments"] }));
+		});
+		await act(async () => {
+			fireEvent.click(screen.getByRole("button", { name: COPY["board.run.direct"] }));
+		});
+		await waitFor(() => {
+			expect(sendPrompt).toHaveBeenCalledTimes(2);
+		});
+		expect(String(sendPrompt.mock.calls[0]?.[1])).toContain("bob: Looks good.");
+		expect(String(sendPrompt.mock.calls[1]?.[1])).toContain("bob: Looks good.");
+		expect(openSession).not.toHaveBeenCalled();
+	});
+
+	it("runs the next pending task automatically after a completed run when the switch is on", async () => {
+		const { ctx, registered, sendPrompt, openSession, readStoredState } = fakeContext({
+			skills: [{ name: "review", alias: "Code review", type: "skill" }],
+		});
+		plugin.activate(ctx);
+		const view = boardView(registered);
+		render(<view.component pluginId="github-issue-board" viewId="board" />);
+
+		await addTask("Fix the login button");
+		await addTask("Write the tests");
+		const autoAdvance = await screen.findByRole("checkbox", { name: COPY["board.autoAdvance"] });
+		expect(autoAdvance).not.toHaveProperty("checked", true);
+		await act(async () => {
+			fireEvent.click(autoAdvance);
+		});
+		expect((readStoredState() as { autoAdvance?: boolean }).autoAdvance).toBe(true);
+
+		await openRunMenu("Fix the login button");
+		await waitFor(() => {
+			expect(screen.getByRole("button", { name: "Run with Code review" })).toBeTruthy();
+		});
+		await act(async () => {
+			fireEvent.click(screen.getByRole("button", { name: "Run with Code review" }));
+		});
+		await waitFor(() => {
+			expect(
+				within(taskRow("Fix the login button")).getByRole("cell", { name: COPY["board.status.completed"] }),
+			).toBeTruthy();
+			expect(within(taskRow("Write the tests")).getByRole("cell", { name: COPY["board.status.completed"] })).toBeTruthy();
+		});
+		expect(sendPrompt).toHaveBeenCalledTimes(2);
+		expect(sendPrompt).toHaveBeenNthCalledWith(1, "sess-1", "@skill:review Fix the login button");
+		expect(sendPrompt).toHaveBeenNthCalledWith(2, "sess-1", "@skill:review Write the tests");
+		expect(openSession).not.toHaveBeenCalled();
+	});
+
+	it("does not run a hidden pending task only because the table filter hid it; it still advances past filters", async () => {
+		const { ctx, registered, sendPrompt, openSession } = fakeContext();
+		plugin.activate(ctx);
+		const view = boardView(registered);
+		render(<view.component pluginId="github-issue-board" viewId="board" />);
+
+		await addTask("Fix the login button");
+		await addTask("Write the tests");
+		await act(async () => {
+			fireEvent.click(screen.getByRole("checkbox", { name: COPY["board.autoAdvance"] }));
+		});
+		await act(async () => {
+			fireEvent.change(screen.getByRole("searchbox", { name: COPY["board.filter.search"] }), {
+				target: { value: "login" },
+			});
+		});
+		expect(screen.queryByRole("row", { name: /Write the tests/ })).toBeNull();
+		await runDirectly("Fix the login button");
+		await waitFor(() => {
+			expect(sendPrompt).toHaveBeenCalledTimes(2);
+		});
+		expect(sendPrompt).toHaveBeenNthCalledWith(1, "sess-1", "Fix the login button");
+		expect(sendPrompt).toHaveBeenNthCalledWith(2, "sess-1", "Write the tests");
+		expect(openSession).not.toHaveBeenCalled();
+	});
+
+	it("does not advance when the switch is off, or when the first run is stopped", async () => {
+		const off = fakeContext();
+		plugin.activate(off.ctx);
+		const offView = boardView(off.registered);
+		render(<offView.component pluginId="github-issue-board" viewId="board" />);
+		await addTask("Fix the login button");
+		await addTask("Write the tests");
+		await runDirectly("Fix the login button");
+		await waitFor(() => {
+			expect(
+				within(taskRow("Fix the login button")).getByRole("cell", { name: COPY["board.status.completed"] }),
+			).toBeTruthy();
+		});
+		expect(within(taskRow("Write the tests")).getByRole("cell", { name: COPY["board.status.pending"] })).toBeTruthy();
+		expect(off.sendPrompt).toHaveBeenCalledTimes(1);
+		expect(off.openSession).not.toHaveBeenCalled();
+
+		cleanup();
+
+		const hanging = fakeContext({ hangSend: true });
+		plugin.activate(hanging.ctx);
+		const hangingView = boardView(hanging.registered);
+		render(<hangingView.component pluginId="github-issue-board" viewId="board" />);
+		await addTask("Fix the login button");
+		await addTask("Write the tests");
+		await act(async () => {
+			fireEvent.click(screen.getByRole("checkbox", { name: COPY["board.autoAdvance"] }));
+		});
+		await runDirectly("Fix the login button");
+		await waitFor(() => {
+			expect(
+				within(taskRow("Fix the login button")).getByRole("cell", { name: COPY["board.status.running"] }),
+			).toBeTruthy();
+		});
+		await act(async () => {
+			fireEvent.click(within(taskRow("Fix the login button")).getByRole("button", { name: COPY["board.stop"] }));
+		});
+		await waitFor(() => {
+			expect(
+				within(taskRow("Fix the login button")).getByRole("cell", {
+					name: `${COPY["board.status.failed"]} ${COPY["board.error.stopped"]}`,
+				}),
+			).toBeTruthy();
+		});
+		expect(within(taskRow("Write the tests")).getByRole("cell", { name: COPY["board.status.pending"] })).toBeTruthy();
+		expect(hanging.sendPrompt).toHaveBeenCalledTimes(1);
+		expect(hanging.openSession).not.toHaveBeenCalled();
+	});
+
+	it("keeps auto-advance after remount and stops chaining after the switch is turned off", async () => {
+		const { ctx, registered, sendPrompt, readStoredState } = fakeContext();
+		plugin.activate(ctx);
+		const view = boardView(registered);
+		const first = render(<view.component pluginId="github-issue-board" viewId="board" />);
+
+		await addTask("Fix the login button");
+		await addTask("Write the tests");
+		await act(async () => {
+			fireEvent.click(screen.getByRole("checkbox", { name: COPY["board.autoAdvance"] }));
+		});
+		first.unmount();
+		render(<view.component pluginId="github-issue-board" viewId="board" />);
+		const restored = await screen.findByRole("checkbox", { name: COPY["board.autoAdvance"] });
+		await waitFor(() => {
+			expect(restored).toHaveProperty("checked", true);
+		});
+		expect((readStoredState() as { autoAdvance?: boolean }).autoAdvance).toBe(true);
+
+		await act(async () => {
+			fireEvent.click(restored);
+		});
+		expect((readStoredState() as { autoAdvance?: boolean }).autoAdvance).toBe(false);
+		await runDirectly("Fix the login button");
+		await waitFor(() => {
+			expect(
+				within(taskRow("Fix the login button")).getByRole("cell", { name: COPY["board.status.completed"] }),
+			).toBeTruthy();
+		});
+		expect(within(taskRow("Write the tests")).getByRole("cell", { name: COPY["board.status.pending"] })).toBeTruthy();
+		expect(sendPrompt).toHaveBeenCalledTimes(1);
 	});
 });
