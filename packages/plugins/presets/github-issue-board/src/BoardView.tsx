@@ -29,6 +29,7 @@ import {
 	runQueuedTask,
 	type BoardRunSkill,
 	type BoardSessionPort,
+	type RunTaskNotice,
 } from "./run-task";
 import {
 	accumulateIssueNumbers,
@@ -54,6 +55,7 @@ import {
 	CONVERSATION_WORKSPACE,
 	extraWorkspacePath,
 	filterBoardTasks,
+	nextAutoAdvanceTask,
 	pathBasename,
 	resolveWorkspaceCwd,
 	tasksVisibleForBoard,
@@ -172,6 +174,7 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 	const cancelledRef = useRef(false);
 	const inflightRef = useRef(false);
 	const abortRef = useRef<AbortController | null>(null);
+	const autoAdvanceRef = useRef(false);
 	const fetchingRef = useRef(false);
 	const runMenuRef = useRef<HTMLDivElement>(null);
 	const runTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -233,6 +236,7 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 				Date.now(),
 				ctx.i18n.t("board.error.interrupted"),
 			);
+			autoAdvanceRef.current = reconciled.state.autoAdvance;
 			if (reconciled.state !== loaded) await persist(reconciled.state);
 			else setState(reconciled.state);
 			const live = reconciled.live[0];
@@ -356,9 +360,18 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 	}, [pendingRunId, runSkills]);
 
 	async function persist(next: PluginState): Promise<void> {
-		stateRef.current = next;
-		if (!cancelledRef.current) setState(next);
-		await savePluginState(ctx.storage, next);
+		const withFlag =
+			next.autoAdvance === autoAdvanceRef.current ? next : { ...next, autoAdvance: autoAdvanceRef.current };
+		stateRef.current = withFlag;
+		if (!cancelledRef.current) setState(withFlag);
+		await savePluginState(ctx.storage, withFlag);
+	}
+
+	async function persistAutoAdvance(autoAdvance: boolean): Promise<void> {
+		autoAdvanceRef.current = autoAdvance;
+		const current = stateRef.current;
+		if (!current) return;
+		await persist({ ...current, autoAdvance });
 	}
 
 	function resetFilters(): void {
@@ -573,53 +586,76 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 		setPendingRunId(null);
 	}
 
+	async function runOneTask(
+		current: PluginState,
+		taskId: string,
+		skill: string | null,
+		withComments: boolean,
+		signal: AbortSignal,
+	): Promise<{ state: PluginState; notice: RunTaskNotice }> {
+		const task = current.tasks.find((item) => item.id === taskId);
+		let sendText: string | undefined;
+		if (withComments && task?.source.kind === "issue") {
+			const result = await fetchIssueComments(
+				ctx.network,
+				task.source.owner,
+				task.source.repo,
+				task.source.issueNumber,
+				ctx.command,
+			);
+			if (cancelledRef.current) return { state: current, notice: null };
+			if (githubFetchError(result) || !("items" in result)) {
+				ctx.ui.notify({ message: t("board.error.commentsFallback") });
+			} else {
+				sendText = buildIssueRunPrompt({
+					title: task.title,
+					url: task.source.issueUrl,
+					body: task.body ?? issueDescriptionFromPrompt(task.title, task.source.issueUrl, task.promptText),
+					comments: result.items,
+					commitInstruction: ISSUE_COMMIT_INSTRUCTION,
+					includeComments: true,
+				});
+			}
+		}
+		return runQueuedTask({
+			state: current,
+			taskId,
+			sessions: boardSessions(ctx),
+			cwd: resolveWorkspaceCwd(current.workspace, conversation.cwd),
+			now: () => Date.now(),
+			persist,
+			skill,
+			sendText,
+			signal,
+			stoppedError: t("board.error.stopped"),
+		});
+	}
+
 	async function handleRun(taskId: string, skill: string | null, withComments: boolean): Promise<void> {
 		const current = stateRef.current;
 		if (!current || inflightRef.current || pendingRunId !== taskId) return;
-		const task = current.tasks.find((item) => item.id === taskId);
 		setPendingRunId(null);
 		inflightRef.current = true;
 		const controller = new AbortController();
 		abortRef.current = controller;
 		try {
-			let sendText: string | undefined;
-			if (withComments && task?.source.kind === "issue") {
-				const result = await fetchIssueComments(
-					ctx.network,
-					task.source.owner,
-					task.source.repo,
-					task.source.issueNumber,
-					ctx.command,
-				);
-				if (cancelledRef.current) return;
-				if (githubFetchError(result) || !("items" in result)) {
-					ctx.ui.notify({ message: t("board.error.commentsFallback") });
-				} else {
-					sendText = buildIssueRunPrompt({
-						title: task.title,
-						url: task.source.issueUrl,
-						body: task.body ?? issueDescriptionFromPrompt(task.title, task.source.issueUrl, task.promptText),
-						comments: result.items,
-						commitInstruction: ISSUE_COMMIT_INSTRUCTION,
-						includeComments: true,
-					});
+			let currentId: string | undefined = taskId;
+			let latest = current;
+			while (currentId) {
+				const result = await runOneTask(latest, currentId, skill, withComments, controller.signal);
+				if (result.notice === "no-project") {
+					if (!cancelledRef.current) setState(result.state);
+					ctx.ui.notify({ message: t("board.error.noProject") });
+					return;
 				}
-			}
-			const result = await runQueuedTask({
-				state: current,
-				taskId,
-				sessions: boardSessions(ctx),
-				cwd: resolveWorkspaceCwd(current.workspace, conversation.cwd),
-				now: () => Date.now(),
-				persist,
-				skill,
-				sendText,
-				signal: controller.signal,
-				stoppedError: t("board.error.stopped"),
-			});
-			if (!cancelledRef.current) setState(result.state);
-			if (result.notice === "no-project") {
-				ctx.ui.notify({ message: t("board.error.noProject") });
+				latest = stateRef.current ?? result.state;
+				if (!cancelledRef.current) setState(latest);
+				if (cancelledRef.current) return;
+				currentId = nextAutoAdvanceTask(latest, {
+					notice: result.notice,
+					finishedTaskId: currentId,
+					cwd: resolveWorkspaceCwd(latest.workspace, conversation.cwd),
+				})?.id;
 			}
 		} finally {
 			if (abortRef.current === controller) abortRef.current = null;
@@ -860,37 +896,50 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 					{t("board.add")}
 				</button>
 			</form>
-			{boardTasks.length > 0 ? (
-				<div className="flex flex-wrap items-end gap-2">
-					<label className="flex min-w-[12rem] flex-1 flex-col gap-1 text-xs font-medium text-muted-foreground">
-						{t("board.filter.search")}
-						<input
-							className={FIELD}
-							placeholder={t("board.filter.search")}
-							type="search"
-							value={filterQuery}
-							onChange={(event) => setFilterQuery(event.target.value)}
+			<div className="flex flex-wrap items-end gap-2">
+				{boardTasks.length > 0 ? (
+					<>
+						<label className="flex min-w-[12rem] flex-1 flex-col gap-1 text-xs font-medium text-muted-foreground">
+							{t("board.filter.search")}
+							<input
+								className={FIELD}
+								placeholder={t("board.filter.search")}
+								type="search"
+								value={filterQuery}
+								onChange={(event) => setFilterQuery(event.target.value)}
+							/>
+						</label>
+						<BoardSelect
+							label={t("board.filter.status")}
+							triggerIcon="icon-[solar--flag-linear]"
+							value={filterStatus}
+							options={STATUS_FILTER_VALUES.map((status) => ({
+								value: status,
+								label: status === "all" ? t("board.filter.status.all") : t(`board.status.${status}`),
+							}))}
+							onChange={setFilterStatus}
 						/>
-					</label>
-					<BoardSelect
-						label={t("board.filter.status")}
-						triggerIcon="icon-[solar--flag-linear]"
-						value={filterStatus}
-						options={STATUS_FILTER_VALUES.map((status) => ({
-							value: status,
-							label: status === "all" ? t("board.filter.status.all") : t(`board.status.${status}`),
-						}))}
-						onChange={setFilterStatus}
+						<BoardSelect
+							label={t("board.filter.label")}
+							triggerIcon="icon-[solar--tag-linear]"
+							value={filterLabel}
+							options={labelSelectOptions(labelOptions, filterLabel, t("board.filter.label.all"))}
+							onChange={setFilterLabel}
+						/>
+					</>
+				) : null}
+				<label className="flex items-center gap-2 pb-0.5 text-xs font-medium text-foreground">
+					<input
+						checked={state?.autoAdvance ?? false}
+						disabled={!ready}
+						type="checkbox"
+						onChange={(event) => {
+							void persistAutoAdvance(event.target.checked);
+						}}
 					/>
-					<BoardSelect
-						label={t("board.filter.label")}
-						triggerIcon="icon-[solar--tag-linear]"
-						value={filterLabel}
-						options={labelSelectOptions(labelOptions, filterLabel, t("board.filter.label.all"))}
-						onChange={setFilterLabel}
-					/>
-				</div>
-			) : null}
+					{t("board.autoAdvance")}
+				</label>
+			</div>
 			<div className="min-h-0 flex-1 overflow-auto">
 				<table className="w-full text-left text-sm">
 					<thead>

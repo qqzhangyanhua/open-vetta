@@ -1,4 +1,4 @@
-import type { GithubTask } from "./state";
+import type { GithubTask, PluginState } from "./state";
 
 export type WorkspaceSource = { kind: "conversation" } | { kind: "path"; path: string };
 
@@ -102,4 +102,28 @@ export function filterBoardTasks(tasks: GithubTask[], filter: BoardTaskFilter): 
 		if (query && !taskSearchHaystack(task).includes(query)) return false;
 		return true;
 	});
+}
+
+export function nextPendingBoardTask(
+	tasks: GithubTask[],
+	repoTarget: { owner: string; repo: string } | null,
+	cwd: string | null,
+): GithubTask | undefined {
+	return tasksVisibleForBoard(tasks, repoTarget, cwd).find((task) => task.status === "pending");
+}
+
+export function nextAutoAdvanceTask(
+	state: PluginState,
+	input: {
+		notice: "no-project" | null;
+		finishedTaskId: string;
+		cwd: string | null;
+	},
+): GithubTask | undefined {
+	if (input.notice !== null) return undefined;
+	if (!state.autoAdvance) return undefined;
+	if (state.tasks.some((task) => task.status === "running")) return undefined;
+	const finished = state.tasks.find((task) => task.id === input.finishedTaskId);
+	if (finished?.status !== "completed") return undefined;
+	return nextPendingBoardTask(state.tasks, state.repoTarget, input.cwd);
 }

@@ -9,6 +9,7 @@ import {
 	runQueuedTask,
 	type BoardSessionPort,
 } from "../src/run-task";
+import { nextAutoAdvanceTask } from "../src/workspace";
 
 const SESSION_PATH = "/tmp/sess-1.jsonl";
 const RUNTIME_ID = "sess-1";
@@ -248,6 +249,98 @@ describe("runQueuedTask", () => {
 		});
 		expect(second.state.tasks[1]).toMatchObject({ status: "completed" });
 		expect(finishing.prompt).toHaveBeenCalledWith(RUNTIME_ID, "Add docs");
+	});
+});
+
+describe("auto-advance after runQueuedTask", () => {
+	it("starts the next pending task after a completed run when autoAdvance is on", async () => {
+		const first = fakeSessions();
+		const queued = { ...queuedState("Fix login", "Add docs"), autoAdvance: true };
+		const completed = await runQueuedTask({
+			state: queued,
+			taskId: "task-1",
+			sessions: first.sessions,
+			cwd: "/repo",
+			now: () => 1,
+			skill: "review",
+		});
+		expect(completed.state.tasks[0]).toMatchObject({ status: "completed" });
+		const next = nextAutoAdvanceTask(completed.state, {
+			notice: completed.notice,
+			finishedTaskId: "task-1",
+			cwd: "/repo",
+		});
+		expect(next?.id).toBe("task-2");
+		if (!next) throw new Error("expected the next pending task");
+		const second = fakeSessions();
+		const advanced = await runQueuedTask({
+			state: completed.state,
+			taskId: next.id,
+			sessions: second.sessions,
+			cwd: "/repo",
+			now: () => 2,
+			skill: "review",
+		});
+		expect(advanced.state.tasks[1]).toMatchObject({ status: "completed" });
+		expect(first.prompt).toHaveBeenCalledWith(RUNTIME_ID, "@skill:review Fix login");
+		expect(second.prompt).toHaveBeenCalledWith(RUNTIME_ID, "@skill:review Add docs");
+	});
+
+	it("does not advance after a failed or stopped run, or when the switch is off", async () => {
+		const failedRun = fakeSessions({ promptStatus: "failed", promptMessage: "prompt rejected" });
+		const failed = await runQueuedTask({
+			state: { ...queuedState("Fix login", "Add docs"), autoAdvance: true },
+			taskId: "task-1",
+			sessions: failedRun.sessions,
+			cwd: "/repo",
+			now: () => 1,
+		});
+		expect(failed.state.tasks[0]?.status).toBe("failed");
+		expect(
+			nextAutoAdvanceTask(failed.state, { notice: failed.notice, finishedTaskId: "task-1", cwd: "/repo" }),
+		).toBeUndefined();
+		expect(failed.state.tasks[1]?.status).toBe("pending");
+
+		const hanging = fakeSessions({ hangRunning: true });
+		const controller = new AbortController();
+		let sawRunning: () => void = () => undefined;
+		const running = new Promise<void>((resolve) => {
+			sawRunning = resolve;
+		});
+		const first = runQueuedTask({
+			state: { ...queuedState("Fix login", "Add docs"), autoAdvance: true },
+			taskId: "task-1",
+			sessions: hanging.sessions,
+			cwd: "/repo",
+			now: () => 10,
+			signal: controller.signal,
+			stoppedError: "Stopped",
+			persist: (state) => {
+				if (state.tasks[0]?.status === "running" && state.tasks[0].sessionId) sawRunning();
+			},
+		});
+		await running;
+		controller.abort();
+		const stopped = await first;
+		expect(stopped.state.tasks[0]).toMatchObject({ status: "failed", error: "Stopped" });
+		expect(
+			nextAutoAdvanceTask(stopped.state, { notice: stopped.notice, finishedTaskId: "task-1", cwd: "/repo" }),
+		).toBeUndefined();
+		expect(stopped.state.tasks[1]?.status).toBe("pending");
+
+		const off = fakeSessions();
+		const completed = await runQueuedTask({
+			state: queuedState("Fix login", "Add docs"),
+			taskId: "task-1",
+			sessions: off.sessions,
+			cwd: "/repo",
+			now: () => 1,
+		});
+		expect(completed.state.tasks[0]?.status).toBe("completed");
+		expect(
+			nextAutoAdvanceTask(completed.state, { notice: completed.notice, finishedTaskId: "task-1", cwd: "/repo" }),
+		).toBeUndefined();
+		expect(completed.state.tasks[1]?.status).toBe("pending");
 	});
 });
 

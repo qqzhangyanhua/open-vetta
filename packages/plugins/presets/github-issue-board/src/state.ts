@@ -57,6 +57,7 @@ export interface PluginState {
 	lastFetch: { owner: string; repo: string } | null;
 	issueSync: IssueFetchSync | null;
 	fetchFilter: IssueFetchFilter;
+	autoAdvance: boolean;
 }
 
 export const EMPTY_STATE: PluginState = {
@@ -67,6 +68,7 @@ export const EMPTY_STATE: PluginState = {
 	lastFetch: null,
 	issueSync: null,
 	fetchFilter: DEFAULT_ISSUE_FETCH_FILTER,
+	autoAdvance: false,
 };
 
 const STATUSES: Record<GithubTaskStatus, true> = {
@@ -245,7 +247,8 @@ export function parsePluginState(value: unknown): PluginState {
 	const lastFetch = "lastFetch" in value ? parseRepoTarget(value.lastFetch) : null;
 	const issueSync = "issueSync" in value ? parseIssueSync(value.issueSync) : null;
 	const fetchFilter = "fetchFilter" in value ? parseIssueFetchFilter(value.fetchFilter) : DEFAULT_ISSUE_FETCH_FILTER;
-	return { repoTarget, workspace, tasks, issueNextPage, lastFetch, issueSync, fetchFilter };
+	const autoAdvance = "autoAdvance" in value && value.autoAdvance === true;
+	return { repoTarget, workspace, tasks, issueNextPage, lastFetch, issueSync, fetchFilter, autoAdvance };
 }
 
 function titleFromPrompt(promptText: string): string {
