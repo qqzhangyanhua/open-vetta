@@ -50,6 +50,8 @@ const COPY: Record<string, string> = {
 	"board.run": "Run",
 	"board.run.direct": "Run directly",
 	"board.run.withSkill": "Run with {{name}}",
+	"board.run.includeComments": "Include comments",
+	"board.error.commentsFallback": "Could not load comments; sent the description only",
 	"board.retry": "Retry",
 	"board.stop": "Stop",
 	"board.edit": "Edit",
@@ -130,6 +132,13 @@ function fakeContext(options?: {
 	projects?: Array<{ path: string; name?: string }>;
 	openDirectory?: () => Promise<string | null>;
 	runningSessionPaths?: string[];
+	skills?: Array<{
+		name: string;
+		alias?: string;
+		type: "skill" | "scene";
+		enabled?: boolean;
+	}>;
+	skillsError?: boolean;
 }) {
 	const registered: RegisteredView[] = [];
 	const files = new Map<string, string>();
@@ -188,6 +197,14 @@ function fakeContext(options?: {
 		};
 	});
 	const openDirectory = vi.fn(options?.openDirectory ?? (async () => null));
+	const listSkills = vi.fn(async (_cwd?: string) => {
+		if (options?.skillsError) throw new Error("skills unavailable");
+		return (options?.skills ?? []).map((skill) => ({
+			description: "",
+			source: "test",
+			...skill,
+		}));
+	});
 	const ctx = {
 		i18n: {
 			locale: "en",
@@ -268,6 +285,7 @@ function fakeContext(options?: {
 					};
 				},
 			},
+			skills: { list: listSkills },
 		},
 	} as unknown as PluginContext;
 	return {
@@ -280,6 +298,10 @@ function fakeContext(options?: {
 		requests,
 		runCommand,
 		openDirectory,
+		readStoredState: (): unknown => {
+			const raw = files.get("state.json");
+			return raw ? JSON.parse(raw) : null;
+		},
 	};
 }
 
@@ -373,10 +395,14 @@ function taskRow(title: string): HTMLElement {
 	return screen.getByRole("row", { name: new RegExp(title) });
 }
 
-async function runDirectly(title: string): Promise<void> {
+async function openRunMenu(title: string): Promise<void> {
 	await act(async () => {
 		fireEvent.click(within(taskRow(title)).getByRole("button", { name: COPY["board.run"] }));
 	});
+}
+
+async function runDirectly(title: string): Promise<void> {
+	await openRunMenu(title);
 	await act(async () => {
 		fireEvent.click(screen.getByRole("button", { name: COPY["board.run.direct"] }));
 	});
@@ -714,27 +740,66 @@ describe("GitHub Issue board view", () => {
 		expect(sendPrompt).toHaveBeenCalledWith("sess-1", "Fix the login button");
 	});
 
-	it("runs with the implement skill token when that run mode is chosen", async () => {
-		const { ctx, registered, sendPrompt } = fakeContext();
+	it("lists enabled skills in the run menu and prefixes the chosen skill token", async () => {
+		const { ctx, registered, sendPrompt, readStoredState } = fakeContext({
+			skills: [
+				{ name: "review", alias: "Code review", type: "skill" },
+				{ name: "implement", type: "skill" },
+				{ name: "hidden", type: "skill", enabled: false },
+				{ name: "coding", type: "scene" },
+			],
+		});
 		plugin.activate(ctx);
 		const view = boardView(registered);
 		render(<view.component pluginId="github-issue-board" viewId="board" />);
 
 		await addTask("Fix the login button");
-		await act(async () => {
-			fireEvent.click(within(taskRow("Fix the login button")).getByRole("button", { name: COPY["board.run"] }));
-		});
+		await openRunMenu("Fix the login button");
 		expect(screen.getByRole("button", { name: COPY["board.run.direct"] })).toBeTruthy();
-		expect(within(taskRow("Fix the login button")).getByRole("button", { name: COPY["board.run"] })).toBeTruthy();
+		await waitFor(() => {
+			expect(screen.getByRole("button", { name: "Run with implement" })).toBeTruthy();
+		});
+		expect(screen.getByRole("button", { name: "Run with Code review" })).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "Run with hidden" })).toBeNull();
+		expect(screen.queryByRole("button", { name: "Run with coding" })).toBeNull();
+		expect(screen.queryByRole("checkbox", { name: COPY["board.run.includeComments"] })).toBeNull();
 		await act(async () => {
-			fireEvent.click(screen.getByRole("button", { name: "Run with implement" }));
+			fireEvent.click(screen.getByRole("button", { name: "Run with Code review" }));
 		});
 		await waitFor(() => {
 			expect(
 				within(taskRow("Fix the login button")).getByRole("cell", { name: COPY["board.status.completed"] }),
 			).toBeTruthy();
 		});
-		expect(sendPrompt).toHaveBeenCalledWith("sess-1", "@skill:implement Fix the login button");
+		expect(sendPrompt).toHaveBeenCalledWith("sess-1", "@skill:review Fix the login button");
+		const stored = readStoredState() as { tasks: Array<{ promptText: string }> };
+		expect(stored.tasks[0]?.promptText).toBe("Fix the login button");
+	});
+
+	it("shows only run directly when the skill list is empty or fails", async () => {
+		const empty = fakeContext();
+		plugin.activate(empty.ctx);
+		const emptyView = boardView(empty.registered);
+		render(<emptyView.component pluginId="github-issue-board" viewId="board" />);
+		await addTask("Fix the login button");
+		await openRunMenu("Fix the login button");
+		expect(screen.getByRole("button", { name: COPY["board.run.direct"] })).toBeTruthy();
+		await waitFor(() => {
+			expect(screen.queryByRole("button", { name: "Run with implement" })).toBeNull();
+		});
+
+		cleanup();
+
+		const failing = fakeContext({ skillsError: true });
+		plugin.activate(failing.ctx);
+		const failingView = boardView(failing.registered);
+		render(<failingView.component pluginId="github-issue-board" viewId="board" />);
+		await addTask("Write the tests");
+		await openRunMenu("Write the tests");
+		expect(screen.getByRole("button", { name: COPY["board.run.direct"] })).toBeTruthy();
+		await waitFor(() => {
+			expect(screen.queryByRole("button", { name: "Run with implement" })).toBeNull();
+		});
 	});
 
 	it("cancels the run chooser without starting a session", async () => {
@@ -1786,5 +1851,130 @@ describe("GitHub Issue board view", () => {
 			},
 		);
 		expect(await screen.findByRole("cell", { name: "#11 Ship web" })).toBeTruthy();
+	});
+
+	it("sends issue comments when include comments is checked and does not persist them", async () => {
+		const { ctx, registered, sendPrompt, readStoredState } = fakeContext({
+			gitRemote: githubRemote("acme", "app"),
+			comments: [
+				{
+					id: 99,
+					body: "Looks good.",
+					created_at: "2026-01-04T00:00:00Z",
+					user: { login: "bob" },
+				},
+			],
+			initialState: {
+				repoTarget: { owner: "acme", repo: "app" },
+				workspace: { kind: "conversation" },
+				tasks: [
+					{
+						id: "issue-1",
+						title: "Fix login",
+						promptText: "Fix login\nhttps://github.com/acme/app/issues/10\n\nThe button does nothing.\n\nCommit locally.",
+						source: {
+							kind: "issue",
+							owner: "acme",
+							repo: "app",
+							issueNumber: 10,
+							issueUrl: "https://github.com/acme/app/issues/10",
+							issueUpdatedAt: "2026-01-01T00:00:00Z",
+							issueState: "open",
+						},
+						status: "pending",
+						createdAt: 1,
+						updatedAt: 1,
+					},
+				],
+				issueNextPage: null,
+				lastFetch: { owner: "acme", repo: "app" },
+			},
+		});
+		plugin.activate(ctx);
+		const view = boardView(registered);
+		render(<view.component pluginId="github-issue-board" viewId="board" />);
+
+		expect(await screen.findByRole("cell", { name: "#10 Fix login" })).toBeTruthy();
+		await openRunMenu("Fix login");
+		const includeComments = await screen.findByRole("checkbox", { name: COPY["board.run.includeComments"] });
+		await act(async () => {
+			fireEvent.click(includeComments);
+		});
+		await act(async () => {
+			fireEvent.click(screen.getByRole("button", { name: COPY["board.run.direct"] }));
+		});
+		await waitFor(() => {
+			expect(
+				within(taskRow("Fix login")).getByRole("cell", {
+					name: `${COPY["board.status.completed"]} ${COPY["board.issue.state.open"]}`,
+				}),
+			).toBeTruthy();
+		});
+		expect(String(sendPrompt.mock.calls[0]?.[1])).toContain("The button does nothing.");
+		expect(String(sendPrompt.mock.calls[0]?.[1])).toContain("Comments:");
+		expect(String(sendPrompt.mock.calls[0]?.[1])).toContain("bob: Looks good.");
+		const stored = readStoredState() as { tasks: Array<{ promptText: string }> };
+		expect(stored.tasks[0]?.promptText).not.toContain("Comments:");
+		expect(stored.tasks[0]?.promptText).toContain("The button does nothing.");
+	});
+
+	it("notifies and still runs the issue body when comments fail to load", async () => {
+		const { ctx, registered, notifications, sendPrompt } = fakeContext({
+			gitRemote: githubRemote("acme", "app"),
+			networkResponse: {
+				ok: false,
+				status: 500,
+				statusText: "Error",
+				headers: {},
+				body: "nope",
+			},
+			initialState: {
+				repoTarget: { owner: "acme", repo: "app" },
+				workspace: { kind: "conversation" },
+				tasks: [
+					{
+						id: "issue-1",
+						title: "Fix login",
+						promptText: "The button does nothing.",
+						source: {
+							kind: "issue",
+							owner: "acme",
+							repo: "app",
+							issueNumber: 10,
+							issueUrl: "https://github.com/acme/app/issues/10",
+							issueUpdatedAt: "2026-01-01T00:00:00Z",
+							issueState: "open",
+						},
+						status: "pending",
+						body: "The button does nothing.",
+						createdAt: 1,
+						updatedAt: 1,
+					},
+				],
+				issueNextPage: null,
+				lastFetch: { owner: "acme", repo: "app" },
+			},
+		});
+		plugin.activate(ctx);
+		const view = boardView(registered);
+		render(<view.component pluginId="github-issue-board" viewId="board" />);
+
+		expect(await screen.findByRole("cell", { name: "#10 Fix login" })).toBeTruthy();
+		await openRunMenu("Fix login");
+		await act(async () => {
+			fireEvent.click(await screen.findByRole("checkbox", { name: COPY["board.run.includeComments"] }));
+		});
+		await act(async () => {
+			fireEvent.click(screen.getByRole("button", { name: COPY["board.run.direct"] }));
+		});
+		await waitFor(() => {
+			expect(
+				within(taskRow("Fix login")).getByRole("cell", {
+					name: `${COPY["board.status.completed"]} ${COPY["board.issue.state.open"]}`,
+				}),
+			).toBeTruthy();
+		});
+		expect(notifications).toContain(COPY["board.error.commentsFallback"]);
+		expect(sendPrompt).toHaveBeenCalledWith("sess-1", "The button does nothing.");
 	});
 });
