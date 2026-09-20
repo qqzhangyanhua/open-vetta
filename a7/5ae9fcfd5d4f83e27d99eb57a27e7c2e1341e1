@@ -1,0 +1,25 @@
+.github/release-notes/v0.5.58.md
+  s_8cc612a540e42e::t_42828156a40afb 55
+apps/desktop/src/renderer/shared/store/model-catalog.test.tsx
+  s_8cc612a540e42e::t_49560440d1c1ca 25,41,101-114
+  s_8cc612a540e42e::t_4e76bb8ec04756 115
+apps/desktop/src/renderer/shared/store/model-catalog.ts
+  s_8cc612a540e42e::t_a8e9eff3f4f3c1 3
+  s_8cc612a540e42e::t_a2921b51a5b39d 19,25-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "a75ae9fcfd5d4f83e27d99eb57a27e7c2e1341e1",
+  "prompts": {},
+  "sessions": {
+    "s_8cc612a540e42e": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0bde3-a532-72e3-8025-32550e67d948",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
