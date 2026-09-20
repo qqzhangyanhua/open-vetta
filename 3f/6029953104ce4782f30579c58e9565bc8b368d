@@ -1,0 +1,51 @@
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from-host.ts
+  s_8cc612a540e42e::t_7a0b8022f3a083 8,21
+apps/desktop/src/main/ipc/session.ts
+  s_8cc612a540e42e::t_e4a95f91b7cc01 1697,1700,1708
+apps/desktop/src/preload/api-types/session.ts
+  s_8cc612a540e42e::t_489f013aca2094 285
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_8cc612a540e42e::t_4bd23d8acebd1a 848,862
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_8cc612a540e42e::t_76fc6b52bc4104 848,862
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.ts
+  s_8cc612a540e42e::t_5642f3ee870472 42-55,77,85,89-92,96-123,168-185,305-308
+  s_8cc612a540e42e::t_2300d66a23e6bd 309
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerContinueFrom.test.tsx
+  s_8cc612a540e42e::t_471fb5a39853da 236
+  s_8cc612a540e42e::t_c2184537036892 59
+  s_8cc612a540e42e::t_f61d427e90e3f7 72-74,76-86,88-99
+  s_8cc612a540e42e::t_543f40449973d8 100,102-119,245,247
+  s_8cc612a540e42e::t_4e558a2ae0d7aa 3,62-66,158
+  s_8cc612a540e42e::t_1302de0bd79824 87
+  s_8cc612a540e42e::t_a4bb9982e1e8c1 75
+  s_8cc612a540e42e::t_6e3f5259af15fa 61
+  s_8cc612a540e42e::t_91e34fa3256b1d 101
+apps/desktop/src/preload/apis/session.test.ts
+  s_8cc612a540e42e::t_f489f46d523c3a 90-94,99
+.github/release-notes/v0.5.58.md
+  s_8cc612a540e42e::t_897f5a69875dfb 54
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerContinueFrom.ts
+  s_8cc612a540e42e::t_8a7d9a4a6be622 3,5,29,33,46,56,68,81,106
+  s_8cc612a540e42e::t_344bbb0951a9ed 2,6,32,36,38,64-65,136
+  s_8cc612a540e42e::t_2091b029f6392d 126,141,163
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.test.ts
+  s_8cc612a540e42e::t_e3852a9468009c 18,22-23,38-103,177-204
+  s_8cc612a540e42e::t_af5bba0d4b2803 205
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "3f6029953104ce4782f30579c58e9565bc8b368d",
+  "prompts": {},
+  "sessions": {
+    "s_8cc612a540e42e": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0bde3-a532-72e3-8025-32550e67d948",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
