@@ -1,0 +1,27 @@
+packages/plugins/presets/github-issue-board/src/BoardView.tsx
+  s_6e23f5685b0b29::t_a6ba755a7aafd9 84,124-127,129-136,766-782
+  s_6e23f5685b0b29::t_8000cd9b479e58 7,128
+.github/release-notes/v0.5.58.md
+  s_6e23f5685b0b29::t_3d36676a430fff 33
+docs/desktop/github-issue-board-spec.md
+  s_6e23f5685b0b29::t_bbdb31efa3108d 264-265,302-304,557
+packages/plugins/presets/github-issue-board/test/board-view.dom.test.tsx
+  s_6e23f5685b0b29::t_fac1bd456f368c 1506
+  s_6e23f5685b0b29::t_82266e5777f3a2 354-366,1569-1578,1582-1588,1595-1596
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "e8350085e61a3911136a06d9d1993826ce6eefdb",
+  "prompts": {},
+  "sessions": {
+    "s_6e23f5685b0b29": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0becd-9822-7433-b116-be6ac7efb1ce",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
