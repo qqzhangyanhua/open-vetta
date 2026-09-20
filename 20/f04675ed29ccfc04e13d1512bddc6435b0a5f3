@@ -1,0 +1,52 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 24
+bun.lock
+  h_4132837b09b7e7 729,736,742
+packages/plugins/CONTEXT.md
+  h_4132837b09b7e7 122-123
+packages/plugins/presets/git/README.md
+  h_4132837b09b7e7 12,22
+packages/plugins/presets/git/ability.json
+  h_4132837b09b7e7 40-44,84-88
+packages/plugins/presets/git/locales/en.json
+  h_4132837b09b7e7 3,26-32
+packages/plugins/presets/git/locales/zh.json
+  h_4132837b09b7e7 3,26-32
+packages/plugins/presets/git/package.json
+  h_4132837b09b7e7 8-9,19,26,31-32
+packages/plugins/presets/git/plugin.json
+  h_4132837b09b7e7 14
+packages/plugins/presets/git/src/components/CommitComposer.tsx
+  h_4132837b09b7e7 1-93
+packages/plugins/presets/git/src/components/GitChanges.tsx
+  h_4132837b09b7e7 8,165
+packages/plugins/presets/git/src/components/icons.tsx
+  h_4132837b09b7e7 140-148
+packages/plugins/presets/git/src/git/commit-message.ts
+  h_4132837b09b7e7 1-54
+packages/plugins/presets/git/src/git/commit.ts
+  h_4132837b09b7e7 1-67
+packages/plugins/presets/git/src/git/runtime.ts
+  h_4132837b09b7e7 1,28,42,90-99
+packages/plugins/presets/git/src/index.tsx
+  h_4132837b09b7e7 6,14
+packages/plugins/presets/git/test/commit-composer.dom.test.tsx
+  h_4132837b09b7e7 1-134
+packages/plugins/presets/git/test/commit-message.test.ts
+  h_4132837b09b7e7 1-69
+packages/plugins/presets/git/test/commit.test.ts
+  h_4132837b09b7e7 1-130
+packages/plugins/presets/git/vitest.config.ts
+  h_4132837b09b7e7 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "20f04675ed29ccfc04e13d1512bddc6435b0a5f3",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
