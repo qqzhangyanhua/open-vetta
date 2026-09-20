@@ -1,0 +1,38 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 23,34,53
+docs/desktop/README.md
+  h_4132837b09b7e7 9
+docs/desktop/github-issue-board-spec.md
+  h_4132837b09b7e7 1-592
+packages/plugins/presets/github-issue-board/locales/en.json
+  h_4132837b09b7e7 50-57
+packages/plugins/presets/github-issue-board/locales/zh.json
+  h_4132837b09b7e7 51-56
+packages/plugins/presets/github-issue-board/src/BoardView.tsx
+  h_4132837b09b7e7 22,30,43,100-121,137-139,163-169,186-220,225,302-307,314,404,516,554,739-777,791,797-802
+packages/plugins/presets/github-issue-board/src/run-task.ts
+  h_4132837b09b7e7 7-18,22,32-42,57-62,65-82,94-95,97,103-106,108-131,133-143,150,158-159,163-164,166-168,170,173,175-212,223-262
+packages/plugins/presets/github-issue-board/src/state.ts
+  h_4132837b09b7e7 357-378
+packages/plugins/presets/github-issue-board/src/workspace.ts
+  h_4132837b09b7e7 81-105
+packages/plugins/presets/github-issue-board/test/board-view.dom.test.tsx
+  h_4132837b09b7e7 73-78,127,152-159,161,163-165,168,253-265,436,631-632,695-696,719,1026,1116,1425-1567
+packages/plugins/presets/github-issue-board/test/run-task.test.ts
+  h_4132837b09b7e7 3-13,23-33,35-51,53,55,57-65,67-70,72-76,78-79,83-84,88,93-94,98,104,108,113,116,125-126,130,135,139-140,145-146,150,154,160,164,168,171,177,181,186-187,193,202,208,214,218,222,226,231-317
+packages/plugins/presets/github-issue-board/test/state.test.ts
+  h_4132837b09b7e7 10,391-426
+packages/plugins/presets/github-issue-board/test/workspace.test.ts
+  h_4132837b09b7e7 11,150-212
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "3f3b906bc61cfaeb8a60fd6e40c26a3ee319ecc1",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
