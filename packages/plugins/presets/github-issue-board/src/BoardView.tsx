@@ -10,7 +10,9 @@ import {
 	type ResolveGithubRepoError,
 } from "./git-remote";
 import {
+	buildIssueRunPrompt,
 	fetchIssueComments,
+	issueDescriptionFromPrompt,
 	fetchOpenGithubIssues,
 	githubFetchError,
 	ISSUE_COMMIT_INSTRUCTION,
@@ -20,7 +22,14 @@ import {
 	type GithubFetchErrorKind,
 	type GithubIssueComment,
 } from "./github-issues";
-import { detachBoardRuns, followRunningTask, IMPLEMENT_SKILL, runQueuedTask, type BoardSessionPort } from "./run-task";
+import {
+	boardRunSkills,
+	detachBoardRuns,
+	followRunningTask,
+	runQueuedTask,
+	type BoardRunSkill,
+	type BoardSessionPort,
+} from "./run-task";
 import {
 	accumulateIssueNumbers,
 	addManualTask,
@@ -148,6 +157,8 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 	const [editDraft, setEditDraft] = useState("");
 	const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 	const [pendingRunId, setPendingRunId] = useState<string | null>(null);
+	const [runSkills, setRunSkills] = useState<BoardRunSkill[]>([]);
+	const [includeComments, setIncludeComments] = useState(false);
 	const [stoppingId, setStoppingId] = useState<string | null>(null);
 	const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
 	const [runMenuPos, setRunMenuPos] = useState<RunMenuPos | null>(null);
@@ -183,6 +194,9 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 		workspace,
 		workbench.map((project) => project.path),
 	);
+	const pendingRunTask = pendingRunId
+		? (state?.tasks.find((task) => task.id === pendingRunId) ?? null)
+		: null;
 	const boardTasks = tasksVisibleForBoard(state?.tasks ?? [], state?.repoTarget ?? null, workspaceCwd);
 	const visibleTasks = filterBoardTasks(boardTasks, {
 		query: filterQuery,
@@ -305,6 +319,31 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 		};
 	}, [workspaceMenuOpen]);
 
+	useEffect(() => {
+		if (!pendingRunId) {
+			setRunSkills([]);
+			setIncludeComments(false);
+			return;
+		}
+		const cwd = resolveWorkspaceCwd(stateRef.current?.workspace ?? CONVERSATION_WORKSPACE, conversation.cwd);
+		if (!cwd) {
+			setRunSkills([]);
+			return;
+		}
+		let cancelled = false;
+		void ctx.official.skills
+			.list(cwd)
+			.then((list) => {
+				if (!cancelled) setRunSkills(boardRunSkills(list));
+			})
+			.catch(() => {
+				if (!cancelled) setRunSkills([]);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [pendingRunId, ctx.official, conversation.cwd]);
+
 	useLayoutEffect(() => {
 		if (!pendingRunId) {
 			setRunMenuPos(null);
@@ -314,7 +353,7 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 		const menu = runMenuRef.current;
 		if (!trigger || !menu) return;
 		setRunMenuPos(positionRunMenu(trigger.getBoundingClientRect(), menu.getBoundingClientRect()));
-	}, [pendingRunId]);
+	}, [pendingRunId, runSkills]);
 
 	async function persist(next: PluginState): Promise<void> {
 		stateRef.current = next;
@@ -534,14 +573,38 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 		setPendingRunId(null);
 	}
 
-	async function handleRun(taskId: string, skill: string | null): Promise<void> {
+	async function handleRun(taskId: string, skill: string | null, withComments: boolean): Promise<void> {
 		const current = stateRef.current;
 		if (!current || inflightRef.current || pendingRunId !== taskId) return;
+		const task = current.tasks.find((item) => item.id === taskId);
 		setPendingRunId(null);
 		inflightRef.current = true;
 		const controller = new AbortController();
 		abortRef.current = controller;
 		try {
+			let sendText: string | undefined;
+			if (withComments && task?.source.kind === "issue") {
+				const result = await fetchIssueComments(
+					ctx.network,
+					task.source.owner,
+					task.source.repo,
+					task.source.issueNumber,
+					ctx.command,
+				);
+				if (cancelledRef.current) return;
+				if (githubFetchError(result) || !("items" in result)) {
+					ctx.ui.notify({ message: t("board.error.commentsFallback") });
+				} else {
+					sendText = buildIssueRunPrompt({
+						title: task.title,
+						url: task.source.issueUrl,
+						body: task.body ?? issueDescriptionFromPrompt(task.title, task.source.issueUrl, task.promptText),
+						comments: result.items,
+						commitInstruction: ISSUE_COMMIT_INSTRUCTION,
+						includeComments: true,
+					});
+				}
+			}
 			const result = await runQueuedTask({
 				state: current,
 				taskId,
@@ -550,6 +613,7 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 				now: () => Date.now(),
 				persist,
 				skill,
+				sendText,
 				signal: controller.signal,
 				stoppedError: t("board.error.stopped"),
 			});
@@ -1092,22 +1156,35 @@ export function BoardView({ ctx }: { ctx: PluginContext }): JSX.Element {
 						visibility: runMenuPos ? "visible" : "hidden",
 					}}
 				>
+					{pendingRunTask?.source.kind === "issue" ? (
+						<label className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground">
+							<input
+								checked={includeComments}
+								type="checkbox"
+								onChange={(event) => setIncludeComments(event.target.checked)}
+							/>
+							{t("board.run.includeComments")}
+						</label>
+					) : null}
 					<button
 						className={RUN_MENU_ITEM}
 						disabled={!ready || busy}
 						type="button"
-						onClick={() => void handleRun(pendingRunId, null)}
+						onClick={() => void handleRun(pendingRunId, null, includeComments)}
 					>
 						{t("board.run.direct")}
 					</button>
-					<button
-						className={RUN_MENU_ITEM}
-						disabled={!ready || busy}
-						type="button"
-						onClick={() => void handleRun(pendingRunId, IMPLEMENT_SKILL)}
-					>
-						{t("board.run.withSkill", { name: IMPLEMENT_SKILL })}
-					</button>
+					{runSkills.map((skill) => (
+						<button
+							className={RUN_MENU_ITEM}
+							disabled={!ready || busy}
+							key={skill.name}
+							type="button"
+							onClick={() => void handleRun(pendingRunId, skill.name, includeComments)}
+						>
+							{t("board.run.withSkill", { name: skill.label })}
+						</button>
+					))}
 					<span
 						aria-hidden="true"
 						className={

@@ -25,6 +25,8 @@ export interface RunQueuedTaskInput {
 	persist?: (state: PluginState) => void | Promise<void>;
 	/** When set, prefix the sent prompt with `@skill:<name>` without persisting it. */
 	skill?: string | null;
+	/** When set, send this text instead of the stored `promptText`. */
+	sendText?: string;
 	signal?: AbortSignal;
 	stoppedError?: string;
 }
@@ -48,6 +50,25 @@ export function promptForRun(promptText: string, skill?: string | null): string 
 		return promptText;
 	}
 	return `${token} ${promptText}`;
+}
+
+export interface BoardSkillListItem {
+	name: string;
+	alias?: string;
+	type: string;
+	enabled?: boolean;
+}
+
+export interface BoardRunSkill {
+	name: string;
+	label: string;
+}
+
+export function boardRunSkills(list: readonly BoardSkillListItem[]): BoardRunSkill[] {
+	return list
+		.filter((item) => item.type === "skill" && item.enabled !== false)
+		.map((item) => ({ name: item.name, label: item.alias ?? item.name }))
+		.sort((left, right) => left.name.localeCompare(right.name));
 }
 
 function errorMessage(error: unknown): string {
@@ -172,7 +193,10 @@ export async function runQueuedTask(input: RunQueuedTaskInput): Promise<{
 			await persist?.(current);
 			watch = watchSessionIdle(sessions, sessionPath, runtimeId, input.signal);
 		}
-		const sendPrompt = sessions.prompt(session.sessionId, promptForRun(task.promptText, input.skill));
+		const sendPrompt = sessions.prompt(
+			session.sessionId,
+			promptForRun(input.sendText ?? task.promptText, input.skill),
+		);
 		const sent = input.signal ? await Promise.race([sendPrompt, whenAborted(input.signal)]) : await sendPrompt;
 		if (sent === ABORTED) {
 			await abortSession(sessions, runtimeId.current);

@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import type { PluginCommandApi, PluginNetworkApi } from "@vetta-org/plugin-sdk";
 import {
+	buildIssueRunPrompt,
 	fetchIssueComments,
 	fetchOpenGithubIssues,
 	githubIssueCommentsApiPath,
 	githubIssueCommentsUrl,
 	githubOpenIssuesApiPath,
 	githubOpenIssuesUrl,
+	issueDescriptionFromPrompt,
 	ISSUE_COMMIT_INSTRUCTION,
 	ISSUE_PROMPT_MAX_CHARS,
 	mapGhApiError,
@@ -94,7 +96,9 @@ describe("mapGithubIssueItems", () => {
 		expect(task?.promptText.startsWith("Fix login")).toBe(true);
 		expect(task?.promptText).toContain("https://github.com/acme/app/issues/10");
 		expect(task?.promptText).toContain(ISSUE_COMMIT_INSTRUCTION);
+		expect(task?.promptText).toContain("[truncated]");
 		expect(task?.promptText.includes(body)).toBe(false);
+		expect(task?.promptText).not.toContain("Comments:");
 	});
 
 	it("maps label names and assignee logins onto the task", () => {
@@ -127,6 +131,97 @@ describe("mapGithubIssueItems", () => {
 			commitInstruction: COMMIT,
 		});
 		expect(tasks).toEqual([]);
+	});
+});
+
+describe("buildIssueRunPrompt", () => {
+	const TITLE = "Fix login";
+	const URL = "https://github.com/acme/app/issues/10";
+
+	it("writes title, url, body and commit instruction without comments by default", () => {
+		expect(
+			buildIssueRunPrompt({
+				title: TITLE,
+				url: URL,
+				body: "The button does nothing.",
+				comments: [{ id: 1, login: "bob", body: "Looks good.", createdAt: "2026-01-04T00:00:00Z" }],
+				commitInstruction: COMMIT,
+				includeComments: false,
+			}),
+		).toBe(`${TITLE}\n${URL}\n\nThe button does nothing.\n\n${COMMIT}`);
+	});
+
+	it("appends chronological comments when includeComments is true", () => {
+		expect(
+			buildIssueRunPrompt({
+				title: TITLE,
+				url: URL,
+				body: "The button does nothing.",
+				comments: [
+					{ id: 2, login: "cara", body: "Second.", createdAt: "2026-01-05T00:00:00Z" },
+					{ id: 1, login: "bob", body: "First.", createdAt: "2026-01-04T00:00:00Z" },
+				],
+				commitInstruction: COMMIT,
+				includeComments: true,
+			}),
+		).toBe(
+			`${TITLE}\n${URL}\n\nThe button does nothing.\n\nComments:\nbob: First.\ncara: Second.\n\n${COMMIT}`,
+		);
+	});
+
+	it("keeps title and url complete and marks truncation within 4000 characters", () => {
+		const body = "B".repeat(3500);
+		const comments = [
+			{ id: 1, login: "alice", body: "A".repeat(800), createdAt: "2026-01-04T00:00:00Z" },
+			{ id: 2, login: "zoe", body: "Z".repeat(800), createdAt: "2026-01-05T00:00:00Z" },
+		];
+		const prompt = buildIssueRunPrompt({
+			title: TITLE,
+			url: URL,
+			body,
+			comments,
+			commitInstruction: ISSUE_COMMIT_INSTRUCTION,
+			includeComments: true,
+		});
+		expect(prompt.length).toBeLessThanOrEqual(ISSUE_PROMPT_MAX_CHARS);
+		expect(prompt.startsWith(`${TITLE}\n${URL}\n\n`)).toBe(true);
+		expect(prompt.endsWith(ISSUE_COMMIT_INSTRUCTION)).toBe(true);
+		expect(prompt).toContain("[truncated]");
+		expect(prompt).toContain(body);
+		expect(prompt).toContain("Comments:");
+		expect(prompt).toContain("alice:");
+		expect(prompt.includes("Z".repeat(800))).toBe(false);
+	});
+
+	it("keeps earlier comments whole when later comments exceed the budget", () => {
+		const prompt = buildIssueRunPrompt({
+			title: TITLE,
+			url: URL,
+			body: "Short.",
+			comments: [
+				{ id: 1, login: "alice", body: "Fits.", createdAt: "2026-01-04T00:00:00Z" },
+				{ id: 2, login: "zoe", body: "Z".repeat(4000), createdAt: "2026-01-05T00:00:00Z" },
+			],
+			commitInstruction: ISSUE_COMMIT_INSTRUCTION,
+			includeComments: true,
+		});
+		expect(prompt.length).toBeLessThanOrEqual(ISSUE_PROMPT_MAX_CHARS);
+		expect(prompt).toContain("alice: Fits.");
+		expect(prompt).toContain("[truncated]");
+		expect(prompt.includes("Z".repeat(4000))).toBe(false);
+		expect(prompt.startsWith(`${TITLE}\n${URL}\n\n`)).toBe(true);
+	});
+});
+
+describe("issueDescriptionFromPrompt", () => {
+	it("recovers the description between title/url and the commit instruction", () => {
+		expect(
+			issueDescriptionFromPrompt(
+				"Fix login",
+				"https://github.com/acme/app/issues/10",
+				"Fix login\nhttps://github.com/acme/app/issues/10\n\nThe button does nothing.\n\nCommit locally.",
+			),
+		).toBe("The button does nothing.");
 	});
 });
 

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { addManualTask, EMPTY_STATE, hasRunningTask, type PluginState } from "../src/state";
 import {
+	boardRunSkills,
 	detachBoardRuns,
 	followRunningTask,
 	IMPLEMENT_SKILL,
@@ -122,6 +123,24 @@ describe("runQueuedTask", () => {
 		);
 	});
 
+	it("sends an override prompt with the skill token and leaves the stored prompt unchanged", async () => {
+		const { sessions, prompt } = fakeSessions();
+		const result = await runQueuedTask({
+			state: queuedState("Fix the login button"),
+			taskId: "task-1",
+			sessions,
+			cwd: "/repo",
+			now: () => 42,
+			skill: "review",
+			sendText: "Fix the login button\n\nComments:\nbob: Looks good.",
+		});
+		expect(prompt).toHaveBeenCalledWith(
+			RUNTIME_ID,
+			"@skill:review Fix the login button\n\nComments:\nbob: Looks good.",
+		);
+		expect(result.state.tasks[0]?.promptText).toBe("Fix the login button");
+	});
+
 	it("marks the task failed when prompt returns failed without waiting for running events", async () => {
 		const { sessions, abort } = fakeSessions({ promptStatus: "failed", promptMessage: "prompt rejected" });
 		const result = await runQueuedTask({
@@ -229,6 +248,26 @@ describe("runQueuedTask", () => {
 		});
 		expect(second.state.tasks[1]).toMatchObject({ status: "completed" });
 		expect(finishing.prompt).toHaveBeenCalledWith(RUNTIME_ID, "Add docs");
+	});
+});
+
+describe("boardRunSkills", () => {
+	it("keeps enabled skills, uses alias for the label, and sorts by name", () => {
+		expect(
+			boardRunSkills([
+				{ name: "review", alias: "Code review", type: "skill" },
+				{ name: "implement", type: "skill" },
+				{ name: "hidden", type: "skill", enabled: false },
+				{ name: "coding", type: "scene" },
+			]),
+		).toEqual([
+			{ name: "implement", label: "implement" },
+			{ name: "review", label: "Code review" },
+		]);
+	});
+
+	it("returns an empty list when listing fails to produce skills", () => {
+		expect(boardRunSkills([])).toEqual([]);
 	});
 });
 

@@ -37,15 +37,79 @@ function headerValue(headers: Record<string, string>, name: string): string | un
 	return undefined;
 }
 
-function clipPrompt(title: string, url: string, body: string, commitInstruction: string): string {
-	const prefix = `${title}\n${url}\n\n`;
-	const suffix = `\n\n${commitInstruction}`;
-	const budget = ISSUE_PROMPT_MAX_CHARS - prefix.length - suffix.length;
-	if (budget <= 0) {
-		return `${title}\n${url}\n\n${commitInstruction}`.slice(0, ISSUE_PROMPT_MAX_CHARS);
+const TRUNCATED_MARK = "\n\n[truncated]";
+
+export interface BuildIssueRunPromptInput {
+	title: string;
+	url: string;
+	body: string;
+	comments?: readonly GithubIssueComment[];
+	commitInstruction: string;
+	includeComments?: boolean;
+}
+
+function clipWithMark(text: string, budget: number): string {
+	if (text.length <= budget) return text;
+	if (budget <= TRUNCATED_MARK.length) return text.slice(0, Math.max(0, budget));
+	return `${text.slice(0, budget - TRUNCATED_MARK.length)}${TRUNCATED_MARK}`;
+}
+
+function commentLine(comment: GithubIssueComment): string {
+	return `${comment.login}: ${comment.body}`;
+}
+
+function sortIssueComments(comments: readonly GithubIssueComment[]): GithubIssueComment[] {
+	return [...comments].sort((left, right) => {
+		const byTime = left.createdAt.localeCompare(right.createdAt);
+		return byTime !== 0 ? byTime : left.id - right.id;
+	});
+}
+
+function fillComments(body: string, comments: readonly GithubIssueComment[], budget: number): string {
+	const intro = "\n\nComments:\n";
+	const lines = comments.map(commentLine);
+	const full = `${body}${intro}${lines.join("\n")}`;
+	if (full.length <= budget) return full;
+
+	const inner = budget - TRUNCATED_MARK.length;
+	if (inner <= 0) return clipWithMark(full, budget);
+	if (body.length >= inner) return `${body.slice(0, inner)}${TRUNCATED_MARK}`;
+	if (body.length + intro.length > inner) return `${body}${TRUNCATED_MARK}`;
+
+	let middle = `${body}${intro}`;
+	let leftover = inner - middle.length;
+	for (const [index, line] of lines.entries()) {
+		const piece = index === 0 ? line : `\n${line}`;
+		if (piece.length <= leftover) {
+			middle += piece;
+			leftover -= piece.length;
+			continue;
+		}
+		if (leftover > 0) middle += piece.slice(0, leftover);
+		break;
 	}
-	const clipped = body.length > budget ? body.slice(0, budget) : body;
-	return `${prefix}${clipped}${suffix}`;
+	return `${middle}${TRUNCATED_MARK}`;
+}
+
+export function issueDescriptionFromPrompt(title: string, url: string, promptText: string): string {
+	const prefix = `${title}\n${url}\n\n`;
+	if (!promptText.startsWith(prefix)) return promptText;
+	const rest = promptText.slice(prefix.length);
+	const split = rest.lastIndexOf("\n\n");
+	return split < 0 ? rest : rest.slice(0, split);
+}
+
+export function buildIssueRunPrompt(input: BuildIssueRunPromptInput): string {
+	const prefix = `${input.title}\n${input.url}\n\n`;
+	const suffix = `\n\n${input.commitInstruction}`;
+	if (prefix.length + suffix.length >= ISSUE_PROMPT_MAX_CHARS) {
+		return `${input.title}\n${input.url}\n\n${input.commitInstruction}`.slice(0, ISSUE_PROMPT_MAX_CHARS);
+	}
+	const budget = ISSUE_PROMPT_MAX_CHARS - prefix.length - suffix.length;
+	if (!input.includeComments) {
+		return `${prefix}${clipWithMark(input.body, budget)}${suffix}`;
+	}
+	return `${prefix}${fillComments(input.body, sortIssueComments(input.comments ?? []), budget)}${suffix}`;
 }
 
 function uniqueStrings(values: string[]): string[] {
@@ -180,7 +244,13 @@ export function mapGithubIssueItems(items: unknown, input: MapGithubIssueItemsIn
 		tasks.push({
 			id: input.createId(),
 			title: parsed.title,
-			promptText: clipPrompt(parsed.title, parsed.html_url, parsed.body, input.commitInstruction),
+			promptText: buildIssueRunPrompt({
+				title: parsed.title,
+				url: parsed.html_url,
+				body: parsed.body,
+				commitInstruction: input.commitInstruction,
+				includeComments: false,
+			}),
 			source: {
 				kind: "issue",
 				owner: input.owner,
