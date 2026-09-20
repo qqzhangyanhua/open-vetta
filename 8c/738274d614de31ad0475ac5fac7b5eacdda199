@@ -1,0 +1,35 @@
+packages/runtime-desktop/src/external-session-host.ts
+  s_7cef1a69629cfc::t_854afac7e27eb2 4-6,9
+  s_7cef1a69629cfc::t_02fddac9a3ff70 10
+packages/coding-agent/src/sessions/external/coding-agent-jsonl-format.ts
+  s_7cef1a69629cfc::t_854afac7e27eb2 80-91
+  s_7cef1a69629cfc::t_6b12f299c37eef 77-79
+  s_7cef1a69629cfc::t_fbc0d946fe0922 92-94
+packages/coding-agent/src/sessions/external/formats.ts
+  s_7cef1a69629cfc::t_854afac7e27eb2 1-28
+  s_7cef1a69629cfc::t_a47fba79f0ab09 29-31
+packages/coding-agent/src/sessions/external/claude-code-format.ts
+  s_7cef1a69629cfc::t_854afac7e27eb2 60
+  s_7cef1a69629cfc::t_64c3d40b9a6515 57-59
+  s_7cef1a69629cfc::t_e100afa2ee00d2 61-63
+packages/coding-agent/src/sessions/external/cursor-agent-format.ts
+  s_7cef1a69629cfc::t_854afac7e27eb2 62
+  s_7cef1a69629cfc::t_444651d5abe718 59-61
+  s_7cef1a69629cfc::t_7d7528b63eddde 63-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "8c738274d614de31ad0475ac5fac7b5eacdda199",
+  "prompts": {},
+  "sessions": {
+    "s_7cef1a69629cfc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "dbe6a5a0-450b-42c8-a464-d3205c3f3df6",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
