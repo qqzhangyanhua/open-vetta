@@ -1,0 +1,46 @@
+packages/plugins/presets/github-issue-board/locales/zh.json
+  s_e1a46e06f1d73d::t_82722ca5c32760 37
+packages/plugins/presets/github-issue-board/src/workspace.ts
+  s_e1a46e06f1d73d::t_79c1a308bd6ac7 1,106-129
+packages/plugins/presets/github-issue-board/test/board-view.dom.test.tsx
+  s_e1a46e06f1d73d::t_ed8bbca1a9bdd7 1982-2058
+  s_e1a46e06f1d73d::t_c4f6d44eb1be7a 54,1981,2059-2201
+.github/release-notes/v0.5.58.md
+  s_e1a46e06f1d73d::t_9331bb320febfd 25
+packages/plugins/presets/github-issue-board/src/BoardView.tsx
+  s_e1a46e06f1d73d::t_cb06cdb5993312 32,58,177
+  s_e1a46e06f1d73d::t_45d2bc52fab492 363-364
+  s_e1a46e06f1d73d::t_65caf52f4c8b4a 899-920,922-938,940-942
+  s_e1a46e06f1d73d::t_43f12a7cf029ba 647,651-652
+  s_e1a46e06f1d73d::t_54866754e02ea1 239,365-374,589-633,642-646,648-649,653-658
+packages/plugins/presets/github-issue-board/locales/en.json
+  s_e1a46e06f1d73d::t_182a28cdca1850 37
+packages/plugins/presets/github-issue-board/test/state.test.ts
+  s_e1a46e06f1d73d::t_1e6bf4e7f4c122 60,70,320-324
+  s_e1a46e06f1d73d::t_070a03f0981536 325
+packages/plugins/presets/github-issue-board/test/workspace.test.ts
+  s_e1a46e06f1d73d::t_c36e8d9947ebd2 2,6-8,215-298
+  s_e1a46e06f1d73d::t_840ab8ff3cd1d6 299
+packages/plugins/presets/github-issue-board/src/state.ts
+  s_e1a46e06f1d73d::t_8746cf99672fb1 60,71,250-251
+packages/plugins/presets/github-issue-board/test/run-task.test.ts
+  s_e1a46e06f1d73d::t_522876e984f1f3 274,278
+  s_e1a46e06f1d73d::t_a71798f45fc2aa 12,255-273,275-277,279-344
+  s_e1a46e06f1d73d::t_9c5c806cabc427 345-346
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "0f5d8851fdd08892d43ac526f8ec94f6aa3f7cee",
+  "prompts": {},
+  "sessions": {
+    "s_e1a46e06f1d73d": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0bf2c-e6d5-79a0-bce6-68721ee39954",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
