@@ -1,0 +1,22 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 81
+docs/desktop/github-issue-board-spec.md
+  h_4132837b09b7e7 80,86-87,151-152,163-164,237-238
+packages/plugins/presets/github-issue-board/src/state.ts
+  h_4132837b09b7e7 458-466
+packages/plugins/presets/github-issue-board/test/board-view.dom.test.tsx
+  h_4132837b09b7e7 1008,1059-1121,1134-1158
+packages/plugins/presets/github-issue-board/test/state.test.ts
+  h_4132837b09b7e7 448,480,485,491-511,533,546,550,553-572
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "836bd399d5b367688443656028cfa78c461c1214",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
