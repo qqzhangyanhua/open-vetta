@@ -1,0 +1,1844 @@
+.agents/skills/expo-overview/SKILL.md
+  h_4132837b09b7e7 1-115
+.agents/skills/expo-overview/agents/openai.yaml
+  h_4132837b09b7e7 1-4
+.agents/skills/expo-project-structure/SKILL.md
+  h_4132837b09b7e7 1-114
+.agents/skills/expo-project-structure/agents/openai.yaml
+  h_4132837b09b7e7 1-4
+.agents/skills/expo-router/SKILL.md
+  h_4132837b09b7e7 1-240
+.agents/skills/expo-router/agents/openai.yaml
+  h_4132837b09b7e7 1-4
+.agents/skills/expo-router/references/form-sheet.md
+  h_4132837b09b7e7 1-253
+.agents/skills/expo-router/references/route-structure.md
+  h_4132837b09b7e7 1-229
+.agents/skills/expo-router/references/search.md
+  h_4132837b09b7e7 1-248
+.agents/skills/expo-router/references/tabs.md
+  h_4132837b09b7e7 1-433
+.agents/skills/expo-router/references/toolbar-and-headers.md
+  h_4132837b09b7e7 1-284
+.agents/skills/expo-router/references/zoom-transitions.md
+  h_4132837b09b7e7 1-158
+.github/actions/desktop-download-cache/action.yml
+  h_4132837b09b7e7 1-35
+.github/actions/install-bun-dependencies/action.yml
+  h_4132837b09b7e7 7-12,15-21
+.github/actions/prepare-desktop-resources/action.yml
+  h_4132837b09b7e7 1-39
+.github/release-notes/v0.5.59.md
+  h_4132837b09b7e7 1-129
+.github/workflows/desktop-cache.yml
+  h_4132837b09b7e7 1-60
+.github/workflows/desktop-release.yml
+  h_4132837b09b7e7 26-29,82,127,138,162,189,236,270,278-281,383,397-399,409-487,551-553,568,582,605,632,648,688-700,703-727,729,733-735
+.github/workflows/kotlin.yml
+  h_4132837b09b7e7 1-43
+.github/workflows/mobile.yml
+  h_4132837b09b7e7 9-11,16-18,22-23,25,28,30-31,33,35-36,38-39,41-42,44-45
+AGENTS.md
+  h_4132837b09b7e7 9,15,29
+README.md
+  h_4132837b09b7e7 152-153
+README.zh-CN.md
+  h_4132837b09b7e7 123-124
+apps/desktop/AGENTS.md
+  h_4132837b09b7e7 10
+apps/desktop/README.md
+  h_4132837b09b7e7 61-64
+apps/desktop/docs/agent-team-recovery.md
+  h_4132837b09b7e7 1-13
+apps/desktop/package.json
+  h_4132837b09b7e7 3,139,147,149-151,153,166,168,170-176,214,220,274-278
+apps/desktop/scripts/build-presets.mjs
+  h_4132837b09b7e7 227
+apps/desktop/scripts/desktop-packaging-layout.mjs
+  h_4132837b09b7e7 16-23
+apps/desktop/scripts/desktop-packaging-layout.test.mjs
+  h_4132837b09b7e7 5-9,31-40
+apps/desktop/scripts/fetch-vendor-runtimes.mjs
+  h_4132837b09b7e7 1-89
+apps/desktop/scripts/fetch-vendor-runtimes.test.mjs
+  h_4132837b09b7e7 1-110
+apps/desktop/scripts/packaged-native-dependencies.mjs
+  h_4132837b09b7e7 27-39
+apps/desktop/scripts/packaged-native-dependencies.test.mjs
+  h_4132837b09b7e7 26-27,30-52
+apps/desktop/scripts/prepare-pack.js
+  h_4132837b09b7e7 8,14,235-252,411-460,616-617,651,672-676,757
+apps/desktop/scripts/publish-update-artifacts-r2.node-test.mjs
+  h_4132837b09b7e7 46-77
+apps/desktop/scripts/stage-system-plugins.mjs
+  h_4132837b09b7e7 169
+apps/desktop/scripts/stage-system-plugins.node-test.mjs
+  h_4132837b09b7e7 2-4,6,51-67
+apps/desktop/scripts/updater-metadata.mjs
+  h_4132837b09b7e7 4
+apps/desktop/src/main/abilities/ability-ledger.ts
+  h_4132837b09b7e7 75
+apps/desktop/src/main/abilities/ability-lifecycle-log.test.ts
+  h_4132837b09b7e7 1-126
+apps/desktop/src/main/abilities/ability-lifecycle-log.ts
+  h_4132837b09b7e7 1-85
+apps/desktop/src/main/abilities/open-marketplace/marketplace-bundle-service.test.ts
+  h_4132837b09b7e7 145
+apps/desktop/src/main/abilities/open-marketplace/marketplace-candidate.local.test.ts
+  h_4132837b09b7e7 1-144
+apps/desktop/src/main/abilities/open-marketplace/marketplace-catalog.ts
+  h_4132837b09b7e7 64
+apps/desktop/src/main/abilities/open-marketplace/marketplace-plugin-artifact.test.ts
+  h_4132837b09b7e7 1-131
+apps/desktop/src/main/abilities/open-marketplace/marketplace-plugin-artifact.ts
+  h_4132837b09b7e7 1-131
+apps/desktop/src/main/abilities/open-marketplace/marketplace-plugin-releases.test.ts
+  h_4132837b09b7e7 1-99
+apps/desktop/src/main/abilities/open-marketplace/marketplace-plugin-releases.ts
+  h_4132837b09b7e7 1-41
+apps/desktop/src/main/abilities/open-marketplace/marketplace-schema.test.ts
+  h_4132837b09b7e7 25-55
+apps/desktop/src/main/abilities/open-marketplace/marketplace-schema.ts
+  h_4132837b09b7e7 3,8,141-157,188-189,211-212,228-229,232,244,281-289,294,299-304,306-307,314-321,329-357
+apps/desktop/src/main/abilities/open-marketplace/marketplace-source-store.test.ts
+  h_4132837b09b7e7 7,108,118-119,128-139
+apps/desktop/src/main/abilities/open-marketplace/marketplace-source-store.ts
+  h_4132837b09b7e7 14,64-65,134-135
+apps/desktop/src/main/abilities/open-marketplace/official-marketplace-source.ts
+  h_4132837b09b7e7 12
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-installer.test.ts
+  h_4132837b09b7e7 85,100-112
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-installer.ts
+  h_4132837b09b7e7 6,33,109-118
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-presentation.ts
+  h_4132837b09b7e7 9,311,325-332,334-339
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-production.test.ts
+  h_4132837b09b7e7 1,20-22,31-37,50,53-55,60-155
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-production.ts
+  h_4132837b09b7e7 1,8,17-23,44,47-78,126,130-172
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-service.test.ts
+  h_4132837b09b7e7 165-234,319-361,615,813,1134
+apps/desktop/src/main/abilities/open-marketplace/open-marketplace-service.ts
+  h_4132837b09b7e7 15,18,95,123,228,239,291,330,421-433,522-525,558-564
+apps/desktop/src/main/agent-runtime/composition-boundary.test.ts
+  h_4132837b09b7e7 54-59
+apps/desktop/src/main/agent-runtime/composition.ts
+  h_4132837b09b7e7 46,72,75,89-91,128,160
+apps/desktop/src/main/agent-runtime/function-extension-source.test.ts
+  h_4132837b09b7e7 3,8,85-105
+apps/desktop/src/main/agent-runtime/function-extension-source.ts
+  h_4132837b09b7e7 3,10,29,35,57-59
+apps/desktop/src/main/agent-runtime/host-services.ts
+  h_4132837b09b7e7 2,5,13,81
+apps/desktop/src/main/agent-runtime/mcp-supervisor.test.ts
+  h_4132837b09b7e7 15-23
+apps/desktop/src/main/agent-runtime/mcp-supervisor.ts
+  h_4132837b09b7e7 13,38,43-54
+apps/desktop/src/main/agent-runtime/resource-runtime.remote.test.ts
+  h_4132837b09b7e7 1-42
+apps/desktop/src/main/agent-runtime/resource-runtime.ts
+  h_4132837b09b7e7 6,22,29-30,57,74-78,86,99-143
+apps/desktop/src/main/agent-teams/agent-team-store.test.ts
+  h_4132837b09b7e7 74-95
+apps/desktop/src/main/agent-teams/agent-team-store.ts
+  h_4132837b09b7e7 310,403
+apps/desktop/src/main/agent-teams/team-collaboration-store.test.ts
+  h_4132837b09b7e7 5,13-58,301,303-324,326-327
+apps/desktop/src/main/agent-teams/team-collaboration-store.ts
+  h_4132837b09b7e7 2,4,12,22-23,54,61-64,194-198,355-357,361-377,381,434-438,442-448,450-462,465-466,469-478,480,528-529,537-553
+apps/desktop/src/main/agent-teams/team-conversation-display.test.ts
+  h_4132837b09b7e7 183-274
+apps/desktop/src/main/agent-teams/team-conversation-display.ts
+  h_4132837b09b7e7 113-116
+apps/desktop/src/main/agent-teams/team-member-attempt-runner.ts
+  h_4132837b09b7e7 24,26,83,136,284-292,296,315-319,357,376-377,445-450,463-464
+apps/desktop/src/main/agent-teams/team-member-result.test.ts
+  h_4132837b09b7e7 5,88-131
+apps/desktop/src/main/agent-teams/team-member-result.ts
+  h_4132837b09b7e7 3-21
+apps/desktop/src/main/agent-teams/team-member-runtime-reconfiguration.test.ts
+  h_4132837b09b7e7 81,101-127
+apps/desktop/src/main/agent-teams/team-member-runtime-reconfiguration.ts
+  h_4132837b09b7e7 36-39,41
+apps/desktop/src/main/agent-teams/team-member-scheduler.ts
+  h_4132837b09b7e7 6,14-17,53,62-64
+apps/desktop/src/main/agent-teams/team-member-turn-request.ts
+  h_4132837b09b7e7 24
+apps/desktop/src/main/agent-teams/team-notification-journal.test.ts
+  h_4132837b09b7e7 1-163
+apps/desktop/src/main/agent-teams/team-notification-journal.ts
+  h_4132837b09b7e7 1-187
+apps/desktop/src/main/agent-teams/team-recovery-monitor.ts
+  h_4132837b09b7e7 1-49
+apps/desktop/src/main/agent-teams/team-session-concurrency.test.ts
+  h_4132837b09b7e7 47-322,765-769,1795-1842,2240
+apps/desktop/src/main/agent-teams/team-session-service.ts
+  h_4132837b09b7e7 138-146
+apps/desktop/src/main/agent-teams/team-task-control-service.ts
+  h_4132837b09b7e7 14,33,126-132,135,140,282,372,413-418
+apps/desktop/src/main/agent-teams/team-turn-coordinator.test.ts
+  h_4132837b09b7e7 45,90,112
+apps/desktop/src/main/agent-teams/team-turn-coordinator.ts
+  h_4132837b09b7e7 32-33,60,66-68,74-88,96-103,119-122,166-170,173-174,202,204-208,217,233,245-246,255-257,451-466,482-489,500,543,547,549-551,555-572,579,581-590,592-608,610-614,785
+apps/desktop/src/main/app-monitor/app-monitor-data.test.ts
+  h_4132837b09b7e7 17-41
+apps/desktop/src/main/app-monitor/app-monitor-data.ts
+  h_4132837b09b7e7 457-458,1009,1020
+apps/desktop/src/main/app-monitor/app-monitor-service.ts
+  h_4132837b09b7e7 3,808-813,1098,1100-1106
+apps/desktop/src/main/artifacts/artifact-persistence.ts
+  h_4132837b09b7e7 1,3,5,26-33
+apps/desktop/src/main/capabilities/domain-providers.ts
+  h_4132837b09b7e7 32,108
+apps/desktop/src/main/config/desktop-config-store.test.ts
+  h_4132837b09b7e7 1,11-16,24-29,90-144
+apps/desktop/src/main/config/desktop-config-store.ts
+  h_4132837b09b7e7 6,11,49-50,63-72,123-131,141,325,333,337-362,373-414,416-432
+apps/desktop/src/main/conversations/desktop-conversation-service.test.ts
+  h_4132837b09b7e7 583-600
+apps/desktop/src/main/conversations/desktop-conversation-service.ts
+  h_4132837b09b7e7 17-18,207-210,389-392,395
+apps/desktop/src/main/conversations/plan-review-broker.test.ts
+  h_4132837b09b7e7 1-66
+apps/desktop/src/main/conversations/plan-review-broker.ts
+  h_4132837b09b7e7 1-94
+apps/desktop/src/main/conversations/prompt-request-schema.test.ts
+  h_4132837b09b7e7 1-24
+apps/desktop/src/main/conversations/prompt-request-schema.ts
+  h_4132837b09b7e7 3,16-21,25-35
+apps/desktop/src/main/conversations/session-catalog-roots.ts
+  h_4132837b09b7e7 4,22-31
+apps/desktop/src/main/conversations/session-history-preview.test.ts
+  h_4132837b09b7e7 1-39
+apps/desktop/src/main/conversations/session-history-preview.ts
+  h_4132837b09b7e7 1-20
+apps/desktop/src/main/conversations/session-paths.remote.test.ts
+  h_4132837b09b7e7 1-51
+apps/desktop/src/main/conversations/session-paths.ts
+  h_4132837b09b7e7 4,66-68,89-90,95
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.test.ts
+  h_4132837b09b7e7 106,116,178,181,207,211,237,246,272,275,372,377-378,408
+apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.ts
+  h_4132837b09b7e7 2,25,212
+apps/desktop/src/main/file-protocol.test.ts
+  h_4132837b09b7e7 1-50
+apps/desktop/src/main/file-protocol.ts
+  h_4132837b09b7e7 5,8,57-59,66-68,75-90,109-113
+apps/desktop/src/main/filesystem/editable-text.ts
+  h_4132837b09b7e7 1-32
+apps/desktop/src/main/filesystem/file-explorer-dotfiles.test.ts
+  h_4132837b09b7e7 1-36
+apps/desktop/src/main/filesystem/filesystem-service.remote-flow.test.ts
+  h_4132837b09b7e7 1-104
+apps/desktop/src/main/filesystem/filesystem-service.ts
+  h_4132837b09b7e7 1,5,22-45,107-112,120-125,152-157,162-167,174,180,204-205,208-236,238-242,251-254,256,261,268,289,298,335-337,339,342,352-354,366,377,384,390-392,407,416,451-456
+apps/desktop/src/main/filesystem/preview-file-source.ts
+  h_4132837b09b7e7 1-14
+apps/desktop/src/main/filesystem/remote-directory-watch.helper.test.ts
+  h_4132837b09b7e7 1-39
+apps/desktop/src/main/filesystem/remote-directory-watch.test.ts
+  h_4132837b09b7e7 1-70
+apps/desktop/src/main/filesystem/remote-directory-watch.ts
+  h_4132837b09b7e7 1-109
+apps/desktop/src/main/filesystem/remote-filesystem.test.ts
+  h_4132837b09b7e7 1-120
+apps/desktop/src/main/filesystem/remote-filesystem.ts
+  h_4132837b09b7e7 1-299
+apps/desktop/src/main/ipc/abilities.ts
+  h_4132837b09b7e7 13,83,190,195-216
+apps/desktop/src/main/ipc/app-monitor-parser.test.ts
+  h_4132837b09b7e7 57-72
+apps/desktop/src/main/ipc/app-monitor.ts
+  h_4132837b09b7e7 38
+apps/desktop/src/main/ipc/config-set-preserves-fields.test.ts
+  h_4132837b09b7e7 1-32
+apps/desktop/src/main/ipc/fs.ts
+  h_4132837b09b7e7 6,78,87-88,100-102,366,376-389,422-429,457-458,473-474,476-481,522-523,534-535
+apps/desktop/src/main/ipc/index.ts
+  h_4132837b09b7e7 28,37-38,63-64,75,112-113,124,154-155,166
+apps/desktop/src/main/ipc/plugin-management.ts
+  h_4132837b09b7e7 77-83
+apps/desktop/src/main/ipc/projects.ts
+  h_4132837b09b7e7 1-56
+apps/desktop/src/main/ipc/session.ts
+  h_4132837b09b7e7 26-27,34,38,59,64,212-217,573-594,1075-1077,1433-1447,1701,1738,1740-1750,1850,1870
+apps/desktop/src/main/ipc/ssh.ts
+  h_4132837b09b7e7 1-144
+apps/desktop/src/main/ipc/terminal.test.ts
+  h_4132837b09b7e7 1-204
+apps/desktop/src/main/ipc/terminal.ts
+  h_4132837b09b7e7 1-151
+apps/desktop/src/main/logger/renderer-console-policy.test.ts
+  h_4132837b09b7e7 8
+apps/desktop/src/main/logger/renderer-console-policy.ts
+  h_4132837b09b7e7 3
+apps/desktop/src/main/main.ts
+  h_4132837b09b7e7 52,68,70,343-352,361,676-682,760,927-931
+apps/desktop/src/main/mcp/mcp-settings-service.test.ts
+  h_4132837b09b7e7 24-45,71,78,110-115,120,126,142-155
+apps/desktop/src/main/mcp/mcp-settings-service.ts
+  h_4132837b09b7e7 6,15,22,194-198,208,217,229,233-250,267
+apps/desktop/src/main/media-generation/media-artifact-store.ts
+  h_4132837b09b7e7 1-4,8,94-105
+apps/desktop/src/main/media-protocol.test.ts
+  h_4132837b09b7e7 1-74
+apps/desktop/src/main/media-protocol.ts
+  h_4132837b09b7e7 6,8-9,95-101,103-131,133-143,145-167,169-177,179-182,185-188
+apps/desktop/src/main/models/model-settings-host.ts
+  h_4132837b09b7e7 4,39-40
+apps/desktop/src/main/models/model-settings-service.ts
+  h_4132837b09b7e7 36-40,153,332
+apps/desktop/src/main/models/presets/sync.test.ts
+  h_4132837b09b7e7 1-87
+apps/desktop/src/main/models/presets/sync.ts
+  h_4132837b09b7e7 116-118
+apps/desktop/src/main/plugins/command-runner.ts
+  h_4132837b09b7e7 2,12,88-98
+apps/desktop/src/main/plugins/command-spawner.remote.test.ts
+  h_4132837b09b7e7 1-121
+apps/desktop/src/main/plugins/command-spawner.ts
+  h_4132837b09b7e7 2,8,28,30,161-166,168,171-172,179,182,189,191,197-198,200,207-216,225,227,231,242,261
+apps/desktop/src/main/plugins/offscreen-capture-deadline.test.ts
+  h_4132837b09b7e7 16
+apps/desktop/src/main/plugins/offscreen-capture-painting.test.ts
+  h_4132837b09b7e7 1-81
+apps/desktop/src/main/plugins/plugin-agent-contribution-service.test.ts
+  h_4132837b09b7e7 36-39,53,88-98
+apps/desktop/src/main/plugins/plugin-agent-contribution-service.ts
+  h_4132837b09b7e7 35,162,168-172
+apps/desktop/src/main/plugins/plugin-api-version.ts
+  h_4132837b09b7e7 1-12
+apps/desktop/src/main/plugins/plugin-catalog-install.test.ts
+  h_4132837b09b7e7 2,5,12,17-19,31,67-70,78-96
+apps/desktop/src/main/plugins/plugin-catalog.ts
+  h_4132837b09b7e7 2,19,26,37,45,52,66-73,128-132,260,280,285-289,297-299,301-305,318,326,335,351,365,376-380,392,400-404,412,438,449,488
+apps/desktop/src/main/plugins/plugin-dev-watch.ts
+  h_4132837b09b7e7 3,153-158,277-281
+apps/desktop/src/main/plugins/plugin-install-options.test.ts
+  h_4132837b09b7e7 5-13
+apps/desktop/src/main/plugins/plugin-install-options.ts
+  h_4132837b09b7e7 63-64
+apps/desktop/src/main/plugins/plugin-lifecycle-production.ts
+  h_4132837b09b7e7 1,63-64
+apps/desktop/src/main/plugins/plugin-lifecycle-service.test.ts
+  h_4132837b09b7e7 83-85,98-137,198-202
+apps/desktop/src/main/plugins/plugin-lifecycle-service.ts
+  h_4132837b09b7e7 7,38-40,55-57,61-63,67-69,184-202,222-245,269,272,280-282,289-343
+apps/desktop/src/main/plugins/plugin-package-open-service.ts
+  h_4132837b09b7e7 1-71
+apps/desktop/src/main/plugins/plugin-package-open.test.ts
+  h_4132837b09b7e7 1-99
+apps/desktop/src/main/plugins/plugin-package-open.ts
+  h_4132837b09b7e7 1-116
+apps/desktop/src/main/plugins/plugin-package.test.ts
+  h_4132837b09b7e7 1,4,100-123
+apps/desktop/src/main/plugins/plugin-package.ts
+  h_4132837b09b7e7 26-29,228-257
+apps/desktop/src/main/plugins/plugin-protocol.ts
+  h_4132837b09b7e7 114,117
+apps/desktop/src/main/plugins/remote-command-runner.test.ts
+  h_4132837b09b7e7 1-79
+apps/desktop/src/main/plugins/remote-command-runner.ts
+  h_4132837b09b7e7 1-72
+apps/desktop/src/main/plugins/spawned-process.ts
+  h_4132837b09b7e7 1-212
+apps/desktop/src/main/projects/project-path.ts
+  h_4132837b09b7e7 1-10,12
+apps/desktop/src/main/projects/project-service-instance.ts
+  h_4132837b09b7e7 1-56
+apps/desktop/src/main/projects/project-service.test.ts
+  h_4132837b09b7e7 17,21,32,127-202
+apps/desktop/src/main/projects/project-service.ts
+  h_4132837b09b7e7 1,10-16,39-48,94-98,113-121
+apps/desktop/src/main/proxy/proxy-host.ts
+  h_4132837b09b7e7 1-34
+apps/desktop/src/main/proxy/proxy-routing.test.ts
+  h_4132837b09b7e7 1-55
+apps/desktop/src/main/proxy/proxy-routing.ts
+  h_4132837b09b7e7 1-42
+apps/desktop/src/main/proxy/proxy-runtime.test.ts
+  h_4132837b09b7e7 1-226
+apps/desktop/src/main/proxy/proxy-runtime.ts
+  h_4132837b09b7e7 1-157
+apps/desktop/src/main/proxy/proxy-settings.test.ts
+  h_4132837b09b7e7 3-8,10-17,20-21,24-26,29-30,33-34,38-40,42-45,47-48,50,52-54,56-71
+apps/desktop/src/main/proxy/proxy-settings.ts
+  h_4132837b09b7e7 1-86
+apps/desktop/src/main/runtime-configuration/runtime-configuration-service.test.ts
+  h_4132837b09b7e7 1-4,12-13,32,37,41-43,51-100
+apps/desktop/src/main/runtime-configuration/runtime-configuration-service.ts
+  h_4132837b09b7e7 2-7,22,75-92,98-102,116-120,133-136,149-154,156,170-175,180-221,241-243
+apps/desktop/src/main/skills/skill-service.ts
+  h_4132837b09b7e7 10,88,91-100,231
+apps/desktop/src/main/ssh/askpass-assets.ts
+  h_4132837b09b7e7 1-100
+apps/desktop/src/main/ssh/askpass-roundtrip.test.ts
+  h_4132837b09b7e7 1-118
+apps/desktop/src/main/ssh/askpass-runtime.ts
+  h_4132837b09b7e7 1-80
+apps/desktop/src/main/ssh/askpass-server.ts
+  h_4132837b09b7e7 1-127
+apps/desktop/src/main/ssh/helper-assets.test.ts
+  h_4132837b09b7e7 1-35
+apps/desktop/src/main/ssh/helper-assets.ts
+  h_4132837b09b7e7 1-29
+apps/desktop/src/main/ssh/port-forward-service.test.ts
+  h_4132837b09b7e7 1-271
+apps/desktop/src/main/ssh/port-forward-service.ts
+  h_4132837b09b7e7 1-298
+apps/desktop/src/main/ssh/ssh-events.ts
+  h_4132837b09b7e7 1-28
+apps/desktop/src/main/ssh/ssh-host-probe.ts
+  h_4132837b09b7e7 1-77
+apps/desktop/src/main/ssh/ssh-host-service-instance.ts
+  h_4132837b09b7e7 1-55
+apps/desktop/src/main/ssh/ssh-host-service.test.ts
+  h_4132837b09b7e7 1-189
+apps/desktop/src/main/ssh/ssh-host-service.ts
+  h_4132837b09b7e7 1-166
+apps/desktop/src/main/ssh/ssh-prompt-broker.ts
+  h_4132837b09b7e7 1-75
+apps/desktop/src/main/ssh/ssh-prompt-service.test.ts
+  h_4132837b09b7e7 1-141
+apps/desktop/src/main/ssh/ssh-prompt-service.ts
+  h_4132837b09b7e7 1-105
+apps/desktop/src/main/ssh/ssh-runtime.ts
+  h_4132837b09b7e7 1-87
+apps/desktop/src/main/terminal/local-pty-backend.test.ts
+  h_4132837b09b7e7 1-53
+apps/desktop/src/main/terminal/local-pty-backend.ts
+  h_4132837b09b7e7 1-152
+apps/desktop/src/main/terminal/output-ring-buffer.test.ts
+  h_4132837b09b7e7 1-51
+apps/desktop/src/main/terminal/output-ring-buffer.ts
+  h_4132837b09b7e7 1-48
+apps/desktop/src/main/terminal/remote-pty-backend.ts
+  h_4132837b09b7e7 1-48
+apps/desktop/src/main/terminal/resolve-terminal-shell.test.ts
+  h_4132837b09b7e7 1-115
+apps/desktop/src/main/terminal/resolve-terminal-shell.ts
+  h_4132837b09b7e7 1-101
+apps/desktop/src/main/terminal/snapshot-store.test.ts
+  h_4132837b09b7e7 1-101
+apps/desktop/src/main/terminal/snapshot-store.ts
+  h_4132837b09b7e7 1-103
+apps/desktop/src/main/terminal/terminal-backend.ts
+  h_4132837b09b7e7 1-34
+apps/desktop/src/main/terminal/terminal-service.test.ts
+  h_4132837b09b7e7 1-272
+apps/desktop/src/main/terminal/terminal-service.ts
+  h_4132837b09b7e7 1-139
+apps/desktop/src/main/terminal/terminal-session.ts
+  h_4132837b09b7e7 1-144
+apps/desktop/src/preload/api-types/abilities.ts
+  h_4132837b09b7e7 18-19
+apps/desktop/src/preload/api-types/app-monitor.ts
+  h_4132837b09b7e7 49
+apps/desktop/src/preload/api-types/config.ts
+  h_4132837b09b7e7 3-24,149-150,153-157,164
+apps/desktop/src/preload/api-types/models.ts
+  h_4132837b09b7e7 25-26
+apps/desktop/src/preload/api-types/plugins.ts
+  h_4132837b09b7e7 232-233,647,651-665,792
+apps/desktop/src/preload/api-types/project.ts
+  h_4132837b09b7e7 31-48,56-67
+apps/desktop/src/preload/api-types/session.ts
+  h_4132837b09b7e7 3-4,11,122-126,176-186,289
+apps/desktop/src/preload/api-types/ssh.ts
+  h_4132837b09b7e7 1-116
+apps/desktop/src/preload/api-types/terminal.ts
+  h_4132837b09b7e7 1-22
+apps/desktop/src/preload/api.ts
+  h_4132837b09b7e7 32,44,79,82,130-131
+apps/desktop/src/preload/apis/plugins.ts
+  h_4132837b09b7e7 296-297
+apps/desktop/src/preload/apis/project.ts
+  h_4132837b09b7e7 1-32
+apps/desktop/src/preload/apis/session.test.ts
+  h_4132837b09b7e7 114-125
+apps/desktop/src/preload/apis/session.ts
+  h_4132837b09b7e7 42-47,127-133,191-194
+apps/desktop/src/preload/apis/ssh.ts
+  h_4132837b09b7e7 1-70
+apps/desktop/src/preload/apis/terminal.ts
+  h_4132837b09b7e7 1-23
+apps/desktop/src/preload/index.ts
+  h_4132837b09b7e7 18,25,28,58-60
+apps/desktop/src/renderer/domains/abilities/components/AbilitiesPageView.tsx
+  h_4132837b09b7e7 56
+apps/desktop/src/renderer/domains/abilities/components/AbilityCard.operation.test.tsx
+  h_4132837b09b7e7 1-101
+apps/desktop/src/renderer/domains/abilities/components/AbilityCard.tsx
+  h_4132837b09b7e7 147-154,156-158,161-178
+apps/desktop/src/renderer/domains/abilities/components/AbilityOperationStatus.tsx
+  h_4132837b09b7e7 45,47,50,52-55
+apps/desktop/src/renderer/domains/abilities/components/detail/PluginPermissionUiPreview.tsx
+  h_4132837b09b7e7 302-324,329
+apps/desktop/src/renderer/domains/abilities/hooks/useAbilityActions.test.tsx
+  h_4132837b09b7e7 190,203,257,265,273,293,299
+apps/desktop/src/renderer/domains/abilities/hooks/useAbilityActions.ts
+  h_4132837b09b7e7 201-202,205-224,226-251,259,267
+apps/desktop/src/renderer/domains/abilities/lib/ability-catalog-query.ts
+  h_4132837b09b7e7 38
+apps/desktop/src/renderer/domains/abilities/lib/plugin-permission-labels.ts
+  h_4132837b09b7e7 12,78,135-141
+apps/desktop/src/renderer/domains/abilities/types.ts
+  h_4132837b09b7e7 106
+apps/desktop/src/renderer/domains/activity-panel/builtins/index.ts
+  h_4132837b09b7e7 8-9,21,23
+apps/desktop/src/renderer/domains/activity-panel/builtins/plan-tab.test.tsx
+  h_4132837b09b7e7 1-61
+apps/desktop/src/renderer/domains/activity-panel/builtins/plan-tab.tsx
+  h_4132837b09b7e7 1-19
+apps/desktop/src/renderer/domains/activity-panel/builtins/ports-tab.tsx
+  h_4132837b09b7e7 1-31
+apps/desktop/src/renderer/domains/activity-panel/components/ActivityPanel.live-tabs.test.tsx
+  h_4132837b09b7e7 1-96
+apps/desktop/src/renderer/domains/activity-panel/components/ActivityPanel.plugin-tabs.test.tsx
+  h_4132837b09b7e7 3,7-12,64-66,68,73,78,94-123
+apps/desktop/src/renderer/domains/activity-panel/components/PlanTabPanel.tsx
+  h_4132837b09b7e7 1-21
+apps/desktop/src/renderer/domains/activity-panel/components/PortsTabPanel.test.tsx
+  h_4132837b09b7e7 1-523
+apps/desktop/src/renderer/domains/activity-panel/components/PortsTabPanel.tsx
+  h_4132837b09b7e7 1-10
+apps/desktop/src/renderer/domains/activity-panel/components/activity-panel/ActivityPanelView.tsx
+  h_4132837b09b7e7 25-27,29-30,49,61,75,114
+apps/desktop/src/renderer/domains/activity-panel/components/activity-panel/TabBar.drag.test.ts
+  h_4132837b09b7e7 120-139
+apps/desktop/src/renderer/domains/activity-panel/hooks/useActivityPanelModel.ts
+  h_4132837b09b7e7 215-228
+apps/desktop/src/renderer/domains/activity-panel/hooks/usePlanTabPanelModel.ts
+  h_4132837b09b7e7 1-45
+apps/desktop/src/renderer/domains/activity-panel/hooks/usePortsTabPanelModel.ts
+  h_4132837b09b7e7 1-472
+apps/desktop/src/renderer/domains/activity-panel/hooks/useSshPortForwards.ts
+  h_4132837b09b7e7 1-3,5-10,13-16,18-19,22-25,27-29,31-32,35,37,39
+apps/desktop/src/renderer/domains/activity-panel/registry/ActivityTabMetaHost.tsx
+  h_4132837b09b7e7 4-5,7,10-11,13-32,40-41,47
+apps/desktop/src/renderer/domains/activity-panel/registry/useActivityTabDefinitions.tsx
+  h_4132837b09b7e7 38-40,48-50
+apps/desktop/src/renderer/domains/activity-panel/services/detect-ports-in-output.test.ts
+  h_4132837b09b7e7 1-38
+apps/desktop/src/renderer/domains/activity-panel/services/detect-ports-in-output.ts
+  h_4132837b09b7e7 1-28
+apps/desktop/src/renderer/domains/agent-teams/components/TeamSettingsSheet.test.tsx
+  h_4132837b09b7e7 129-142
+apps/desktop/src/renderer/domains/agent-teams/components/TeamSettingsSheet.tsx
+  h_4132837b09b7e7 6,274-285,687
+apps/desktop/src/renderer/domains/agent-teams/lib/team-assembly.test.ts
+  h_4132837b09b7e7 65,110-120
+apps/desktop/src/renderer/domains/agent-teams/lib/team-assembly.ts
+  h_4132837b09b7e7 10,21,45,97-101,122-127,160
+apps/desktop/src/renderer/domains/bottom-panel/builtins/index.ts
+  h_4132837b09b7e7 1-8
+apps/desktop/src/renderer/domains/bottom-panel/builtins/terminal-panel.tsx
+  h_4132837b09b7e7 1-14
+apps/desktop/src/renderer/domains/bottom-panel/builtins/types.ts
+  h_4132837b09b7e7 1-2,4-19
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelAddMenu.tsx
+  h_4132837b09b7e7 1-74
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelHost.flow.test.tsx
+  h_4132837b09b7e7 1-256
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelHost.tsx
+  h_4132837b09b7e7 1-138
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelLeaf.tsx
+  h_4132837b09b7e7 1-128
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelSplitView.tsx
+  h_4132837b09b7e7 1-98
+apps/desktop/src/renderer/domains/bottom-panel/components/PluginBottomPanelSlot.tsx
+  h_4132837b09b7e7 1-52
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelModel.ts
+  h_4132837b09b7e7 1-75
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelPills.ts
+  h_4132837b09b7e7 1-28
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelSizing.ts
+  h_4132837b09b7e7 1-79
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelTabs.ts
+  h_4132837b09b7e7 1-138
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useTerminalCapabilities.ts
+  h_4132837b09b7e7 1-54
+apps/desktop/src/renderer/domains/bottom-panel/registry/BottomPanelInstanceHost.tsx
+  h_4132837b09b7e7 1-90
+apps/desktop/src/renderer/domains/bottom-panel/registry/instance-atoms.ts
+  h_4132837b09b7e7 1-65
+apps/desktop/src/renderer/domains/bottom-panel/registry/instance-context.ts
+  h_4132837b09b7e7 1-17
+apps/desktop/src/renderer/domains/bottom-panel/registry/resolve-bottom-panel-tabs.test.ts
+  h_4132837b09b7e7 1-112
+apps/desktop/src/renderer/domains/bottom-panel/registry/resolve-bottom-panel-tabs.ts
+  h_4132837b09b7e7 1-80
+apps/desktop/src/renderer/domains/bottom-panel/registry/resolve-close-decision.test.ts
+  h_4132837b09b7e7 1-100
+apps/desktop/src/renderer/domains/bottom-panel/registry/resolve-close-decision.ts
+  h_4132837b09b7e7 1-62
+apps/desktop/src/renderer/domains/bottom-panel/registry/types.ts
+  h_4132837b09b7e7 1-79
+apps/desktop/src/renderer/domains/bottom-panel/registry/useBottomPanelDefinitions.tsx
+  h_4132837b09b7e7 1-117
+apps/desktop/src/renderer/domains/bottom-panel/terminal/TerminalSurface.tsx
+  h_4132837b09b7e7 1-257
+apps/desktop/src/renderer/domains/bottom-panel/terminal/select-terminal-renderer.ts
+  h_4132837b09b7e7 1-30
+apps/desktop/src/renderer/domains/bottom-panel/terminal/terminal-theme.test.ts
+  h_4132837b09b7e7 1-82
+apps/desktop/src/renderer/domains/bottom-panel/terminal/terminal-theme.ts
+  h_4132837b09b7e7 1-74
+apps/desktop/src/renderer/domains/conversation/components/ChatExportHost.tsx
+  h_4132837b09b7e7 7
+apps/desktop/src/renderer/domains/conversation/components/ChatView.composer.test.tsx
+  h_4132837b09b7e7 1-40
+apps/desktop/src/renderer/domains/conversation/components/ChatView.tsx
+  h_4132837b09b7e7 18-35,70-76,86-88
+apps/desktop/src/renderer/domains/conversation/components/MessageList.tsx
+  h_4132837b09b7e7 2,7-14,19-20,29-45,49,51,54
+apps/desktop/src/renderer/domains/conversation/components/ModelSelectorView.test.tsx
+  h_4132837b09b7e7 1-92
+apps/desktop/src/renderer/domains/conversation/components/NewSessionPage.tsx
+  h_4132837b09b7e7 1,3,12-20
+apps/desktop/src/renderer/domains/conversation/components/PlanEntryCard.test.tsx
+  h_4132837b09b7e7 1-50
+apps/desktop/src/renderer/domains/conversation/components/PlanEntryCard.tsx
+  h_4132837b09b7e7 1-27
+apps/desktop/src/renderer/domains/conversation/components/PlanReviewPanel.test.tsx
+  h_4132837b09b7e7 1-116
+apps/desktop/src/renderer/domains/conversation/components/PlanReviewPanel.tsx
+  h_4132837b09b7e7 1-19
+apps/desktop/src/renderer/domains/conversation/components/agent-controls.test.tsx
+  h_4132837b09b7e7 38,51-52
+apps/desktop/src/renderer/domains/conversation/components/blocks/ToolCallBlock.tsx
+  h_4132837b09b7e7 14,16,19,26,82-87,193-200,230,232,279,281
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/ExitPlanModeView.tsx
+  h_4132837b09b7e7 1-46
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/shared/parse-tool.ts
+  h_4132837b09b7e7 110-111
+apps/desktop/src/renderer/domains/conversation/components/chat-view/ChatHeaderActionsView.tsx
+  h_4132837b09b7e7 27-31
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.test.tsx
+  h_4132837b09b7e7 13-16,43-62
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.tsx
+  h_4132837b09b7e7 2,16,87-92,95-99
+apps/desktop/src/renderer/domains/conversation/components/chat-view/types.ts
+  h_4132837b09b7e7 16-17,37
+apps/desktop/src/renderer/domains/conversation/components/input-bar/DefaultInputBarConnector.tsx
+  h_4132837b09b7e7 1,25,40,81-83,100,125,156,177
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarView.tsx
+  h_4132837b09b7e7 9,17,44-46,91-101,191-197,305-320
+apps/desktop/src/renderer/domains/conversation/components/input-bar/types.ts
+  h_4132837b09b7e7 5-6,154-155,179-183,246-247,277-284
+apps/desktop/src/renderer/domains/conversation/components/input-bar/useInputBarPanelModel.ts
+  h_4132837b09b7e7 2,10,17,19-20
+apps/desktop/src/renderer/domains/conversation/components/input-bar/useInputBarSources.test.tsx
+  h_4132837b09b7e7 3,44-59
+apps/desktop/src/renderer/domains/conversation/components/input-bar/useInputBarSources.ts
+  h_4132837b09b7e7 11,26,30-35,37,79,87,89
+apps/desktop/src/renderer/domains/conversation/components/message-list/ForkOriginBanner.tsx
+  h_4132837b09b7e7 75
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.tsx
+  h_4132837b09b7e7 103
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageListView.test.tsx
+  h_4132837b09b7e7 7,14-15,37-42,111,122,124-125,133,137,142-143,146-148,151-164,166-227,230-255,259,269,283,292,302-303,308-310,313-314,316-317,321,331,339,347
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageListView.tsx
+  h_4132837b09b7e7 3-12,14,21-24,29-68,74,81,96-113,119-142,150-153,196,198-222,229,238
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageTimeline.tsx
+  h_4132837b09b7e7 16
+apps/desktop/src/renderer/domains/conversation/components/message-list/RenderingScopes.test.tsx
+  h_4132837b09b7e7 103-142
+apps/desktop/src/renderer/domains/conversation/components/message-list/UserMessageText.performance.test.tsx
+  h_4132837b09b7e7 3-6,9-12,14-17,19,23-39,42-47,49-60,63-66,68-71,73-80,82-85,88-94,96-105,107-110
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-height-estimates.test.ts
+  h_4132837b09b7e7 1-143
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-height-estimates.ts
+  h_4132837b09b7e7 1-241
+apps/desktop/src/renderer/domains/conversation/components/message-list/messageBlockModel.test.ts
+  h_4132837b09b7e7 28,31,33-34
+apps/desktop/src/renderer/domains/conversation/components/message-list/messageBlockModel.ts
+  h_4132837b09b7e7 17-18,56,59,62,66-69,73,88,110,150,156,161,168
+apps/desktop/src/renderer/domains/conversation/components/message-list/messageNavigationModel.ts
+  h_4132837b09b7e7 24
+apps/desktop/src/renderer/domains/conversation/components/message-list/types.ts
+  h_4132837b09b7e7 12,27
+apps/desktop/src/renderer/domains/conversation/components/plan-entry-card/PlanEntryCardView.tsx
+  h_4132837b09b7e7 1-66
+apps/desktop/src/renderer/domains/conversation/components/plan-review-panel/PlanReviewPanelView.tsx
+  h_4132837b09b7e7 1-257
+apps/desktop/src/renderer/domains/conversation/components/plan-review-panel/types.ts
+  h_4132837b09b7e7 1-29
+apps/desktop/src/renderer/domains/conversation/components/useInputActionBarModel.test.tsx
+  h_4132837b09b7e7 1-56
+apps/desktop/src/renderer/domains/conversation/components/useInputActionBarModel.ts
+  h_4132837b09b7e7 21,32-43,48,57-61,81,120-144,146-147,154
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatView.test.tsx
+  h_4132837b09b7e7 9,26-29,36,132-163
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatView.tsx
+  h_4132837b09b7e7 4-5,8,18-86,94-146,153,155,157-158,163,165-166,169-170,172,176
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamComposerConnector.tsx
+  h_4132837b09b7e7 24,37,72,356-357
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamMemberRoster.test.tsx
+  h_4132837b09b7e7 61-66,109-110,117-118,128
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamMemberRoster.tsx
+  h_4132837b09b7e7 3,94,98,126-140,142-145
+apps/desktop/src/renderer/domains/conversation/connectors/team/teamChatModel.test.ts
+  h_4132837b09b7e7 368-449
+apps/desktop/src/renderer/domains/conversation/connectors/team/teamChatModel.ts
+  h_4132837b09b7e7 81-106,817-818,830-849
+apps/desktop/src/renderer/domains/conversation/connectors/team/useTeamChatModel.test.tsx
+  h_4132837b09b7e7 28-32,44,217-231
+apps/desktop/src/renderer/domains/conversation/connectors/team/useTeamChatModel.ts
+  h_4132837b09b7e7 155-156,910-928,932,950,953,964,969,984,997-998,1044-1047
+apps/desktop/src/renderer/domains/conversation/hooks/useAssistantMessageModel.ts
+  h_4132837b09b7e7 15,35,39-46,55-56,62,67-69,74-79,82,84-86,113,119
+apps/desktop/src/renderer/domains/conversation/hooks/useChatExportHostModel.ts
+  h_4132837b09b7e7 26
+apps/desktop/src/renderer/domains/conversation/hooks/useChatViewModel.ts
+  h_4132837b09b7e7 1,4,7,12,19,28,30,33,54,123-131,155-183,192,195,206-209,213
+apps/desktop/src/renderer/domains/conversation/hooks/useCommandPanelModel.test.tsx
+  h_4132837b09b7e7 17
+apps/desktop/src/renderer/domains/conversation/hooks/useCommandPanelModel.tsx
+  h_4132837b09b7e7 226-232
+apps/desktop/src/renderer/domains/conversation/hooks/useDeferredMessageEnhancements.test.tsx
+  h_4132837b09b7e7 5,7-27,30,35-51,53-54,56,58-59,61-66,69,71,76-78,80-84
+apps/desktop/src/renderer/domains/conversation/hooks/useDeferredMessageEnhancements.ts
+  h_4132837b09b7e7 1-69
+apps/desktop/src/renderer/domains/conversation/hooks/useExecutionModeSelectorModel.test.tsx
+  h_4132837b09b7e7 1-50
+apps/desktop/src/renderer/domains/conversation/hooks/useExecutionModeSelectorModel.ts
+  h_4132837b09b7e7 7-8,26-31,57-59,68-69,84-87,104-106,108,111,115-116,124
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageCardsHostModel.test.tsx
+  h_4132837b09b7e7 6,229-257
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageCardsHostModel.ts
+  h_4132837b09b7e7 2,211
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageListModel.test.tsx
+  h_4132837b09b7e7 1-37
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageListModel.ts
+  h_4132837b09b7e7 5,7-14,17,28,34-48
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageListScrollModel.test.tsx
+  h_4132837b09b7e7 10-29
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageListScrollModel.ts
+  h_4132837b09b7e7 7,11,43-66
+apps/desktop/src/renderer/domains/conversation/hooks/useOpenActivityTab.ts
+  h_4132837b09b7e7 1-18
+apps/desktop/src/renderer/domains/conversation/hooks/usePlanModeModel.test.tsx
+  h_4132837b09b7e7 1-99
+apps/desktop/src/renderer/domains/conversation/hooks/usePlanModeModel.ts
+  h_4132837b09b7e7 1-59
+apps/desktop/src/renderer/domains/conversation/hooks/usePlanReviewPanelModel.ts
+  h_4132837b09b7e7 1-67
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionEventController.ts
+  h_4132837b09b7e7 15,36,100,587-592,624
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionManager.session-switch.test.ts
+  h_4132837b09b7e7 431,471-473,630,638,683-688
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionMessageSender.ts
+  h_4132837b09b7e7 65,67,337-341,343-344,346-347,449-458
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionOpener.ts
+  h_4132837b09b7e7 12,43-44,60,78-109,118,124,169-172,287,392-398,408-419,437-441,443,520-522,528-532,561-575,592-593,595,603,618-665,699-701,733
+apps/desktop/src/renderer/domains/conversation/hooks/useToolCallBlockCapabilities.ts
+  h_4132837b09b7e7 38-39
+apps/desktop/src/renderer/domains/conversation/services/chat-message-snapshot.test.ts
+  h_4132837b09b7e7 53-60
+apps/desktop/src/renderer/domains/conversation/services/chat-message-snapshot.ts
+  h_4132837b09b7e7 57,61-62
+apps/desktop/src/renderer/domains/conversation/services/chat-service-plan-review.test.ts
+  h_4132837b09b7e7 1-18
+apps/desktop/src/renderer/domains/conversation/services/chat-service.ts
+  h_4132837b09b7e7 14,246-253,260,328-334
+apps/desktop/src/renderer/domains/conversation/services/classifyChatError.test.ts
+  h_4132837b09b7e7 12,35-38
+apps/desktop/src/renderer/domains/conversation/services/classifyChatError.ts
+  h_4132837b09b7e7 32
+apps/desktop/src/renderer/domains/conversation/services/failed-resend-rollback.test.ts
+  h_4132837b09b7e7 1-90
+apps/desktop/src/renderer/domains/conversation/services/failed-resend-rollback.ts
+  h_4132837b09b7e7 1-55
+apps/desktop/src/renderer/domains/conversation/services/plan-mode-draft.ts
+  h_4132837b09b7e7 1-17
+apps/desktop/src/renderer/domains/conversation/services/plan-review.test.ts
+  h_4132837b09b7e7 1-85
+apps/desktop/src/renderer/domains/conversation/services/plan-review.ts
+  h_4132837b09b7e7 1-122
+apps/desktop/src/renderer/domains/conversation/services/session-hydration-state.ts
+  h_4132837b09b7e7 1-37
+apps/desktop/src/renderer/domains/file-explorer/components/FileExplorerSettings.tsx
+  h_4132837b09b7e7 1-68
+apps/desktop/src/renderer/domains/file-explorer/file-context-menu-position.test.tsx
+  h_4132837b09b7e7 1-98
+apps/desktop/src/renderer/domains/file-explorer/file-context-menu-remote.test.tsx
+  h_4132837b09b7e7 1-49
+apps/desktop/src/renderer/domains/file-explorer/file-explorer-display.flow.test.tsx
+  h_4132837b09b7e7 1-122
+apps/desktop/src/renderer/domains/file-explorer/hooks/useFileContextMenuModel.ts
+  h_4132837b09b7e7 5,139-140
+apps/desktop/src/renderer/domains/file-explorer/hooks/useFileTree.ts
+  h_4132837b09b7e7 1,7,12,27-36,191-193,209,277
+apps/desktop/src/renderer/domains/file-explorer/hooks/useFileTreeViewModel.ts
+  h_4132837b09b7e7 1-8,16,19-30,59-67,83-94,97-100,103
+apps/desktop/src/renderer/domains/file-explorer/hooks/useFilesPanelModel.tsx
+  h_4132837b09b7e7 52,694
+apps/desktop/src/renderer/domains/file-explorer/services/file-icon-theme.test.ts
+  h_4132837b09b7e7 1-50
+apps/desktop/src/renderer/domains/file-explorer/services/file-icon-theme.ts
+  h_4132837b09b7e7 1-32
+apps/desktop/src/renderer/domains/file-explorer/services/plugin-contributions.test.ts
+  h_4132837b09b7e7 7,22-44,95
+apps/desktop/src/renderer/domains/file-explorer/services/plugin-contributions.ts
+  h_4132837b09b7e7 1,12,46,51-52,59-98
+apps/desktop/src/renderer/domains/plugins/components/PluginGlobalSlotHost.tsx
+  h_4132837b09b7e7 5,11,21,36,44,60,62,97,225-228,241,251-269,383,385,399,401
+apps/desktop/src/renderer/domains/plugins/components/plugin-file-explorer-publication.ts
+  h_4132837b09b7e7 1-20
+apps/desktop/src/renderer/domains/plugins/components/plugin-workspace-view-publication.test.ts
+  h_4132837b09b7e7 18,20
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-activity-tab-target.test.ts
+  h_4132837b09b7e7 28,30,114-127
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-contribution-default-icon.test.ts
+  h_4132837b09b7e7 1-113
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-file-explorer-context.test.ts
+  h_4132837b09b7e7 1-94
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-file-explorer-context.ts
+  h_4132837b09b7e7 2,9,19-20,53,56,83,103-110,112-113,116-138,141-165,167-168,202
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-file-explorer-validation.ts
+  h_4132837b09b7e7 1-109
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-local-contributions.ts
+  h_4132837b09b7e7 5,9,11,50-51,53,63-67,74-75,77,92,94,116,118
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-nav-icon-safelist.test.ts
+  h_4132837b09b7e7 14-17,39-48,54
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-nav-icon.ts
+  h_4132837b09b7e7 12,14,22
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-plugins.test.ts
+  h_4132837b09b7e7 73-77
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-plugins.ts
+  h_4132837b09b7e7 41,43
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-shortcuts.test.ts
+  h_4132837b09b7e7 42
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-ui-context.ts
+  h_4132837b09b7e7 3,23,29,50,60,206-208,236,348,376-414,442,482,524,745-749,945
+apps/desktop/src/renderer/domains/project/components/ProjectDetailPage.tsx
+  h_4132837b09b7e7 8-9,14-22
+apps/desktop/src/renderer/domains/project/components/orphan-remote/OrphanRemoteProjectGuard.tsx
+  h_4132837b09b7e7 1-103
+apps/desktop/src/renderer/domains/project/components/orphan-remote/useOrphanRemoteProject.test.tsx
+  h_4132837b09b7e7 1-87
+apps/desktop/src/renderer/domains/project/components/orphan-remote/useOrphanRemoteProject.ts
+  h_4132837b09b7e7 1-85
+apps/desktop/src/renderer/domains/project/components/session-context-menu.test.tsx
+  h_4132837b09b7e7 122-144
+apps/desktop/src/renderer/domains/project/components/sidebar/add-project/AddProjectMenu.tsx
+  h_4132837b09b7e7 4,33-39
+apps/desktop/src/renderer/domains/project/components/sidebar/add-project/RemoteProjectPickerDialog.tsx
+  h_4132837b09b7e7 1-158
+apps/desktop/src/renderer/domains/project/components/sidebar/add-project/types.ts
+  h_4132837b09b7e7 6,11
+apps/desktop/src/renderer/domains/project/components/sidebar/add-project/useAddProjectMenuModel.ts
+  h_4132837b09b7e7 18-20,27,33,116-124,150-165
+apps/desktop/src/renderer/domains/project/components/sidebar/add-project/useRemoteProjectPickerModel.ts
+  h_4132837b09b7e7 1-104
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/ProjectGroup.tsx
+  h_4132837b09b7e7 87
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultSessionList.tsx
+  h_4132837b09b7e7 18,26,46,100
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultSessionRowView.test.tsx
+  h_4132837b09b7e7 53-55,315,339,372-431
+apps/desktop/src/renderer/domains/project/components/sidebar/settings-menu/useSettingsMenuModel.ts
+  h_4132837b09b7e7 3,16
+apps/desktop/src/renderer/domains/project/hooks/useDefaultSessionListModel.ts
+  h_4132837b09b7e7 263
+apps/desktop/src/renderer/domains/project/hooks/useDefaultSessionRowModel.ts
+  h_4132837b09b7e7 42
+apps/desktop/src/renderer/domains/project/hooks/useProjectContextMenuModel.ts
+  h_4132837b09b7e7 2,75-76
+apps/desktop/src/renderer/domains/project/hooks/useProjectGroupModel.ts
+  h_4132837b09b7e7 13,123,228
+apps/desktop/src/renderer/domains/project/hooks/useProjectRowModel.ts
+  h_4132837b09b7e7 2,45
+apps/desktop/src/renderer/domains/project/hooks/useProjects.projectWrites.test.tsx
+  h_4132837b09b7e7 1-114
+apps/desktop/src/renderer/domains/project/hooks/useProjects.ts
+  h_4132837b09b7e7 264,267-273,275-283,285-287,289,292,296-297,345,354,362,369,380,492
+apps/desktop/src/renderer/domains/project/hooks/useSessionContextMenuModel.ts
+  h_4132837b09b7e7 9,113-114
+apps/desktop/src/renderer/domains/project/hooks/useSessionRowModel.ts
+  h_4132837b09b7e7 39
+apps/desktop/src/renderer/domains/project/project-context-menu-remote.test.tsx
+  h_4132837b09b7e7 1-42
+apps/desktop/src/renderer/domains/settings/components/AppearanceSettingsView.test.tsx
+  h_4132837b09b7e7 11-19,121-134
+apps/desktop/src/renderer/domains/settings/components/AppearanceSettingsView.tsx
+  h_4132837b09b7e7 15-16,35,54,74,91,104,109,123,133,140,147,215,217,221,227,233,257,280,306,308,343,476,491,493,507,548,559,574
+apps/desktop/src/renderer/domains/settings/components/GeneralSettingsView.tsx
+  h_4132837b09b7e7 5,7,16,64
+apps/desktop/src/renderer/domains/settings/components/ProxySettingsSection.test.tsx
+  h_4132837b09b7e7 1-168
+apps/desktop/src/renderer/domains/settings/components/ProxySettingsSection.tsx
+  h_4132837b09b7e7 1-29
+apps/desktop/src/renderer/domains/settings/components/RuntimeConfigurationSections.test.tsx
+  h_4132837b09b7e7 1-121
+apps/desktop/src/renderer/domains/settings/components/RuntimeConfigurationSections.tsx
+  h_4132837b09b7e7 24,29,39,50,64
+apps/desktop/src/renderer/domains/settings/components/SettingsPage.tsx
+  h_4132837b09b7e7 29
+apps/desktop/src/renderer/domains/settings/components/SshHostForm.tsx
+  h_4132837b09b7e7 1-100
+apps/desktop/src/renderer/domains/settings/components/SshHostList.tsx
+  h_4132837b09b7e7 1-115
+apps/desktop/src/renderer/domains/settings/components/SshHostsSettings.tsx
+  h_4132837b09b7e7 1-7
+apps/desktop/src/renderer/domains/settings/components/SshHostsSettingsView.tsx
+  h_4132837b09b7e7 1-60
+apps/desktop/src/renderer/domains/settings/components/settings-tab-loaders.ts
+  h_4132837b09b7e7 22
+apps/desktop/src/renderer/domains/settings/components/useAppearanceSettingsModel.ts
+  h_4132837b09b7e7 138-139,359-360,403-408
+apps/desktop/src/renderer/domains/settings/components/useProxySettingsModel.ts
+  h_4132837b09b7e7 1-255
+apps/desktop/src/renderer/domains/settings/components/useRuntimeConfigurationModel.ts
+  h_4132837b09b7e7 48
+apps/desktop/src/renderer/domains/settings/components/useSshHostsSettingsModel.test.tsx
+  h_4132837b09b7e7 1-168
+apps/desktop/src/renderer/domains/settings/components/useSshHostsSettingsModel.ts
+  h_4132837b09b7e7 1-312
+apps/desktop/src/renderer/domains/settings/registry.ts
+  h_4132837b09b7e7 19-20,55-60,94,99
+apps/desktop/src/renderer/renderApp.tsx
+  h_4132837b09b7e7 12,25
+apps/desktop/src/renderer/root-layout/RootGlobalOverlays.tsx
+  h_4132837b09b7e7 19,52
+apps/desktop/src/renderer/root-layout/pending-interaction-sync.test.ts
+  h_4132837b09b7e7 1-86
+apps/desktop/src/renderer/root-layout/pending-interaction-sync.ts
+  h_4132837b09b7e7 1-64
+apps/desktop/src/renderer/root-layout/useRootLayoutModel.ts
+  h_4132837b09b7e7 8,34,46,266,268-280,283-310
+apps/desktop/src/renderer/shared/components/PlanStatusBadge.tsx
+  h_4132837b09b7e7 1-21
+apps/desktop/src/renderer/shared/components/SshPromptDialog.tsx
+  h_4132837b09b7e7 1-114
+apps/desktop/src/renderer/shared/components/message-feed/MessageFeedPrimitives.test.tsx
+  h_4132837b09b7e7 19-20,38,88,100,117
+apps/desktop/src/renderer/shared/components/message-feed/useMessageFeedScrollModel.test.tsx
+  h_4132837b09b7e7 9-12,117,150-444,480-484,486-502
+apps/desktop/src/renderer/shared/components/message-feed/useMessageFeedScrollModel.ts
+  h_4132837b09b7e7 2,10-11,19-24,74-75,77,109-120,126-134,139-142,146-153,160-168,211-212,218,223-226,229,242-247,260-265,269-301,311-313,315,322-324,330,335,357-359,361,366,379-392,407-411,413,420-424,426-428,436-447,453,459-471
+apps/desktop/src/renderer/shared/components/provider-icon.test.tsx
+  h_4132837b09b7e7 49-55
+apps/desktop/src/renderer/shared/conversation/content-blocks.ts
+  h_4132837b09b7e7 46,50-55
+apps/desktop/src/renderer/shared/hooks/useSshHost.ts
+  h_4132837b09b7e7 1-43
+apps/desktop/src/renderer/shared/hooks/useTheme.test.tsx
+  h_4132837b09b7e7 1-115
+apps/desktop/src/renderer/shared/hooks/useTheme.ts
+  h_4132837b09b7e7 2-3,10,24-94,96-110,112-113,115,117-118,120-129,131,133-134,137-139,183,187,200
+apps/desktop/src/renderer/shared/lib/file-explorer-preferences.test.ts
+  h_4132837b09b7e7 1-41
+apps/desktop/src/renderer/shared/lib/file-explorer-preferences.ts
+  h_4132837b09b7e7 1-78
+apps/desktop/src/renderer/shared/lib/perf-message-scroll-profiler.tsx
+  h_4132837b09b7e7 1-15
+apps/desktop/src/renderer/shared/lib/perf-message-scroll.test.ts
+  h_4132837b09b7e7 1-133
+apps/desktop/src/renderer/shared/lib/perf-message-scroll.ts
+  h_4132837b09b7e7 1-351
+apps/desktop/src/renderer/shared/lib/perf-session-switch-profiler.test.tsx
+  h_4132837b09b7e7 1-43
+apps/desktop/src/renderer/shared/lib/perf-session-switch-profiler.tsx
+  h_4132837b09b7e7 2,9
+apps/desktop/src/renderer/shared/lib/perf-session-switch.ts
+  h_4132837b09b7e7 48,63
+apps/desktop/src/renderer/shared/lib/plugin-icon.ts
+  h_4132837b09b7e7 1-53
+apps/desktop/src/renderer/shared/lib/project-profile.ts
+  h_4132837b09b7e7 12
+apps/desktop/src/renderer/shared/lib/remote-path-utils.test.ts
+  h_4132837b09b7e7 1-56
+apps/desktop/src/renderer/shared/lib/resolve-local-file-path.ts
+  h_4132837b09b7e7 1-2,9-16,18,21,25-31
+apps/desktop/src/renderer/shared/lib/utils.ts
+  h_4132837b09b7e7 1,6-17,24-26,32-33,71-72
+apps/desktop/src/renderer/shared/store/atoms.ts
+  h_4132837b09b7e7 8-9,21
+apps/desktop/src/renderer/shared/store/bottom-panel-atoms.ts
+  h_4132837b09b7e7 1-82
+apps/desktop/src/renderer/shared/store/bottom-panel-layout.test.ts
+  h_4132837b09b7e7 1-368
+apps/desktop/src/renderer/shared/store/bottom-panel-layout.ts
+  h_4132837b09b7e7 1-469
+apps/desktop/src/renderer/shared/store/bottom-panel-persistence.test.ts
+  h_4132837b09b7e7 1-202
+apps/desktop/src/renderer/shared/store/bottom-panel-persistence.ts
+  h_4132837b09b7e7 1-185
+apps/desktop/src/renderer/shared/store/chat-atoms.ts
+  h_4132837b09b7e7 14,38,60,197-203
+apps/desktop/src/renderer/shared/store/file-atoms.ts
+  h_4132837b09b7e7 2-17
+apps/desktop/src/renderer/shared/store/plan-mode-atoms.ts
+  h_4132837b09b7e7 1-18
+apps/desktop/src/renderer/shared/store/plugin-atoms.ts
+  h_4132837b09b7e7 5,9,11,74,80-83,96-97,112-134
+apps/desktop/src/renderer/shared/store/ui-atoms.ts
+  h_4132837b09b7e7 69-70
+apps/desktop/src/renderer/shared/theme/ThemeColorOverrideBridge.tsx
+  h_4132837b09b7e7 3,12
+apps/desktop/src/renderer/shared/theme/ThemeController.tsx
+  h_4132837b09b7e7 1-7
+apps/desktop/src/renderer/shared/theme/apply.test.ts
+  h_4132837b09b7e7 1-125
+apps/desktop/src/renderer/shared/theme/apply.ts
+  h_4132837b09b7e7 38,52,69,71,96-107,119-123,125-142
+apps/desktop/src/renderer/styles.css
+  h_4132837b09b7e7 15,17-18,20-23,105-124,187-204,269-278
+apps/desktop/src/shared/i18n/locales/en/abilities.json
+  h_4132837b09b7e7 85-86,172,278,364,426
+apps/desktop/src/shared/i18n/locales/en/agent-teams.json
+  h_4132837b09b7e7 172-174
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  h_4132837b09b7e7 10-12,56-101,160-162,166-178,312-352,377-380,394-395,471-472,502-504,889-923
+apps/desktop/src/shared/i18n/locales/en/common.json
+  h_4132837b09b7e7 563
+apps/desktop/src/shared/i18n/locales/en/main.json
+  h_4132837b09b7e7 57-69,95-97
+apps/desktop/src/shared/i18n/locales/en/project.json
+  h_4132837b09b7e7 107,235-261
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  h_4132837b09b7e7 250-268,345-348,362-365,1118,1572-1573,2125-2163
+apps/desktop/src/shared/i18n/locales/zh/abilities.json
+  h_4132837b09b7e7 85-86,172,278,364,426
+apps/desktop/src/shared/i18n/locales/zh/agent-teams.json
+  h_4132837b09b7e7 172-174
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  h_4132837b09b7e7 10-12,56-101,160-162,166-178,312-352,377-380,394-395,471-472,502-504,889-923
+apps/desktop/src/shared/i18n/locales/zh/common.json
+  h_4132837b09b7e7 563
+apps/desktop/src/shared/i18n/locales/zh/main.json
+  h_4132837b09b7e7 57-69,95-97
+apps/desktop/src/shared/i18n/locales/zh/project.json
+  h_4132837b09b7e7 107,235-261
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  h_4132837b09b7e7 250-268,345-348,362-365,1118,1572-1573,2125-2163
+apps/desktop/src/shared/shortcuts.ts
+  h_4132837b09b7e7 62-68
+apps/desktop/src/shared/ssh-ipc.ts
+  h_4132837b09b7e7 1-22
+apps/desktop/src/shared/ssh-prompt-ipc.ts
+  h_4132837b09b7e7 1-34
+apps/desktop/src/shared/terminal-ipc.ts
+  h_4132837b09b7e7 1-89
+apps/desktop/tsconfig.json
+  h_4132837b09b7e7 28,108-113
+apps/desktop/vitest.config.ts
+  h_4132837b09b7e7 41
+apps/docs-site/content/docs/en/plugins/extension-points.mdx
+  h_4132837b09b7e7 50-51,55
+apps/docs-site/content/docs/en/plugins/getting-started.mdx
+  h_4132837b09b7e7 118,130,135
+apps/docs-site/content/docs/en/plugins/manifest-and-permissions.mdx
+  h_4132837b09b7e7 6,204
+apps/docs-site/content/docs/plugins/extension-points.mdx
+  h_4132837b09b7e7 50-51,55
+apps/docs-site/content/docs/plugins/getting-started.mdx
+  h_4132837b09b7e7 124
+apps/docs-site/content/docs/plugins/manifest-and-permissions.mdx
+  h_4132837b09b7e7 6,204
+apps/docs-site/docs-coverage.json
+  h_4132837b09b7e7 148
+apps/kotlin/.gitignore
+  h_4132837b09b7e7 1-12
+apps/kotlin/README.md
+  h_4132837b09b7e7 1-31
+apps/mobile/.gitignore
+  h_4132837b09b7e7 1-3,5-43
+apps/mobile/LICENSE
+  h_4132837b09b7e7 1-21
+apps/mobile/README.md
+  h_4132837b09b7e7 1,3,5,7,9-11,13,15-17,19,21-25,27,29,31-36,38-70
+apps/mobile/app.json
+  h_4132837b09b7e7 1-42
+"apps/mobile/assets/expo.icon/Assets/expo-symbol 2.svg"
+  h_4132837b09b7e7 1-3
+apps/mobile/assets/expo.icon/icon.json
+  h_4132837b09b7e7 1-40
+apps/mobile/eslint.config.js
+  h_4132837b09b7e7 1-10
+apps/mobile/package.json
+  h_4132837b09b7e7 1-47
+apps/mobile/scripts/reset-project.js
+  h_4132837b09b7e7 1-114
+apps/mobile/src/app/_layout.tsx
+  h_4132837b09b7e7 1-18
+apps/mobile/src/app/explore.tsx
+  h_4132837b09b7e7 1-180
+apps/mobile/src/app/index.tsx
+  h_4132837b09b7e7 1-98
+apps/mobile/src/components/animated-icon.module.css
+  h_4132837b09b7e7 1-6
+apps/mobile/src/components/animated-icon.tsx
+  h_4132837b09b7e7 1-148
+apps/mobile/src/components/animated-icon.web.tsx
+  h_4132837b09b7e7 1-108
+apps/mobile/src/components/app-tabs.tsx
+  h_4132837b09b7e7 1-32
+apps/mobile/src/components/app-tabs.web.tsx
+  h_4132837b09b7e7 1-115
+apps/mobile/src/components/external-link.tsx
+  h_4132837b09b7e7 1-25
+apps/mobile/src/components/hint-row.tsx
+  h_4132837b09b7e7 1-35
+apps/mobile/src/components/themed-text.tsx
+  h_4132837b09b7e7 1-73
+apps/mobile/src/components/themed-view.tsx
+  h_4132837b09b7e7 1-16
+apps/mobile/src/components/ui/collapsible.tsx
+  h_4132837b09b7e7 1-65
+apps/mobile/src/components/web-badge.tsx
+  h_4132837b09b7e7 1-43
+apps/mobile/src/constants/theme.ts
+  h_4132837b09b7e7 1-65
+apps/mobile/src/global.css
+  h_4132837b09b7e7 1-9
+apps/mobile/src/hooks/use-color-scheme.ts
+  h_4132837b09b7e7 1
+apps/mobile/src/hooks/use-color-scheme.web.ts
+  h_4132837b09b7e7 1-23
+apps/mobile/src/hooks/use-theme.ts
+  h_4132837b09b7e7 1-14
+apps/mobile/src/types/styles.d.ts
+  h_4132837b09b7e7 1-6
+apps/mobile/tsconfig.json
+  h_4132837b09b7e7 1-20
+apps/ssh-helper/.gitignore
+  h_4132837b09b7e7 1-2
+apps/ssh-helper/.golangci.yml
+  h_4132837b09b7e7 1-70
+apps/ssh-helper/Makefile
+  h_4132837b09b7e7 1-97
+apps/ssh-helper/README.md
+  h_4132837b09b7e7 1-94
+apps/ssh-helper/cmd/vetta-ssh-helper/main.go
+  h_4132837b09b7e7 1-51
+apps/ssh-helper/go.mod
+  h_4132837b09b7e7 1-5
+apps/ssh-helper/go.sum
+  h_4132837b09b7e7 1-2
+apps/ssh-helper/internal/protocol/protocol.go
+  h_4132837b09b7e7 1-62
+apps/ssh-helper/internal/server/fs.go
+  h_4132837b09b7e7 1-401
+apps/ssh-helper/internal/server/net.go
+  h_4132837b09b7e7 1-286
+apps/ssh-helper/internal/server/net_test.go
+  h_4132837b09b7e7 1-135
+apps/ssh-helper/internal/server/proc.go
+  h_4132837b09b7e7 1-335
+apps/ssh-helper/internal/server/pty.go
+  h_4132837b09b7e7 1-324
+apps/ssh-helper/internal/server/pty_test.go
+  h_4132837b09b7e7 1-219
+apps/ssh-helper/internal/server/server.go
+  h_4132837b09b7e7 1-153
+apps/ssh-helper/internal/server/server_test.go
+  h_4132837b09b7e7 1-452
+apps/ssh-helper/internal/server/watch.go
+  h_4132837b09b7e7 1-113
+apps/ssh-helper/scripts/verify-on-host.sh
+  h_4132837b09b7e7 1-130
+bun.lock
+  h_4132837b09b7e7 65,72,101,103-109,147,207-211,238-272,602,619,637,777-778,1029,1032,1095-1108,1162-1169,1212,1404-1407,1420-1421,1432-1433,1438-1449,1452-1455,1458-1481,1484-1505,1510-1519,1522-1523,1630-1631,1712-1797,1834-1843,1952-1953,1964,1974-1975,2060-2071,2200-2201,2480-2509,2586-2587,2902-2903,2918-2919,2944-2945,2982-3001,3020-3063,3102-3103,3164-3165,3176-3177,3260-3273,3322-3323,3330-3331,3334-3335,3358-3359,3366-3383,3402-3403,3420-3435,3460-3461,3482-3485,3494-3495,3568-3569,3572-3573,3616-3617,3622-3623,3636-3639,3646-3647,3666-3667,3690-3691,3694-3695,3758-3763,3778-3779,3788-3789,3820-3821,3844-3847,3934-3935,3938-3941,3946-3947,3954-3957,3974-3997,4002-4003,4054,4056,4058,4060,4062,4064,4066,4068,4070-4110,4118-4119,4128-4135,4144-4145,4150-4151,4164-4165,4180-4181,4184-4185,4188-4193,4196-4197,4240-4243,4256-4257,4276-4279,4282-4283,4292,4300-4301,4326-4327,4332-4333,4366-4371,4376-4377,4416-4417,4436-4437,4446-4447,4450-4451,4456-4457,4466-4467,4470-4473,4476-4479,4484-4487,4492-4493,4496-4497,4500-4501,4512-4515,4518-4519,4530-4531,4534-4537,4540-4543,4550-4555,4584-4585,4592-4593,4604-4609,4626-4627,4646-4647,4656-4657,4674-4675,4680-4683,4690-4691,4730-4731,4740-4741,4764-4765,4792-4793,4804-4805,4846-4847,4858-4885,5002-5003,5016-5019,5038-5039,5042-5043,5072-5073,5080-5081,5090-5099,5102-5103,5122-5123,5128-5129,5168-5169,5236-5237,5252-5254,5266-5267,5272-5273,5330-5331,5358-5359,5362-5365,5368,5376-5393,5404,5432-5439,5446-5453,5484,5490-5494,5534-5535,5538-5541,5546-5547,5580-5581,5586-5589,5594-5595,5600-5601,5634-5637,5644-5645,5676-5677,5684-5685,5690-5695,5704-5705,5714-5715,5720-5729,5754-5755,5764-5765,5772-5773,5800-5803,5816-5817,5850-5851,5862-5863,5878-5879,5896-5897,5906-5911,5916-5917,5924-5925,5934-5941,5966-5967,5980-5981,5994-5995,5998,6030-6031,6044-6047,6070-6071,6076-6077,6080-6085,6096-6097,6114-6115,6170-6171,6246-6249,6252-6253,6286-6351,6372-6375,6398-6399,6668-6691,6742-6743,6792-6797,6806-6811,6942-6943,6984-6989,6994-6995,7010-7013,7016-7019,7030-7033,7036-7041,7046-7047,7092-7117,7126-7143,7214-7215,7218-7219,7244-7251,7262-7263,7270-7271,7290-7309,7342-7343,7370-7371,7390-7391,7394-7395,7432-7433,7436-7447,7458-7459,7474-7475,7486-7489,7506-7509,7514-7515,7526-7527,7536-7537,7578-7579,7730-7799,7900-7919,7962-7967,7986-7987,8144-8147,8158-8165,8174-8175,8178-8195,8198-8199,8230-8241,8246-8267,8468-8469,8474-8475,8480-8481,8490-8503,8514-8515,8518-8521,8580-8581,8858-8889,8898-8935,8976-8977,8982-8985,8990-8995,9000-9017,9084-9087,9188-9207,9248-9255
+docs/adr/0071-agent-mode-is-a-task-interpretation-prior.md
+  h_4132837b09b7e7 12-14
+docs/adr/0120-desktop-release-download-caches-and-checkpoints.md
+  h_4132837b09b7e7 1-36
+docs/adr/0120-plugin-marketplace-releases-are-versioned-artifacts.md
+  h_4132837b09b7e7 1-56
+docs/adr/0121-vettapkg-is-the-installable-plugin-file-format.md
+  h_4132837b09b7e7 1-41
+docs/adr/0122-marketplaces-publish-generated-static-distributions.md
+  h_4132837b09b7e7 1-48
+docs/adr/0123-plan-mode-is-an-orthogonal-permission-axis.md
+  h_4132837b09b7e7 1-48
+docs/adr/0124-file-explorer-visibility-decorations-and-icon-themes.md
+  h_4132837b09b7e7 1-39
+docs/adr/0124-ssh-remote-projects-and-execution-boundary.md
+  h_4132837b09b7e7 1-105
+docs/adr/0125-session-bottom-panel-and-interactive-terminal.md
+  h_4132837b09b7e7 1-93
+docs/adr/0125-team-task-recovery-and-durable-notifications.md
+  h_4132837b09b7e7 1-36
+docs/apps/kotlin/device-detail-telemetry-debugging.md
+  h_4132837b09b7e7 34-36,46,59,123,145,157
+docs/apps/kotlin/remote-desktop-automation.md
+  h_4132837b09b7e7 45
+docs/apps/kotlin/remote-desktop-real-device-testing.md
+  h_4132837b09b7e7 59,67,90
+docs/capabilities/catalog.json
+  h_4132837b09b7e7 8789-8791,8922-8924,9138-9140,9214-9216,9357-9359,9465-9467
+docs/desktop/README.md
+  h_4132837b09b7e7 7
+docs/desktop/build-modes.md
+  h_4132837b09b7e7 226
+docs/desktop/release-ci.md
+  h_4132837b09b7e7 1-63
+docs/dev/quality-gates.md
+  h_4132837b09b7e7 54,60,177
+docs/open-marketplace.md
+  h_4132837b09b7e7 3-20,25-27,71,99-168,455-457,466-486
+docs/plugin/README.md
+  h_4132837b09b7e7 50,66
+docs/plugin/file-explorer.md
+  h_4132837b09b7e7 13,38-39,61-62,67-70,82-83,86-88,92,96,99-136
+docs/plugin/getting-started.md
+  h_4132837b09b7e7 126,198,200-201,204,218-225,232,252,256
+docs/plugin/manifest.md
+  h_4132837b09b7e7 3,73
+docs/plugin/message-cards.md
+  h_4132837b09b7e7 63,82-85
+docs/plugin/permissions.md
+  h_4132837b09b7e7 40
+docs/plugin/styling-and-pitfalls.md
+  h_4132837b09b7e7 75
+docs/plugin/system-plugins.md
+  h_4132837b09b7e7 26,28
+docs/plugin/ui-slots.md
+  h_4132837b09b7e7 109,348,361,440-502,514
+package.json
+  h_4132837b09b7e7 37-38,42,57,90,96,100
+packages/agent-team/src/collaboration.ts
+  h_4132837b09b7e7 11,147-149,482-485
+packages/agent-team/src/contracts.ts
+  h_4132837b09b7e7 70-71,250-251,275-276
+packages/agent-team/src/index.ts
+  h_4132837b09b7e7 17
+packages/agent-team/src/task-recovery.ts
+  h_4132837b09b7e7 1-39
+packages/agent-team/src/task-runtime-tools.ts
+  h_4132837b09b7e7 135,138-139
+packages/agent-team/src/validation.ts
+  h_4132837b09b7e7 151,183,217
+packages/agent-team/test/validation.test.ts
+  h_4132837b09b7e7 17-32
+packages/ai/CHANGELOG.md
+  h_4132837b09b7e7 48-49
+packages/ai/package.json
+  h_4132837b09b7e7 21-24
+packages/ai/src/index.ts
+  h_4132837b09b7e7 8,28-30
+packages/ai/src/protocol/identity.ts
+  h_4132837b09b7e7 19-34
+packages/ai/src/provider-fetch.ts
+  h_4132837b09b7e7 1-40
+packages/ai/src/provider-kit/provider-error.ts
+  h_4132837b09b7e7 32-35,39,107-187,218-226,270-273
+packages/ai/src/providers/amazon-bedrock/adapter.ts
+  h_4132837b09b7e7 97-104
+packages/ai/src/providers/amazon-bedrock/events.ts
+  h_4132837b09b7e7 61-66,68-73,75,77,79-84,276-282
+packages/ai/src/providers/anthropic/adapter.ts
+  h_4132837b09b7e7 24,164-167,171-172,175-176
+packages/ai/src/providers/azure-openai-responses/adapter.ts
+  h_4132837b09b7e7 5,12-29
+packages/ai/src/providers/google-gemini-cli/retry.ts
+  h_4132837b09b7e7 178,181
+packages/ai/src/providers/google-stream/adapter.ts
+  h_4132837b09b7e7 14,59,79-86
+packages/ai/src/providers/google-stream/retry.ts
+  h_4132837b09b7e7 1-51
+packages/ai/src/providers/google-vertex/client.ts
+  h_4132837b09b7e7 3,11-12
+packages/ai/src/providers/google/client.ts
+  h_4132837b09b7e7 5,14-17
+packages/ai/src/providers/openai-codex/request.ts
+  h_4132837b09b7e7 146,215-216,219
+packages/ai/src/providers/openai-completions/adapter.ts
+  h_4132837b09b7e7 9,29,280,282,285,287
+packages/ai/src/providers/openai-responses/adapter.ts
+  h_4132837b09b7e7 19,59,65,77,85,88,97,123-125,129-130,133-134
+packages/ai/src/providers/openai-responses/events.ts
+  h_4132837b09b7e7 159-162,164-168
+packages/ai/src/providers/sdk-connection-errors.ts
+  h_4132837b09b7e7 1-28
+packages/ai/src/stream.ts
+  h_4132837b09b7e7 5,52,55,58,75,78,81
+packages/ai/src/utils/proxy-config.ts
+  h_4132837b09b7e7 1-145
+packages/ai/src/utils/proxy-dispatcher.ts
+  h_4132837b09b7e7 1-124
+packages/ai/src/utils/proxy-fetch.ts
+  h_4132837b09b7e7 1-108
+packages/ai/test/anthropic-bedrock-adapters.test.ts
+  h_4132837b09b7e7 103,289-292,296-299,302-305,355,359
+packages/ai/test/google-native-adapters.test.ts
+  h_4132837b09b7e7 21-54
+packages/ai/test/openai-compatible-adapters.test.ts
+  h_4132837b09b7e7 168,171
+packages/ai/test/openai-responses-adapters.test.ts
+  h_4132837b09b7e7 187-196,206-217
+packages/ai/test/provider-error.test.ts
+  h_4132837b09b7e7 125-165
+packages/ai/test/provider-fetch.test.ts
+  h_4132837b09b7e7 1-140
+packages/ai/test/provider-retry-policy.test.ts
+  h_4132837b09b7e7 2,8-9,66-71,74-77,79-90,95-98,100-111,115-130,142-156,160-209
+packages/ai/test/proxy-config.test.ts
+  h_4132837b09b7e7 1-114
+packages/ai/test/proxy-dispatcher.test.ts
+  h_4132837b09b7e7 1-100
+packages/ai/test/proxy-fetch.test.ts
+  h_4132837b09b7e7 1-84
+packages/ai/test/sdk-connection-errors.test.ts
+  h_4132837b09b7e7 1-36
+packages/capability-sdk/src/domain/model.ts
+  h_4132837b09b7e7 80-81,171
+packages/coding-agent/docs/agent-configuration.md
+  h_4132837b09b7e7 31-32
+packages/coding-agent/src/composition/session-initialization/context-assembly.ts
+  h_4132837b09b7e7 98
+packages/coding-agent/src/composition/session-initialization/peripheral-assembly.ts
+  h_4132837b09b7e7 24-29,93,183-191,220,302
+packages/coding-agent/src/composition/session-initialization/transaction.ts
+  h_4132837b09b7e7 194,336
+packages/coding-agent/src/composition/turn/capability-session-assembly.ts
+  h_4132837b09b7e7 31-35,131,300-309,370-376,400-406
+packages/coding-agent/src/execution/failure-classification.ts
+  h_4132837b09b7e7 25
+packages/coding-agent/src/features/plan-mode/contracts.ts
+  h_4132837b09b7e7 1-50
+packages/coding-agent/src/features/plan-mode/index.ts
+  h_4132837b09b7e7 1-34
+packages/coding-agent/src/features/plan-mode/plan-mode-command-policy.ts
+  h_4132837b09b7e7 1-264
+packages/coding-agent/src/features/plan-mode/plan-mode-feature.ts
+  h_4132837b09b7e7 1-55
+packages/coding-agent/src/features/plan-mode/plan-mode-instructions.ts
+  h_4132837b09b7e7 1-35
+packages/coding-agent/src/features/plan-mode/plan-mode-runtime.ts
+  h_4132837b09b7e7 1-178
+packages/coding-agent/src/features/plan-mode/plan-mode-session-extension-contract.ts
+  h_4132837b09b7e7 1-44
+packages/coding-agent/src/features/plan-mode/plan-mode-session-extension.ts
+  h_4132837b09b7e7 1-137
+packages/coding-agent/src/features/plan-mode/plan-mode-snapshot.ts
+  h_4132837b09b7e7 1-34
+packages/coding-agent/src/features/plan-mode/plan-mode-tool-interceptor.ts
+  h_4132837b09b7e7 1-17
+packages/coding-agent/src/features/plan-mode/plan-mode-tool-policy.ts
+  h_4132837b09b7e7 1-94
+packages/coding-agent/src/features/plan-mode/tool/description.ts
+  h_4132837b09b7e7 1-11
+packages/coding-agent/src/features/plan-mode/tool/exit-plan-mode-tool.ts
+  h_4132837b09b7e7 1-129
+packages/coding-agent/src/features/plan-mode/tool/index.ts
+  h_4132837b09b7e7 1-9
+packages/coding-agent/src/interception/tool/contracts.ts
+  h_4132837b09b7e7 9-10
+packages/coding-agent/src/public-api/function-extensions.ts
+  h_4132837b09b7e7 17-22
+packages/coding-agent/src/public-api/session-extensions.ts
+  h_4132837b09b7e7 36-48
+packages/coding-agent/src/public-api/settings.ts
+  h_4132837b09b7e7 3,22-23
+packages/coding-agent/src/settings/configuration/compaction-configuration.ts
+  h_4132837b09b7e7 1-70
+packages/coding-agent/src/settings/index.ts
+  h_4132837b09b7e7 33-38
+packages/coding-agent/src/settings/views/session-settings.ts
+  h_4132837b09b7e7 1,11,13-18
+packages/coding-agent/src/tool-policy/model-tool-order.ts
+  h_4132837b09b7e7 34
+packages/coding-agent/test/compaction-configuration.test.ts
+  h_4132837b09b7e7 1-51
+packages/coding-agent/test/features/plan-mode/plan-mode-policy.test.ts
+  h_4132837b09b7e7 1-87
+packages/coding-agent/test/features/plan-mode/plan-mode-session-extension.test.ts
+  h_4132837b09b7e7 1-264
+packages/coding-agent/test/public-api-subpaths.test.ts
+  h_4132837b09b7e7 56,106
+packages/coding-agent/test/retryable-error.test.ts
+  h_4132837b09b7e7 8
+packages/coding-agent/test/runtime-core/turn-capability-session-assembly.test.ts
+  h_4132837b09b7e7 24,98,200,285,367,406-497,500-503
+packages/plugins/AGENTS.md
+  h_4132837b09b7e7 48,126,300,313
+packages/plugins/README.md
+  h_4132837b09b7e7 16,52,57
+packages/plugins/externals/cowart-vetta/README.md
+  h_4132837b09b7e7 43
+packages/plugins/externals/global-slot-demo/README.md
+  h_4132837b09b7e7 18,30
+packages/plugins/externals/security-probe/README.md
+  h_4132837b09b7e7 39,48
+packages/plugins/plugin-cli/CHANGELOG.md
+  h_4132837b09b7e7 5-14
+packages/plugins/plugin-cli/README.md
+  h_4132837b09b7e7 72-78,111-112,135,140
+packages/plugins/plugin-cli/package.json
+  h_4132837b09b7e7 3
+packages/plugins/plugin-cli/src/command.ts
+  h_4132837b09b7e7 73,87,112,334-336,366,390,503,510,515,518
+packages/plugins/plugin-cli/src/sync.ts
+  h_4132837b09b7e7 134-135,142-160,178,215-216,220-292,343-349
+packages/plugins/plugin-cli/test/command.test.ts
+  h_4132837b09b7e7 29,41,54-55
+packages/plugins/plugin-cli/test/npm-package.test.ts
+  h_4132837b09b7e7 27,31
+packages/plugins/plugin-cli/test/sync.test.ts
+  h_4132837b09b7e7 85-131,351,369
+packages/plugins/plugin-cli/test/workspace.test.ts
+  h_4132837b09b7e7 117,125-126
+packages/plugins/plugin-sdk/CHANGELOG.md
+  h_4132837b09b7e7 11-17
+packages/plugins/plugin-sdk/package.json
+  h_4132837b09b7e7 3
+packages/plugins/plugin-sdk/src/bottom-panel.ts
+  h_4132837b09b7e7 1-84
+packages/plugins/plugin-sdk/src/file-explorer.ts
+  h_4132837b09b7e7 35,51,64-69,77-78,84-103,125-126
+packages/plugins/plugin-sdk/src/index.ts
+  h_4132837b09b7e7 46,78,423-434
+packages/plugins/plugin-sdk/src/official.ts
+  h_4132837b09b7e7 603-606,610
+packages/plugins/plugin-sdk/src/permissions.ts
+  h_4132837b09b7e7 6
+packages/plugins/plugin-sdk/src/ui.ts
+  h_4132837b09b7e7 250-256,294-327,378,451,461,696-702
+packages/plugins/plugin-sdk/test/npm-package.test.ts
+  h_4132837b09b7e7 11
+packages/plugins/plugin-vite/CHANGELOG.md
+  h_4132837b09b7e7 9-10
+packages/plugins/plugin-vite/package.json
+  h_4132837b09b7e7 3
+packages/plugins/plugin-vite/src/cli.ts
+  h_4132837b09b7e7 74-75
+packages/plugins/plugin-vite/src/pack.ts
+  h_4132837b09b7e7 24,28-29,330-333
+packages/plugins/plugin-vite/test/pack.test.ts
+  h_4132837b09b7e7 58,98,105,120,140
+packages/plugins/presets/git/ability.json
+  h_4132837b09b7e7 5,21-30,75-84
+packages/plugins/presets/git/locales/en.json
+  h_4132837b09b7e7 10,27-117
+packages/plugins/presets/git/locales/zh.json
+  h_4132837b09b7e7 10,27-117
+packages/plugins/presets/git/package.json
+  h_4132837b09b7e7 18-19
+packages/plugins/presets/git/plugin.json
+  h_4132837b09b7e7 5,14-26
+packages/plugins/presets/git/src/components/BranchBar.tsx
+  h_4132837b09b7e7 1-150
+packages/plugins/presets/git/src/components/ChangeMenu.tsx
+  h_4132837b09b7e7 1-188
+packages/plugins/presets/git/src/components/ChangeSectionList.tsx
+  h_4132837b09b7e7 1,3-5,7-8,10-19,21-27,29,31-41,44-52,54-55,57-61,63-67
+packages/plugins/presets/git/src/components/CleanState.tsx
+  h_4132837b09b7e7 1-126
+packages/plugins/presets/git/src/components/CommitBox.tsx
+  h_4132837b09b7e7 1-273
+packages/plugins/presets/git/src/components/ConfirmDialog.tsx
+  h_4132837b09b7e7 1-60
+packages/plugins/presets/git/src/components/DiffPane.tsx
+  h_4132837b09b7e7 7,10-11,42-44,48,54-55,61-63,73,86,91,95,98,100-105,109-112,122,127-140,154
+packages/plugins/presets/git/src/components/FileTypeIcon.tsx
+  h_4132837b09b7e7 1-50
+packages/plugins/presets/git/src/components/GitActions.tsx
+  h_4132837b09b7e7 3-17,22-27,33,36,38-41,44,46-51,53-55,64-67,69,72-74,78,81,84-126,129-168,170-171,173-190,194-200,203,205-217
+packages/plugins/presets/git/src/components/GitChanges.tsx
+  h_4132837b09b7e7 4,7-14,17,19,22-24,29-42,45-51,54,63-74,76,81,84-86,88,94-102,106-107,109,111-117,119,132-168,171-175,178-179,181,186-187,191-207,213,216-217,222,229-250
+packages/plugins/presets/git/src/components/GitFileTree.tsx
+  h_4132837b09b7e7 3,7,10-16,18-24,28-30,33-37,42-46,54-58,74,76-88,91,106-126
+packages/plugins/presets/git/src/components/GitFlatList.tsx
+  h_4132837b09b7e7 1-2,4,11-14,18-20,23-27,30-66,74,79-80,95
+packages/plugins/presets/git/src/components/GitPanel.tsx
+  h_4132837b09b7e7 4,7,19,45,75,121
+packages/plugins/presets/git/src/components/GitSettingsView.tsx
+  h_4132837b09b7e7 1-144
+packages/plugins/presets/git/src/components/GitTurnCard.tsx
+  h_4132837b09b7e7 2-5,7,11-12,17-19,40-42,58,81,123-161,168,171-173,175-180,182-184,195,197,200,210,216-249
+packages/plugins/presets/git/src/components/StatusBadge.tsx
+  h_4132837b09b7e7 10
+packages/plugins/presets/git/src/components/graph/CommitDetailPane.tsx
+  h_4132837b09b7e7 70-74,145,147
+packages/plugins/presets/git/src/components/icons.tsx
+  h_4132837b09b7e7 141-168,171-221
+packages/plugins/presets/git/src/components/useChangeActions.ts
+  h_4132837b09b7e7 1-98
+packages/plugins/presets/git/src/components/useGitSettings.ts
+  h_4132837b09b7e7 1-26
+packages/plugins/presets/git/src/git/aiContext.ts
+  h_4132837b09b7e7 1-79
+packages/plugins/presets/git/src/git/aiMessage.ts
+  h_4132837b09b7e7 1-130
+packages/plugins/presets/git/src/git/draftStore.ts
+  h_4132837b09b7e7 1-44
+packages/plugins/presets/git/src/git/gitStatus.ts
+  h_4132837b09b7e7 11-13
+packages/plugins/presets/git/src/git/ignore.ts
+  h_4132837b09b7e7 1-36
+packages/plugins/presets/git/src/git/mergeMsg.ts
+  h_4132837b09b7e7 1-25
+packages/plugins/presets/git/src/git/parseLog.ts
+  h_4132837b09b7e7 77,79
+packages/plugins/presets/git/src/git/parseStatus.ts
+  h_4132837b09b7e7 1,3-27,31-36,38,40,43,49,57,62,66,70-94
+packages/plugins/presets/git/src/git/run.ts
+  h_4132837b09b7e7 2-16,22-36,41,58-64,68-74,76,85-123,151-156,173-174,177-181,185,197-208,218-223,228-232,243,248-380
+packages/plugins/presets/git/src/git/runtime.ts
+  h_4132837b09b7e7 1,9-13,31-33,35,37,41-50,60-62,64,66,70-74,80-101,140-160,164,166-193,197-219,226,230-242,250-259,261-266,280-294
+packages/plugins/presets/git/src/git/settings.ts
+  h_4132837b09b7e7 1-61
+packages/plugins/presets/git/src/git/types.ts
+  h_4132837b09b7e7 1-8,16-35
+packages/plugins/presets/git/src/git/workspacePath.ts
+  h_4132837b09b7e7 1-15
+packages/plugins/presets/git/src/index.tsx
+  h_4132837b09b7e7 4,7-19,27-35,41-46,65-72,82-83,90-100
+packages/plugins/presets/git/src/style.css
+  h_4132837b09b7e7 8-54,59-125
+packages/plugins/presets/git/test/aiMessage.test.ts
+  h_4132837b09b7e7 1-92
+packages/plugins/presets/git/test/branchName.test.ts
+  h_4132837b09b7e7 1-35
+packages/plugins/presets/git/test/ignore.test.ts
+  h_4132837b09b7e7 1,3-12,14-15,17-18,21-22,24-27,29,31-32,34,37-38,40,42,45-48,50,53-54,56,58,61-64
+packages/plugins/presets/git/test/parseStatus.test.ts
+  h_4132837b09b7e7 1-88
+packages/plugins/presets/git/test/workspacePath.test.ts
+  h_4132837b09b7e7 1-14
+packages/plugins/presets/git/test/writeQueue.test.ts
+  h_4132837b09b7e7 1-35
+packages/plugins/presets/plugin-workbench/ability.json
+  h_4132837b09b7e7 5
+packages/plugins/presets/plugin-workbench/agent/skills/plugin-workbench/SKILL.md
+  h_4132837b09b7e7 6,166-168,195
+packages/plugins/presets/plugin-workbench/locales/en.json
+  h_4132837b09b7e7 20,36,53
+packages/plugins/presets/plugin-workbench/locales/zh.json
+  h_4132837b09b7e7 20,36
+packages/plugins/presets/plugin-workbench/plugin.json
+  h_4132837b09b7e7 5
+packages/plugins/presets/plugin-workbench/scripts/build-and-pack.mjs
+  h_4132837b09b7e7 3,8,55-57,92,97
+packages/plugins/presets/plugin-workbench/src/ReinstallCard.tsx
+  h_4132837b09b7e7 72
+packages/plugins/presets/plugin-workbench/src/WorkbenchPanel.tsx
+  h_4132837b09b7e7 215,219,323,330-331,334,480,600-601
+packages/plugins/presets/plugin-workbench/src/index.tsx
+  h_4132837b09b7e7 94
+packages/plugins/presets/plugin-workbench/src/project.ts
+  h_4132837b09b7e7 17,65-66,68,70,79
+packages/plugins/presets/plugin-workbench/src/reinstall.test.ts
+  h_4132837b09b7e7 34,50-54
+packages/plugins/presets/plugin-workbench/src/reinstall.ts
+  h_4132837b09b7e7 9,27,33-34,45,49-50,52-53,72,79,86
+packages/plugins/presets/plugin-workbench/src/vetta.d.ts
+  h_4132837b09b7e7 36-40
+packages/plugins/presets/vetta-actions/src/domains/plugins.ts
+  h_4132837b09b7e7 16,20,71,80,93,155,157-158,265-267,274
+packages/plugins/presets/vetta-ui-design/engine/src/bridge.ts
+  h_4132837b09b7e7 13,17,641-642
+packages/plugins/presets/vetta-ui-design/engine/src/main.tsx
+  h_4132837b09b7e7 25-32
+packages/plugins/presets/vetta-ui-design/engine/src/storage-sync.ts
+  h_4132837b09b7e7 1-140
+packages/plugins/presets/vetta-ui-design/src/canvas/DesignCanvas.tsx
+  h_4132837b09b7e7 53,536-537,780-786,789,1480
+packages/plugins/presets/vetta-ui-design/src/canvas/bridge-client.ts
+  h_4132837b09b7e7 6,48-52,150-155
+packages/plugins/presets/vetta-ui-design/src/canvas/frame-raster.ts
+  h_4132837b09b7e7 143-155,261-262,405-430,638-639
+packages/plugins/presets/vetta-ui-design/src/canvas/offscreen-raster.ts
+  h_4132837b09b7e7 13,57-90,187-188
+packages/plugins/presets/vetta-ui-design/src/engine/engine-manager.ts
+  h_4132837b09b7e7 22-23,45-47,52,103-107,118-122,125-127,129,133-143,146,148-149,152,154,167-179,181-183,185-186,296-297,299,308,310-313,340,342-344,347-349,355-356,361,364,369,371,374-375,438-440,448,499,507
+packages/plugins/presets/vetta-ui-design/src/history/machine.ts
+  h_4132837b09b7e7 1-41
+packages/plugins/presets/vetta-ui-design/src/history/runner-host.ts
+  h_4132837b09b7e7 10-11,67-68,70-74,76-81,85,87-93,96,98,101-102,106,110-115,117,125-131,133-137,145-147
+packages/plugins/presets/vetta-ui-design/src/shared/payload-transfer.ts
+  h_4132837b09b7e7 1-63
+packages/plugins/presets/vetta-ui-design/src/vetd/check-syntax.ts
+  h_4132837b09b7e7 19,81,88-89,91-92
+packages/plugins/presets/vetta-ui-design/test/engine-manager.test.ts
+  h_4132837b09b7e7 54,73,87,89
+packages/plugins/presets/vetta-ui-design/test/frame-raster.test.ts
+  h_4132837b09b7e7 424-473
+packages/plugins/presets/vetta-ui-design/test/history-machine.test.ts
+  h_4132837b09b7e7 1-153
+packages/plugins/presets/vetta-ui-design/test/history-runner-host.test.ts
+  h_4132837b09b7e7 21-25,63,77,82,92
+packages/plugins/presets/vetta-ui-design/test/payload-transfer.test.ts
+  h_4132837b09b7e7 1-34
+packages/plugins/presets/vetta-ui-design/test/storage-sync.test.ts
+  h_4132837b09b7e7 1-153
+packages/runtime-desktop/package.json
+  h_4132837b09b7e7 22-23
+packages/runtime-desktop/src/backend-pool.ts
+  h_4132837b09b7e7 32,37-38,289,350,361,427,456-458,514-526
+packages/runtime-desktop/src/coding-agent-tool-environment.ts
+  h_4132837b09b7e7 1,16,27,32-35,37-42,44-58,73-79,83-102,148,183-203
+packages/runtime-desktop/src/index.ts
+  h_4132837b09b7e7 1-2,10-12,19
+packages/runtime-desktop/src/project-settings-path.test.ts
+  h_4132837b09b7e7 1-28
+packages/runtime-desktop/src/project-settings-path.ts
+  h_4132837b09b7e7 1-23
+packages/runtime-desktop/src/remote-execution-mode.test.ts
+  h_4132837b09b7e7 1-21
+packages/runtime-desktop/src/remote-execution-mode.ts
+  h_4132837b09b7e7 1-30
+packages/runtime-desktop/src/remote-workspace-facts.test.ts
+  h_4132837b09b7e7 1-35
+packages/runtime-desktop/src/remote-workspace-facts.ts
+  h_4132837b09b7e7 1-28
+packages/runtime-desktop/src/runtime-host-platform.test.ts
+  h_4132837b09b7e7 1-11,14-15,17-43
+packages/runtime-desktop/src/runtime-host-platform.ts
+  h_4132837b09b7e7 4-23,34
+packages/runtime-desktop/src/session-error-logger.test.ts
+  h_4132837b09b7e7 27,47
+packages/runtime-desktop/src/session-error-logger.ts
+  h_4132837b09b7e7 30
+packages/runtime-desktop/src/ssh-connection-resolver.ts
+  h_4132837b09b7e7 1-30
+packages/runtime-node/src/coding/index.ts
+  h_4132837b09b7e7 44-47,108-114,116-121,236,240
+packages/runtime-node/src/coding/shared/command-execution-context.ts
+  h_4132837b09b7e7 1,16-17,31-35
+packages/runtime-node/src/coding/shared/path-resolution.ts
+  h_4132837b09b7e7 3-62,71-72,75-80,82-83,85,88-90,92-93,97,102-104,129,136-137,139-140,155,157,162-166
+packages/runtime-node/src/coding/shared/quoted-path-correction.ts
+  h_4132837b09b7e7 1,19,29-32,34,69-70,72,76-77
+packages/runtime-node/src/coding/shared/tool-process.ts
+  h_4132837b09b7e7 1-86
+packages/runtime-node/src/coding/tools/edit/edit-contracts.ts
+  h_4132837b09b7e7 1,21-22
+packages/runtime-node/src/coding/tools/edit/edit-tool.ts
+  h_4132837b09b7e7 114
+packages/runtime-node/src/coding/tools/find/find-tool.ts
+  h_4132837b09b7e7 5-12,53-56,67-68,77,81,87,95-96,108-109,116-124,126-130,137,146-148,150
+packages/runtime-node/src/coding/tools/glob/glob-tool.ts
+  h_4132837b09b7e7 6-13,52-53,64-67,74-77,82,88-91,95,99-101,130,151,169,204,208,230-232,241,243-244,246,255,260,262,274,278,280,291,293
+packages/runtime-node/src/coding/tools/grep/grep-tool.ts
+  h_4132837b09b7e7 7-14,70-73,121-122,134,139,167-168,183-184,195,220,281,285,349,351-352
+packages/runtime-node/src/coding/tools/ls/ls-tool.ts
+  h_4132837b09b7e7 4-9,43-44,57,76,80,109
+packages/runtime-node/src/coding/tools/read/image-mime.ts
+  h_4132837b09b7e7 5-15,22
+packages/runtime-node/src/coding/tools/read/index.ts
+  h_4132837b09b7e7 3-7
+packages/runtime-node/src/coding/tools/read/read-tool.ts
+  h_4132837b09b7e7 11,75-76,137
+packages/runtime-node/src/coding/tools/tree/tree-model.ts
+  h_4132837b09b7e7 1-2,144,150-152
+packages/runtime-node/src/coding/tools/tree/tree-tool.ts
+  h_4132837b09b7e7 5-11,63-66,72,75-83,85-91,100,108,126,129,131
+packages/runtime-node/src/coding/tools/write/write-tool.ts
+  h_4132837b09b7e7 4-9,37-38,49,57-58,72
+packages/runtime-node/test/coding-suite/shared/tool-path-host.test.ts
+  h_4132837b09b7e7 1-64
+packages/runtime-ssh/package.json
+  h_4132837b09b7e7 1-29
+packages/runtime-ssh/src/index.ts
+  h_4132837b09b7e7 1-15
+packages/runtime-ssh/src/project-resource-access.test.ts
+  h_4132837b09b7e7 1-99
+packages/runtime-ssh/src/project-resource-access.ts
+  h_4132837b09b7e7 1-123
+packages/runtime-ssh/src/remote-file-tool-bridge.test.ts
+  h_4132837b09b7e7 1-89
+packages/runtime-ssh/src/remote-file-tool-bridge.ts
+  h_4132837b09b7e7 1-150
+packages/runtime-ssh/src/ssh-background-command-host.test.ts
+  h_4132837b09b7e7 1-79
+packages/runtime-ssh/src/ssh-background-command-host.ts
+  h_4132837b09b7e7 1-206
+packages/runtime-ssh/src/ssh-command-operations.ts
+  h_4132837b09b7e7 1-50
+packages/runtime-ssh/src/ssh-edit-conflict.test.ts
+  h_4132837b09b7e7 1-58
+packages/runtime-ssh/src/ssh-file-operations.ts
+  h_4132837b09b7e7 1-156
+packages/runtime-ssh/src/ssh-path-policy.ts
+  h_4132837b09b7e7 1-32
+packages/runtime-ssh/src/ssh-search-tools.test.ts
+  h_4132837b09b7e7 1-66
+packages/runtime-ssh/src/ssh-tool-environment.test.ts
+  h_4132837b09b7e7 1-280
+packages/runtime-ssh/src/ssh-tool-environment.ts
+  h_4132837b09b7e7 1-158
+packages/runtime-ssh/src/ssh-tool-process.ts
+  h_4132837b09b7e7 1-113
+packages/runtime-ssh/tsconfig.build.json
+  h_4132837b09b7e7 1-9
+packages/ssh-transport/README.md
+  h_4132837b09b7e7 1-70
+packages/ssh-transport/package.json
+  h_4132837b09b7e7 1-31
+packages/ssh-transport/src/askpass.test.ts
+  h_4132837b09b7e7 1-63
+packages/ssh-transport/src/askpass.ts
+  h_4132837b09b7e7 1-81
+packages/ssh-transport/src/directory-listing.test.ts
+  h_4132837b09b7e7 1-43
+packages/ssh-transport/src/directory-listing.ts
+  h_4132837b09b7e7 1-60
+packages/ssh-transport/src/errors.ts
+  h_4132837b09b7e7 1-66
+packages/ssh-transport/src/helper-client.ts
+  h_4132837b09b7e7 1-178
+packages/ssh-transport/src/helper-deployment.ts
+  h_4132837b09b7e7 1-131
+packages/ssh-transport/src/helper.e2e.test.ts
+  h_4132837b09b7e7 1-158
+packages/ssh-transport/src/index.ts
+  h_4132837b09b7e7 1-111
+packages/ssh-transport/src/node-process-runner.test.ts
+  h_4132837b09b7e7 1-44
+packages/ssh-transport/src/node-process-runner.ts
+  h_4132837b09b7e7 1-167
+packages/ssh-transport/src/process-runner.ts
+  h_4132837b09b7e7 1-60
+packages/ssh-transport/src/project-uri.test.ts
+  h_4132837b09b7e7 1-92
+packages/ssh-transport/src/project-uri.ts
+  h_4132837b09b7e7 1-120
+packages/ssh-transport/src/remote-command.test.ts
+  h_4132837b09b7e7 1-319
+packages/ssh-transport/src/remote-command.ts
+  h_4132837b09b7e7 1-268
+packages/ssh-transport/src/remote-listeners.test.ts
+  h_4132837b09b7e7 1-240
+packages/ssh-transport/src/remote-listeners.ts
+  h_4132837b09b7e7 1-283
+packages/ssh-transport/src/remote-pty.test.ts
+  h_4132837b09b7e7 1-114
+packages/ssh-transport/src/remote-pty.ts
+  h_4132837b09b7e7 1-74
+packages/ssh-transport/src/ssh-argv.ts
+  h_4132837b09b7e7 1-95
+packages/ssh-transport/src/ssh-config-aliases.test.ts
+  h_4132837b09b7e7 1-31
+packages/ssh-transport/src/ssh-config-aliases.ts
+  h_4132837b09b7e7 1-29
+packages/ssh-transport/src/ssh-connection-manager.ts
+  h_4132837b09b7e7 1-92
+packages/ssh-transport/src/ssh-connection.loopback.test.ts
+  h_4132837b09b7e7 1-146
+packages/ssh-transport/src/ssh-connection.test.ts
+  h_4132837b09b7e7 1-315
+packages/ssh-transport/src/ssh-connection.ts
+  h_4132837b09b7e7 1-852
+packages/ssh-transport/src/ssh-host.ts
+  h_4132837b09b7e7 1-76
+packages/ssh-transport/src/testing.ts
+  h_4132837b09b7e7 1-72
+packages/ssh-transport/tsconfig.build.json
+  h_4132837b09b7e7 1-9
+packages/theme-ui/CHANGELOG.md
+  h_4132837b09b7e7 11
+packages/theme-ui/package.json
+  h_4132837b09b7e7 24-27,199
+packages/theme-ui/src/activity/PortsTabPanelView.tsx
+  h_4132837b09b7e7 1-910
+packages/theme-ui/src/activity/index.ts
+  h_4132837b09b7e7 85-93
+packages/theme-ui/src/bottom-panel/BottomPanelView.tsx
+  h_4132837b09b7e7 1-225
+packages/theme-ui/src/bottom-panel/index.ts
+  h_4132837b09b7e7 1-26
+packages/theme-ui/src/chat/ChatHeaderActionsView.tsx
+  h_4132837b09b7e7 71-94,99
+packages/theme-ui/src/chat/MessageFeedView.test.tsx
+  h_4132837b09b7e7 1-64
+packages/theme-ui/src/chat/MessageFeedView.tsx
+  h_4132837b09b7e7 8,11,54,59,64-65,77,87-88,95-102,108,113,122-123
+packages/theme-ui/src/chat/ModelSelectorView.tsx
+  h_4132837b09b7e7 197-199
+packages/theme-ui/src/chat/RemoteSessionBadgeView.tsx
+  h_4132837b09b7e7 1-24
+packages/theme-ui/src/chat/TodoProgress.tsx
+  h_4132837b09b7e7 3,45,48-49,58-63,87
+packages/theme-ui/src/chat/UserMessageView.tsx
+  h_4132837b09b7e7 5,25-58,94,103,106-110,112-116,120,136
+packages/theme-ui/src/chat/index.ts
+  h_4132837b09b7e7 83,395-396
+packages/theme-ui/src/file-explorer/FileContextMenuView.tsx
+  h_4132837b09b7e7 2,34-38,49-56,71,84-99,128,130-131,151-160
+packages/theme-ui/src/file-explorer/FileExplorerSettingsView.tsx
+  h_4132837b09b7e7 1-105
+packages/theme-ui/src/file-explorer/FileTreeNodeView.tsx
+  h_4132837b09b7e7 14-21,263,305,307
+packages/theme-ui/src/file-explorer/index.ts
+  h_4132837b09b7e7 12-13
+packages/theme-ui/src/file-explorer/types.ts
+  h_4132837b09b7e7 23-25
+packages/theme-ui/src/index.ts
+  h_4132837b09b7e7 9
+packages/theme-ui/src/layout/ResizeHandle.tsx
+  h_4132837b09b7e7 3-8,10,16-60,62-63,69-71,89,93-96,114,117-118,128,132,137
+packages/theme-ui/src/layout/resize-handle-axis.test.ts
+  h_4132837b09b7e7 1-51
+packages/theme-ui/src/project/DefaultSessionListView.tsx
+  h_4132837b09b7e7 19-20
+packages/theme-ui/src/project/DefaultSessionRowView.tsx
+  h_4132837b09b7e7 7-10,32-33,55,80-109,111-112,115-150,152
+packages/theme-ui/src/project/ProjectContextMenuView.tsx
+  h_4132837b09b7e7 19-23,42,103
+packages/theme-ui/src/project/ProjectRowView.tsx
+  h_4132837b09b7e7 4,21-22,41,69-73
+packages/theme-ui/src/project/SessionContextMenuView.tsx
+  h_4132837b09b7e7 13-17,33,58-66
+packages/theme-ui/src/project/SessionRowMoreButton.tsx
+  h_4132837b09b7e7 1-50
+packages/theme-ui/src/project/SessionRowView.tsx
+  h_4132837b09b7e7 7-10,26-27,50,62-88,90-91,94-138,140
+packages/theme-ui/src/project/index.ts
+  h_4132837b09b7e7 77-78,87
+packages/theme-ui/src/project/types.ts
+  h_4132837b09b7e7 19-21
+packages/theme-ui/src/settings/GeneralSettingsView.tsx
+  h_4132837b09b7e7 59-60,69,92,145-146
+packages/theme-ui/src/settings/ProxySettingsSectionView.tsx
+  h_4132837b09b7e7 1-183
+packages/theme-ui/src/settings/index.ts
+  h_4132837b09b7e7 142-147
+packages/theme-ui/src/shared/ActivityStatusDot.tsx
+  h_4132837b09b7e7 1-77
+packages/theme-ui/src/shared/TabBar.tsx
+  h_4132837b09b7e7 131,134-135,559-560,562-567
+packages/theme-ui/src/shared/index.ts
+  h_4132837b09b7e7 1-2
+packages/theme-ui/src/shared/provider-icon/icons.ts
+  h_4132837b09b7e7 5,30
+packages/theme-ui/src/sidebar/AddProjectMenuPopoverView.tsx
+  h_4132837b09b7e7 36-37
+scripts/quality/ci-dependency-install.test.mjs
+  h_4132837b09b7e7 27,30,63-68
+scripts/quality/desktop-release-workflow.test.mjs
+  h_4132837b09b7e7 1-14,28-34,36-156,168-176
+scripts/quality/install-ci-dependencies.mjs
+  h_4132837b09b7e7 33-38
+scripts/quality/quality-gates.test.mjs
+  h_4132837b09b7e7 376,393-399,407-413,415-419,423
+scripts/quality/ssh-helper-cross-targets.test.mjs
+  h_4132837b09b7e7 1-50
+scripts/release/check-plugin-marketplace-publication.mjs
+  h_4132837b09b7e7 1-200
+scripts/release/check-plugin-marketplace-publication.test.mjs
+  h_4132837b09b7e7 1-140
+scripts/release/resolve-desktop-release-config.mjs
+  h_4132837b09b7e7 141,167,191,217,242,266,281,305
+scripts/release/resolve-desktop-release-config.test.mjs
+  h_4132837b09b7e7 38,46-65
+skills-lock.json
+  h_4132837b09b7e7 10-27
+tsconfig.json
+  h_4132837b09b7e7 61,86-91,159-160
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "4608be66dc2a4d22c848b81a89cd585ed436d492",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
