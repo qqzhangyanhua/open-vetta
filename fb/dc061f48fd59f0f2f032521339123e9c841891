@@ -1,0 +1,21 @@
+.github/release-notes/v0.5.58.md
+  s_eccc2a7f7fc151::t_08914155c08d38 61
+packages/plugins/presets/vetta-ui-design/src/mockup/brand-logo.ts
+  s_eccc2a7f7fc151::t_906099e759af65 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "fbdc061f48fd59f0f2f032521339123e9c841891",
+  "prompts": {},
+  "sessions": {
+    "s_eccc2a7f7fc151": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c354-52d8-7c40-9c80-4edeb2fde93f",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
