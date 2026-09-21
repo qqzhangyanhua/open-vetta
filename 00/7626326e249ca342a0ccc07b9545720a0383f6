@@ -1,0 +1,20 @@
+.github/release-notes/v0.5.59.md
+  s_f603a86a543dc7::t_9019cd68e797d6 38
+  s_f603a86a543dc7::t_633aae7c8d527d 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "007626326e249ca342a0ccc07b9545720a0383f6",
+  "prompts": {},
+  "sessions": {
+    "s_f603a86a543dc7": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c468-fbee-7242-9ad7-0d55c7a02605",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
