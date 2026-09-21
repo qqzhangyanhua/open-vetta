@@ -1,0 +1,43 @@
+docs/agents/issue-tracker.md
+  s_7cef1a69629cfc::t_475152e79e8e14 14-21
+AGENTS.md
+  s_7cef1a69629cfc::t_1950e7b4dc77c0 298
+docs/agent/talks/builtin-agents.html
+  s_c675674535388c::t_f99ee9866d8497 1-917
+docs/agent/coding-agent/06-harness-competitive-review.md
+  s_48abd181f55886::t_82195adbf3bb49 1-224
+docs/新手入门与二开讲解.md
+  s_48abd181f55886::t_5a3e811542a6cf 1-444
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "741edc5292a79c89156bac32fd4f58263306aa7d",
+  "prompts": {},
+  "sessions": {
+    "s_48abd181f55886": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "11c05900-6848-4956-9be6-14b59c39a631",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_7cef1a69629cfc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "dbe6a5a0-450b-42c8-a464-d3205c3f3df6",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_c675674535388c": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a0b47c-64ac-7c4f-a0d2-14ba2e365ede",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
