@@ -1,0 +1,32 @@
+packages/plugins/presets/github-issue-board/test/board-view.dom.test.tsx
+  s_9e408b086bfbf9::t_5770ebb58e3407 472-475,619-652,657,659
+  s_550f9591fb1f7f::t_2deae5121d4805 653-656,658,660-663
+packages/plugins/presets/github-issue-board/src/BoardView.tsx
+  s_9e408b086bfbf9::t_d6f2c38add1b40 563
+.github/release-notes/v0.5.58.md
+  s_9e408b086bfbf9::t_2cd42b6e8b2880 75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "054964d7692d11f1015cc60f3caac15848ef293d",
+  "prompts": {},
+  "sessions": {
+    "s_550f9591fb1f7f": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "a4e16ac4-4980-477b-9254-a38421a8faa2",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_9e408b086bfbf9": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c294-4e89-77a0-8870-f6860cdb32ff",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
