@@ -1,0 +1,24 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 58
+packages/coding-agent/src/sessions/external/formats.ts
+  h_4132837b09b7e7 9,28
+packages/coding-agent/src/sessions/external/root-path.ts
+  h_4132837b09b7e7 1-22
+packages/coding-agent/test/sessions/external/external-session-continue-from.test.ts
+  h_4132837b09b7e7 33,397,400-401,434,444,446
+packages/coding-agent/test/sessions/external/external-session-formats.test.ts
+  h_4132837b09b7e7 5-6,15,21,258-312
+packages/coding-agent/test/sessions/external/external-session-root-path.test.ts
+  h_4132837b09b7e7 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "5655672199d8611da7b4882678d5ed40337110e8",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
