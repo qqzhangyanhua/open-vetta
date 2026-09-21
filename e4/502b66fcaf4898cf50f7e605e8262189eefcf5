@@ -1,0 +1,36 @@
+.github/release-notes/v0.5.58.md
+  h_4132837b09b7e7 36,75-76
+apps/desktop/src/main/capabilities/ai-model-resolve.test.ts
+  h_4132837b09b7e7 1-26
+apps/desktop/src/main/capabilities/ai-model-resolve.ts
+  h_4132837b09b7e7 1-14
+apps/desktop/src/main/capabilities/ai-providers.ts
+  h_4132837b09b7e7 28,105-119,121-126,128-134,136
+docs/plugin/ai.md
+  h_4132837b09b7e7 40
+packages/plugins/presets/github-issue-board/locales/en.json
+  h_4132837b09b7e7 7-8,95-96
+packages/plugins/presets/github-issue-board/locales/zh.json
+  h_4132837b09b7e7 7-8,94-95
+packages/plugins/presets/github-issue-board/src/BoardView.tsx
+  h_4132837b09b7e7 179,711-718,731-752,957
+packages/plugins/presets/github-issue-board/src/TaskDraftComposer.tsx
+  h_4132837b09b7e7 1,42,60-67,85
+packages/plugins/presets/github-issue-board/src/task-refinement.ts
+  h_4132837b09b7e7 19-20,34,38
+packages/plugins/presets/github-issue-board/test/board-view.dom.test.tsx
+  h_4132837b09b7e7 30-31,115,139,181,509-541,590-620,701-730
+packages/plugins/presets/github-issue-board/test/task-refinement.test.ts
+  h_4132837b09b7e7 71-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "e4502b66fcaf4898cf50f7e605e8262189eefcf5",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
