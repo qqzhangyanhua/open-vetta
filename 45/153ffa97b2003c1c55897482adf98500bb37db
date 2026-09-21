@@ -1,0 +1,29 @@
+apps/desktop/src/main/pet/session-event-action-policy.ts
+  s_f603a86a543dc7::t_658be810925fc9 54,70,80,157,170,251-253,270
+apps/docs-site/content/docs/product/desktop-pet.mdx
+  s_f603a86a543dc7::t_edf44d6cd70686 19-20
+.github/release-notes/v0.5.59.md
+  s_f603a86a543dc7::t_af05fc2874b47a 38
+apps/desktop/src/main/pet/session-event-action-policy.test.ts
+  s_f603a86a543dc7::t_d9ad14d9c0a9b2 117-118
+  s_f603a86a543dc7::t_9cd2abcd16e606 90
+  s_f603a86a543dc7::t_e9424136101e79 80-89,91-116,119-121
+apps/desktop/src/shared/pet-actions.ts
+  s_f603a86a543dc7::t_103a3533a9a2c9 102-141
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "45153ffa97b2003c1c55897482adf98500bb37db",
+  "prompts": {},
+  "sessions": {
+    "s_f603a86a543dc7": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c468-fbee-7242-9ad7-0d55c7a02605",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
