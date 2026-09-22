@@ -1,0 +1,19 @@
+apps/desktop/src/renderer/pet-penguin-gen/PROMPTS.md
+  s_f603a86a543dc7::t_c6b76558e521c6 1-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "df0e9b7cae8b1e0bc30da2b6c7b2b934ab88b0ca",
+  "prompts": {},
+  "sessions": {
+    "s_f603a86a543dc7": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c468-fbee-7242-9ad7-0d55c7a02605",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
