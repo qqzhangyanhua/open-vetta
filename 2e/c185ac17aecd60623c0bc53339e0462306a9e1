@@ -1,0 +1,631 @@
+packages/coding-agent/src/public-api/function-extensions.ts
+  s_612b796709349f::t_a1f54b244555c3 10
+apps/desktop/src/main/projects/project-service.ts
+  s_612b796709349f::t_a1f54b244555c3 17-18,186
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.tsx
+  s_612b796709349f::t_a1f54b244555c3 103,105,107,109,112,134,224-236
+packages/theme-ui/src/markdown/MarkdownContent.tsx
+  s_612b796709349f::t_a1f54b244555c3 63-65,225-227,236,344-347,373
+packages/theme-ui/src/chat/index.ts
+  s_612b796709349f::t_a1f54b244555c3 87,478
+apps/desktop/src/main/scheduler/desktop-scheduler-wiring.ts
+  s_612b796709349f::t_a1f54b244555c3 1-37
+apps/desktop/src/main/agent-modes/modes/coding.md
+  s_612b796709349f::t_a1f54b244555c3 24-25,37,39,41
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultSessionList.tsx
+  s_612b796709349f::t_a1f54b244555c3 23,32,34,40-44,49-52,114
+docs/ai/impl/01-phase-0b-fixtures-and-limits.md
+  s_612b796709349f::t_a1f54b244555c3 3-4
+docs/ai/refa/03-agent-runtime-refactor.md
+  s_612b796709349f::t_a1f54b244555c3 70-71
+apps/desktop/src/main/scheduler/scheduler-service.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-79
+packages/plugins/presets/vetta-ui-design/src/canvas/ControlBar.tsx
+  s_612b796709349f::t_a1f54b244555c3 260-261,265
+packages/plugins/presets/vetta-ui-design/src/canvas/CanvasCornerActions.tsx
+  s_612b796709349f::t_a1f54b244555c3 113
+apps/desktop/src/renderer/domains/scheduler/hooks/useTaskListModel.ts
+  s_612b796709349f::t_a1f54b244555c3 1,3-4,6-14,19-21,26,31-32,35-38,42,44-47,49-71,74-91,94-99
+packages/coding-agent/test/runtime-core/child-composition-policy.test.ts
+  s_612b796709349f::t_a1f54b244555c3 261
+packages/capability-sdk/CHANGELOG.md
+  s_612b796709349f::t_a1f54b244555c3 7-10
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  s_612b796709349f::t_a1f54b244555c3 1145,1321,1351,1388-1391
+apps/desktop/src/renderer/domains/project/hooks/useProjectsPanelMenusModel.ts
+  s_612b796709349f::t_a1f54b244555c3 3,20,47-49,52-55
+packages/theme-ui/src/scheduler/AutomationDetailPaneView.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-95
+apps/desktop/src/main/main.ts
+  s_612b796709349f::t_a1f54b244555c3 84-85,735
+apps/desktop/src/renderer/domains/activity-panel/hooks/useDockedContentReady.ts
+  s_612b796709349f::t_a1f54b244555c3 1-36
+packages/agent/test/agent-loop-limits.test.ts
+  s_612b796709349f::t_a1f54b244555c3 66-88
+apps/desktop/src/renderer/domains/conversation/components/message-list/RenderingScopes.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 81,93
+packages/runtime-core/src/kernel/agent-session.ts
+  s_612b796709349f::t_a1f54b244555c3 159-188,497,499,503-509,525,648-666
+  s_612b796709349f::t_c9a8a2f00dc824 158,667-668
+packages/plugins/presets/vetta-ui-design/src/style.css
+  s_612b796709349f::t_a1f54b244555c3 198-215,218,227,231-239,345-347,498-499,509,530-533,541-542,547
+apps/desktop/src/renderer/domains/scheduler/hooks/useScheduledTasks.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 27,55-57,59-60,64,67-68,101-102
+apps/desktop/src/renderer/domains/conversation/components/new-session/ornament/HeroOrnamentSlot.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 4,36
+apps/desktop/scripts/ensure-workspace-install.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-67
+apps/desktop/src/main/agent-modes/index.ts
+  s_612b796709349f::t_a1f54b244555c3 4,8-9,12-14
+apps/desktop/src/renderer/domains/activity-panel/components/ActivityPanel.plugin-tabs.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 14,97,103-104,107-132
+apps/desktop/src/renderer/domains/conversation/components/agent-controls.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 39,54-56,69,71
+apps/desktop/src/main/scheduler/scheduler-service.ts
+  s_612b796709349f::t_a1f54b244555c3 1,3-15,17-18,20,23,29,38-39,41-45,59,65-66,69-89,92,94,97-105,109-111,113-128,130-138,166-173,175-186,190,196-202,208-209,211,240-241,244,250-254,262-297,308-312,315-320,322-323,344-346,348
+  s_612b796709349f::t_41cf275d57b55f 347
+apps/desktop/src/renderer/domains/activity-panel/components/activity-panel/ActivityPanelView.tsx
+  s_612b796709349f::t_a1f54b244555c3 4,6,29-34,99,121
+apps/desktop/src/renderer/domains/settings/components/AppearanceSettingsView.tsx
+  s_612b796709349f::t_a1f54b244555c3 154,168,358,426-427,430-431
+.agents/skills/grill-with-docs/CONTEXT-FORMAT.md
+  s_612b796709349f::t_a1f54b244555c3 1-63
+apps/desktop/src/shared/pet-config.ts
+  s_612b796709349f::t_a1f54b244555c3 39
+packages/plugins/presets/vetta-ui-design/test/preview-canvas-mount.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-54
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_612b796709349f::t_a1f54b244555c3 143-145,383-387
+apps/desktop/src/renderer/domains/bottom-panel/terminal/TerminalSurface.tsx
+  s_612b796709349f::t_a1f54b244555c3 10,14,53-54,85-88,250-256
+  s_612b796709349f::t_392b85c86af083 257
+apps/desktop/src/renderer/domains/scheduler/hooks/useSchedulerTaskFieldsModel.ts
+  s_612b796709349f::t_a1f54b244555c3 1-2,4,6-10,12-13,17-21,24-40,43-45,47-48,50,55-57,60,62-65,67-68,70-99,102-110,112-114,116,119,121-124,126-130,133-158,160-161,164-176
+packages/plugins/presets/vetta-ui-design/src/canvas/activity-visuals.tsx
+  s_612b796709349f::t_a1f54b244555c3 3,5-6,8-9,11-12,29,36,42-59
+.agents/skills/diagnose/scripts/hitl-loop.template.sh
+  s_612b796709349f::t_a1f54b244555c3 1-41
+packages/theme-ui/src/chat/InputBarPlaceholder.tsx
+  s_612b796709349f::t_a1f54b244555c3 26-45,70-72,74,79
+apps/desktop/src/renderer/shared/lib/live-animations.ts
+  s_612b796709349f::t_a1f54b244555c3 1-145
+apps/desktop/src/renderer/shared/store/bottom-panel-persistence.ts
+  s_612b796709349f::t_a1f54b244555c3 88-101,110,117-118
+packages/plugins/presets/vetta-ui-design/src/canvas/frame-raster.ts
+  s_612b796709349f::t_a1f54b244555c3 199-205,208-214
+packages/runtime-core/test/runtime-host/session-backend-routing.test.ts
+  s_612b796709349f::t_a1f54b244555c3 10,74-116,255
+packages/agent/src/agent-loop.ts
+  s_612b796709349f::t_a1f54b244555c3 155-157,201-203
+packages/ai/test/amazon-bedrock-request.test.ts
+  s_612b796709349f::t_a1f54b244555c3 76-86
+apps/desktop/src/renderer/domains/scheduler/components/AutomationPage.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-4,9-16
+apps/desktop/src/main/app-debug/runtime-canary/consumer-definitions.test.ts
+  s_612b796709349f::t_a1f54b244555c3 11-12,49,99
+apps/desktop/src/main/scheduler/automation-migration.ts
+  s_612b796709349f::t_a1f54b244555c3 1-88
+.agents/skills/grill-with-docs/ADR-FORMAT.md
+  s_612b796709349f::t_a1f54b244555c3 1-47
+apps/desktop/src/renderer/domains/conversation/components/blocks/TextBlockView.streaming.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 44,46-48,52,58-77,80,82,85-87,90,96-97,109-130,133,135,137-144,147
+apps/desktop/src/main/capabilities/integrations/plugin/test/helpers/capability-outputs.ts
+  s_612b796709349f::t_a1f54b244555c3 420-421
+apps/desktop/src/renderer/domains/conversation/components/message-list/types.ts
+  s_612b796709349f::t_a1f54b244555c3 45
+apps/desktop/src/renderer/domains/project/hooks/stableSessionViews.ts
+  s_612b796709349f::t_a1f54b244555c3 22-24,51-53
+apps/desktop/src/shared/automation.ts
+  s_612b796709349f::t_a1f54b244555c3 1-276
+apps/desktop/src/main/scheduler/task-executor.ts
+  s_612b796709349f::t_a1f54b244555c3 1-9,11-29,32,34,42-43,45-47,50-57,70-72,74-75,81,83-92,94-96,98-112,114-120,122,126-131,133,136-149,152-167,169-179,181-198,200-212,214-227,229-256,258-268,270-284,287-289,291-329,331-346,348,354-355,363,382,392
+apps/desktop/src/renderer/shared/components/BotAvatar.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-46
+packages/theme-ui/src/chat/ChatHeaderActionsView.tsx
+  s_612b796709349f::t_a1f54b244555c3 95-125,131
+.agents/skills/diagnose/SKILL.md
+  s_612b796709349f::t_a1f54b244555c3 1-117
+packages/theme-ui/src/project/SessionRowView.tsx
+  s_612b796709349f::t_a1f54b244555c3 36-40,64-66,74,81,83-84,140-151,155
+apps/desktop/src/main/agent-teams/team-session-service.test.ts
+  s_612b796709349f::t_a1f54b244555c3 713,1016,1134,1195,1262,1270-1277,1280,1309-1313,1319-1320,1332-1339
+packages/agent/src/engine/limits.ts
+  s_612b796709349f::t_a1f54b244555c3 4-5
+packages/ai/test/anthropic-request.test.ts
+  s_612b796709349f::t_a1f54b244555c3 71-80
+packages/agent/src/engine/run-agent-turn.ts
+  s_612b796709349f::t_a1f54b244555c3 74,191-194
+apps/desktop/src/renderer/shared/lib/live-animations.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-111
+apps/desktop/src/renderer/domains/activity-panel/hooks/useScheduleExecutionTabPanelModel.tsx
+  s_612b796709349f::t_a1f54b244555c3 55-58,72-74,92,142
+apps/desktop/src/renderer/shared/theme/ornament.ts
+  s_612b796709349f::t_a1f54b244555c3 10,14-19,42
+packages/plugins/presets/vetta-ui-design/src/canvas/FrameView.tsx
+  s_612b796709349f::t_a1f54b244555c3 402,476
+apps/desktop/src/renderer/domains/scheduler/hooks/useScheduledTasks.ts
+  s_612b796709349f::t_a1f54b244555c3 1,4,23,31,33,35,37,51,53
+apps/desktop/src/main/scheduler/automation-migration.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-84
+apps/desktop/src/renderer/shared/theme/ornament.test.ts
+  s_612b796709349f::t_a1f54b244555c3 27-36
+packages/plugins/presets/vetta-ui-design/src/index.tsx
+  s_612b796709349f::t_a1f54b244555c3 22,44-45,132-138,140,145,208,212
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.memo.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 17
+packages/runtime-core/src/runtime-host/session-ports.ts
+  s_612b796709349f::t_a1f54b244555c3 34,47
+packages/capability-sdk/test/domain/scheduler.test.ts
+  s_612b796709349f::t_a1f54b244555c3 6,8,32-38,47-49,55,57,61-77,83,85-88,97,105-109,111,120-124,126,136,150,160
+apps/desktop/src/main/agent-modes/modes-data.ts
+  s_612b796709349f::t_a1f54b244555c3 21,28
+packages/runtime-core/src/contracts.ts
+  s_612b796709349f::t_a1f54b244555c3 5,425-429,536-541
+packages/plugins/presets/vetta-ui-design/src/canvas/NotesLayer.tsx
+  s_612b796709349f::t_a1f54b244555c3 2,50,387-392
+apps/desktop/src/renderer/domains/scheduler/hooks/useAutomationPageModel.ts
+  s_612b796709349f::t_a1f54b244555c3 3,12-13,25-30,32-34,37,39-41,44-46,53,57-59,62,85,87-91,93-103,106-114,117-119,122-147,149
+apps/desktop/src/renderer/shared/components/live-clock-indicators.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-41
+packages/agent/src/loop/limits.ts
+  s_612b796709349f::t_a1f54b244555c3 3-9,28-30,32-33,46-50
+  s_612b796709349f::t_b26ef862ed7a9d 51
+apps/desktop/src/shared/i18n/locales/zh/project.json
+  s_612b796709349f::t_a1f54b244555c3 83-84,132-133
+packages/capability-sdk/src/domain/scheduler.ts
+  s_612b796709349f::t_a1f54b244555c3 6-8,11-19,32-39,49-51,54-57,60-62,75-82,91-92,94-173,177-178,180-182,192-195,197,211-214,221,223-234,271,274,282-285,298-301,305-309,342,350,358,366,374,390
+apps/desktop/src/main/agent-teams/team-session-concurrency.test.ts
+  s_612b796709349f::t_a1f54b244555c3 84,89,880,1356,1358-1359,1361-1368,1371-1383,1924,2238-2239,2293-2310
+packages/runtime-core/test/runtime-host/agent-backend-admission.test.ts
+  s_612b796709349f::t_a1f54b244555c3 248
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  s_612b796709349f::t_a1f54b244555c3 1145,1321,1351,1388-1391
+packages/theme-ui/src/chat/streaming-reveal.test.ts
+  s_612b796709349f::t_a1f54b244555c3 2-9,77-123,125-141,144-149,152-155,158-166
+packages/coding-agent/src/model-context/system-prompt-policy.ts
+  s_612b796709349f::t_a1f54b244555c3 122
+apps/desktop/src/renderer/domains/conversation/components/chat-view/types.ts
+  s_612b796709349f::t_a1f54b244555c3 18-20,41
+packages/theme-ui/src/sidebar/SidebarTopBar.tsx
+  s_612b796709349f::t_a1f54b244555c3 80-81
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-scheduler.test.ts
+  s_612b796709349f::t_a1f54b244555c3 8-9,22,35,40-41
+apps/desktop/src/renderer/domains/project/hooks/useScheduleStatusModel.ts
+  s_612b796709349f::t_a1f54b244555c3 1,32,40
+apps/desktop/src/renderer/domains/project/hooks/useProjects.ts
+  s_612b796709349f::t_a1f54b244555c3 390-391,407
+apps/desktop/src/main/agent-modes/modes/partials/code-discipline.md
+  s_612b796709349f::t_a1f54b244555c3 1-4
+apps/desktop/src/main/agent-modes/modes/work.md
+  s_612b796709349f::t_a1f54b244555c3 26-27,32-33,37
+apps/desktop/src/renderer/shared/action-approval/scheduler/SchedulerApprovalFields.tsx
+  s_612b796709349f::t_a1f54b244555c3 2-7,11,19,33-43
+packages/plugins/plugin-sdk/src/official.ts
+  s_612b796709349f::t_a1f54b244555c3 234-265,269-272,279-282
+apps/desktop/src/renderer/domains/scheduler/hooks/useAutomationDraftDefaults.ts
+  s_612b796709349f::t_a1f54b244555c3 1-23
+packages/agent/src/engine/types.ts
+  s_612b796709349f::t_a1f54b244555c3 15-18
+packages/theme-ui/src/chat/TodoStatusBarView.tsx
+  s_612b796709349f::t_a1f54b244555c3 13,75-78
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarPlaceholder.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-62
+apps/desktop/src/renderer/domains/conversation/hooks/useChatViewModel.ts
+  s_612b796709349f::t_a1f54b244555c3 35,132-133,196,199,214-220,224-234
+apps/desktop/src/renderer/domains/scheduler/hooks/useAutomationDetailModel.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-110
+packages/coding-agent/test/runtime-core/model-call-and-prompt-runtime.test.ts
+  s_612b796709349f::t_a1f54b244555c3 279-298
+apps/desktop/src/renderer/domains/conversation/components/blocks/MarkdownExtensions.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 63-80
+apps/desktop/src/main/abilities/open-marketplace/marketplace-source-store.test.ts
+  s_612b796709349f::t_a1f54b244555c3 111-112,142-178
+  s_612b796709349f::t_ae497c0940a445 179-180
+apps/desktop/src/main/agent-teams/team-member-attempt-runner.ts
+  s_612b796709349f::t_a1f54b244555c3 32,194,202,287,291-295,297-304,306,309-310,312,317-318
+apps/desktop/src/renderer/domains/scheduler/components/schedule-picker/describe-schedule.ts
+  s_612b796709349f::t_a1f54b244555c3 1-43
+apps/desktop/scripts/ensure-workspace-install.mjs
+  s_612b796709349f::t_a1f54b244555c3 1-87
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-scheduler.ts
+  s_612b796709349f::t_a1f54b244555c3 31
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_612b796709349f::t_a1f54b244555c3 143-145,383-387
+packages/plugins/presets/vetta-ui-design/src/canvas/FrameLoadingOverlay.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-2,7-9,13,15-19
+apps/desktop/src/main/ipc/session.ts
+  s_612b796709349f::t_a1f54b244555c3 92,390-396,1233,1243-1244,1246-1249,1256-1257,1378
+apps/desktop/src/preload/api-types/scheduler.ts
+  s_612b796709349f::t_a1f54b244555c3 1-8,10-26,28,32-33,41-42
+apps/desktop/src/main/agent-modes/modes/partials/narration.md
+  s_612b796709349f::t_a1f54b244555c3 1-10
+packages/plugins/presets/vetta-ui-design/src/preview/PreviewCanvas.tsx
+  s_612b796709349f::t_a1f54b244555c3 19-29,65-77,82-136,175,180-183,188,190,193-199,238,241,243-258,306-307,323
+packages/plugins/presets/vetta-ui-design/test/canvas-memo-layers.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-13
+apps/desktop/src/renderer/domains/scheduler/recommended-tasks.ts
+  s_612b796709349f::t_a1f54b244555c3 1-2,11,18,23,28
+apps/desktop/src/main/agent-teams/team-shared-context-service.ts
+  s_612b796709349f::t_a1f54b244555c3 64,105-114,124-130,147-161,163-165,197-202,413-415
+  s_612b796709349f::t_2d8f3de48f2c7e 416
+apps/desktop/src/renderer/domains/conversation/hooks/useAssistantMessageModel.ts
+  s_612b796709349f::t_a1f54b244555c3 32,62-63,65,67,76
+apps/desktop/src/main/scheduler/task-executor.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1,3-6,9-10,12-17,20-23,25-26,28,30,32-35,37-41,43-45,50-114,117-124,127-134,136-139,141-148,150-161,163-194,196-205,207,210-216,218-224,227-231,233-235,237-247,249-258,260-267,269-273,275-283,285-293
+CONTEXT.md
+  s_612b796709349f::t_a1f54b244555c3 725-747
+packages/plugins/presets/vetta-ui-design/test/gallery-skeleton.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-94
+packages/agent/src/loop/assistant-stream.ts
+  s_612b796709349f::t_a1f54b244555c3 6,22
+apps/desktop/src/renderer/domains/conversation/components/message-list/progressGroupModel.ts
+  s_612b796709349f::t_a1f54b244555c3 2,7
+.agents/skills/grill-me/SKILL.md
+  s_612b796709349f::t_a1f54b244555c3 1-10
+packages/theme-ui/src/chat/send-button.css
+  s_612b796709349f::t_a1f54b244555c3 22-25
+packages/coding-agent/src/model-context/prompt-request-runtime.ts
+  s_612b796709349f::t_a1f54b244555c3 135
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantRendering.tsx
+  s_612b796709349f::t_a1f54b244555c3 8
+apps/desktop/scripts/installed-package-root.d.mts
+  s_612b796709349f::t_a1f54b244555c3 1
+apps/desktop/src/renderer/domains/scheduler/components/schedule-picker/ScheduleEditorView.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-330
+packages/plugins/presets/vetta-ui-design/src/canvas/SelectionAskBadge.tsx
+  s_612b796709349f::t_a1f54b244555c3 17,55,161-163
+packages/coding-agent/src/features/plan-mode/plan-mode-instructions.ts
+  s_612b796709349f::t_a1f54b244555c3 23,25
+packages/theme-ui/src/action-approval/AppearanceActionPickerView.tsx
+  s_612b796709349f::t_a1f54b244555c3 128,142
+packages/coding-agent/src/features/ask-user-question/contracts.ts
+  s_612b796709349f::t_a1f54b244555c3 17-22
+packages/plugins/presets/vetta-ui-design/locales/zh.json
+  s_612b796709349f::t_a1f54b244555c3 182,292
+packages/plugins/presets/vetta-ui-design/src/canvas/fluid-canvas.ts
+  s_612b796709349f::t_a1f54b244555c3 1-167
+apps/desktop/src/renderer/domains/project/hooks/useProjectGroupModel.ts
+  s_612b796709349f::t_a1f54b244555c3 5,19-24,34,98-104,106-108,126-134,138-146,156,181-187,193-194,251-257,288
+apps/desktop/src/renderer/shared/components/aurora/AuroraTexture.css
+  s_612b796709349f::t_a1f54b244555c3 2-3,8-13,15,20-22,24-27,29-34,38,40,49,51,55-77
+packages/plugins/presets/vetta-ui-design/src/canvas/FrameActivityOverlay.tsx
+  s_612b796709349f::t_a1f54b244555c3 7-8,10,12-14,36,39,41,77,81-82
+packages/plugins/presets/vetta-ui-design/test/mockup-workbench.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 305-403
+apps/desktop/scripts/README.md
+  s_612b796709349f::t_a477394127bcae 197
+  s_612b796709349f::t_a1f54b244555c3 184
+packages/runtime-core/test/runtime-host/execution-mode-turn-boundary.test.ts
+  s_612b796709349f::t_a1f54b244555c3 247
+packages/theme-ui/src/chat/LiveThinkingView.tsx
+  s_612b796709349f::t_a1f54b244555c3 10-15,37,46-47,51
+packages/theme-ui/src/chat/TodoProgress.tsx
+  s_612b796709349f::t_a1f54b244555c3 45-48,51,53,65,67-72,107,164
+packages/coding-agent/test/features/ask-user-question/ask-user-question-session-extension.test.ts
+  s_612b796709349f::t_a1f54b244555c3 7,89-109
+  s_612b796709349f::t_ba770c67f7be86 110-111
+apps/desktop/src/renderer/domains/scheduler/components/SchedulerTaskFieldsView.tsx
+  s_612b796709349f::t_a1f54b244555c3 3-4,6-9,15-16,18,20-23,25-31,33-36,39-51,54-62,65-68,71,74-102,104-166,169-170,172,174-239,241
+apps/desktop/src/renderer/domains/conversation/components/blocks/LiveThinkingView.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 3-23,26-75
+apps/desktop/vite.main.config.ts
+  s_612b796709349f::t_a1f54b244555c3 64,69-71
+  s_612b796709349f::t_1e8f5c9533d6ee 68
+packages/plugins/presets/vetta-ui-design/test/auto-open-canvas.test.ts
+  s_612b796709349f::t_a1f54b244555c3 2,96-137
+  s_612b796709349f::t_5d982a51fd45c2 138
+packages/runtime-core/test/runtime-host/runtime-host-dynamic-agent-lifecycle.test.ts
+  s_612b796709349f::t_a1f54b244555c3 218
+packages/plugins/presets/vetta-ui-design/src/gallery/GalleryCardSkeleton.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-15
+apps/desktop/src/renderer/shared/action-approval/scheduler/SchedulerCreateApproval.tsx
+  s_612b796709349f::t_a1f54b244555c3 4-6,16,30-31,57
+apps/desktop/src/main/conversations/desktop-conversation-service.ts
+  s_612b796709349f::t_a1f54b244555c3 247
+apps/desktop/src/main/ipc/scheduler.ts
+  s_612b796709349f::t_a1f54b244555c3 2,4,15,21,40-42,54-56,67-69
+docs/open-marketplace.md
+  s_612b796709349f::t_f1671d178dd1e7 11-12,26-30,502-503
+  s_612b796709349f::t_a1f54b244555c3 500
+apps/desktop/package.json
+  s_612b796709349f::t_a1f54b244555c3 27,184
+apps/desktop/src/main/scheduler/task-storage.ts
+  s_612b796709349f::t_a1f54b244555c3 1,5-8,11-13,15,17,19-21,24-28,36-40,44-45,47-54,56-74,78-79,87-88,90,96,99-101,116-138,143-144,147,149-150,152,156-157,165,168-169,172-175,179,182,185,187,192-193,195,197-201,208-219,222-229,231,238-241,244-255
+apps/desktop/src/renderer/shared/lib/inactive-window-animations.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-149
+tsconfig.json
+  s_612b796709349f::t_a1f54b244555c3 57
+apps/desktop/src/renderer/shared/store/scheduler-atoms.ts
+  s_612b796709349f::t_a1f54b244555c3 2,4-8,18-31,33-40
+apps/desktop/src/renderer/domains/conversation/components/SessionAssistantRendering.tsx
+  s_612b796709349f::t_a1f54b244555c3 1,17
+docs/adr/0126-model-and-tool-call-budgets-are-opt-in.md
+  s_612b796709349f::t_a1f54b244555c3 1-34
+apps/desktop/src/shared/i18n/locales/zh/abilities.json
+  s_612b796709349f::t_a1f54b244555c3 150-151
+apps/desktop/src/renderer/shared/action-approval/scheduler/SchedulerEditApprovalDrawerView.tsx
+  s_612b796709349f::t_a1f54b244555c3 7,27
+apps/desktop/src/renderer/shared/store/bottom-panel-layout.test.ts
+  s_612b796709349f::t_a1f54b244555c3 3,14-15,84,89-95,379-439
+  s_612b796709349f::t_8655edc9a9300b 440
+.github/release-notes/v0.5.59.md
+  s_612b796709349f::t_6145fdfc1393cb 58,75,78
+  s_612b796709349f::t_a1f54b244555c3 5,9-10,36-57,59,76-77,79-80,82,107-113,117-123,175-179,183-186,203-205
+  s_612b796709349f::t_830c09096b44f1 81,88,124
+  s_612b796709349f::t_c46719ace945f0 60
+packages/plugins/plugin-sdk/src/index.ts
+  s_612b796709349f::t_a1f54b244555c3 207-210
+packages/plugins/presets/vetta-ui-design/src/mockup/ExportMockupDialog.tsx
+  s_612b796709349f::t_a1f54b244555c3 37-41,62-81,126-132,149-156,170-211,221-224,380-391,421
+apps/desktop/src/renderer/shared/lib/inactive-window-animations.ts
+  s_612b796709349f::t_a1f54b244555c3 1-108
+apps/desktop/src/renderer/domains/project/services/automation-session-groups.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-86
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/ProjectGroup.tsx
+  s_612b796709349f::t_a1f54b244555c3 17,24,26,32-36,41-43,120
+apps/desktop/src/main/app-debug/runtime-canary/consumer-definitions.ts
+  s_612b796709349f::t_a1f54b244555c3 23,42,89-92
+packages/theme-ui/src/scheduler/ExecutionHistoryView.tsx
+  s_612b796709349f::t_a1f54b244555c3 3-4,151-152,173-174
+packages/theme-ui/src/sidebar/SettingsMenuTriggerView.tsx
+  s_612b796709349f::t_a1f54b244555c3 6,21-22
+packages/theme-ui/src/scheduler/index.ts
+  s_612b796709349f::t_a1f54b244555c3 2-7,21
+apps/desktop/src/renderer/shared/action-approval/scheduler/useSchedulerUpdateApprovalModel.ts
+  s_612b796709349f::t_a1f54b244555c3 1-3,15,31,38-39,41-51,196
+apps/desktop/scripts/installed-package-root.test.ts
+  s_612b796709349f::t_836a21de1bf7b6 1,27-29
+  s_612b796709349f::t_a1f54b244555c3 2-26,30-31
+apps/desktop/src/renderer/domains/project/hooks/useSessionContextMenuModel.ts
+  s_612b796709349f::t_a1f54b244555c3 3-4,7,10,13,37-39,41-42,62-82,141-144
+  s_612b796709349f::t_e79ee3927d37dc 145
+apps/desktop/src/preload/apis/scheduler.ts
+  s_612b796709349f::t_a1f54b244555c3 14,31
+apps/desktop/src/renderer/domains/settings/ai-assist/catalog.ts
+  s_612b796709349f::t_a1f54b244555c3 92-93
+apps/desktop/src/shared/automation-timing.ts
+  s_612b796709349f::t_a1f54b244555c3 1-89
+packages/plugins/presets/vetta-ui-design/test/frame-activity.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 131-143,162,178,190,199-204,209,211
+packages/theme-ui/src/chat/BashTerminalCard.tsx
+  s_612b796709349f::t_a1f54b244555c3 92
+apps/desktop/src/main/scheduler/automation-notifier.ts
+  s_612b796709349f::t_a1f54b244555c3 1-63
+apps/desktop/scripts/marketplace-build-config.test.ts
+  s_612b796709349f::t_a1f54b244555c3 25,32,45-52
+  s_612b796709349f::t_e6421ae78fa3db 53-54
+apps/desktop/src/renderer/domains/scheduler/components/AutomationFieldRows.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-82
+apps/desktop/DESIGN.md
+  s_612b796709349f::t_a1f54b244555c3 166-176
+apps/desktop/src/main/scheduler/cron.ts
+  s_612b796709349f::t_a1f54b244555c3 1-8
+packages/plugins/presets/vetta-ui-design/src/gallery/GalleryView.tsx
+  s_612b796709349f::t_a1f54b244555c3 14,233-234,353,376-394,397
+packages/theme-ui/src/settings/SettingsAiAssistButtonView.tsx
+  s_612b796709349f::t_a1f54b244555c3 11-13,19,27,29,35-37
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelHost.flow.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 209-222
+scripts/release/resolve-desktop-release-config.test.mjs
+  s_612b796709349f::t_a1f54b244555c3 38,44-46
+apps/desktop/src/shared/i18n/locales/en/abilities.json
+  s_612b796709349f::t_a1f54b244555c3 150-151
+packages/runtime-core/test/runtime-host/running-changed-reason.test.ts
+  s_612b796709349f::t_a1f54b244555c3 315
+apps/desktop/scripts/installed-package-root.mjs
+  s_612b796709349f::t_a1f54b244555c3 1-24
+packages/plugins/plugin-sdk/CHANGELOG.md
+  s_612b796709349f::t_16ec78fef47d81 11
+  s_612b796709349f::t_a1f54b244555c3 12-13
+packages/plugins/presets/vetta-ui-design/src/history/HistoryDrawer.tsx
+  s_612b796709349f::t_a1f54b244555c3 105
+packages/runtime-core/test/kernel/stateless-agent-core-turn-engine.test.ts
+  s_612b796709349f::t_a1f54b244555c3 59-114
+apps/desktop/src/renderer/domains/project/services/automation-session-groups.ts
+  s_612b796709349f::t_a1f54b244555c3 1-124
+packages/plugins/presets/vetta-ui-design/src/canvas/NoteSurface.tsx
+  s_612b796709349f::t_a1f54b244555c3 36
+packages/theme-ui/src/shared/ActivityStatusDot.tsx
+  s_612b796709349f::t_a1f54b244555c3 33-38,40,58-59
+apps/desktop/src/renderer/domains/scheduler/hooks/useExecutionHistoryModel.ts
+  s_612b796709349f::t_a1f54b244555c3 3,66,70,74,99-116
+  s_612b796709349f::t_5c7f832b947a08 117
+apps/desktop/src/main/scheduler/cron.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-43
+docs/adr/0071-agent-mode-is-a-task-interpretation-prior.md
+  s_612b796709349f::t_a1f54b244555c3 3-5,217-247
+apps/desktop/src/main/scheduler/scheduler.ts
+  s_612b796709349f::t_a1f54b244555c3 2-5,8-17,19,21-23,26-28,34-37,40-41,43-50,52-85,87-107,109,111-112,114-124,127,130-131,133-154,158-159,162-165,170,172-173,183-184,186-187
+packages/theme-ui/src/markdown/streaming.ts
+  s_612b796709349f::t_a1f54b244555c3 1,3-10,14-18,21,31,36-38,54-57,73-88,90-92,103-109,123-124,126-150,158,164-165,174,176-177,187-192,194-195
+apps/desktop/src/renderer/domains/settings/components/AppearanceSettingsView.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 11,13-16,122,124-125,127,129,133
+apps/desktop/src/renderer/shared/components/aurora/AuroraTexture.tsx
+  s_612b796709349f::t_a1f54b244555c3 9,11,13-15,20
+apps/desktop/src/renderer/shared/store/bottom-panel-persistence.test.ts
+  s_612b796709349f::t_a1f54b244555c3 60-90
+packages/ai/src/models.ts
+  s_612b796709349f::t_a1f54b244555c3 2,44,54
+packages/runtime-core/README.md
+  s_612b796709349f::t_a1f54b244555c3 17,153-160
+  s_612b796709349f::t_f724ed7d65af5f 161
+packages/plugins/presets/vetta-ui-design/src/canvas/use-bridge-events.ts
+  s_612b796709349f::t_a1f54b244555c3 1-19
+packages/theme-ui/src/chat/AssistantMessageView.tsx
+  s_612b796709349f::t_a1f54b244555c3 7-9,13-14,132
+apps/desktop/src/renderer/domains/scheduler/components/schedule-picker/automation-schedule.ts
+  s_612b796709349f::t_a1f54b244555c3 1-144
+apps/desktop/src/main/conversations/resolve-session-config.ts
+  s_612b796709349f::t_a1f54b244555c3 18-19,55-56,94-97
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useOpenTerminal.ts
+  s_612b796709349f::t_a1f54b244555c3 1-84
+apps/desktop/src/renderer/domains/scheduler/components/AutomationDetailPane.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-104
+apps/desktop/src/main/projects/project-service-instance.ts
+  s_612b796709349f::t_a1f54b244555c3 5,29-31
+packages/runtime-core/src/runtime-host/kernel-runtime-session-backend.ts
+  s_612b796709349f::t_a1f54b244555c3 275-296,635-636
+  s_612b796709349f::t_9b88626b588d69 637-646
+packages/theme-ui/src/project/DefaultSessionRowView.tsx
+  s_612b796709349f::t_a1f54b244555c3 42-46,69-71,92,105-106,152-163,167
+apps/desktop/src/main/agent-modes/agent-modes.test.ts
+  s_612b796709349f::t_a1f54b244555c3 64-73
+packages/plugins/presets/vetta-ui-design/src/vetd/auto-open.ts
+  s_612b796709349f::t_a1f54b244555c3 22-37
+.agents/skills/handoff/SKILL.md
+  s_612b796709349f::t_a1f54b244555c3 1-15
+apps/desktop/src/renderer/domains/abilities/components/detail/AbilityDetailHeader.operation.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 9-15,51-64
+packages/plugins/presets/vetta-actions/src/domains/scheduler.ts
+  s_612b796709349f::t_a1f54b244555c3 49-147,150-152,154,162-165,168,176-179,244,250-251,255-308,329-336,356-373
+packages/theme-ui/src/live-indicators.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-43
+packages/ai/src/providers/claude-thinking.ts
+  s_612b796709349f::t_a1f54b244555c3 5-31,33-43,56
+apps/desktop/tsconfig.json
+  s_612b796709349f::t_a1f54b244555c3 26
+apps/desktop/src/renderer/domains/bottom-panel/registry/instance-atoms.ts
+  s_612b796709349f::t_a1f54b244555c3 66-73
+docs/adr/0127-automation-run-target-and-unattended-execution.md
+  s_612b796709349f::t_a1f54b244555c3 1-34
+.agents/skills/grill-with-docs/SKILL.md
+  s_612b796709349f::t_a1f54b244555c3 1-88
+apps/desktop/src/renderer/shared/store/bottom-panel-layout.ts
+  s_612b796709349f::t_a1f54b244555c3 50-55,93-94,317-365,369-373,396-403
+packages/plugins/presets/vetta-ui-design/test/bridge-hub-lifecycle.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-76
+packages/runtime-core/src/kernel/stateless-agent-core-turn-engine.ts
+  s_612b796709349f::t_a1f54b244555c3 52,736-737,739-741
+scripts/release/resolve-desktop-release-config.mjs
+  s_612b796709349f::t_a1f54b244555c3 141,305
+packages/runtime-core/src/runtime-host/runtime-host-session-operations.ts
+  s_612b796709349f::t_a1f54b244555c3 99,123-162,173
+  s_612b796709349f::t_0954fb3513cb46 163-172,174-177
+packages/theme-ui/src/chat/SkillPromptAreaView.tsx
+  s_612b796709349f::t_a1f54b244555c3 62-63,87-88
+packages/theme-ui/src/scheduler/TaskListView.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-5,10-13,18-19,23-39,41,43-58,60-61,63-66,68
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useOpenTerminal.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-139
+apps/desktop/src/renderer/main.tsx
+  s_612b796709349f::t_a1f54b244555c3 3-4,21-24
+packages/theme-ui/src/shared/BotAvatar.tsx
+  s_612b796709349f::t_a1f54b244555c3 123-125,144-145,150,280-281,369-371
+apps/desktop/scripts/desktop-build-environment.mjs
+  s_612b796709349f::t_a1f54b244555c3 93-94
+packages/runtime-core/src/kernel/agent-core-turn-engine-options.ts
+  s_612b796709349f::t_a1f54b244555c3 14
+apps/desktop/src/renderer/domains/scheduler/automation-status.ts
+  s_612b796709349f::t_a1f54b244555c3 1-28
+apps/desktop/scripts/ensure-workspace-install.d.mts
+  s_612b796709349f::t_a1f54b244555c3 1-4
+apps/desktop/src/renderer/domains/scheduler/components/SchedulerTaskFields.tsx
+  s_612b796709349f::t_a1f54b244555c3 1,5,8-9,20,24
+packages/plugins/presets/vetta-ui-design/locales/en.json
+  s_612b796709349f::t_a1f54b244555c3 182,292
+packages/plugins/presets/vetta-ui-design/src/canvas/NotesDrawer.tsx
+  s_612b796709349f::t_a1f54b244555c3 98,294
+apps/desktop/src/renderer/domains/scheduler/automation-draft.ts
+  s_612b796709349f::t_a1f54b244555c3 1-125
+packages/plugins/presets/vetta-ui-design/src/canvas/design-runtime.ts
+  s_612b796709349f::t_a1f54b244555c3 89-96,140-149,178-183,189-191,215-216,218,226-227,229
+apps/desktop/src/main/window-manager.ts
+  s_612b796709349f::t_a1f54b244555c3 61-64,70
+packages/agent/src/types.ts
+  s_612b796709349f::t_a1f54b244555c3 66,68
+apps/desktop/src/renderer/domains/scheduler/components/TaskList.tsx
+  s_612b796709349f::t_a1f54b244555c3 1-2,7-8,12-14
+apps/desktop/src/renderer/domains/conversation/components/chat-view/ChatHeaderActionsView.tsx
+  s_612b796709349f::t_a1f54b244555c3 27-32
+apps/desktop/src/renderer/styles.css
+  s_612b796709349f::t_a1f54b244555c3 677,679-682,684-686,688-689,692-694,830-835,837,951,984-990
+  s_612b796709349f::t_46f470094e50d1 991
+apps/desktop/src/shared/i18n/locales/en/automation.json
+  s_612b796709349f::t_a1f54b244555c3 5-6,32-94,98-99,101-103,106-107,109-113,115-125,145-159,167-207,212-217
+docs/capabilities/catalog.json
+  s_612b796709349f::t_a1f54b244555c3 9840-9841,9858,9861-9875,9878-9894,9897-10038,10042-10094,10098,10101-10102,10105,10108-10126,10128,10131,10135-10139,10143-10146,10150-10164,10203,10229-10230,10247,10250-10264,10267-10487,10490-10491,10494,10497-10515,10517,10520,10524-10528,10532-10535,10539-10553,10591,10640-10651,10682-10689,10705,10708,10712-10716,10720-10728,10733,10750-10752,10763,10766-10943,10947-10997,11001,11004,11008,11011-11029,11031,11034,11038-11042,11046-11049,11052-11054,11069-11070,11087,11090-11104,11107-11115,11118-11358,11360-11368,11372-11375,11379-11393,11431,11460,11463-11477,11480-11496,11499-11521,11523-11556,11558-11569,11572-11611,11613-11620,11622-11640,11642-11765,11780-11781,11798,11801-11815,11818-11834,11837-11978,11982-12034,12038,12041-12042,12045,12048-12066,12068,12071,12075-12079,12083-12086,12090-12104,12142,12216-12217,12234,12237-12251,12254-12270,12273-12414,12418-12470,12474,12477-12478,12481,12484-12502,12504,12507,12511-12515,12519-12522,12526-12540,12578
+apps/desktop/src/main/agent-modes/modes/partials/deliverables-list.md
+  s_612b796709349f::t_a1f54b244555c3 1-4
+packages/plugins/presets/vetta-ui-design/test/frame-view.test.tsx
+  s_612b796709349f::t_a1f54b244555c3 112-113,118
+packages/agent/test/agent-loop-limit-config.test.ts
+  s_612b796709349f::t_a1f54b244555c3 6,8-12
+apps/desktop/src/renderer/root-layout/useRootLayoutModel.ts
+  s_612b796709349f::t_a1f54b244555c3 26,386,388-395,397-412,415,421
+apps/desktop/src/renderer/styles.live-clock.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-30
+packages/theme-ui/src/scheduler/AutomationPageView.tsx
+  s_612b796709349f::t_a1f54b244555c3 1,3,13-17,21-22,27,29-37,40-41,44-48,50-56,59-63,65-73,75-86,88-117,123,125,127-130,132-150
+docs/adr/0127-runtime-turn-admission-owns-waiting-prompts.md
+  s_612b796709349f::t_a1f54b244555c3 1-33
+packages/ai/test/claude-thinking.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-52
+apps/desktop/src/renderer/domains/scheduler/components/AutomationPageView.tsx
+  s_612b796709349f::t_a1f54b244555c3 1,3-4,7,10-12,15,17-19,22-23,32-33,36-53
+apps/desktop/src/renderer/domains/scheduler/hooks/useAutomationDetailModel.ts
+  s_612b796709349f::t_a1f54b244555c3 1-206
+apps/desktop/src/renderer/domains/conversation/components/new-session/ornament/presets/MarioOrnament.tsx
+  s_612b796709349f::t_a1f54b244555c3 11,25
+apps/desktop/src/shared/i18n/locales/zh/automation.json
+  s_612b796709349f::t_a1f54b244555c3 5-6,32-94,97-99,101-103,106-113,115-125,145-159,171-217
+.github/workflows/desktop-release.yml
+  s_612b796709349f::t_a1f54b244555c3 27
+.agents/skills/zoom-out/SKILL.md
+  s_612b796709349f::t_a1f54b244555c3 1-7
+apps/desktop/src/renderer/domains/abilities/components/detail/AbilityDetailHeader.tsx
+  s_612b796709349f::t_a1f54b244555c3 41,79-92
+apps/desktop/src/renderer/domains/project/hooks/useDefaultSessionListModel.ts
+  s_612b796709349f::t_a1f54b244555c3 4,18-23,53,115-121,123-125,145-153,157-159,164-165,172,174,202-227,231-233,248,283-289,333
+packages/runtime-core/src/runtime-host/runtime-host.ts
+  s_612b796709349f::t_a1f54b244555c3 300-307
+docs/capabilities/catalog.md
+  s_612b796709349f::t_a1f54b244555c3 121-125,127
+packages/coding-agent/src/features/ask-user-question/ask-user-question-feature.ts
+  s_612b796709349f::t_a1f54b244555c3 2,29,43-51
+  s_612b796709349f::t_efcab52ad576b9 52
+apps/desktop/scripts/prepare-pack.js
+  s_612b796709349f::t_a1f54b244555c3 11,167-169,203,209
+packages/runtime-core/test/kernel/agent-session-async-continuation.test.ts
+  s_612b796709349f::t_a1f54b244555c3 6,103-151,192-202
+  s_612b796709349f::t_52c2d9ac8b2186 203
+apps/desktop/src/shared/i18n/locales/en/project.json
+  s_612b796709349f::t_a1f54b244555c3 83-84,132-133
+packages/plugins/presets/vetta-ui-design/test/fluid-canvas.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-72
+packages/theme-ui/src/chat/streaming-reveal.ts
+  s_612b796709349f::t_a1f54b244555c3 1,3-5,8,11
+packages/theme-ui/src/styles.css
+  s_612b796709349f::t_a1f54b244555c3 28-35
+packages/theme-ui/src/markdown/streaming-reveal.ts
+  s_612b796709349f::t_a1f54b244555c3 2,4-11,14-29,34-36,98-198,201-203,206-222,224,226-242
+packages/plugins/presets/vetta-ui-design/src/canvas/DesignCanvas.tsx
+  s_612b796709349f::t_a1f54b244555c3 33-39,59,560-562,759-760,797-800,1118,1142-1145,1148-1153,1303-1305,1534
+apps/desktop/src/main/app-debug/index.ts
+  s_612b796709349f::t_a1f54b244555c3 7,48
+packages/plugins/presets/vetta-ui-design/src/history/PeekBanner.tsx
+  s_612b796709349f::t_a1f54b244555c3 20
+packages/runtime-core/src/runtime-host/session-retry.ts
+  s_612b796709349f::t_a1f54b244555c3 69-70
+packages/theme-ui/src/markdown/streaming.test.ts
+  s_612b796709349f::t_a1f54b244555c3 1-57
+packages/capability-sdk/src/domain.ts
+  s_612b796709349f::t_a1f54b244555c3 221-222,224-225,230-233,235-239
+bun.lock
+  s_612b796709349f::t_8afcb4d3693586 117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "2ec185ac17aecd60623c0bc53339e0462306a9e1",
+  "prompts": {},
+  "sessions": {
+    "s_612b796709349f": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c890-267b-7ad3-b988-8b456fbd6ba6",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
