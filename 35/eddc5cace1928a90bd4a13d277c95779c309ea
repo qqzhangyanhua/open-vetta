@@ -1,0 +1,26 @@
+.github/release-notes/v0.5.59.md
+  s_52e9732a4e812b::t_d7315c853f9de0 71-72
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  s_52e9732a4e812b::t_68722280883217 1135
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  s_52e9732a4e812b::t_9bd85566a669c1 1135
+apps/desktop/src/renderer/domains/conversation/components/new-session/ornament/presets/ViviOrnament.tsx
+  s_52e9732a4e812b::t_4309a2549d4398 10,12
+  s_52e9732a4e812b::t_89d6e26c78ca38 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "35eddc5cace1928a90bd4a13d277c95779c309ea",
+  "prompts": {},
+  "sessions": {
+    "s_52e9732a4e812b": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c9a2-0b69-7f20-b841-b99347ff4f88",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
