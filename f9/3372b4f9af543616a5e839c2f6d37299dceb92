@@ -1,0 +1,226 @@
+apps/desktop/src/main/skills/skill-market-install.ts
+  s_b04aa3e670e608::t_8e82402df9bc6e 63
+apps/desktop/src/main/abilities/open-marketplace/marketplace-source-store.test.ts
+  s_b04aa3e670e608::t_67ce4d0fda8f12 116
+apps/desktop/src/main/abilities/open-marketplace/official-marketplace-source.ts
+  s_b04aa3e670e608::t_dcd6de4b01f50b 11
+apps/desktop/scripts/ui-verification.mjs
+  s_b04aa3e670e608::t_0d2282e33e5482 139,308,310,312
+apps/desktop/scripts/generate-dmg-background.js
+  s_b04aa3e670e608::t_8e41720122973e 69
+apps/desktop/src/renderer/domains/settings/components/ImBridgeSettingsView.tsx
+  s_b04aa3e670e608::t_b1c58d3a51772f 48,99
+apps/cli-host/src/action-command.ts
+  s_b04aa3e670e608::t_2fb9c58932f278 61
+  s_b04aa3e670e608::t_c2c040fb5ac3be 51
+apps/desktop/scripts/ui-verification-diagnostics.ts
+  s_b04aa3e670e608::t_559a5afee59cf2 29
+apps/cli-host/src/debug-command.ts
+  s_b04aa3e670e608::t_b605f37263459d 31,41-42
+apps/desktop/src/main/app-actions/search.ts
+  s_b04aa3e670e608::t_6d9d97747fe282 110
+apps/desktop/src/main/app-actions/approval-broker.ts
+  s_b04aa3e670e608::t_76b4c824c8f10e 48,144
+  s_b04aa3e670e608::t_63878de4dee9f3 75
+apps/desktop/native/windows-launcher/main.go
+  s_b04aa3e670e608::t_d639b1a4ad36d7 12
+apps/desktop/scripts/windows-version-layout.node-test.mjs
+  s_b04aa3e670e608::t_5de0248f625c7a 11,13,18-19
+apps/im-gateway/cmd/im-gateway/host_feishu.go
+  s_b04aa3e670e608::t_226d17758a469a 21-22
+apps/desktop/src/renderer/domains/conversation/services/chat-html-export.ts
+  s_b04aa3e670e608::t_de8e451d8cb528 88
+apps/desktop/scripts/verify-windows-packages.node-test.mjs
+  s_b04aa3e670e608::t_1931b1b77346d3 16,18,25-26
+apps/desktop/src/renderer/quickpanel.html
+  s_b04aa3e670e608::t_fba4744ff5d20b 6
+apps/desktop/build/installer.iss
+  s_b04aa3e670e608::t_053556ffc2a0e0 16-17,19-21,23,25,57,71,73-74,77
+  s_b04aa3e670e608::t_77a07a9f5f231a 67-68
+apps/desktop/src/renderer/index.html
+  s_b04aa3e670e608::t_ca2a5217cd13d9 6
+apps/im-gateway/internal/transport/signal/cli.go
+  s_b04aa3e670e608::t_0969d47daa5c96 56
+apps/desktop/src/main/cli/help-command.ts
+  s_b04aa3e670e608::t_022b8cbd875486 8-11,15-17
+apps/im-gateway/cmd/im-gateway/host_signal.go
+  s_b04aa3e670e608::t_0a0483f57cae00 21
+apps/desktop/src/shared/i18n/locales/en/abilities.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 24,99,125,273,298,320,335,381,411,508,531
+apps/desktop/scripts/packaged-e2e-binary.mjs
+  s_b04aa3e670e608::t_066c9621155810 25,32,68-70,73
+packages/plugins/presets/plugin-workbench/locales/en.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 3,6-7,11,14,29,45,48,53
+packages/plugins/presets/vetta-ui-design/locales/en.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 2-3,23,25,38,56,59,80,152,154,156,192,215-216,219,306,333
+apps/desktop/scripts/windows-version-layout.mjs
+  s_b04aa3e670e608::t_bff467b0671ed6 46,49,84
+apps/desktop/src/main/inno-windows-update.test.ts
+  s_b04aa3e670e608::t_14c837555bbb92 69,92,162,191,203,230,260,289,300,306-308
+apps/desktop/scripts/prepare-pack.js
+  s_b04aa3e670e608::t_2ef005a89ff721 302,753-754,763,804,814,823,840
+apps/desktop/scripts/verify-linux-packages.mjs
+  s_b04aa3e670e608::t_6f3bc9f759f39e 11
+apps/im-gateway/internal/transport/discord/discord.go
+  s_b04aa3e670e608::t_7549a38a74c9d2 650
+packages/plugins/presets/content-creation/locales/zh.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 166
+apps/desktop/scripts/desktop-packaging-layout.mjs
+  s_b04aa3e670e608::t_8fdc14b2e5740e 18-19
+apps/desktop/src/main/cli/pdf-command.ts
+  s_b04aa3e670e608::t_9b065e871ed1cf 32
+  s_b04aa3e670e608::t_483620460ccff6 35-38,41
+packages/plugins/presets/browser/locales/en.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 24
+packages/plugins/presets/vetta-ui-design/history-runner/src/runner-entry.ts
+  s_b04aa3e670e608::t_12ab709ff8f53e 38
+packages/plugins/presets/vetta-actions/locales/zh.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 2
+apps/desktop/src/main/tray-manager.ts
+  s_b04aa3e670e608::t_dceb2ee5c791df 103
+apps/desktop/src/renderer/domains/conversation/hooks/useChatExportHostModel.ts
+  s_b04aa3e670e608::t_ff1d028372a52c 15
+apps/desktop/src/shared/i18n/locales/zh/pet.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 3
+packages/coding-agent/src/model-context/system-prompt-policy.ts
+  s_b04aa3e670e608::t_e14d8e213951bc 15
+  s_b04aa3e670e608::t_21b1a672a9d047 38,40,42,54-56,59,63-64
+packages/plugins/presets/vetta-ui-design/test/skill-presentation.test.ts
+  s_b04aa3e670e608::t_3526f3eca29d69 29
+apps/desktop/scripts/verify-linux-packages.node-test.mjs
+  s_b04aa3e670e608::t_3ee2adb6068197 15-16,48,64-65,67
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 270,281,373,376,486,541,547,642,719,721,912,932,985,999,1006,1017-1018,1134
+packages/runtime-node/src/coding/host/vetta-desktop-command-port.ts
+  s_b04aa3e670e608::t_be5d89d019d266 70-71,73,81
+scripts/quality/desktop-release-workflow.test.mjs
+  s_b04aa3e670e608::t_e1c18e265ce84b 216-217
+apps/desktop/build/repair.applescript
+  s_b04aa3e670e608::t_446721bf2bb1f1 3,7-8,22,34
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.tsx
+  s_b04aa3e670e608::t_afb6edb34a0b0a 167
+.github/workflows/desktop-release.yml
+  s_b04aa3e670e608::t_0e2ba1943f137a 510-511,516-517,682
+packages/plugins/presets/plugin-workbench/locales/zh.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 3,6-7,11,14,29,45,48,53
+apps/desktop/src/shared/i18n/locales/zh/skills.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 8,64,75,79,83
+apps/im-gateway/cmd/im-gateway/main.go
+  s_b04aa3e670e608::t_fa73fc07be1d7d 339,344
+apps/desktop/src/shared/i18n/locales/en/pet.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 3
+apps/desktop/scripts/verify-windows-packages.mjs
+  s_b04aa3e670e608::t_10e357cc242476 39-40
+.github/release-notes/README.md
+  s_b04aa3e670e608::t_85e99a2c9dc176 15
+apps/desktop/src/main/inno-windows-update.ts
+  s_b04aa3e670e608::t_972bc2f5f11073 11
+apps/desktop/src/renderer/onboarding.html
+  s_b04aa3e670e608::t_4648e99923b24e 6
+packages/plugins/presets/vetta-ui-design/agent/agents/designer.md
+  s_b04aa3e670e608::t_f6fb786958ee30 1
+apps/desktop/src/main/cloud-bridge.ts
+  s_b04aa3e670e608::t_9d3f99e7f662bd 60
+packages/plugins/presets/vetta-ui-design/src/mockup/render.ts
+  s_b04aa3e670e608::t_0914a7ca7a14c1 5
+apps/desktop/src/shared/i18n/locales/zh/common.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 2,24,445-446,994,1014,1027
+apps/desktop/src/shared/i18n/locales/en/main.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 5,11-12,14,17,58,60,68,73-74,84
+apps/desktop/src/shared/i18n/locales/en/common.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 2,24,445-446,994,1014
+packages/runtime-node/test/coding-suite/vetta-desktop-command-port.test.ts
+  s_b04aa3e670e608::t_76cc9659e7e75f 42,47
+apps/desktop/src/main/media-generation/vetta-image-provider.ts
+  s_b04aa3e670e608::t_ad48823d6f8838 160
+apps/desktop/scripts/build-appshot-helper.js
+  s_b04aa3e670e608::t_16798606833b76 24,59
+packages/plugins/presets/vetta-actions/locales/en.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 2
+apps/desktop/src/shared/i18n/locales/en/skills.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 8,64,75,79,83
+packages/plugins/presets/vetta-ui-design/src/canvas/NotesLayer.tsx
+  s_b04aa3e670e608::t_0c64e1cdcc5023 372
+apps/cli-host/test/debug-cli-entry.test.ts
+  s_b04aa3e670e608::t_c53f48da236d0a 16
+apps/desktop/scripts/windows-packaging-contract.mjs
+  s_b04aa3e670e608::t_2451acbec29307 6
+apps/desktop/scripts/desktop-packaging-layout.test.mjs
+  s_b04aa3e670e608::t_f6d489fe232fe4 35-36
+apps/desktop/src/main/appshot/helper-resolver.ts
+  s_b04aa3e670e608::t_2943f1133de508 6-7,42
+apps/desktop/src/main/agent-teams/plugin-agent-presets.test.ts
+  s_b04aa3e670e608::t_c4e1f86f9ace81 463
+packages/plugins/presets/vetta-actions/src/domains/agent.ts
+  s_b04aa3e670e608::t_2a5a932e2922ba 61
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 83,97,111,131,640,666-667,939-940,1067,1083,1085-1087,1089,1091,1096,1112,1135,1317,1439,1472,1485,1650,1671,1681,1683,1685,1703,1706-1707,1735,1831,1891,1893,1897,1916,1956
+apps/desktop/src/shared/i18n/locales/zh/main.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 5,11-12,14,17,58,60,68,73-74,84
+apps/desktop/src/main/ipc/project-export.ts
+  s_b04aa3e670e608::t_bd79ccbe7935c9 326,356
+packages/plugins/presets/vetta-ui-design/locales/zh.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 2-3,23,25,38,56,59,80,152,154,156,192,215-216,219,306,333
+apps/desktop/scripts/build-inno-installer.mjs
+  s_b04aa3e670e608::t_421b5fba0ae274 88,97
+apps/desktop/src/main/im-host/binary-resolver.ts
+  s_b04aa3e670e608::t_9cfa8de1d7be99 71
+apps/desktop/src/renderer/domains/conversation/components/mcp-app/mcp-app-bridge.ts
+  s_b04aa3e670e608::t_946b7db23242ca 102
+apps/desktop/scripts/packaged-e2e-binary.node-test.mjs
+  s_b04aa3e670e608::t_71029cdcc9fb6a 15,45,67,70
+apps/desktop/src/main/mcp/mcp-oauth-service.ts
+  s_b04aa3e670e608::t_e2a43e39a1e6e4 14
+apps/desktop/src/main/cli/action-command.ts
+  s_b04aa3e670e608::t_2a12307a95f52f 24-28,31,34,57-60
+  s_b04aa3e670e608::t_3944852cd27c0e 21
+apps/desktop/src/shared/i18n/locales/en/project.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 227
+apps/desktop/src/shared/i18n/locales/zh/project.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 227
+packages/plugins/presets/browser/locales/zh.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 24
+apps/desktop/scripts/verify-inno-update.mjs
+  s_b04aa3e670e608::t_99480fa9a01797 70
+apps/desktop/src/renderer/pet.html
+  s_b04aa3e670e608::t_f70d3adf510451 6
+apps/desktop/src/renderer/domains/settings/registry.ts
+  s_b04aa3e670e608::t_0e91c20469a8d2 81
+apps/desktop/src/shared/i18n/locales/zh/abilities.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 24,99,125,273,298,320,335,381,400,411,413,508,531
+apps/desktop/src/main/main.ts
+  s_b04aa3e670e608::t_3d7add62f2ddd5 515
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 270,281,373,376,486,541,547,642,719,721,912,932,985,999,1006,1017,1134
+packages/plugins/presets/content-creation/locales/en.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 166
+apps/desktop/src/main/cli/ocr-command.ts
+  s_b04aa3e670e608::t_3cd98d7e2d4cc0 74-77,80
+  s_b04aa3e670e608::t_1f1797663b0dcd 71
+.github/release-notes/v0.5.59.md
+  s_b04aa3e670e608::t_4d364cf1b75490 1,36
+  s_b04aa3e670e608::t_8262dc88750dfd 11,21,23,30,32,40,42,71,77,81,85,109,117
+  s_b04aa3e670e608::t_9b5c74f187c73f 37
+apps/desktop/src/renderer/remote-desktop-host.html
+  s_b04aa3e670e608::t_3e47b8516a4269 6
+scripts/release-mac.sh
+  s_b04aa3e670e608::t_8ee82e7a0658db 267,279
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  s_b04aa3e670e608::t_a30fc7dc89ba7f 83,97,107,110-111,131,640,666-667,671,939-940,944,1067,1083,1085-1087,1089,1091,1096,1112,1135,1317,1439,1472,1485,1650,1671,1681,1683,1685,1703,1706-1707,1735,1831,1891,1893,1897,1916,1956,2138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "f93372b4f9af543616a5e839c2f6d37299dceb92",
+  "prompts": {},
+  "sessions": {
+    "s_b04aa3e670e608": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c769-9019-7ae3-ad32-e826fd54f501",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
