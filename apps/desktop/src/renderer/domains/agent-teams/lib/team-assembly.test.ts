@@ -63,6 +63,7 @@ describe("team assembly draft", () => {
 	it("reads an existing team into a draft with the leader resolved to its Agent", () => {
 		expect(assemblyDraftFromTeam(team)).toEqual({
 			maxAutomaticRetries: 2,
+			orchestrationPolicyId: "default",
 			teamId: "team",
 			name: "Existing",
 			description: "desc",
@@ -106,6 +107,14 @@ describe("team assembly submission", () => {
 		["a", agent("a", "shared")],
 		["b", agent("b", "shared")],
 	]);
+
+	it("carries the peer-room policy through create and update", () => {
+		const draft = { ...assemblyDraftFromTeam(team), orchestrationPolicyId: "peer-mentions-v1" };
+		const agents = [agent("a"), agent("b")];
+		const agentsById = new Map(agents.map((item) => [item.id, item]));
+		expect(buildCreateTeamInput(draft, agentsById).orchestrationPolicyId).toBe("peer-mentions-v1");
+		expect(buildUpdateTeamInput(draft, team, agentsById).orchestrationPolicyId).toBe("peer-mentions-v1");
+	});
 
 	it("carries the chosen automatic recovery limit through create and update", () => {
 		const draft = { ...assemblyDraftFromTeam(team), maxAutomaticRetries: 0 };

@@ -397,6 +397,8 @@ export class AgentTeamStore {
 			agents = agents.filter((agent) => !removedCopyProfileIds.has(agent.id));
 			const leaders = members.filter((member) => member.leader);
 			if (leaders.length !== 1) throw new Error("A team must have exactly one leader");
+			const orchestrationPolicyId = input.orchestrationPolicyId ?? current.orchestrationPolicyId;
+			requireTeamPolicies(orchestrationPolicyId, current.contextPolicyId, this.extensions);
 			const next: TeamDefinition = {
 				...current,
 				revision: current.revision + 1,
@@ -405,6 +407,7 @@ export class AgentTeamStore {
 				description: input.description.trim(),
 				leaderMemberId: leaders[0].id,
 				members: members.map(({ leader: _leader, ...member }) => member),
+				orchestrationPolicyId,
 				updatedAt: now,
 			};
 			assertTeamInvariants(next, agents);

@@ -19,6 +19,8 @@ export interface TeamAssemblyDraft {
 	readonly name: string;
 	readonly description?: string;
 	readonly maxAutomaticRetries?: number;
+	/** `leader-delegates-v1` or `peer-mentions-v1`. Omitted on create keeps the leader default. */
+	readonly orchestrationPolicyId?: string;
 	readonly memberIds: readonly string[];
 	/** 队长的 Agent Profile ID；成员被移除时自动顺延到第一位。 */
 	readonly leaderId?: string;
@@ -43,6 +45,7 @@ export function assemblyDraftFromTeam(team: TeamDefinition): TeamAssemblyDraft {
 		name: team.name,
 		description: team.description,
 		maxAutomaticRetries: team.maxAutomaticRetries ?? DEFAULT_TEAM_AUTOMATIC_RETRIES,
+		orchestrationPolicyId: team.orchestrationPolicyId,
 		memberIds,
 		leaderId: leader?.binding.agentProfileId ?? memberIds[0],
 		assignments,
@@ -124,6 +127,7 @@ export function buildCreateTeamInput(
 		description: draft.description?.trim() ?? "",
 		members,
 		...(draft.maxAutomaticRetries !== undefined ? { maxAutomaticRetries: draft.maxAutomaticRetries } : {}),
+		...(draft.orchestrationPolicyId ? { orchestrationPolicyId: draft.orchestrationPolicyId } : {}),
 	};
 }
 
@@ -161,6 +165,7 @@ export function buildUpdateTeamInput(
 		name: draft.name.trim(),
 		description: draft.description?.trim() ?? team.description,
 		members,
+		orchestrationPolicyId: draft.orchestrationPolicyId ?? team.orchestrationPolicyId,
 	};
 }
 

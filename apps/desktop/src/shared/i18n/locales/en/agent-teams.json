@@ -171,10 +171,15 @@
     "descriptionPlaceholder": "Describe what this team does and how it collaborates…",
     "identity": "Team identity",
     "automaticRetries": "Automatic recovery attempts",
-    "automaticRetriesHelp": "Allow 0–10 automatic recoveries per new task (default: 2). Set to 0 to disable. Progress is preserved when the limit is reached and your attention is needed."
+    "automaticRetriesHelp": "Allow 0–10 automatic recoveries per new task (default: 2). Set to 0 to disable. Progress is preserved when the limit is reached and your attention is needed.",
+    "collaboration": "How they work together",
+    "collaborationLead": "Lead assigns the work",
+    "collaborationPeer": "Mention each other",
+    "collaborationHelp": "With mentions, members answer in the same conversation, and an @ in a reply asks that person to respond next. This applies to the next new conversation."
   },
   "chat": {
     "hint": "The team lead handles requests when no member is selected.",
+    "placeholderPeer": "Use @ to choose who answers next.",
     "configure": "Configure member abilities",
     "newSession": "New chat",
     "selectSession": "Choose team chat",

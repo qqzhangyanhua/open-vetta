@@ -1,13 +1,16 @@
 import {
 	AGENT_TEAM_SCHEMA_VERSION,
 	type AgentTeamExtensionRegistry,
+	DEFAULT_AGENT_TEAM_EXTENSIONS,
 	type TeamMemberTurnAttempt,
+	type TeamMemberTurnRequest,
 	type TeamSessionDocument,
 	type TeamWorkItem,
 } from "@vetta/agent-team";
 import type { RuntimeHost } from "@vetta/runtime-core";
 import { describe, expect, it, vi } from "vitest";
 import type { TeamCollaborationStore } from "./team-collaboration-store.js";
+import type { TeamMemberAttemptRunner } from "./team-member-attempt-runner.js";
 import type { TeamSessionEventHub } from "./team-session-event-hub.js";
 import type { TeamSessionStateRepository } from "./team-session-state-repository.js";
 import { TeamTurnCoordinator } from "./team-turn-coordinator.js";
@@ -138,6 +141,91 @@ describe("TeamTurnCoordinator", () => {
 
 		await expect(delegation).rejects.toThrow("stopped");
 		expect(enqueueAssignment).not.toHaveBeenCalled();
+	});
+
+	it("wakes the teammate named in a peer-room reply and stops when the reply names nobody", async () => {
+		const peerSession: TeamSessionDocument = {
+			...session,
+			orchestrationPolicyId: "peer-mentions-v1",
+			memberHandles: { leader: "lead", member: "builder" },
+		};
+		const enqueued: TeamMemberTurnRequest[] = [];
+		const collaborationStore = {
+			enqueue: vi.fn(
+				async (input: {
+					requestId: string;
+					memberId: string;
+					objective: string;
+					createdByParticipantId: string;
+				}) => ({
+					created: true,
+					workItem: {
+						id: `work:${input.requestId}:${input.memberId}`,
+						requestTurnId: input.requestId,
+						createdByParticipantId: input.createdByParticipantId,
+						assignedToParticipantId: input.memberId,
+						objective: input.objective,
+						contextEntryIds: [],
+						state: "queued" as const,
+						createdAt: 1,
+						updatedAt: 1,
+						revision: 0,
+					},
+				}),
+			),
+			read: () => ({
+				workItems: [],
+				attempts: [],
+				deliveries: [],
+				publications: [],
+				checkpoints: [],
+				contextGenerations: [],
+				contextReceipts: [],
+			}),
+		} as unknown as TeamCollaborationStore;
+		const coordinator = new TeamTurnCoordinator({
+			runtime: () => ({}) as RuntimeHost,
+			extensions: DEFAULT_AGENT_TEAM_EXTENSIONS,
+			collaborationStore,
+			sessionState: {
+				get: () => peerSession,
+				values: () => [peerSession],
+			} as unknown as TeamSessionStateRepository,
+			eventHub: { isTurnActive: () => false } as unknown as TeamSessionEventHub,
+			readSession: async () => peerSession,
+			readDocument: async () => ({
+				schemaVersion: AGENT_TEAM_SCHEMA_VERSION,
+				revision: 0,
+				agents: [],
+				teams: [],
+			}),
+			observations: () => undefined,
+			publishSessionUpdated: () => undefined,
+		});
+		coordinator.setAttemptRunner({
+			run: async (input: TeamMemberTurnRequest) => {
+				enqueued.push(input);
+				return peerSession;
+			},
+		} as unknown as TeamMemberAttemptRunner);
+
+		await coordinator.continuePeerMentions({
+			session: peerSession,
+			speakerParticipantId: "leader",
+			publishedText: "@builder 请看这一版。",
+			requestTurnId: "user-1",
+		});
+		expect(enqueued.map((input) => input.memberId)).toEqual(["member"]);
+		expect(enqueued[0]?.requestId).toBe(`peer-mention/1/leader/member/${encodeURIComponent("user-1")}`);
+		expect(enqueued[0]?.promptText).toContain("@builder 请看这一版。");
+
+		await coordinator.continuePeerMentions({
+			session: peerSession,
+			speakerParticipantId: "member",
+			publishedText: "按这个做，不再叫人。",
+			requestTurnId: enqueued[0]?.requestId ?? "",
+		});
+		expect(enqueued).toHaveLength(1);
 	});
 });
 

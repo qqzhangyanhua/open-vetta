@@ -126,6 +126,14 @@ function renderSheet(
 }
 
 describe("TeamSettingsSheet", () => {
+	it("saves a switch from lead assignment to members mentioning each other", async () => {
+		const { onSave } = renderSheet();
+		const user = userEvent.setup();
+		await user.selectOptions(screen.getByRole("combobox", { name: "settings.collaboration" }), "peer-mentions-v1");
+		await user.click(screen.getByRole("button", { name: /settings.saveChanges/ }));
+		expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ orchestrationPolicyId: "peer-mentions-v1" }));
+	});
+
 	it("saves automatic recovery limits and prevents invalid values from being submitted", async () => {
 		const { onSave } = renderSheet();
 		const user = userEvent.setup();

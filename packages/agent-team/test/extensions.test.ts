@@ -41,6 +41,26 @@ describe("Agent Team extension registry", () => {
 			},
 		]);
 		expect(registry.orchestrationPolicies.has("leader-delegates-v1")).toBe(true);
+		expect(registry.orchestrationPolicies.has("peer-mentions-v1")).toBe(true);
+		const peer = registry.orchestrationPolicies.get("peer-mentions-v1");
+		expect(peer?.resolveTargets({ team, requestedMemberIds: [] })).toEqual([]);
+		expect(peer?.resolveTargets({ team, requestedMemberIds: ["worker"] })).toEqual(["worker"]);
+		expect(
+			peer?.authorizeTask?.({
+				action: "delegate",
+				team,
+				sourceMemberId: "leader",
+				targetMemberId: "worker",
+			}),
+		).toBe(false);
+		expect(
+			peer?.authorizeTask?.({
+				action: "resume",
+				team,
+				sourceMemberId: "worker",
+				targetMemberId: "worker",
+			}),
+		).toBe(true);
 		expect(
 			registry.orchestrationPolicies.get("broadcast-v1")?.resolveTargets({ team, requestedMemberIds: [] }),
 		).toEqual(["leader", "worker"]);

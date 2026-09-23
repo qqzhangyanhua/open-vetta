@@ -283,6 +283,24 @@ export function TeamSettingsSheet({
 										/>
 										<span id="team-automatic-retries-help" className="text-[11px] text-muted-foreground">{t("settings.automaticRetriesHelp")}</span>
 									</label>
+									<label className="flex flex-col gap-1.5">
+										<span className="text-[12px] font-medium text-foreground">{t("settings.collaboration")}</span>
+										<select
+											value={draft.orchestrationPolicyId ?? "leader-delegates-v1"}
+											aria-label={t("settings.collaboration")}
+											aria-describedby="team-collaboration-help"
+											onChange={(event) =>
+												setDraft((current) => ({ ...current, orchestrationPolicyId: event.target.value }))
+											}
+											className="h-9 rounded-xl border border-border/60 bg-background/50 px-3 text-[12px] text-foreground outline-none transition-colors hover:border-border focus:border-primary/50"
+										>
+											<option value="leader-delegates-v1">{t("settings.collaborationLead")}</option>
+											<option value="peer-mentions-v1">{t("settings.collaborationPeer")}</option>
+										</select>
+										<span id="team-collaboration-help" className="text-[11px] text-muted-foreground">
+											{t("settings.collaborationHelp")}
+										</span>
+									</label>
 								</>
 							)}
 						</DetailDrawerEnter>
@@ -685,6 +703,7 @@ function sameDraft(left: TeamAssemblyDraft, right: TeamAssemblyDraft): boolean {
 	return (
 		left.name === right.name &&
 		left.maxAutomaticRetries === right.maxAutomaticRetries &&
+		(left.orchestrationPolicyId ?? "") === (right.orchestrationPolicyId ?? "") &&
 		(left.description ?? "") === (right.description ?? "") &&
 		left.leaderId === right.leaderId &&
 		left.memberIds.length === right.memberIds.length &&

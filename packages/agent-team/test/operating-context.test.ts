@@ -3,6 +3,7 @@ import {
 	buildTeamMemberOperatingContext,
 	buildTeamOperatingContext,
 	buildTeamSharedOperatingContext,
+	PEER_MENTION_ORCHESTRATION_POLICY_ID,
 	type TeamRosterSnapshot,
 	teamRosterFingerprint,
 } from "../src/index.js";
@@ -93,6 +94,14 @@ describe("buildTeamOperatingContext", () => {
 	it("omits the assignment block when the team adds nothing", () => {
 		expect(buildTeamMemberOperatingContext(roster, "leader", "Lead.")).not.toContain("<team_assignment>");
 		expect(buildTeamMemberOperatingContext(roster, "leader", "Lead.", "")).not.toContain("<team_assignment>");
+	});
+
+	it("tells a peer room to answer with @mentions instead of delegating", () => {
+		const shared = buildTeamSharedOperatingContext(roster, PEER_MENTION_ORCHESTRATION_POLICY_ID);
+		expect(shared).toContain("peer room");
+		expect(shared).toContain("@handle");
+		expect(shared).not.toContain("team_delegate_task");
+		expect(buildTeamSharedOperatingContext(roster)).toContain("team_delegate_task");
 	});
 });
 

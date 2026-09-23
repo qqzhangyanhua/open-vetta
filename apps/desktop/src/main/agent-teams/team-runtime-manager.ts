@@ -37,7 +37,10 @@ export interface TeamMemberPromptContext {
 
 export interface TeamRuntimeManagerOptions {
 	readonly runtime: () => RuntimeHost;
-	readonly createTeamToolRegistrations: (teamSessionId: string) => readonly CodingAgentRuntimeToolRegistration[];
+	readonly createTeamToolRegistrations: (
+		teamSessionId: string,
+		orchestrationPolicyId?: string,
+	) => readonly CodingAgentRuntimeToolRegistration[];
 	readonly sessionState: TeamSessionStateRepository;
 	readonly collaborationStore: TeamCollaborationStore;
 }
@@ -82,6 +85,7 @@ export class TeamRuntimeManager {
 			roster,
 			systemPrompt,
 			member.assignment?.instructions,
+			team.orchestrationPolicyId,
 		);
 		const resolved = await resolveDesktopSessionConfig(
 			{
@@ -93,7 +97,7 @@ export class TeamRuntimeManager {
 					template: null,
 					overrides: toAgentConfigurationOverrides(profile.abilities, pinnedAbilityContext(blueprint)),
 				},
-				sessionRuntimeTools: this.options.createTeamToolRegistrations(teamSessionId),
+				sessionRuntimeTools: this.options.createTeamToolRegistrations(teamSessionId, team.orchestrationPolicyId),
 			},
 			"other",
 			"interactive",
@@ -174,7 +178,7 @@ export class TeamRuntimeManager {
 		const restored = await restoreTeamMemberRuntimes({
 			session,
 			runtime: this.options.runtime(),
-			createRuntimeTools: () => this.options.createTeamToolRegistrations(session.id),
+			createRuntimeTools: () => this.options.createTeamToolRegistrations(session.id, session.orchestrationPolicyId),
 			resolveConfig: async ({ memberId, sessionPath, runtimeTools }) => {
 				const profile = this.resolveMemberProfile(session, document, memberId);
 				return {
@@ -225,7 +229,7 @@ export class TeamRuntimeManager {
 					document,
 					memberId,
 					sessionPath,
-					this.options.createTeamToolRegistrations(session.id),
+					this.options.createTeamToolRegistrations(session.id, session.orchestrationPolicyId),
 					session.executionMode ?? "full-access",
 				),
 			persist: (next) => this.options.sessionState.persist(next),
@@ -282,6 +286,7 @@ export class TeamRuntimeManager {
 						buildTeamRosterSnapshot(document, team),
 						systemPrompt,
 						member?.assignment?.instructions,
+						session.orchestrationPolicyId,
 					),
 					agentConfiguration: {
 						template: null,
@@ -301,9 +306,10 @@ export class TeamRuntimeManager {
 		roster: ReturnType<typeof buildTeamRosterSnapshot>,
 		roleInstructions: string,
 		assignmentInstructions?: string,
+		orchestrationPolicyId?: string,
 	): TeamMemberPromptContext {
 		return {
-			systemPromptCachePrefixAddon: buildTeamSharedOperatingContext(roster),
+			systemPromptCachePrefixAddon: buildTeamSharedOperatingContext(roster, orchestrationPolicyId),
 			systemPromptVolatileAddon: buildTeamMemberOperatingContext(
 				roster,
 				memberId,
