@@ -1,0 +1,21 @@
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.tsx
+  s_fd1dc030e96acd::t_d3cbccaa9b9f80 26,181
+apps/desktop/src/renderer/shared/conversation/message-stream.ts
+  s_fd1dc030e96acd::t_0f0480f1c470b0 36-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "903c309af99f78e57ee604f205c32144d7b9782f",
+  "prompts": {},
+  "sessions": {
+    "s_fd1dc030e96acd": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0ced0-5e04-7a43-bdf6-695bd10e01cd",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
