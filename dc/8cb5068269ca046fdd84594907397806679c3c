@@ -1,0 +1,35 @@
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-federation-remote.test.ts
+  s_a3c710bffc5948::t_86f9175b9a17aa 1-26
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-module-loader.ts
+  s_a3c710bffc5948::t_696ccb8bd486df 87-93,98
+  s_a3c710bffc5948::t_2e0817f3bb1769 12,103,105
+  s_a3c710bffc5948::t_a74537b85979e8 80-86
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-module-loader.test.ts
+  s_a3c710bffc5948::t_89bc117bb1788b 46
+.github/release-notes/v0.5.59.md
+  s_e371674f2dede7::t_5d9115e4055305 123-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "dc8cb5068269ca046fdd84594907397806679c3c",
+  "prompts": {},
+  "sessions": {
+    "s_a3c710bffc5948": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0c929-8f37-7940-8b29-8d7c808b61d2",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_e371674f2dede7": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0cc01-efc6-7051-b32e-8df221c69ccd",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
