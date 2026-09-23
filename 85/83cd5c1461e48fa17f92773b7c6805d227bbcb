@@ -1,0 +1,40 @@
+.github/release-notes/v0.5.59.md
+  h_4132837b09b7e7 121-122
+apps/desktop/src/renderer/domains/conversation/components/blocks/ToolCallBlock.tsx
+  h_4132837b09b7e7 230,250,257-261
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/shared/use-elapsed.ts
+  h_4132837b09b7e7 5-11,14,17-18
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.tsx
+  h_4132837b09b7e7 27-28,93,127-134,188-194
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.waiting.test.tsx
+  h_4132837b09b7e7 16-17,96-126
+apps/desktop/src/renderer/domains/conversation/components/message-list/WorkSegmentRenderer.test.tsx
+  h_4132837b09b7e7 17-18,32-34,41-43,139-159
+apps/desktop/src/renderer/domains/conversation/components/message-list/WorkSegmentRenderer.tsx
+  h_4132837b09b7e7 13,17,29-36,52,54-55,61-66,99-102,104-108,111,123
+apps/desktop/src/renderer/domains/conversation/components/message-list/workActivityModel.test.ts
+  h_4132837b09b7e7 5,8,11-12,25-42
+apps/desktop/src/renderer/domains/conversation/components/message-list/workActivityModel.ts
+  h_4132837b09b7e7 5-6,8-10,26,30,36,43-56
+apps/desktop/src/renderer/domains/conversation/hooks/useToolCallBlockCapabilities.ts
+  h_4132837b09b7e7 24-25,53,98,100,105
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  h_4132837b09b7e7 649,823-824
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  h_4132837b09b7e7 649,823-824
+packages/theme-ui/src/chat/ProgressGroupView.tsx
+  h_4132837b09b7e7 118,125-127,129,260,263,267,269-273
+packages/theme-ui/src/chat/ToolCallBlockView.tsx
+  h_4132837b09b7e7 118,123,125-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "8583cd5c1461e48fa17f92773b7c6805d227bbcb",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
