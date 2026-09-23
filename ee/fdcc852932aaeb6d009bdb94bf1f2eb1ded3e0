@@ -1,0 +1,50 @@
+.github/release-notes/v0.5.59.md
+  h_4132837b09b7e7 129-132
+apps/desktop/src/main/scheduler/task-executor.test.ts
+  h_4132837b09b7e7 188-202
+apps/desktop/src/main/scheduler/task-executor.ts
+  h_4132837b09b7e7 8,261,264
+apps/desktop/src/renderer/domains/conversation/components/input-bar/editor/nodes/SkillTokenNode.tsx
+  h_4132837b09b7e7 13-14
+apps/desktop/src/renderer/domains/conversation/components/message-list/userMessageProjection.test.ts
+  h_4132837b09b7e7 107-121
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionMessageSender.ts
+  h_4132837b09b7e7 15,214,253,255
+apps/desktop/src/renderer/domains/conversation/hooks/useSkillTokenMeta.ts
+  h_4132837b09b7e7 4
+apps/desktop/src/renderer/domains/conversation/services/optimistic-user-message-cache.test.ts
+  h_4132837b09b7e7 56-73
+apps/desktop/src/renderer/domains/conversation/services/optimistic-user-message-cache.ts
+  h_4132837b09b7e7 66-69,83-90,114-120,125-126,158-159
+apps/desktop/src/renderer/domains/conversation/services/staged-new-session-send.ts
+  h_4132837b09b7e7 5,69
+apps/desktop/src/renderer/shared/lib/input-tokens/index.ts
+  h_4132837b09b7e7 3-8
+apps/desktop/src/renderer/shared/lib/input-tokens/parse.test.ts
+  h_4132837b09b7e7 3,234-238,241,243,245-260
+apps/desktop/src/renderer/shared/lib/input-tokens/prepare.ts
+  h_4132837b09b7e7 2-3,16,20-24,44-58,71-79,81-84
+apps/desktop/src/renderer/shared/lib/input-tokens/serialize.ts
+  h_4132837b09b7e7 184
+apps/desktop/src/renderer/shared/lib/input-tokens/types.ts
+  h_4132837b09b7e7 5-6,14-15
+packages/coding-agent/test/runtime-core/prompt-resource-resolver.test.ts
+  h_4132837b09b7e7 80-122
+packages/runtime-core/CHANGELOG.md
+  h_4132837b09b7e7 9-10
+packages/runtime-core/src/conversation/history-projection.ts
+  h_4132837b09b7e7 253-255,258
+packages/runtime-core/test/conversation/prompt-ref-history-projection.test.ts
+  h_4132837b09b7e7 1-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "eefdcc852932aaeb6d009bdb94bf1f2eb1ded3e0",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
