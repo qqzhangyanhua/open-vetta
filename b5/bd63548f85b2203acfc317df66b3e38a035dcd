@@ -1,0 +1,103 @@
+apps/desktop/src/main/agent-teams/team-session-service.ts
+  s_fd1dc030e96acd::t_ce5fb8f5040ba4 173-174,205,1067-1070,1072-1076,1086
+  s_fd1dc030e96acd::t_9a5f92993c6494 28
+  s_fd1dc030e96acd::t_9e343f57412ec7 852
+apps/desktop/src/shared/i18n/locales/zh/agent-teams.json
+  s_fd1dc030e96acd::t_5f53e02819bf44 182
+  s_fd1dc030e96acd::t_f8fe50da451079 174-178
+apps/desktop/src/main/agent-teams/team-turn-coordinator.ts
+  s_fd1dc030e96acd::t_894b56da1a22db 7,548-587
+  s_fd1dc030e96acd::t_3206e80ae7b096 588-589
+.github/release-notes/v0.5.59.md
+  s_fd1dc030e96acd::t_3e8467f9f484f4 5
+  s_fd1dc030e96acd::t_b4f80ce8125259 6
+apps/desktop/src/main/agent-teams/team-runtime-manager.ts
+  s_fd1dc030e96acd::t_25e5aa0e27fbbc 232,309,312
+  s_fd1dc030e96acd::t_179c98dfef7faf 289
+  s_fd1dc030e96acd::t_18c9e7a945a006 40-43,88
+  s_fd1dc030e96acd::t_9a5f92993c6494 100,181
+packages/agent-team/src/contracts.ts
+  s_fd1dc030e96acd::t_415d893bb7c98f 281-282
+apps/desktop/src/renderer/domains/agent-teams/lib/team-assembly.ts
+  s_fd1dc030e96acd::t_0c6085071af2b9 22-23,48,130,168
+packages/agent-team/src/extensions.ts
+  s_fd1dc030e96acd::t_d423ab30642df6 3,63-73,81-84
+packages/agent-team/test/operating-context.test.ts
+  s_fd1dc030e96acd::t_8f9b2652d92b29 6,98-104
+  s_fd1dc030e96acd::t_2484eb2cd3ee6f 105
+apps/desktop/src/main/agent-teams/team-session-display-service.ts
+  s_fd1dc030e96acd::t_741667f0a5dc14 1-7,207
+packages/agent-team/test/peer-mentions.test.ts
+  s_fd1dc030e96acd::t_a21f06e482aaa3 1-47,51-93,95-110,112-123
+  s_fd1dc030e96acd::t_18912dfa99a872 94,111
+  s_fd1dc030e96acd::t_9a5f92993c6494 48-50
+packages/agent-team/test/extensions.test.ts
+  s_fd1dc030e96acd::t_8312a0ca38c708 44-45,48-63
+  s_fd1dc030e96acd::t_9164b446c16d8e 46-47
+docs/智能体如何工作与多智能体协作.md
+  s_fd1dc030e96acd::t_0357df61647b0f 360
+apps/desktop/src/renderer/domains/agent-teams/components/TeamSettingsSheet.test.tsx
+  s_fd1dc030e96acd::t_70216224c25b34 129-136
+apps/desktop/src/main/agent-teams/agent-team-store.ts
+  s_fd1dc030e96acd::t_262aacd400365a 400-401,410
+apps/docs-site/content/docs/product/agent-teams.mdx
+  s_fd1dc030e96acd::t_e3a7c4b84bf5b3 220-223,225,235
+  s_fd1dc030e96acd::t_0ffcaabd0284cc 224
+apps/desktop/src/shared/i18n/locales/en/agent-teams.json
+  s_fd1dc030e96acd::t_9edbed4287d2f9 182
+  s_fd1dc030e96acd::t_3ec6303f29f813 174-178
+packages/agent-team/src/validation.ts
+  s_fd1dc030e96acd::t_d845c69fad2ead 188
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionTeamDraft.ts
+  s_fd1dc030e96acd::t_04e82b956c9a4f 20-25,368-371
+apps/desktop/src/renderer/domains/agent-teams/components/TeamSettingsSheet.tsx
+  s_fd1dc030e96acd::t_c88fed1c49b363 286-303,706
+packages/agent-team/src/operating-context.ts
+  s_fd1dc030e96acd::t_4ccc7ff779392f 3,24-41,47
+  s_fd1dc030e96acd::t_9a5f92993c6494 6
+apps/desktop/src/renderer/domains/agent-teams/lib/team-assembly.test.ts
+  s_fd1dc030e96acd::t_9330a941464a40 111-118
+  s_fd1dc030e96acd::t_87b4b28565e7dd 66
+apps/desktop/src/main/agent-teams/team-turn-coordinator.test.ts
+  s_fd1dc030e96acd::t_0c25675fb7b7c9 154-175
+  s_fd1dc030e96acd::t_0410c994eb7311 13,210
+  s_fd1dc030e96acd::t_bc06060d2e352c 4,6,145-153,176-209,211-228
+  s_fd1dc030e96acd::t_dfd93c04bc2ca8 229
+packages/agent-team/src/peer-mentions.ts
+  s_fd1dc030e96acd::t_ea630c711b8a6e 91,137
+  s_fd1dc030e96acd::t_1a67354f633ef0 125,128
+  s_fd1dc030e96acd::t_4fad908999d92c 3-7
+  s_fd1dc030e96acd::t_56a1bd4592979f 1-2,8-38,40-90,92-96,98-103,116-118,121-124,126-127,129-136,143
+  s_fd1dc030e96acd::t_9a5f92993c6494 39,111-113
+  s_fd1dc030e96acd::t_7b113b1e2fb30e 97,104-110,114-115,119-120,138-142
+apps/desktop/src/main/agent-teams/team-member-attempt-runner.ts
+  s_fd1dc030e96acd::t_cf931113043fb2 658-682
+  s_fd1dc030e96acd::t_f863775dcb3dc8 57-63,525,532,543
+apps/desktop/src/main/agent-teams/agent-team-store.test.ts
+  s_fd1dc030e96acd::t_3577061cd55d81 388-421
+apps/desktop/src/main/agent-teams/team-notification-journal.ts
+  s_fd1dc030e96acd::t_580c70603e8255 1-6,55-56
+apps/desktop/src/main/agent-teams/team-notification-journal.test.ts
+  s_fd1dc030e96acd::t_bfd3e797bab9c6 62-80
+packages/agent-team/src/index.ts
+  s_fd1dc030e96acd::t_c4ceeef53c9924 11
+apps/desktop/src/renderer/domains/conversation/connectors/team/useTeamChatModel.ts
+  s_fd1dc030e96acd::t_9a5f92993c6494 22-26
+  s_fd1dc030e96acd::t_9de60383bc1c70 889-892,896
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "b5bd63548f85b2203acfc317df66b3e38a035dcd",
+  "prompts": {},
+  "sessions": {
+    "s_fd1dc030e96acd": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0ced0-5e04-7a43-bdf6-695bd10e01cd",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
