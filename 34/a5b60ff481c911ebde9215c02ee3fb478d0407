@@ -1,0 +1,29 @@
+scripts/quality/quality-gates.test.mjs
+  s_be6006f2542019::t_fc5ee25dc0d62c 30,378,385-403,405-406,415-418,422-429,433-437,439-449,451,453-456,458-462
+  s_be6006f2542019::t_fc6afbd011af95 3,383-384,407-414,419-421,430-432,463-472
+  s_be6006f2542019::t_b2dad1997ab1be 373-377,379-382,404,438,450,452,457,473-475
+.github/release-notes/v0.5.59.md
+  s_be6006f2542019::t_65fed38880b933 221
+docs/dev/quality-gates.md
+  s_be6006f2542019::t_1fec5d596f2b9e 155
+scripts/quality/test-impact.mjs
+  s_be6006f2542019::t_705543a43b6d77 148-152,163
+  s_be6006f2542019::t_2c531dbcf595e6 137-145,147,153-154,166,178,181
+  s_be6006f2542019::t_e908ea75b8f3f5 146
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "34a5b60ff481c911ebde9215c02ee3fb478d0407",
+  "prompts": {},
+  "sessions": {
+    "s_be6006f2542019": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0cecd-50d5-7422-8c21-a5d4d6997ce6",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
