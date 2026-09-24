@@ -27,8 +27,8 @@ function agentMenuLabel(
 
 export interface ExternalAgentMenuItem {
 	readonly id: string;
+	readonly agentId: string;
 	readonly label: string;
-	readonly icon: string;
 	readonly disabled: boolean;
 	readonly disabledReason?: string;
 	pick(): void;
@@ -61,8 +61,8 @@ export function useExternalAgentMenuItems(): readonly ExternalAgentMenuItem[] {
 			const label = agentMenuLabel(agent.id, agent.label, t);
 			return {
 				id: `external-agent:${agent.id}`,
+				agentId: agent.id,
 				label,
-				icon: "icon-[solar--monitor-linear]",
 				disabled,
 				disabledReason: remote ? remoteReason : undefined,
 				pick() {

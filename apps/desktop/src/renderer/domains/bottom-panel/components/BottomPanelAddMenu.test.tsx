@@ -47,6 +47,9 @@ describe("bottom panel add menu external agents", () => {
 		);
 		await user.click(screen.getByLabelText("bottomPanel.actions.add"));
 		await waitFor(() => expect(screen.getByText("externalInvocation.agent.grok")).toBeTruthy());
+		const grok = screen.getByText("externalInvocation.agent.grok").closest("button");
+		expect(grok?.querySelector("[aria-hidden]")).not.toBeNull();
+		expect(grok?.querySelector("[class*='monitor']")).toBeNull();
 		await user.click(screen.getByText("externalInvocation.agent.grok"));
 		await waitFor(() =>
 			expect(start).toHaveBeenCalledWith({
@@ -82,7 +85,8 @@ describe("bottom panel add menu external agents", () => {
 		);
 		await user.click(screen.getByLabelText("bottomPanel.actions.add"));
 		await waitFor(() => expect(screen.getByText("externalInvocation.agent.pi")).toBeTruthy());
-		expect(screen.getByText("externalInvocation.agent.droid")).toBeTruthy();
+		expect(screen.getByText("externalInvocation.agent.pi").closest("button")?.querySelector("[aria-hidden]")).not.toBeNull();
+		expect(screen.getByText("externalInvocation.agent.droid").closest("button")?.querySelector("[aria-hidden]")).not.toBeNull();
 		expect(screen.queryByText("externalInvocation.agent.opencode")).toBeNull();
 		expect(screen.queryByText("externalInvocation.agent.grok")).toBeNull();
 	});

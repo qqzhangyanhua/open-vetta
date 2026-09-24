@@ -39,7 +39,7 @@ vi.mock("@vetta-org/ui", () => ({
 		</button>
 	),
 	DropdownMenu: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-	DropdownMenuTrigger: () => null,
+	DropdownMenuTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
 	DropdownMenuContent: ({ children }: { children: ReactNode }) => <div role="menu">{children}</div>,
 	DropdownMenuItem: ({
 		children,
@@ -197,7 +197,7 @@ describe("penguin-initiated external history", () => {
 		);
 		await user.click(screen.getByRole("menuitem", { name: "在当前会话里用 Grok 续跑" }));
 		expect(screen.queryByText("续跑：Fix the login bug")).toBeNull();
-		await waitFor(() => expect((screen.getByLabelText("发给") as HTMLSelectElement).value).toBe("grok"));
+		await waitFor(() => expect(screen.getByLabelText("发给").textContent).toContain("Grok"));
 
 		originDropped = true;
 		const store = (await import("jotai")).getDefaultStore();

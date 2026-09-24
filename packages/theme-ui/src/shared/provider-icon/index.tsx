@@ -1,7 +1,8 @@
 import type { JSX } from "react";
-import { cn } from "@vetta-org/ui";
+import { BrandMark } from "./brand-mark";
 import { getProviderIcon, isMonochromeProviderIcon } from "./icons";
 
+export { AgentBrandIcon } from "./agent-brand-icons";
 export { PROVIDER_ICONS, getProviderIcon } from "./icons";
 
 /**
@@ -17,26 +18,5 @@ export function ProviderIcon({
 }): JSX.Element | null {
 	const src = getProviderIcon(symbol);
 	if (!src) return null;
-
-	if (isMonochromeProviderIcon(symbol)) {
-		const maskImage = `url(${JSON.stringify(src)})`;
-		return (
-			<span
-				aria-hidden
-				className={cn("inline-block shrink-0 bg-current", className)}
-				style={{
-					maskImage,
-					maskPosition: "center",
-					maskRepeat: "no-repeat",
-					maskSize: "contain",
-					WebkitMaskImage: maskImage,
-					WebkitMaskPosition: "center",
-					WebkitMaskRepeat: "no-repeat",
-					WebkitMaskSize: "contain",
-				}}
-			/>
-		);
-	}
-
-	return <img src={src} alt="" aria-hidden className={cn("shrink-0 rounded object-contain", className)} />;
+	return <BrandMark src={src} monochrome={isMonochromeProviderIcon(symbol)} className={className} />;
 }

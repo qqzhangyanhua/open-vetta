@@ -1,4 +1,5 @@
 import { useSidebarState } from "@shared/app-shell/sidebar-state";
+import { ExternalAgentMark } from "@shared/components/external-agent-mark/ExternalAgentMark";
 import { ResizeHandle } from "@shared/components/ResizeHandle";
 import { cn } from "@shared/lib/utils";
 import { activityPanelOpenAtom, collectBottomPanelLeaves } from "@shared/store/atoms";
@@ -115,7 +116,7 @@ export function BottomPanelHost({ fill = false }: { readonly fill?: boolean }): 
 										...agentItems.map((item) => ({
 											id: item.id,
 											label: item.label,
-											icon: item.icon,
+											icon: <ExternalAgentMark agentId={item.agentId} />,
 											disabled: item.disabled,
 											disabledReason: item.disabledReason,
 										})),

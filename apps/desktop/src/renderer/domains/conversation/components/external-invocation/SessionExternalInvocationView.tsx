@@ -1,4 +1,12 @@
+import { ExternalAgentMark } from "@shared/components/external-agent-mark/ExternalAgentMark";
 import { Button } from "@shared/components/ui/button";
+import { cn } from "@shared/lib/utils";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@vetta-org/ui";
 import type { JSX, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -66,29 +74,47 @@ export function SessionExternalInvocationView({
 	const { t } = useTranslation("chat");
 	const external = model.recipientId !== "penguin";
 	const compact = !model.showPrompt || model.switcherOnly;
+	const selected = model.agents.find((agent) => agent.id === model.recipientId);
+	const selectedLabel = selected?.label ?? model.recipientId;
 	const switcher = (
-		<label className={compact ? "flex min-w-0 items-center gap-1.5" : undefined}>
+		<div className="flex min-w-0 items-center gap-1.5">
 			<span className={compact ? "shrink-0 text-[12px] text-muted-foreground" : undefined}>
 				{t("externalInvocation.switcher")}
 			</span>
-			<select
-				aria-label={t("externalInvocation.switcher")}
-				title={external ? model.permissionNote : undefined}
-				value={model.recipientId}
-				onChange={(event) => model.onRecipientChange(event.target.value)}
-				className={
-					compact
-						? "h-8 max-w-[9.5rem] shrink-0 rounded-lg border border-border/50 bg-transparent px-2 text-[12px] text-foreground outline-none hover:border-primary/40"
-						: undefined
-				}
-			>
-				{model.agents.map((agent) => (
-					<option key={agent.id} value={agent.id} disabled={agent.disabled}>
-						{agent.label}
-					</option>
-				))}
-			</select>
-		</label>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<button
+						type="button"
+						aria-label={t("externalInvocation.switcher")}
+						title={external ? model.permissionNote : undefined}
+						className="flex h-8 max-w-[12rem] shrink-0 items-center gap-1.5 rounded-lg border border-border/50 bg-transparent px-2 text-[12px] text-foreground outline-none hover:border-primary/40 data-[state=open]:border-primary/40 data-[state=open]:bg-primary/10"
+					>
+						<ExternalAgentMark agentId={model.recipientId} />
+						<span className="min-w-0 truncate">{selectedLabel}</span>
+						<span className="icon-[solar--alt-arrow-down-linear] size-3 shrink-0 text-muted-foreground" />
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="start" side="top" className="min-w-[11rem]">
+					{model.agents.map((agent) => {
+						const current = agent.id === model.recipientId;
+						return (
+							<DropdownMenuItem
+								key={agent.id}
+								disabled={agent.disabled}
+								onSelect={() => model.onRecipientChange(agent.id)}
+								className={cn("gap-2", current && "bg-accent text-accent-foreground")}
+							>
+								<ExternalAgentMark agentId={agent.id} />
+								<span className="min-w-0 flex-1 truncate">{agent.label}</span>
+								{current ? (
+									<span className="icon-[solar--check-circle-linear] size-3.5 shrink-0" />
+								) : null}
+							</DropdownMenuItem>
+						);
+					})}
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</div>
 	);
 
 	if (model.switcherOnly) {

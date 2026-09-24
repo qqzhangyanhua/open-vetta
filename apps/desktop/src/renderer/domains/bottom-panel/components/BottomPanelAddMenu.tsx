@@ -1,3 +1,4 @@
+import { ExternalAgentMark } from "@shared/components/external-agent-mark/ExternalAgentMark";
 import { Button } from "@shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@shared/components/ui/popover";
 import type { BottomPanelSessionState } from "@shared/store/atoms";
@@ -77,7 +78,7 @@ export function BottomPanelAddMenu({ definitions, state, onPick }: BottomPanelAd
 						}}
 						className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-[12px] transition-colors hover:bg-accent/60 disabled:opacity-40 disabled:hover:bg-transparent"
 					>
-						<span aria-hidden className={`${item.icon} h-3.5 w-3.5 shrink-0`} />
+						<ExternalAgentMark agentId={item.agentId} />
 						<span className="min-w-0 flex-1 truncate">{item.label}</span>
 					</button>
 				))}
