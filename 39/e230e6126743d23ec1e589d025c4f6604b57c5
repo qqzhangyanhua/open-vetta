@@ -1,0 +1,20 @@
+.github/release-notes/v0.5.59.md
+  h_4132837b09b7e7 223
+scripts/quality/lib.mjs
+  h_4132837b09b7e7 49-56,85-109,248
+scripts/quality/quality-gates.test.mjs
+  h_4132837b09b7e7 1-2,20,23,31,427-518
+scripts/quality/test-impact.mjs
+  h_4132837b09b7e7 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "39e230e6126743d23ec1e589d025c4f6604b57c5",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
