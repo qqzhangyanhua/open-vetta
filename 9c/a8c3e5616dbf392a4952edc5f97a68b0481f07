@@ -1,0 +1,45 @@
+apps/desktop/src/main/external-invocation/output-capture.ts
+  s_511298f31f07b9::t_a9d1e0c0c14121 48
+  s_511298f31f07b9::t_811d1aedc210e7 50,52,55,62
+apps/desktop/src/main/external-invocation/service.test.ts
+  s_511298f31f07b9::t_e61054c6f42438 175-184,190-201
+  s_511298f31f07b9::t_6ccb9fa356a5f8 185-189
+apps/desktop/src/main/external-invocation/service.ts
+  s_511298f31f07b9::t_98a89a82996baa 156-170
+  s_511298f31f07b9::t_6a8fc3d2b95454 151-155,171
+  s_511298f31f07b9::t_ca52299289c93f 260-263
+  s_511298f31f07b9::t_2bca65cfe7b328 90
+  s_511298f31f07b9::t_67f6efa97dfe44 1
+apps/desktop/src/main/ipc/external-invocation.ts
+  s_511298f31f07b9::t_7b8a3d483f4fd9 115
+  s_511298f31f07b9::t_1fb25301a087de 17
+  s_511298f31f07b9::t_dc483460d3c163 99-107
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelTabs.ts
+  s_511298f31f07b9::t_c20731e03b94ee 8-9
+  s_511298f31f07b9::t_8e35e14cc72350 85-88
+  s_511298f31f07b9::t_dc27ce91e550b8 95
+apps/desktop/src/preload/apis/external-invocation.ts
+  s_511298f31f07b9::t_eec6e500968ae4 10
+  s_511298f31f07b9::t_79f2eeff1af20c 39
+apps/desktop/src/preload/api-types/external-invocation.ts
+  s_511298f31f07b9::t_aa8d8b53d4799b 24-27
+apps/desktop/src/renderer/domains/bottom-panel/builtins/external-invocation-panel.tsx
+  s_511298f31f07b9::t_53f74c2ad6ca03 76,78,84-95
+  s_511298f31f07b9::t_2c2eaea9686212 96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "9ca8c3e5616dbf392a4952edc5f97a68b0481f07",
+  "prompts": {},
+  "sessions": {
+    "s_511298f31f07b9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "2a0993b3-94ca-44f8-b4b3-1627d7a59ae6",
+        "model": "grok-4.7"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
