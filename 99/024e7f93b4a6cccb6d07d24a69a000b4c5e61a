@@ -1,0 +1,134 @@
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarView.tsx
+  s_511298f31f07b9::t_4c4339464102ae 268-269
+apps/desktop/src/renderer/domains/bottom-panel/builtins/types.ts
+  s_511298f31f07b9::t_dc3d45b9199ee3 19
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_511298f31f07b9::t_91e2fdee695f7e 528-531,533-538
+  s_511298f31f07b9::t_c17b0bf014c6e2 532
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_511298f31f07b9::t_ec469f6d125bfd 532
+  s_511298f31f07b9::t_f3b7aaaf982c99 528-531,533-538
+apps/desktop/src/renderer/domains/bottom-panel/registry/types.ts
+  s_511298f31f07b9::t_83030de952ed0e 26-27
+apps/desktop/src/main/ipc/external-invocation.ts
+  s_511298f31f07b9::t_2ecdcc8ed93134 103-104
+  s_511298f31f07b9::t_1db7f8fbfb7906 15-16
+  s_511298f31f07b9::t_a08f4bbffe81ab 38
+  s_511298f31f07b9::t_1618a119a8b7e3 37
+  s_511298f31f07b9::t_bef76febe95512 85-97
+apps/desktop/src/renderer/shared/store/bottom-panel-layout.ts
+  s_511298f31f07b9::t_6fa265c0491900 83-84
+  s_511298f31f07b9::t_9dd45f3edd78b2 154-160
+  s_511298f31f07b9::t_61541b7df09bbf 395-413,431-461
+  s_511298f31f07b9::t_bda671008d2a09 414,416-430
+  s_511298f31f07b9::t_6facad26388721 464-466
+  s_511298f31f07b9::t_4286286530ed41 415
+  s_511298f31f07b9::t_1fe79fd057b726 85
+  s_511298f31f07b9::t_5fcdd198cfa266 72-82,86-87
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationPage.tsx
+  s_511298f31f07b9::t_9fd2f7ed5f0b40 75-76
+  s_511298f31f07b9::t_8f8e72b3a7d779 16,22-23
+  s_511298f31f07b9::t_e5f1d539b09a19 40
+  s_511298f31f07b9::t_df3e318784ed8f 120
+  s_511298f31f07b9::t_96762c809e30a1 151
+  s_511298f31f07b9::t_20ba838cb4c3b0 116-119
+  s_511298f31f07b9::t_0083505d6ba15f 54,59
+  s_511298f31f07b9::t_2dfc7247fe22e6 85-86
+  s_511298f31f07b9::t_491c1c7944c84a 30-31
+  s_511298f31f07b9::t_b9db7d035ff044 38
+apps/desktop/src/renderer/shared/store/bottom-panel-layout.test.ts
+  s_511298f31f07b9::t_01fa41f353aa49 451-503,508-512
+  s_511298f31f07b9::t_09387baf915589 28-36
+  s_511298f31f07b9::t_51b41f6f02d8e3 5,504-507
+apps/desktop/src/renderer/domains/bottom-panel/registry/useBottomPanelDefinitions.tsx
+  s_511298f31f07b9::t_bd6c5a97419de3 102
+apps/desktop/src/preload/apis/external-invocation.ts
+  s_511298f31f07b9::t_5e4e02f903f0aa 13-14
+  s_511298f31f07b9::t_4bd8f36a90bd83 8-9
+  s_511298f31f07b9::t_66fdc85aad8600 36-37
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationView.tsx
+  s_511298f31f07b9::t_4657dcd89477cf 30
+  s_511298f31f07b9::t_672686accbf8e8 78-82
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationPage.test.tsx
+  s_511298f31f07b9::t_a2da57c5cfe6bb 8
+  s_511298f31f07b9::t_5f08153e51b3f4 120-121
+  s_511298f31f07b9::t_92acabb01f5702 141
+  s_511298f31f07b9::t_561795d621af5d 89-105,107-116,123-129,149-150
+  s_511298f31f07b9::t_267ccb42c64623 106,117-119,143-145
+  s_511298f31f07b9::t_71923901e48d6f 4
+  s_511298f31f07b9::t_877b79d5789ad8 130-140,142,146-148
+  s_511298f31f07b9::t_c06f3455e6d7b4 122
+apps/desktop/src/renderer/domains/bottom-panel/builtins/index.ts
+  s_511298f31f07b9::t_51b41f6f02d8e3 6-9
+  s_511298f31f07b9::t_72f8b9a2c84dc3 1
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelAddMenu.tsx
+  s_511298f31f07b9::t_827a9ff0fc2cbf 19
+.github/release-notes/v0.5.59.md
+  s_511298f31f07b9::t_1a0a8487affde0 5-7
+apps/desktop/src/renderer/domains/conversation/components/input-bar/types.ts
+  s_511298f31f07b9::t_9127303e7fdefb 261-265
+  s_511298f31f07b9::t_35ddd5d292f305 250-252
+apps/desktop/src/main/external-invocation/output-capture.ts
+  s_511298f31f07b9::t_0e49ad9f884173 47,49-55,58
+  s_511298f31f07b9::t_6ea3452d003017 46,48,56-57,59-61
+apps/desktop/src/renderer/domains/bottom-panel/builtins/external-invocation-panel.tsx
+  s_511298f31f07b9::t_4124eb64c9e364 106-109
+  s_511298f31f07b9::t_3249618906bbfd 102-105,110
+  s_511298f31f07b9::t_12b634937b36e9 31,35-36
+  s_511298f31f07b9::t_ca0cd9aeb5920e 1
+  s_511298f31f07b9::t_89fec0aa1e1bf3 84,89,92
+  s_511298f31f07b9::t_7c8051989a7784 75
+  s_511298f31f07b9::t_097140770c0824 2-30,32-34,37-74,76-83,85-88,90-91,93-101,111-122
+apps/desktop/src/main/external-invocation/service.test.ts
+  s_511298f31f07b9::t_663a614c9b5a2a 105
+  s_511298f31f07b9::t_9d5baa9382ed50 156-185
+  s_511298f31f07b9::t_a3a8e6ebe5a0d6 34-35,39-41
+  s_511298f31f07b9::t_a6e8cdc9e6d4f3 106-109
+  s_511298f31f07b9::t_b76d3e67307bf4 43-44
+  s_511298f31f07b9::t_a3f5e372a7e256 42
+apps/desktop/src/preload/api-types/external-invocation.ts
+  s_511298f31f07b9::t_a1eeb5c7182014 2-3
+  s_511298f31f07b9::t_c62a0997788cf8 22-23
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelTabs.ts
+  s_511298f31f07b9::t_e9e8023a508c32 83
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/ExternalInvocationTerminalSession.tsx
+  s_511298f31f07b9::t_e5e70a209d4b4e 1-165,167-189
+  s_511298f31f07b9::t_1ef36a8fcebdcc 166
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/open-external-invocation-tab.ts
+  s_511298f31f07b9::t_51b41f6f02d8e3 2
+  s_511298f31f07b9::t_046ae792b876db 1,3-31
+apps/desktop/src/renderer/domains/conversation/components/input-bar/DefaultInputBarConnector.tsx
+  s_511298f31f07b9::t_6d8eafbb952be2 5-7
+  s_511298f31f07b9::t_72ab00d549bc7b 186-211
+  s_511298f31f07b9::t_47df5ceb879237 37-38
+apps/desktop/src/main/external-invocation/service.ts
+  s_511298f31f07b9::t_498d579dcdc626 105
+  s_511298f31f07b9::t_bd163fe1ea1e3e 125-139
+  s_511298f31f07b9::t_331821561c1e74 223,243-248
+  s_511298f31f07b9::t_8c368906b37692 72-77
+  s_511298f31f07b9::t_76189d9c6926f6 227-233,237-238
+  s_511298f31f07b9::t_8fb7c80dd010e4 66-71
+  s_511298f31f07b9::t_0ef721778253bd 88
+  s_511298f31f07b9::t_6d488480b4ff0d 124,140,143-144
+  s_511298f31f07b9::t_5f316dda1c9084 145-149
+  s_511298f31f07b9::t_920079e3f2cf45 101-104
+  s_511298f31f07b9::t_dadb5d5e1be8a6 89
+  s_511298f31f07b9::t_e41510feb91965 10
+  s_511298f31f07b9::t_51a2efd4a86905 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "99024e7f93b4a6cccb6d07d24a69a000b4c5e61a",
+  "prompts": {},
+  "sessions": {
+    "s_511298f31f07b9": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "2a0993b3-94ca-44f8-b4b3-1627d7a59ae6",
+        "model": "grok-4.7"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
