@@ -1,0 +1,36 @@
+docs/dev/quality-gates.md
+  s_a7ff160589f784::t_bdc22ab80a2157 46-47,90-129,131-141
+  s_a7ff160589f784::t_2a09aa8c5e77d1 130
+  s_a7ff160589f784::t_503b7826bf50b0 142
+scripts/quality/rules/package-boundaries.yml
+  s_a7ff160589f784::t_71246c5caa376d 1-52
+scripts/quality/arch-engine/rule-engine.test.mjs
+  s_a7ff160589f784::t_8846a92aec0b93 198,205
+  s_a7ff160589f784::t_35c701be745d7d 1-13,15-88,90-197,199-204,206-282
+  s_a7ff160589f784::t_b6766cdb5376a4 14,89
+package.json
+  s_a7ff160589f784::t_1e243aaab4737b 100,134-135
+.github/release-notes/v0.5.59.md
+  s_a7ff160589f784::t_bf6a7b4d195b0a 228
+scripts/quality/arch-engine/rule-engine.mjs
+  s_a7ff160589f784::t_5766db3dca2742 176-178,189-191,203,209,224,226,228,230,239,270
+  s_a7ff160589f784::t_a1630b9d6ab0b0 1-175,179-188,192-202,204-208,210-223,225,227,229,231-238,240-269,271-276
+bun.lock
+  s_a7ff160589f784::t_8c9f5cc6ca69fe 31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "c16de9d4f1c756a90f23d751064e2733c0ff92b4",
+  "prompts": {},
+  "sessions": {
+    "s_a7ff160589f784": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d1ac-4540-7803-8253-89d4c9fb64a2",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
