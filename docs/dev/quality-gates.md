@@ -41,8 +41,49 @@ scripts/quality/
   test-impact.mjs              按任务文件选择直接测试与 Vitest 相关测试
   test-changed.mjs             按 git 变更和依赖图选包
   quality-gates.test.mjs       质量脚本定向测试
+  arch-engine/ast-walker.mjs   可序列化的 TypeScript 语法树
+  arch-engine/cache.mjs        按 mtime 与内容 hash 缓存语法树
 knip.config.ts                 Knip（可选）
 ```
+
+## 架构引擎
+
+`scripts/quality/arch-engine/` 是后续架构守卫共用的解析和缓存。现有的 `check-package-boundaries` 等守卫还没有迁过来，跑 `check` 的结果不受这层影响。
+
+`parseSource(filePath, text)` 按扩展名选择 script kind（`.tsx` / `.jsx` 才会解析 JSX），返回一棵可写成 JSON 的语法树。节点字段：
+
+| 字段 | 含义 |
+| --- | --- |
+| `kind` | TypeScript `SyntaxKind` 的名字，例如 `ImportDeclaration` |
+| `start` / `end` | 源码偏移 |
+| `line` | 从 1 开始的行号 |
+| `text` | 标识符（含 `#private`）、字符串、数字、bigint、JSX 文本和正则才有；字符串是去掉引号后的内容 |
+| `typeOnly` | 仅 type-only 的 import / export 为 `true` |
+| `children` | 子节点；没有子节点时省略 |
+
+`walkAst(node, visit)` 先序遍历。`visit` 返回 `false` 时不再进入子节点。`findNodes(node, predicate)` 收集命中的节点。模块说明符是 `ImportDeclaration` 下面的 `StringLiteral`。
+
+从 `scripts/quality/` 里的脚本这样用：
+
+```javascript
+import { findNodes, parseSource } from "./arch-engine/ast-walker.mjs";
+
+const ast = parseSource("src/mod.ts", 'import { Foo } from "@vetta/desktop";\n');
+const specifier = findNodes(ast, (node) => node.kind === "ImportDeclaration")[0]?.children?.find(
+	(node) => node.kind === "StringLiteral",
+)?.text;
+```
+
+`createAstCache({ root, cacheDir })` 把解析结果写到 `cacheDir/ast/` 下的 JSON 文件。`cacheDir` 默认是 `<root>/.cache/quality`，`root` 默认是进程的当前工作目录。`load` 接受仓库内的相对路径或绝对路径，两种写法共用同一条缓存。路径必须留在 `root` 里；指到外面的符号链接会直接拒绝。
+
+每次 `load` 都会读文件并计算内容 hash。修改时间按毫秒取整。缓存身份按下面四条处理：
+
+- 没有记录，或记录的 `AST_FORMAT_VERSION` 对不上、JSON 读不出来：解析并写入（未命中）
+- 取整后的修改时间和内容 hash 都与记录一致：直接返回已缓存的树（命中），不再解析
+- 只有修改时间变了：记一次 mtime 失效并重新解析。内容没变也会再解析，避免一次 touch 沿用旧的缓存身份
+- 内容 hash 变了：记一次 hash 失效并重新解析。即使把修改时间改回原来的值，也不会继续用旧语法树
+
+`stats()` 返回 `hits`、`misses`、`mtimeInvalidations`、`hashInvalidations`、`parses` 和 `hitRate`（命中次数 / 全部读取次数）。返回的树归缓存所有，调用方不要改它。同一个进程还会把已经读过的树留在内存里，直到这个进程退出；这期间删掉 `<root>/.cache/quality` 不会让下一次 `load` 重解析。新开的进程看不到这些文件，会重新解析。语法树字段变化时要抬高 `AST_FORMAT_VERSION`，旧文件会当作未命中。
 
 ## 守卫错误处理
 
