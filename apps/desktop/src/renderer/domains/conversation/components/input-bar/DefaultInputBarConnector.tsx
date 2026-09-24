@@ -6,6 +6,7 @@ import { activeInputDraftKeyAtom } from "@shared/store/session-input-draft";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { useAtomValue, useSetAtom } from "jotai";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { externalAgentLabel } from "../external-invocation/external-agent-label";
 import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
 import { useTranslation } from "react-i18next";
 import { InputBar } from "../InputBar";
@@ -124,7 +125,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const placeholderModel = useMemo(() => {
 		if (!session.hasSession) return { placeholderTexts: [t("inputBar.placeholder.noSession")], placeholderRotating: false };
 		if (externalRecipientId !== "penguin") {
-			const agent = externalRecipientId === "grok" ? "Grok" : externalRecipientId;
+			const agent = externalAgentLabel(externalRecipientId, t) || externalRecipientId;
 			return { placeholderTexts: [t("externalInvocation.placeholder", { agent })], placeholderRotating: false };
 		}
 		if (session.isStreaming) return { placeholderTexts: [t("inputBar.placeholder.thinking")], placeholderRotating: false };
@@ -215,7 +216,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 						status,
 						cwd: session.effectiveCwd,
 						sessionId: active.runtimeId,
-						agentLabel: externalRecipientId === "grok" ? "Grok" : externalRecipientId,
+						agentLabel: externalAgentLabel(event.agentId ?? externalRecipientId, t) || externalRecipientId,
 						externalSessionId: event.externalSessionId,
 					});
 				}
@@ -228,7 +229,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 					status: invocationStatus.current[invocationId] ?? "finished",
 					cwd: session.effectiveCwd,
 					sessionId: active.runtimeId,
-					agentLabel: externalRecipientId === "grok" ? "Grok" : externalRecipientId,
+					agentLabel: externalAgentLabel(externalRecipientId, t) || externalRecipientId,
 				});
 			},
 		},

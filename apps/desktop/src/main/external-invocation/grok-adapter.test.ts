@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { grokAdapter } from "./grok-adapter.js";
+import { cursorAgentAdapter, grokAdapter, ompAdapter } from "./grok-adapter.js";
 
 const SKIP_FLAGS = ["--always-approve", "--trust", "--yolo", "--dangerously-skip-permissions"];
 
@@ -57,6 +57,61 @@ describe("grok session id location", () => {
 	});
 });
 
+describe("omp and cursor-agent adapters", () => {
+	it.each([
+		{
+			name: "omp",
+			adapter: ompAdapter,
+			executable: "omp",
+			single: ["--print", "@/work/app/src/a.ts\nfix the test"],
+			resume: ["--print", "@/work/app/src/a.ts\n继续修", "--resume", "omp-9"],
+			skip: ["--auto-approve", "--approval-mode", "--plan-yolo"],
+		},
+		{
+			name: "cursor-agent",
+			adapter: cursorAgentAdapter,
+			executable: "cursor-agent",
+			single: ["--print", "@/work/app/src/a.ts\nfix the test"],
+			resume: ["--print", "@/work/app/src/a.ts\n继续修", "--resume", "chat-9"],
+			skip: ["--force", "-f", "--yolo", "--trust", "--approve-mcps"],
+		},
+	])(
+		"$name builds a single instruction and a resume, and keeps confirmation flags out",
+		({ adapter, executable, single, resume, skip }) => {
+			expect(adapter.executable).toBe(executable);
+			expect(adapter.singleInstructionArgs("fix the test", ["/work/app/src/a.ts"])).toEqual(single);
+			expect(
+				adapter.resumeArgs("继续修", executable === "omp" ? "omp-9" : "chat-9", ["/work/app/src/a.ts"]),
+			).toEqual(resume);
+			expect(
+				[...adapter.singleInstructionArgs("fix the test"), ...adapter.resumeArgs("继续修", "id")].some((arg) =>
+					skip.includes(arg),
+				),
+			).toBe(false);
+		},
+	);
+
+	it("locates the omp session written under the temp tree after the run started", () => {
+		const root = mkdtempSync(join(tmpdir(), "omp-sessions-"));
+		const startedAt = Date.parse("2026-09-24T06:00:00.000Z");
+		writeOmp(root, "old", "/work/app", "2026-09-24T05:00:00.000Z");
+		writeOmp(root, "other", "/work/else", "2026-09-24T06:05:00.000Z");
+		writeOmp(root, "sess-9", "/work/app", "2026-09-24T06:02:00.000Z");
+		expect(ompAdapter.locateSessionId({ sessionsRoot: root, cwd: "/work/app", startedAt })).toBe("sess-9");
+		expect(ompAdapter.locateSessionId({ sessionsRoot: root, cwd: "/missing", startedAt })).toBeNull();
+	});
+
+	it("locates the cursor-agent chat id from meta.json under the temp tree", () => {
+		const root = mkdtempSync(join(tmpdir(), "cursor-sessions-"));
+		const startedAt = Date.parse("2026-09-24T06:00:00.000Z");
+		writeCursor(root, "old-chat", "/work/app", Date.parse("2026-09-24T05:00:00.000Z"));
+		writeCursor(root, "other-chat", "/work/else", Date.parse("2026-09-24T06:05:00.000Z"));
+		writeCursor(root, "chat-9", "/work/app", Date.parse("2026-09-24T06:02:00.000Z"));
+		expect(cursorAgentAdapter.locateSessionId({ sessionsRoot: root, cwd: "/work/app", startedAt })).toBe("chat-9");
+		expect(cursorAgentAdapter.locateSessionId({ sessionsRoot: root, cwd: "/missing", startedAt })).toBeNull();
+	});
+});
+
 function writeSummary(root: string, workspace: string, id: string, cwd: string, lastActiveAt: string): void {
 	const dir = join(root, workspace, id);
 	mkdirSync(dir, { recursive: true });
@@ -70,4 +125,22 @@ function writeSummary(root: string, workspace: string, id: string, cwd: string, 
 			generated_title: id,
 		}),
 	);
+}
+
+function writeOmp(root: string, id: string, cwd: string, timestamp: string): void {
+	const dir = join(root, cwd.replace(/\//g, "-"));
+	mkdirSync(dir, { recursive: true });
+	writeFileSync(
+		join(dir, `${id}.jsonl`),
+		[
+			JSON.stringify({ type: "title", title: id, updatedAt: timestamp }),
+			JSON.stringify({ type: "session", id, cwd, timestamp, title: id }),
+		].join("\n"),
+	);
+}
+
+function writeCursor(root: string, id: string, cwd: string, updatedAtMs: number): void {
+	const dir = join(root, "project-hash", id);
+	mkdirSync(dir, { recursive: true });
+	writeFileSync(join(dir, "meta.json"), JSON.stringify({ schemaVersion: 1, cwd, updatedAtMs, title: id }));
 }

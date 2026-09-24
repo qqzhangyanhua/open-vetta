@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import type { Usage } from "@vetta/ai/protocol";
 import type { ChatConversationItem } from "./types";
 import type { ConversationParticipantViewModel } from "@shared/conversation";
+import { externalAgentLabel } from "../external-invocation/external-agent-label";
 import { AssistantMessage } from "./AssistantMessage";
 import { TeamMemberReplyCard } from "./TeamMemberReplyCard";
 import { ReadonlyUserMessage } from "./ReadonlyUserMessage";
@@ -73,7 +74,7 @@ const ExternalInvocationHistoryCard = memo(function ExternalInvocationHistoryCar
 	};
 }) {
 	const { t } = useTranslation("chat");
-	const agent = event.agentId === "grok" ? "Grok" : event.agentId;
+	const agent = externalAgentLabel(event.agentId, t) || event.agentId;
 	return (
 		<article aria-label={`${agent} ${event.prompt}`}>
 			<p>{event.prompt}</p>

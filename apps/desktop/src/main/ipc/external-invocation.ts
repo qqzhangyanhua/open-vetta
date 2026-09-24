@@ -5,8 +5,9 @@ import { EXTERNAL_INVOCATION_CUSTOM_TYPE } from "@vetta/runtime-core/conversatio
 import { ipcMain } from "electron";
 import { detectExternalAgentsOnPath, readLoginShellPath } from "../external-invocation/detect-agents.js";
 import { createExternalInvocationEntryLedger } from "../external-invocation/entry-ledger.js";
+import { findExternalAgentAdapter } from "../external-invocation/grok-adapter.js";
 import { createExternalInvocationService, type ExternalInvocationService } from "../external-invocation/service.js";
-import { detectGrokSessionsDirectory } from "../external-sessions/grok-session-locator.js";
+import { detectExternalSessionDirectory } from "../external-sessions/grok-session-locator.js";
 import { getSharedRuntime } from "../runtime.js";
 import { createLocalPtyBackendFactory } from "../terminal/local-pty-backend.js";
 
@@ -56,7 +57,10 @@ export function externalInvocationService(): ExternalInvocationService {
 			artifactDirectory: (sessionId) => join(getAgentDir(), "external-invocations", sessionId),
 			clock: { now: () => Date.now() },
 			ids: { next: () => crypto.randomUUID() },
-			sessionsDirectory: (agentId) => (agentId === "grok" ? (detectGrokSessionsDirectory().path ?? null) : null),
+			sessionsDirectory: (agentId) => {
+				const adapter = findExternalAgentAdapter(agentId);
+				return adapter ? (detectExternalSessionDirectory(adapter.id) ?? null) : null;
+			},
 		});
 	}
 	return service;

@@ -15,7 +15,9 @@ export interface DesktopExternalInvocationEvent {
 }
 
 export interface DesktopExternalInvocationsApi {
-	listAgents(): Promise<readonly { id: "grok"; label: string; executable: "grok" }[]>;
+	listAgents(): Promise<
+		readonly { id: "grok" | "omp" | "cursor-agent"; label: string; executable: "grok" | "omp" | "cursor-agent" }[]
+	>;
 	start(request: {
 		sessionId: string;
 		cwd: string;

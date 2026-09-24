@@ -515,7 +515,10 @@
 		"switcher": "Send to",
 		"message": "Message",
 		"agent": {
-			"penguin": "penguin"
+			"penguin": "penguin",
+			"grok": "Grok",
+			"omp": "OMP",
+			"cursorAgent": "cursor-agent"
 		},
 		"placeholder": "This message runs in the terminal with {{agent}}. The output stays in this session",
 		"permission": "{{agent}} uses its own permission settings. Confirmations are asked in the terminal",

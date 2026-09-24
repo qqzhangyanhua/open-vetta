@@ -1,6 +1,7 @@
 import { useEffect, useState, type JSX, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { externalRecipientFor, rememberExternalRecipient } from "@shared/store/external-recipient";
+import { externalAgentLabel } from "./external-agent-label";
 import {
 	SessionExternalInvocationView,
 	type ExternalInvocationCardModel,
@@ -34,7 +35,7 @@ export interface ExternalInvocationClientEvent {
 }
 
 export interface ExternalInvocationClient {
-	listAgents(): Promise<readonly { id: "grok"; label: string }[]>;
+	listAgents(): Promise<readonly { id: "grok" | "omp" | "cursor-agent"; label: string }[]>;
 	start(request: {
 		sessionId: string;
 		cwd: string;
@@ -144,7 +145,7 @@ export function SessionExternalInvocationPage({
 	readonly onInvocationEvent?: (event: ExternalInvocationClientEvent) => void;
 }): JSX.Element {
 	const { t } = useTranslation("chat");
-	const [detected, setDetected] = useState<readonly { id: "grok"; label: string }[]>([]);
+	const [detected, setDetected] = useState<readonly { id: "grok" | "omp" | "cursor-agent"; label: string }[]>([]);
 	const [recipientId, setRecipientId] = useState(() => externalRecipientFor(draftKey));
 	useEffect(() => {
 		setRecipientId(externalRecipientFor(draftKey));
@@ -169,7 +170,11 @@ export function SessionExternalInvocationPage({
 	}
 	const agents: ExternalInvocationAgentOption[] = [
 		{ id: "penguin", label: t("externalInvocation.agent.penguin") },
-		...detected.map((agent) => ({ id: agent.id, label: agent.label, disabled: remote })),
+		...detected.map((agent) => ({
+			id: agent.id,
+			label: externalAgentLabel(agent.id, t) || agent.label,
+			disabled: remote,
+		})),
 	];
 	const recipient = agents.find((agent) => agent.id === recipientId) ?? agents[0];
 	const external = recipientId !== "penguin";
@@ -196,7 +201,7 @@ export function SessionExternalInvocationPage({
 				return;
 			}
 			onInvocationEvent?.(event);
-			const label = event.agentId === "grok" ? "Grok" : (recipient?.label ?? "");
+			const label = externalAgentLabel(event.agentId, t) || (recipient?.label ?? "");
 			setCards((current) =>
 				applyExternalInvocationEvent(current, event, label, (status) => t(externalInvocationStatusKey[status])),
 			);

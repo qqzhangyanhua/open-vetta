@@ -1,29 +1,31 @@
 import { spawnSync } from "node:child_process";
 import { delimiter, join } from "node:path";
-import { grokAdapter } from "./grok-adapter.js";
+import { cursorAgentAdapter, type ExternalAgentId, grokAdapter, ompAdapter } from "./grok-adapter.js";
 
 export interface DetectedExternalAgent {
-	readonly id: "grok";
-	readonly label: "Grok";
-	readonly executable: "grok";
+	readonly id: ExternalAgentId;
+	readonly label: string;
+	readonly executable: ExternalAgentId;
 }
 
 const MARKER = "__VETTA_EXTERNAL_AGENT_PATH__";
+
+const DETECTABLE_AGENTS = [grokAdapter, ompAdapter, cursorAgentAdapter] as const;
 
 export function detectExternalAgentsOnPath(
 	pathValue: string,
 	canExecute: (candidate: string) => boolean,
 ): readonly DetectedExternalAgent[] {
-	const names = process.platform === "win32" ? ["grok.exe", "grok.cmd", "grok"] : ["grok"];
-	for (const directory of pathValue.split(delimiter)) {
-		if (!directory) continue;
-		for (const name of names) {
-			if (canExecute(join(directory, name))) {
-				return [{ id: grokAdapter.id, label: grokAdapter.label, executable: grokAdapter.executable }];
-			}
-		}
-	}
-	return [];
+	const directories = pathValue.split(delimiter).filter((directory) => directory.length > 0);
+	return DETECTABLE_AGENTS.filter((adapter) =>
+		executableNames(adapter.executable).some((name) =>
+			directories.some((directory) => canExecute(join(directory, name))),
+		),
+	).map((adapter) => ({ id: adapter.id, label: adapter.label, executable: adapter.executable }));
+}
+
+function executableNames(executable: ExternalAgentId): readonly string[] {
+	return process.platform === "win32" ? [`${executable}.exe`, `${executable}.cmd`, executable] : [executable];
 }
 
 /** 读登录 shell 的 PATH。探测失败时返回空串，调用方就只剩 penguin。 */

@@ -185,6 +185,25 @@ describe("session page external invocation", () => {
 		expect(screen.getByText("远程项目暂不支持")).toBeTruthy();
 	});
 
+	it("shows OMP in 发给 when it is detected and omits it when it is not", async () => {
+		const detected: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "omp", label: "OMP" }],
+			start: vi.fn(),
+			subscribe: () => () => undefined,
+		};
+		const { unmount } = render(<Harness client={detected} />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "OMP" })).toBeTruthy());
+		unmount();
+		const missing: ExternalInvocationClient = {
+			listAgents: async () => [],
+			start: vi.fn(),
+			subscribe: () => () => undefined,
+		};
+		render(<Harness client={missing} />);
+		await waitFor(() => expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual(["penguin"]));
+		expect(screen.queryByRole("option", { name: "OMP" })).toBeNull();
+	});
+
 	it("offers only penguin when no external agent is available", async () => {
 		const client: ExternalInvocationClient = {
 			listAgents: async () => [],

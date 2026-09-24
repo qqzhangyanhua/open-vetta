@@ -451,6 +451,18 @@ describe("external invocation service", () => {
 		expect(h.events.some((event) => event.type === "queued")).toBe(false);
 	});
 
+	it("runs OMP and Grok at the same time without queueing either one", async () => {
+		const h = harness();
+		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "from omp", agentId: "omp" });
+		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "from grok", agentId: "grok" });
+		expect(h.events.some((event) => event.type === "queued")).toBe(false);
+		expect(h.started).toEqual([
+			{ file: "omp", args: ["--print", "from omp"], cwd: "/work/app" },
+			{ file: "grok", args: ["--single", "from grok"], cwd: "/work/app" },
+		]);
+		expect(h.procs).toHaveLength(2);
+	});
+
 	it("writes terminal keyboard input into the process", async () => {
 		const h = harness();
 		const started = await h.service.start({

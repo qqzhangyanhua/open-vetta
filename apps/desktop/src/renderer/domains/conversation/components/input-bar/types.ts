@@ -237,7 +237,7 @@ export interface InputBarModel {
 	externalInvocation?: {
 		readonly session: { readonly sessionId: string; readonly cwd: string } | null;
 		readonly client: {
-			listAgents(): Promise<readonly { id: "grok"; label: string }[]>;
+			listAgents(): Promise<readonly { id: "grok" | "omp" | "cursor-agent"; label: string }[]>;
 			start(request: {
 				sessionId: string;
 				cwd: string;
@@ -264,6 +264,7 @@ export interface InputBarModel {
 		readonly onInvocationEvent?: (event: {
 			readonly type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 			readonly invocationId: string;
+			readonly agentId?: string;
 			readonly externalSessionId?: string | null;
 			readonly ordinal?: number;
 			readonly startedAt?: string;
