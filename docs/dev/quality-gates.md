@@ -13,7 +13,7 @@
 | 质量脚本测试 | `bun run test:quality` | 修改 `scripts/quality` | 变更选择、依赖传播与包边界规则 |
 | 单元测试 | `bun run test` / `bun run test:unit` | 逻辑变更 | 先由 Turbo 生成测试消费的 workspace 依赖产物，再顺序运行所有声明 `test` 的 TypeScript workspace |
 | 按包 | `bun run test:pkg <name>` | 改单包 | 例：`test:pkg ai` |
-| 按任务影响 | `bun run test:impact -- <file...>` | 日常实现与 Agent 任务 | 直接运行显式测试和 Vitest 依赖相关测试；根配置、删除文件、公共入口和合同目录回退 `test:changed` |
+| 按任务影响 | `bun run test:impact -- <file...>` | 日常实现与 Agent 任务 | 直接运行显式测试和 Vitest 依赖相关测试；根配置、已删除的 workspace 文件、公共入口和合同目录回退 `test:changed` |
 | 按变更 | `bun run test:changed` | 提 PR 前可选 | 合并已提交/工作区/未跟踪改动，测试触达包及其下游依赖 |
 | 按需 Desktop UI 验收 | `bun run verify:ui:*` | 仅用户明确要求使用 UI 验证或具体命令时 | 不由 UI、图标、样式或 Renderer/Main 改动自动触发；见 [README](./README.md) |
 | Desktop 生产边界 | `bun run verify:desktop:contracts`；受影响时由 GitHub Actions 在 Windows/macOS/Linux 运行 packaged smoke 与 updater E2E | 修改 Desktop 主进程、preload、打包脚本、原生依赖或远程控制 | 见下文 |
@@ -207,7 +207,7 @@ if (isDirectRun(import.meta.url)) process.exitCode = main();
 | `test:quality` | 质量脚本定向测试 |
 | `test` / `test:unit` | 从 workspace manifest 自动发现并顺序运行所有声明 `test` 的包 |
 | `test:pkg` | 见 `bun run test:pkg --list` |
-| `test:impact` | 显式任务文件走精确测试；根配置、删除文件、公共入口和合同目录回退 `test:changed` |
+| `test:impact` | 显式任务文件走精确测试；根配置、已删除的 workspace 文件、公共入口和合同目录回退 `test:changed` |
 | `test:changed` | 默认比较 `origin/dev`；`--base origin/main` 可改基线 |
 | `deadcode` / `deadcode:report` | Knip 严格 / 仅报告 |
 
@@ -311,7 +311,7 @@ Desktop build task 显式依赖 `@vetta-org/plugin-vite`。开发前置构建读
 - 根配置：仓库根的 `biome.json`、`biome.jsonc`、`bun.lock`、`package.json`、`turbo.json`、`tsconfig.base.json`、`tsconfig.json`
 - 已删除的 workspace 文件：路径不存在，依赖图无法判断影响范围
 - 公共入口：包内 `src/index.*` 或 `src/public-api/`
-- 合同目录：路径中含 `contract`、`contracts` 或 `runtime-contracts`
+- 合同目录：某一段路径是 `contract`、`contracts` 或 `runtime-contracts`
 
 包内 `package.json` 和其它非源码文件只跑该包的完整测试，不再升级到 `test:changed`。`vitest.config.ts` 这类源码配置交给 Vitest 的 `related`；没有关联测试时再跑该包自己的测试。没有 `test` 脚本的 workspace 会被跳过，不因此回退；跨包影响仍由 `test:changed` 和 CI 覆盖。空文件列表不跑测试。不传文件时仍使用完整 Git 差异。CI 继续使用 `test:changed`，保证跨包、跨平台门禁不因本地加速而收窄。
 

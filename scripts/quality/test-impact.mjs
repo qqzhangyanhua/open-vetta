@@ -81,8 +81,6 @@ export function createImpactTestPlan(files, pathExists = (file) => existsSync(jo
 		const workspace = workspaceForFile(file);
 		if (!workspace) continue;
 		const relativeFile = file.slice(workspace.dir.length + 1);
-		// test:changed is only for impact Vitest related cannot see: a missing file,
-		// or a public contract consumed outside this package.
 		if (!pathExists(file)) {
 			fallbackReasons.push(`${file} was deleted`);
 			continue;
@@ -91,6 +89,7 @@ export function createImpactTestPlan(files, pathExists = (file) => existsSync(jo
 			fallbackReasons.push(`${file} may affect package consumers`);
 			continue;
 		}
+		// No local suite to scope with Vitest related. Callers stay on test:changed / CI.
 		if (!workspace.scripts.test) continue;
 		let target = grouped.get(workspace.key);
 		if (!target) {

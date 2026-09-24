@@ -438,7 +438,7 @@ describe("affected package selection", () => {
 		expect(deleted.fallbackChanged).toBe(true);
 		expect(deleted.targets).toEqual([]);
 		expect(deleted.fallbackReasons).toEqual(["packages/ai/src/provider.ts was deleted"]);
-		expect(createImpactTestPlan(["packages/action-rpc/src/rpc.ts"]).fallbackReasons).toEqual([
+		expect(createImpactTestPlan(["packages/action-rpc/src/rpc.ts"], () => false).fallbackReasons).toEqual([
 			"packages/action-rpc/src/rpc.ts was deleted",
 		]);
 	});
