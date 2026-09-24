@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 
 import { i18n, initI18n } from "@shared/i18n";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ExternalInvocationTerminalSession } from "./ExternalInvocationTerminalSession";
 import { SessionExternalInvocationPage, type ExternalInvocationClient, type ExternalInvocationClientEvent } from "./SessionExternalInvocationPage";
 
 beforeEach(async () => {
@@ -83,5 +84,67 @@ describe("session page external invocation", () => {
 		};
 		render(<Harness client={client} />);
 		await waitFor(() => expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual(["penguin"]));
+	});
+});
+
+describe("external invocation terminal in the session", () => {
+	it("opens the tab after send, scrolls to that output, confirms a running close, and clears only a finished view", async () => {
+		const user = userEvent.setup();
+		const stop = vi.fn();
+		let listener: ((event: ExternalInvocationClientEvent) => void) | undefined;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: async () => ({ invocationId: "inv-1" }),
+			stop,
+			subscribe: (_sessionId, next) => {
+				listener = next;
+				return () => {
+					listener = undefined;
+				};
+			},
+		};
+		render(
+			<ExternalInvocationTerminalSession
+				session={{ sessionId: "session-1", cwd: "/work/app" }}
+				client={client}
+				prompt="fix the test"
+				onPromptChange={() => undefined}
+			/>,
+		);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		await act(async () => {
+			listener?.({ type: "running", invocationId: "inv-1", prompt: "fix the test", agentId: "grok" });
+		});
+		const panel = await screen.findByRole("region", { name: "外部调用" });
+		expect(within(panel).getByRole("button", { name: "Grok" }).getAttribute("aria-current")).toBe("true");
+		expect((screen.getByRole("button", { name: "清屏" }) as HTMLButtonElement).disabled).toBe(true);
+
+		await user.click(screen.getByRole("button", { name: "关闭标签" }));
+		expect(screen.getByRole("dialog", { name: "停止这次调用？" })).toBeTruthy();
+		await user.click(screen.getByRole("button", { name: "停止" }));
+		expect(stop).toHaveBeenCalledWith("inv-1");
+		expect(screen.queryByRole("region", { name: "外部调用" })).toBeNull();
+
+		await act(async () => {
+			listener?.({ type: "output", invocationId: "inv-1", chunk: "HEAD" });
+			listener?.({ type: "truncated", invocationId: "inv-1", discardedBytes: 12 });
+			listener?.({ type: "output", invocationId: "inv-1", chunk: "TAIL" });
+			listener?.({ type: "completed", invocationId: "inv-1", exitCode: 0 });
+		});
+		await user.click(screen.getByRole("button", { name: "在终端查看" }));
+		const replay = screen.getByText(/HEAD/);
+		expect(replay.textContent).toContain("中间省略了 12 字节");
+		expect(replay.textContent).toContain("TAIL");
+		expect(replay.getAttribute("data-scroll-target")).toBe("inv-1");
+		expect((screen.getByRole("button", { name: "清屏" }) as HTMLButtonElement).disabled).toBe(false);
+		await user.click(screen.getByRole("button", { name: "清屏" }));
+		expect(document.querySelector("pre")?.textContent).toBe("");
+		await user.click(screen.getByRole("button", { name: "在终端查看" }));
+		expect(screen.getByText(/HEAD/).textContent).toContain("TAIL");
+		await user.click(screen.getByRole("button", { name: "关闭标签" }));
+		expect(screen.queryByRole("dialog", { name: "停止这次调用？" })).toBeNull();
+		expect(screen.queryByRole("region", { name: "外部调用" })).toBeNull();
 	});
 });

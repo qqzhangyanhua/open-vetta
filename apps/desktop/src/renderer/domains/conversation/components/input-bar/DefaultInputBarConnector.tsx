@@ -2,8 +2,9 @@ import { useBottomPanelPills } from "@domains/bottom-panel/hooks/useBottomPanelP
 import { pathBasename, toVettaFileUrl } from "@shared/lib/utils";
 import type { InputBarContextMenuViewProps } from "@vetta-org/theme-ui/chat";
 import { inputValueAtom } from "@shared/store/atoms";
-import { useAtomValue } from "jotai";
-import { memo, useMemo, useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { memo, useMemo, useRef, useState } from "react";
+import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
 import { useTranslation } from "react-i18next";
 import { InputBar } from "../InputBar";
 import type { ActiveActionCapsule } from "./ActiveActionCapsules";
@@ -33,6 +34,8 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const draft = useInputBarDraftSource();
 	const inputValue = useAtomValue(inputValueAtom);
 	const [externalRecipientId, setExternalRecipientId] = useState("penguin");
+	const placeExternalInvocation = useSetAtom(openExternalInvocationTabAtom);
+	const invocationStatus = useRef<Record<string, "running" | "finished">>({});
 	const runtimeId = session.activeSession?.runtimeId;
 	const interactions = useInputBarInteractionSource(runtimeId);
 	const firstSuggestion = useInputBarSuggestionSource(runtimeId);
@@ -180,6 +183,32 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 			prompt: inputValue,
 			onPromptChange: draft.setInputValue,
 			onRecipientChange: setExternalRecipientId,
+			onInvocationEvent: (event) => {
+				const active = session.activeSession;
+				if (!active) return;
+				if (event.type === "running" || event.type === "completed" || event.type === "failed") {
+					const status = event.type === "running" ? "running" : "finished";
+					invocationStatus.current[event.invocationId] = status;
+					placeExternalInvocation({
+						invocationId: event.invocationId,
+						status,
+						cwd: session.effectiveCwd,
+						sessionId: active.runtimeId,
+						agentLabel: externalRecipientId === "grok" ? "Grok" : externalRecipientId,
+					});
+				}
+			},
+			onViewInTerminal: (invocationId) => {
+				const active = session.activeSession;
+				if (!active) return;
+				placeExternalInvocation({
+					invocationId,
+					status: invocationStatus.current[invocationId] ?? "finished",
+					cwd: session.effectiveCwd,
+					sessionId: active.runtimeId,
+					agentLabel: externalRecipientId === "grok" ? "Grok" : externalRecipientId,
+				});
+			},
 		},
 		leadingTools: [{ kind: "execution-mode", model: executionModeModel }],
 		trailingTools: contextUsageModel ? [{ kind: "context-usage", model: contextUsageModel }] : [],

@@ -12,6 +12,8 @@ export const EXTERNAL_INVOCATION_CHANNELS = {
 	listAgents: "external-invocation:list-agents",
 	start: "external-invocation:start",
 	event: "external-invocation:event",
+	writeInput: "external-invocation:write-input",
+	stop: "external-invocation:stop",
 } as const;
 
 let service: ExternalInvocationService | undefined;
@@ -32,6 +34,8 @@ export function externalInvocationService(): ExternalInvocationService {
 					return {
 						onData: (listener) => backend.onData(listener),
 						onExit: (listener) => backend.onExit((event) => listener({ exitCode: event.exitCode })),
+						write: (data) => backend.write(data),
+						kill: () => backend.kill(),
 					};
 				},
 			},
@@ -78,11 +82,26 @@ export function registerExternalInvocationIpc(): () => void {
 		});
 		return invocation.start(parsed);
 	});
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.writeInput, (_event, invocationId: unknown, data: unknown) => {
+		if (typeof invocationId !== "string" || invocationId.length === 0) {
+			throw new Error("external invocation: invocationId must be a non-empty string");
+		}
+		if (typeof data !== "string") throw new Error("external invocation: data must be a string");
+		externalInvocationService().writeInput(invocationId, data);
+	});
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.stop, (_event, invocationId: unknown) => {
+		if (typeof invocationId !== "string" || invocationId.length === 0) {
+			throw new Error("external invocation: invocationId must be a non-empty string");
+		}
+		externalInvocationService().stop(invocationId);
+	});
 	return () => {
 		for (const unsubscribe of subscriptions.values()) unsubscribe();
 		subscriptions.clear();
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.listAgents);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.start);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.writeInput);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.stop);
 	};
 }
 

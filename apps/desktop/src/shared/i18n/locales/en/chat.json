@@ -525,6 +525,17 @@
 			"running": "Running",
 			"completed": "Completed",
 			"failed": "Failed"
+		},
+		"viewInTerminal": "View in terminal",
+		"panel": "External invocation",
+		"clear": "Clear",
+		"closeTab": "Close tab",
+		"truncated": "Omitted {{bytes}} bytes in the middle",
+		"headerProject": "Project {{project}}",
+		"closeConfirm": {
+			"title": "Stop this run?",
+			"message": "This external run is still going. Closing it will stop it.",
+			"confirm": "Stop"
 		}
 	},
 	"inputBar": {

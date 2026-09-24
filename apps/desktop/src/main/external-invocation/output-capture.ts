@@ -43,4 +43,20 @@ export class ExternalInvocationOutputCapture {
 			discardedBytes: this.discardedBytes,
 		};
 	}
+
+	/** 截断时把头尾拆开，方便回放时在中间插入说明。未截断时正文全在 head。 */
+	parts(): { head: string; tail: string; discardedBytes: number } {
+		if (this.discardedBytes === 0) {
+			return {
+				head: Buffer.concat([this.head, this.tail]).toString("utf8"),
+				tail: "",
+				discardedBytes: 0,
+			};
+		}
+		return {
+			head: this.head.toString("utf8"),
+			tail: this.tail.toString("utf8"),
+			discardedBytes: this.discardedBytes,
+		};
+	}
 }

@@ -80,6 +80,7 @@ export function useBottomPanelTabs(definitions: readonly BottomPanelComponentDef
 					variant: outcome.confirm.destructive ? "danger" : "default",
 					onConfirm: () => {
 						setConfirmDialog(null);
+						void window.vetta?.externalInvocations?.stop(tabId);
 						dispatch({ type: "close-tab", tabId });
 					},
 					onCancel: () => setConfirmDialog(null),

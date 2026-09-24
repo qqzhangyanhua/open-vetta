@@ -5,10 +5,13 @@ const CHANNELS = {
 	listAgents: "external-invocation:list-agents",
 	start: "external-invocation:start",
 	event: "external-invocation:event",
+	writeInput: "external-invocation:write-input",
+	stop: "external-invocation:stop",
 } as const;
 
 export interface ExternalInvocationEvent {
-	readonly type: "running" | "completed" | "failed";
+	readonly type: "running" | "completed" | "failed" | "output" | "truncated";
+	readonly chunk?: string;
 	readonly sessionId: string;
 	readonly invocationId: string;
 	readonly agentId?: string;
@@ -30,6 +33,8 @@ export function createExternalInvocationApi(ipc: IpcRenderer): Pick<DesktopApi, 
 				ipc.on(CHANNELS.event, handler);
 				return () => ipc.removeListener(CHANNELS.event, handler);
 			},
+			writeInput: (invocationId, data) => ipc.invoke(CHANNELS.writeInput, invocationId, data),
+			stop: (invocationId) => ipc.invoke(CHANNELS.stop, invocationId),
 		},
 	};
 }

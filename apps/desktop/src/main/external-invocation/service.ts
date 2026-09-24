@@ -7,6 +7,8 @@ import { EXTERNAL_INVOCATION_OUTPUT_LIMIT_BYTES, ExternalInvocationOutputCapture
 export interface ExternalInvocationProcess {
 	onData(listener: (chunk: string) => void): () => void;
 	onExit(listener: (event: { exitCode: number | null }) => void): () => void;
+	write(data: string): void;
+	kill(): void;
 }
 
 export interface ExternalInvocationProcesses {
@@ -61,6 +63,18 @@ export type ExternalInvocationEvent =
 			readonly exitCode: number | null;
 			readonly reason: string;
 			readonly discardedBytes: number;
+	  }
+	| {
+			readonly type: "output";
+			readonly sessionId: string;
+			readonly invocationId: string;
+			readonly chunk: string;
+	  }
+	| {
+			readonly type: "truncated";
+			readonly sessionId: string;
+			readonly invocationId: string;
+			readonly discardedBytes: number;
 	  };
 
 export interface ExternalInvocationService {
@@ -71,6 +85,8 @@ export interface ExternalInvocationService {
 		agentId: string;
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationEvent) => void): () => void;
+	writeInput(invocationId: string, data: string): void;
+	stop(invocationId: string): void;
 }
 
 export function createExternalInvocationService(deps: {
@@ -82,6 +98,11 @@ export function createExternalInvocationService(deps: {
 	outputLimitBytes?: number;
 }): ExternalInvocationService {
 	const listeners = new Map<string, Set<(event: ExternalInvocationEvent) => void>>();
+	const savedOutput = new Map<
+		string,
+		{ sessionId: string; invocationId: string; head: string; tail: string; discardedBytes: number }
+	>();
+	const processes = new Map<string, ExternalInvocationProcess>();
 
 	function emit(event: ExternalInvocationEvent): void {
 		for (const listener of listeners.get(event.sessionId) ?? []) listener(event);
@@ -100,7 +121,31 @@ export function createExternalInvocationService(deps: {
 			const set = listeners.get(sessionId) ?? new Set();
 			set.add(listener);
 			listeners.set(sessionId, set);
+			for (const saved of savedOutput.values()) {
+				if (saved.sessionId !== sessionId) continue;
+				if (saved.head.length > 0) {
+					listener({ type: "output", sessionId, invocationId: saved.invocationId, chunk: saved.head });
+				}
+				if (saved.discardedBytes > 0) {
+					listener({
+						type: "truncated",
+						sessionId,
+						invocationId: saved.invocationId,
+						discardedBytes: saved.discardedBytes,
+					});
+				}
+				if (saved.tail.length > 0) {
+					listener({ type: "output", sessionId, invocationId: saved.invocationId, chunk: saved.tail });
+				}
+			}
 			return () => set.delete(listener);
+		},
+		writeInput(invocationId, data) {
+			processes.get(invocationId)?.write(data);
+		},
+		stop(invocationId) {
+			processes.get(invocationId)?.kill();
+			processes.delete(invocationId);
 		},
 		async start(request) {
 			const adapter = findExternalAgentAdapter(request.agentId);
@@ -175,16 +220,32 @@ export function createExternalInvocationService(deps: {
 				return { invocationId };
 			}
 
+			processes.set(invocationId, process);
 			const capture = new ExternalInvocationOutputCapture(
 				deps.outputLimitBytes ?? EXTERNAL_INVOCATION_OUTPUT_LIMIT_BYTES,
 			);
+			savedOutput.set(invocationId, {
+				sessionId: request.sessionId,
+				invocationId,
+				head: "",
+				tail: "",
+				discardedBytes: 0,
+			});
 			const flush = (): void => {
 				const snapshot = capture.snapshot();
 				writeFileSync(outputPath, snapshot.body);
+				const parts = capture.parts();
+				savedOutput.set(invocationId, { sessionId: request.sessionId, invocationId, ...parts });
 			};
 			process.onData((chunk) => {
 				capture.push(chunk);
 				flush();
+				emit({
+					type: "output",
+					sessionId: request.sessionId,
+					invocationId,
+					chunk,
+				});
 			});
 			process.onExit((event) => {
 				flush();

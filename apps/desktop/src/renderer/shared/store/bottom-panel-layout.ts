@@ -69,6 +69,22 @@ export const BOTTOM_PANEL_MIN_SPLIT_RATIO = 0.12;
  */
 export const BOTTOM_PANEL_MAX_LEAVES = 8;
 
+/**
+ * 面板里的实例总数上限。外部调用再开一个时，先回收已结束的外部调用实例；
+ * shell 和仍在运行的外部调用不回收。没有可回收实例时拒绝新建。
+ */
+export const BOTTOM_PANEL_MAX_INSTANCES = BOTTOM_PANEL_MAX_LEAVES;
+
+export const EXTERNAL_INVOCATION_COMPONENT_ID = "external-invocation";
+
+export interface ExternalInvocationPanelPayload {
+	readonly invocationId: string;
+	readonly status: "running" | "finished";
+	readonly agentLabel?: string;
+	readonly projectLabel?: string;
+	readonly sessionId?: string;
+}
+
 export function emptyBottomPanelState(): BottomPanelSessionState {
 	return {
 		schemaVersion: BOTTOM_PANEL_SCHEMA_VERSION,
@@ -135,7 +151,13 @@ export type BottomPanelAction =
 	| { readonly type: "set-height-ratio"; readonly ratio: number }
 	| { readonly type: "set-collapsed"; readonly collapsed: boolean }
 	| { readonly type: "set-payload"; readonly tabId: string; readonly payload: unknown }
-	| { readonly type: "prune"; readonly knownComponentIds: readonly BottomPanelComponentId[] };
+	| { readonly type: "prune"; readonly knownComponentIds: readonly BottomPanelComponentId[] }
+	| {
+			readonly type: "open-external-invocation";
+			readonly tabId: string;
+			readonly newLeafId: string;
+			readonly payload: ExternalInvocationPanelPayload;
+	  };
 
 // ─── 树操作 ────────────────────────────────────────────────────────
 
@@ -370,8 +392,78 @@ export function reduceBottomPanel(state: BottomPanelSessionState, action: Bottom
 	return next === state ? state : trackLastActiveTab(next);
 }
 
+function tabCount(node: BottomPanelNode | null): number {
+	return collectBottomPanelLeaves(node).reduce((sum, leaf) => sum + leaf.tabs.length, 0);
+}
+
+function isFinishedExternalInvocation(tab: BottomPanelTabState): boolean {
+	if (tab.componentId !== EXTERNAL_INVOCATION_COMPONENT_ID) return false;
+	const payload = tab.payload;
+	return (
+		typeof payload === "object" &&
+		payload !== null &&
+		"status" in payload &&
+		(payload as ExternalInvocationPanelPayload).status === "finished"
+	);
+}
+
+function openExternalInvocationTab(
+	state: BottomPanelSessionState,
+	action: Extract<BottomPanelAction, { type: "open-external-invocation" }>,
+): BottomPanelSessionState {
+	const existing = findBottomPanelTab(state.root, action.tabId);
+	if (existing && state.root) {
+		const root = mapTabs(state.root, (tabs) => {
+			const index = tabs.findIndex((tab) => tab.tabId === action.tabId);
+			if (index === -1) return tabs;
+			const current = tabs[index];
+			if (!current) return tabs;
+			const nextTabs = [...tabs];
+			nextTabs[index] = { ...current, payload: action.payload };
+			return nextTabs;
+		});
+		const activated = root
+			? mapLeaf(root, existing.leaf.id, (leaf) => ({ ...leaf, activeTabId: action.tabId }))
+			: state.root;
+		return { ...state, collapsed: false, root: activated, activeLeafId: existing.leaf.id };
+	}
+
+	let next = state;
+	while (tabCount(next.root) >= BOTTOM_PANEL_MAX_INSTANCES) {
+		const victim = collectBottomPanelLeaves(next.root)
+			.flatMap((leaf) => leaf.tabs)
+			.find(isFinishedExternalInvocation);
+		if (!victim) return next;
+		const closed = reduceBottomPanelLayout(next, { type: "close-tab", tabId: victim.tabId });
+		if (closed === next) return next;
+		next = closed;
+	}
+
+	const tab: BottomPanelTabState = {
+		tabId: action.tabId,
+		componentId: EXTERNAL_INVOCATION_COMPONENT_ID,
+		payload: action.payload,
+	};
+	if (!next.root) {
+		const leaf: BottomPanelLeaf = {
+			kind: "leaf",
+			id: action.newLeafId,
+			tabs: [tab],
+			activeTabId: tab.tabId,
+		};
+		return { ...next, collapsed: false, root: leaf, activeLeafId: leaf.id };
+	}
+	const targetLeafId = resolveActiveLeafId(next.root, next.activeLeafId);
+	if (!targetLeafId) return next;
+	const root = insertTabIntoLeaf(next.root, targetLeafId, tab, Number.MAX_SAFE_INTEGER);
+	return { ...next, collapsed: false, root, activeLeafId: targetLeafId };
+}
+
 function reduceBottomPanelLayout(state: BottomPanelSessionState, action: BottomPanelAction): BottomPanelSessionState {
 	switch (action.type) {
+		case "open-external-invocation":
+			return openExternalInvocationTab(state, action);
+
 		case "open-tab": {
 			const tab: BottomPanelTabState = { tabId: action.tabId, componentId: action.componentId };
 			if (!state.root) {

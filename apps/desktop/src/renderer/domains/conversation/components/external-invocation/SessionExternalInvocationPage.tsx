@@ -13,26 +13,31 @@ const externalInvocationStatusKey = {
 } as const;
 
 export interface ExternalInvocationClientEvent {
-	readonly type: "running" | "completed" | "failed";
+	readonly type: "running" | "completed" | "failed" | "output" | "truncated";
 	readonly invocationId: string;
 	readonly prompt?: string;
 	readonly agentId?: string;
 	readonly exitCode?: number | null;
 	readonly reason?: string;
+	readonly chunk?: string;
+	readonly discardedBytes?: number;
 }
 
 export interface ExternalInvocationClient {
 	listAgents(): Promise<readonly { id: "grok"; label: string }[]>;
 	start(request: { sessionId: string; cwd: string; prompt: string; agentId: string }): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationClientEvent) => void): () => void;
+	stop?(invocationId: string): void;
+	writeInput?(invocationId: string, data: string): void;
 }
 
 export function applyExternalInvocationEvent(
 	cards: readonly ExternalInvocationCardModel[],
 	event: ExternalInvocationClientEvent,
 	agentLabel: string,
-	statusLabel: (status: ExternalInvocationClientEvent["type"]) => string,
+	statusLabel: (status: "running" | "completed" | "failed") => string,
 ): readonly ExternalInvocationCardModel[] {
+	if (event.type === "output" || event.type === "truncated") return cards;
 	if (event.type === "running") {
 		return [
 			...cards.filter((card) => card.invocationId !== event.invocationId),
@@ -46,11 +51,12 @@ export function applyExternalInvocationEvent(
 			},
 		];
 	}
+	const status = event.type === "failed" ? "failed" : "completed";
 	return cards.map((card) =>
 		card.invocationId === event.invocationId
 			? {
 					...card,
-					statusLabel: statusLabel(event.type),
+					statusLabel: statusLabel(status),
 					exitCode: event.exitCode ?? null,
 					failureReason: event.reason ?? null,
 				}
@@ -66,6 +72,8 @@ export function SessionExternalInvocationPage({
 	showPrompt,
 	penguinTools,
 	onRecipientChange,
+	onViewInTerminal,
+	onInvocationEvent,
 }: {
 	readonly session: { sessionId: string; cwd: string } | null;
 	readonly client: ExternalInvocationClient | null;
@@ -74,6 +82,8 @@ export function SessionExternalInvocationPage({
 	readonly showPrompt: boolean;
 	readonly penguinTools: ReactNode;
 	readonly onRecipientChange?: (recipientId: string) => void;
+	readonly onViewInTerminal?: (invocationId: string) => void;
+	readonly onInvocationEvent?: (event: ExternalInvocationClientEvent) => void;
 }): JSX.Element {
 	const { t } = useTranslation("chat");
 	const [detected, setDetected] = useState<readonly { id: "grok"; label: string }[]>([]);
@@ -103,6 +113,11 @@ export function SessionExternalInvocationPage({
 	useEffect(() => {
 		if (!client || !session) return;
 		return client.subscribe(session.sessionId, (event) => {
+			if (event.type === "output" || event.type === "truncated") {
+				onInvocationEvent?.(event);
+				return;
+			}
+			onInvocationEvent?.(event);
 			const label = event.agentId === "grok" ? "Grok" : (recipient?.label ?? "");
 			setCards((current) =>
 				applyExternalInvocationEvent(current, event, label, (status) => t(externalInvocationStatusKey[status])),
@@ -133,6 +148,7 @@ export function SessionExternalInvocationPage({
 					onPromptChange("");
 				},
 				cards,
+				onViewInTerminal,
 			}}
 			penguinTools={penguinTools}
 		/>

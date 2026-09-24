@@ -27,6 +27,7 @@ export interface SessionExternalInvocationModel {
 	readonly showPrompt: boolean;
 	readonly onSend: () => void;
 	readonly cards: readonly ExternalInvocationCardModel[];
+	readonly onViewInTerminal?: (invocationId: string) => void;
 }
 
 export function SessionExternalInvocationView({
@@ -74,6 +75,11 @@ export function SessionExternalInvocationView({
 					<p>{card.statusLabel}</p>
 					{card.exitCode !== null ? <p>{t("externalInvocation.exitCode", { code: card.exitCode })}</p> : null}
 					{card.failureReason ? <p>{card.failureReason}</p> : null}
+					{model.onViewInTerminal ? (
+						<button type="button" onClick={() => model.onViewInTerminal?.(card.invocationId)}>
+							{t("externalInvocation.viewInTerminal")}
+						</button>
+					) : null}
 				</article>
 			))}
 		</section>

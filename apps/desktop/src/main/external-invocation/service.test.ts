@@ -31,9 +31,17 @@ class FakeProcess implements ExternalInvocationProcess {
 		for (const listener of this.data) listener(chunk);
 	}
 
+	readonly written: string[] = [];
+
 	emitExit(exitCode: number | null): void {
 		for (const listener of this.exit) listener({ exitCode });
 	}
+
+	write(data: string): void {
+		this.written.push(data);
+	}
+
+	kill(): void {}
 }
 
 function harness(options?: { failStart?: Error; limit?: number }) {
@@ -94,8 +102,11 @@ describe("external invocation service", () => {
 		h.procs[0]?.emitData("hello grok");
 		h.procs[0]?.emitExit(0);
 		await viWait();
-		expect(h.events.map((event) => event.type)).toEqual(["running", "completed"]);
-		expect(h.events[1]).toMatchObject({ exitCode: 0, invocationId: started.invocationId });
+		expect(h.events.map((event) => event.type)).toEqual(["running", "output", "completed"]);
+		expect(h.events.find((event) => event.type === "completed")).toMatchObject({
+			exitCode: 0,
+			invocationId: started.invocationId,
+		});
 		expect(h.entries.map((entry) => entry.data.status)).toEqual(["running", "completed"]);
 		expect(h.entries[0]?.data).toMatchObject({ status: "running" });
 		expect(h.entries[1]?.data).toMatchObject({
@@ -141,6 +152,36 @@ describe("external invocation service", () => {
 		await viWait();
 		expect(readFileSync(join(h.directory, `${started.invocationId}.pty`), "utf8")).toBe("AAAACCCC");
 		expect(h.entries.at(-1)?.data.discardedBytes).toBe(4);
+	});
+
+	it("gives a subscriber the saved output and then live output", async () => {
+		const h = harness();
+		const started = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "watch",
+			agentId: "grok",
+		});
+		h.procs[0]?.emitData("saved");
+		const seen: string[] = [];
+		h.service.subscribe("session-1", (event) => {
+			if (event.type === "output" && event.invocationId === started.invocationId) seen.push(event.chunk);
+		});
+		expect(seen).toEqual(["saved"]);
+		h.procs[0]?.emitData(" live");
+		expect(seen).toEqual(["saved", " live"]);
+	});
+
+	it("writes terminal keyboard input into the process", async () => {
+		const h = harness();
+		const started = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "confirm",
+			agentId: "grok",
+		});
+		h.service.writeInput(started.invocationId, "y\n");
+		expect(h.procs[0]?.written).toEqual(["y\n"]);
 	});
 });
 

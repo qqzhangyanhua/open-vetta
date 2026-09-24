@@ -1,5 +1,6 @@
 export interface DesktopExternalInvocationEvent {
-	readonly type: "running" | "completed" | "failed";
+	readonly type: "running" | "completed" | "failed" | "output" | "truncated";
+	readonly chunk?: string;
 	readonly sessionId: string;
 	readonly invocationId: string;
 	readonly agentId?: string;
@@ -18,4 +19,6 @@ export interface DesktopExternalInvocationsApi {
 		agentId: string;
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: DesktopExternalInvocationEvent) => void): () => void;
+	writeInput(invocationId: string, data: string): Promise<void>;
+	stop(invocationId: string): Promise<void>;
 }

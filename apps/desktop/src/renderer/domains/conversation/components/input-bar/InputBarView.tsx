@@ -265,6 +265,8 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 										setExternalRecipientId(recipientId);
 										model.externalInvocation?.onRecipientChange(recipientId);
 									}}
+									onInvocationEvent={model.externalInvocation.onInvocationEvent}
+									onViewInTerminal={model.externalInvocation.onViewInTerminal}
 								/>
 							) : null}
 							{model.leadingTools.map((tool) => (

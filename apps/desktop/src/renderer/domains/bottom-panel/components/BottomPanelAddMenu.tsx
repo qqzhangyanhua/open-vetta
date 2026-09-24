@@ -16,7 +16,7 @@ export interface BottomPanelAddMenuProps {
 export function BottomPanelAddMenu({ definitions, state, onPick }: BottomPanelAddMenuProps): JSX.Element {
 	const { t } = useTranslation("chat");
 	const [open, setOpen] = useState(false);
-	const builtins = definitions.filter((definition) => definition.source === "builtin");
+	const builtins = definitions.filter((definition) => definition.source === "builtin" && !definition.omitFromAddMenu);
 	const plugins = definitions.filter((definition) => definition.source === "plugin");
 
 	const renderRow = (definition: BottomPanelComponentDefinition): JSX.Element => {
