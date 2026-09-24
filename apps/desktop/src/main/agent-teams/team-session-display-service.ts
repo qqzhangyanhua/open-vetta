@@ -1,9 +1,10 @@
-import type {
-	TeamMemberTurnAttempt,
-	TeamMessageRoutingRecord,
-	TeamSessionDocument,
-	TeamSessionSnapshot,
-	TeamWorkItem,
+import {
+	isPeerMentionContinuation,
+	type TeamMemberTurnAttempt,
+	type TeamMessageRoutingRecord,
+	type TeamSessionDocument,
+	type TeamSessionSnapshot,
+	type TeamWorkItem,
 } from "@vetta/agent-team";
 import type { ConversationDocument, RuntimeHost } from "@vetta/runtime-core";
 import type { DesktopTeamConversationDisplay } from "../../preload/api-types/team-conversation-display.js";
@@ -203,7 +204,7 @@ function teamActivities(
 	for (const activity of legacyActivities(session)) activities.set(delegationIdentity(activity), activity);
 	const attemptsById = new Map(attempts.map((attempt) => [attempt.id, attempt]));
 	for (const item of workItems) {
-		if (item.createdByParticipantId === "local-user") continue;
+		if (item.createdByParticipantId === "local-user" || isPeerMentionContinuation(item.requestTurnId)) continue;
 		const previous = activities.get(
 			`${item.requestTurnId}\u0000${item.createdByParticipantId}\u0000${item.assignedToParticipantId}`,
 		);

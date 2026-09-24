@@ -17,7 +17,12 @@ import {
 	reasoningByModelAtom,
 	selectedModelAtom,
 } from "@shared/store/atoms";
-import type { AgentTeamDocument, SendTeamMessageInput, TeamDefinition } from "@vetta/agent-team";
+import {
+	type AgentTeamDocument,
+	PEER_MENTION_ORCHESTRATION_POLICY_ID,
+	type SendTeamMessageInput,
+	type TeamDefinition,
+} from "@vetta/agent-team";
 import type { PromptAttachmentRef, SessionExecutionMode } from "@vetta/runtime-core";
 import { useAtomValue, useStore } from "jotai";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
@@ -360,7 +365,10 @@ export function useNewSessionTeamDraft({
 			labels: {
 				leaderRoute: t("agent-teams:chat.leaderRoute"),
 				memberRoleFallback: t("agent-teams:chat.member"),
-				placeholder: t("agent-teams:chat.placeholder"),
+				placeholder:
+					team?.orchestrationPolicyId === PEER_MENTION_ORCHESTRATION_POLICY_ID
+						? t("agent-teams:chat.placeholderPeer")
+						: t("agent-teams:chat.placeholder"),
 				attachFile: t("agent-teams:chat.attachFile"),
 				attachImage: t("agent-teams:chat.attachImage"),
 			},

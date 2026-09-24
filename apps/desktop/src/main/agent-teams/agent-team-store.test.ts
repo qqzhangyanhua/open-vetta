@@ -385,6 +385,40 @@ describe("AgentTeamStore transaction boundary", () => {
 		expect((await store.read()).teams.some((team) => team.name === "Team")).toBe(false);
 	});
 
+	it("switches collaboration to peer mentions and rejects an unknown policy", async () => {
+		const repository = new MemoryRepository();
+		const store = new AgentTeamStore({ repository, createId: createIdSequence(), now: () => 10 });
+		const first = await store.createAgent(agentInput("First"));
+		const team = await store.createTeam({
+			name: "Team",
+			members: [
+				{
+					agentProfileId: first.id,
+					handle: first.mentionHandle,
+					bindingKind: "reference",
+					leader: true,
+				},
+			],
+		});
+		const updated = await store.updateTeam(team.id, {
+			expectedRevision: team.revision,
+			name: team.name,
+			description: team.description,
+			orchestrationPolicyId: "peer-mentions-v1",
+			members: [{ kind: "existing", memberId: team.leaderMemberId, leader: true }],
+		});
+		expect(updated.orchestrationPolicyId).toBe("peer-mentions-v1");
+		await expect(
+			store.updateTeam(updated.id, {
+				expectedRevision: updated.revision,
+				name: updated.name,
+				description: updated.description,
+				orchestrationPolicyId: "missing-policy",
+				members: [{ kind: "existing", memberId: updated.leaderMemberId, leader: true }],
+			}),
+		).rejects.toThrow("Unknown team orchestration policy");
+	});
+
 	it("updates a team roster atomically and transfers responsibility", async () => {
 		const repository = new MemoryRepository();
 		const store = new AgentTeamStore({ repository, createId: createIdSequence(), now: () => 10 });

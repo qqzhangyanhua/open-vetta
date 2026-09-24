@@ -171,10 +171,15 @@
     "descriptionPlaceholder": "补充这支团队的定位与协作方式…",
     "identity": "团队信息",
     "automaticRetries": "自动恢复次数",
-    "automaticRetriesHelp": "每项新任务最多自动恢复 0–10 次，默认 2 次；设为 0 可关闭。达到上限后保留进度，等待你处理。"
+    "automaticRetriesHelp": "每项新任务最多自动恢复 0–10 次，默认 2 次；设为 0 可关闭。达到上限后保留进度，等待你处理。",
+    "collaboration": "协作方式",
+    "collaborationLead": "负责人分派",
+    "collaborationPeer": "互相 @",
+    "collaborationHelp": "互相 @ 时，成员在同一条对话里直接回应，回复里的 @ 会叫下一位接话。从下一次新会话开始生效。"
   },
   "chat": {
     "hint": "未指定成员时由负责人处理。",
+    "placeholderPeer": "用 @ 点名谁来接话",
     "configure": "配置成员能力",
     "newSession": "新对话",
     "selectSession": "选择团队对话",

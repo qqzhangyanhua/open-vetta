@@ -1,4 +1,9 @@
-import { isTeamWorkItem, type TeamSessionDocument, type TeamWorkItem } from "@vetta/agent-team";
+import {
+	isPeerMentionContinuation,
+	isTeamWorkItem,
+	type TeamSessionDocument,
+	type TeamWorkItem,
+} from "@vetta/agent-team";
 import type { ConversationDocument } from "@vetta/runtime-core";
 import type { SessionContextRecord } from "@vetta/runtime-core/kernel";
 import type { TeamCollaborationStore } from "./team-collaboration-store.js";
@@ -47,7 +52,8 @@ export class TeamNotificationJournal {
 		if (
 			!item.recovery ||
 			!session.memberRuntime[item.createdByParticipantId] ||
-			item.createdByParticipantId === item.assignedToParticipantId
+			item.createdByParticipantId === item.assignedToParticipantId ||
+			isPeerMentionContinuation(item.requestTurnId)
 		)
 			return;
 		if (item.state === "running" || item.state === "queued" || item.state === "cancelled") return;

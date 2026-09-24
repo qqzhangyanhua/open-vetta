@@ -54,6 +54,13 @@ export interface TeamMemberAttemptRunnerOptions {
 		terminal: AttemptTerminal,
 		resultMessageId?: string,
 	) => Promise<TeamWorkItem>;
+	readonly continuePeerMentions?: (input: {
+		readonly session: TeamSessionDocument;
+		readonly speakerParticipantId: string;
+		readonly publishedText: string;
+		readonly requestTurnId: string;
+		readonly signal?: AbortSignal;
+	}) => Promise<void>;
 }
 
 /** Executes one admitted member attempt, including context delivery and public result publication. */
@@ -515,13 +522,14 @@ export class TeamMemberAttemptRunner {
 			this.options.eventHub.discard(activeTurn, "waiting");
 			return this.options.sessionState.get(configuredSession.id) ?? configuredSession;
 		}
+		const publishedAssistant = publicAttemptAssistantMessage(attemptHistory, previousEntryIds, assistant);
 		await this.options.publicationWorkflow.publishAttempt({
 			session: configuredSession,
 			item: collaboration.workItem,
 			attempt: collaboration.attempt,
 			sourceTurnId,
 			sourceMessageEntryId: attemptResult.entryId,
-			assistant: publicAttemptAssistantMessage(attemptHistory, previousEntryIds, assistant),
+			assistant: publishedAssistant,
 			completeWorkItem: async (messageId) => {
 				await this.options.settleAttempt(
 					configuredSession,
@@ -532,6 +540,7 @@ export class TeamMemberAttemptRunner {
 				);
 			},
 		});
+		this.continuePeerMentions(configuredSession, memberId, publishedAssistant, requestId, signal);
 		const next = await this.options.sessionState.coordinateLoaded(configuredSession.id, async (current) => {
 			const updated = markTeamMemberContextDelivered({
 				session: current,
@@ -645,6 +654,31 @@ export class TeamMemberAttemptRunner {
 				error: errorMessage(error),
 			});
 		}
+	}
+
+	/** Starts the next peer replies without waiting, so this member's lane can be released. */
+	private continuePeerMentions(
+		session: TeamSessionDocument,
+		speakerParticipantId: string,
+		assistant: AssistantMessage,
+		requestTurnId: string,
+		signal?: AbortSignal,
+	): void {
+		if (!this.options.continuePeerMentions || signal?.aborted) return;
+		const publishedText = assistant.content
+			.flatMap((part) => (part.type === "text" ? [part.text] : []))
+			.join("\n")
+			.trim();
+		if (!publishedText) return;
+		void this.options
+			.continuePeerMentions({ session, speakerParticipantId, publishedText, requestTurnId, signal })
+			.catch((error: unknown) => {
+				log.warn("peer mention continuation failed", {
+					teamSessionId: session.id,
+					speakerParticipantId,
+					error: errorMessage(error),
+				});
+			});
 	}
 }
 

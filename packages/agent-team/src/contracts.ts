@@ -278,6 +278,8 @@ export interface UpdateTeamInput {
 	readonly name: string;
 	readonly description: string;
 	readonly members: readonly UpdateTeamMemberInput[];
+	/** Omitted keeps the team's current orchestration policy. */
+	readonly orchestrationPolicyId?: string;
 }
 
 export interface DeleteTeamInput {

@@ -4,6 +4,7 @@ import {
 	buildTeamRosterSnapshot,
 	type classifyTeamAttemptTerminal,
 	isDefaultTeamTaskActionAllowed,
+	planPeerMentionContinuations,
 	resolveMemberByHandle,
 	type SendTeamMessageInput,
 	type TeamExternalConditionChange,
@@ -542,6 +543,48 @@ export class TeamTurnCoordinator {
 		await this.taskControl.onWorkItemSettled(session, nextWorkItem);
 		await this.notifyTaskInitiator(session, nextWorkItem);
 		return nextWorkItem;
+	}
+
+	/** Wakes teammates named in a peer-room reply. Does not hold the speaker's lane. */
+	async continuePeerMentions(input: {
+		readonly session: TeamSessionDocument;
+		readonly speakerParticipantId: string;
+		readonly publishedText: string;
+		readonly requestTurnId: string;
+		readonly signal?: AbortSignal;
+	}): Promise<void> {
+		if (this.stopped.has(input.session.id) || input.signal?.aborted) return;
+		const team = this.syntheticTeam(input.session);
+		const plans = planPeerMentionContinuations({
+			policyId: team.orchestrationPolicyId,
+			members: team.members.map((member) => ({ id: member.id, handle: member.handle })),
+			speakerParticipantId: input.speakerParticipantId,
+			speakerHandle: input.session.memberHandles[input.speakerParticipantId] ?? input.speakerParticipantId,
+			publishedText: input.publishedText,
+			requestTurnId: input.requestTurnId,
+		});
+		const results = await Promise.allSettled(
+			plans.map((plan) =>
+				this.scheduleMemberTurn({
+					teamSessionId: input.session.id,
+					memberId: plan.participantId,
+					promptText: plan.promptText,
+					requestId: plan.requestId,
+					sourceTurnId: `${plan.requestId}:${plan.participantId}`,
+					createdByParticipantId: input.speakerParticipantId,
+					signal: input.signal,
+					workItemKind: "question",
+				}),
+			),
+		);
+		const rejected = results.filter((result) => result.status === "rejected");
+		if (rejected.length > 0) {
+			log.warn("peer mention continuation failed", {
+				teamSessionId: input.session.id,
+				speakerParticipantId: input.speakerParticipantId,
+				rejectedCount: rejected.length,
+			});
+		}
 	}
 
 	private async notifyTaskInitiator(session: TeamSessionDocument, item: TeamWorkItem): Promise<void> {

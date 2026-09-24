@@ -25,6 +25,7 @@ import {
 	type TeamSessionStateRecord,
 	type TeamSharedHistoryPort,
 	type TeamTaskControlPort,
+	teamCollaborationToolNames,
 	type UpdateTeamSessionModelSettingsInput,
 } from "@vetta/agent-team";
 import type { CodingAgentRuntimeToolRegistration } from "@vetta/coding-agent/runtime";
@@ -169,7 +170,8 @@ export class AgentTeamSessionService {
 		});
 		this.runtimeManager = new TeamRuntimeManager({
 			runtime: () => this.getRuntime(),
-			createTeamToolRegistrations: (teamSessionId) => this.createTeamToolRegistrations(teamSessionId),
+			createTeamToolRegistrations: (teamSessionId, orchestrationPolicyId) =>
+				this.createTeamToolRegistrations(teamSessionId, orchestrationPolicyId),
 			sessionState: this.sessionState,
 			collaborationStore: this.collaborationStore,
 		});
@@ -200,6 +202,7 @@ export class AgentTeamSessionService {
 			sessionState: this.sessionState,
 			settleAttempt: (session, workItem, attempt, terminal, resultMessageId) =>
 				this.turnCoordinator.settleMemberAttempt(session, workItem, attempt, terminal, resultMessageId),
+			continuePeerMentions: (input) => this.turnCoordinator.continuePeerMentions(input),
 			observations: (session) => this.observations(session),
 			publishSessionUpdated: (session) => this.publishSessionUpdated(session),
 		});
@@ -846,7 +849,7 @@ export class AgentTeamSessionService {
 				revision: session.revision + 1,
 				teamRevision: team.revision,
 				name: team.name,
-				orchestrationPolicyId: team.orchestrationPolicyId,
+				orchestrationPolicyId: session.orchestrationPolicyId ?? team.orchestrationPolicyId,
 				contextPolicyId: team.contextPolicyId,
 				leaderMemberId: team.leaderMemberId,
 				activeMemberIds: desiredIds,
@@ -1061,8 +1064,16 @@ export class AgentTeamSessionService {
 		};
 	}
 
-	private createTeamToolRegistrations(teamSessionId: string): readonly CodingAgentRuntimeToolRegistration[] {
+	private createTeamToolRegistrations(
+		teamSessionId: string,
+		orchestrationPolicyId?: string,
+	): readonly CodingAgentRuntimeToolRegistration[] {
 		const port = this.taskControls(teamSessionId);
+		const allowed = new Set(
+			teamCollaborationToolNames(
+				orchestrationPolicyId ?? this.sessionState.get(teamSessionId)?.orchestrationPolicyId,
+			),
+		);
 		const tools = [
 			createTeamDelegateTaskTool(port),
 			createTeamGetTaskTool(port),
@@ -1072,7 +1083,7 @@ export class AgentTeamSessionService {
 			createTeamCancelTaskTool(port),
 			createTeamSendMessageTool(this.messageControls(teamSessionId)),
 			createTeamReadSharedHistoryTool(this.sharedHistoryControls(teamSessionId)),
-		];
+		].filter((tool) => allowed.has(tool.name));
 		return [
 			this.createListMembersRegistration(teamSessionId),
 			...tools.map((tool, index) => ({

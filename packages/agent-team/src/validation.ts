@@ -185,6 +185,7 @@ export const UpdateTeamInputSchema = Type.Object(
 		name: Type.String({ minLength: 1, maxLength: 128, pattern: "\\S" }),
 		description: text,
 		members: Type.Array(updateTeamMember, { minItems: 1, maxItems: 32 }),
+		orchestrationPolicyId: Type.Optional(id),
 	},
 	{ additionalProperties: false },
 );

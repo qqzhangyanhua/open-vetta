@@ -19,7 +19,11 @@ import { persistBase64Images } from "@shared/lib/persist-input-images";
 import { pathBasename } from "@shared/lib/utils";
 import { reasoningByModelAtom, selectedModelAtom } from "@shared/store/atoms";
 import { createActivityWorkspace } from "@shared/workspace/activity-workspace";
-import type { AgentTeamDocument, TeamSessionListItem } from "@vetta/agent-team";
+import {
+	type AgentTeamDocument,
+	PEER_MENTION_ORCHESTRATION_POLICY_ID,
+	type TeamSessionListItem,
+} from "@vetta/agent-team";
 import type { PromptAttachmentRef, SessionExecutionMode } from "@vetta/runtime-core";
 import type { ConversationScenario } from "@vetta-org/plugin-sdk";
 import { useAtomValue } from "jotai";
@@ -882,11 +886,14 @@ export function useTeamChatModel(
 		() => ({
 			leaderRoute: t("chat.leaderRoute"),
 			memberRoleFallback: t("chat.member"),
-			placeholder: t("chat.placeholder"),
+			placeholder:
+				session?.orchestrationPolicyId === PEER_MENTION_ORCHESTRATION_POLICY_ID
+					? t("chat.placeholderPeer")
+					: t("chat.placeholder"),
 			attachFile: t("chat.attachFile"),
 			attachImage: t("chat.attachImage"),
 		}),
-		[t],
+		[session?.orchestrationPolicyId, t],
 	);
 	// 活动面板按会话本身取数：看团队全景时聚合协调与全部成员 Runtime，进入某个成员
 	// 视图时收窄到该成员，避免 Todo / 后台任务把别人的执行状态算进来。

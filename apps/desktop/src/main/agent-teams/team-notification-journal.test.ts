@@ -59,6 +59,25 @@ function fixture() {
 }
 
 describe("durable Team task notification handoff", () => {
+	it("does not wake the previous speaker after a peer mention reply", async () => {
+		const { store, session, input, journal } = fixture();
+		const attempt = await store.begin({
+			...input,
+			requestId: "peer-mention/1/leader/member/user-1",
+			sourceTurnId: "peer",
+			mode: "initial",
+		});
+		const completed = await store.settle(
+			session,
+			attempt.workItem,
+			attempt.attempt,
+			{ state: "completed" },
+			"published-result",
+		);
+		await journal.record(session, completed);
+		expect(journal.pending(session, "leader")).toHaveLength(0);
+	});
+
 	it("rediscovers an unrecorded terminal outcome and admits its context exactly once across restart", async () => {
 		const { store, session, input, restart } = fixture();
 		const attempt = await store.begin({ ...input, sourceTurnId: "first", mode: "initial" });

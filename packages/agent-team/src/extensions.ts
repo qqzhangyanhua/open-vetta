@@ -1,5 +1,6 @@
 import type { ConversationMessageRecord } from "@vetta/runtime-core/conversation";
 import type { TeamDefinition, TeamSharedContextRecord } from "./contracts.js";
+import { PEER_MENTION_ORCHESTRATION_POLICY_ID, peerMentionTargets } from "./peer-mentions.js";
 import { projectPublicTeamCheckpointContext, projectPublicTeamContext } from "./public-context.js";
 import type { TeamTaskAction } from "./task-control.js";
 
@@ -59,6 +60,17 @@ const PUBLIC_RESULTS_ORCHESTRATION: TeamOrchestrationPolicy = {
 	},
 };
 
+const PEER_MENTION_ORCHESTRATION: TeamOrchestrationPolicy = {
+	id: PEER_MENTION_ORCHESTRATION_POLICY_ID,
+	authorizeTask({ action, sourceMemberId, targetMemberId }) {
+		if (action === "delegate" || action === "cancel") return false;
+		return sourceMemberId === targetMemberId;
+	},
+	resolveTargets({ team, requestedMemberIds }) {
+		return peerMentionTargets(team, requestedMemberIds);
+	},
+};
+
 const PUBLIC_RESULTS_CONTEXT: TeamContextProjectionPolicy = {
 	id: "public-results-v1",
 	projectSharedCheckpoint: projectPublicTeamCheckpointContext,
@@ -66,7 +78,10 @@ const PUBLIC_RESULTS_CONTEXT: TeamContextProjectionPolicy = {
 };
 
 export const DEFAULT_AGENT_TEAM_EXTENSIONS: AgentTeamExtensionRegistry = Object.freeze({
-	orchestrationPolicies: new Map([[PUBLIC_RESULTS_ORCHESTRATION.id, PUBLIC_RESULTS_ORCHESTRATION]]),
+	orchestrationPolicies: new Map([
+		[PUBLIC_RESULTS_ORCHESTRATION.id, PUBLIC_RESULTS_ORCHESTRATION],
+		[PEER_MENTION_ORCHESTRATION.id, PEER_MENTION_ORCHESTRATION],
+	]),
 	contextPolicies: new Map([[PUBLIC_RESULTS_CONTEXT.id, PUBLIC_RESULTS_CONTEXT]]),
 });
 

@@ -8,6 +8,7 @@ export * from "./fixtures.js";
 export * from "./legacy-events.js";
 export * from "./observability.js";
 export * from "./operating-context.js";
+export * from "./peer-mentions.js";
 export * from "./public-context.js";
 export * from "./runtime-tools.js";
 export * from "./shared-context.js";
