@@ -43,6 +43,8 @@ scripts/quality/
   quality-gates.test.mjs       质量脚本定向测试
   arch-engine/ast-walker.mjs   可序列化的 TypeScript 语法树
   arch-engine/cache.mjs        按 mtime 与内容 hash 缓存语法树
+  arch-engine/rule-engine.mjs  从 YAML 加载并执行架构规则
+  rules/                       规则配置（*.yml），check 还不会读取
 knip.config.ts                 Knip（可选）
 ```
 
@@ -84,6 +86,59 @@ const specifier = findNodes(ast, (node) => node.kind === "ImportDeclaration")[0]
 - 内容 hash 变了：记一次 hash 失效并重新解析。即使把修改时间改回原来的值，也不会继续用旧语法树
 
 `stats()` 返回 `hits`、`misses`、`mtimeInvalidations`、`hashInvalidations`、`parses` 和 `hitRate`（命中次数 / 全部读取次数）。返回的树归缓存所有，调用方不要改它。同一个进程还会把已经读过的树留在内存里，直到这个进程退出；这期间删掉 `<root>/.cache/quality` 不会让下一次 `load` 重解析。新开的进程看不到这些文件，会重新解析。语法树字段变化时要抬高 `AST_FORMAT_VERSION`，旧文件会当作未命中。
+
+## 声明式规则
+
+`scripts/quality/rules/*.yml` 是架构规则的配置。`check` 和 `check-package-boundaries.mjs` 还不会读这个目录，所以改这里不会改变当前门禁结果。`scripts/quality/rules/package-boundaries.yml` 是第一份配置，只覆盖核心库不依赖应用包、以及生产代码不导入测试工具这两类 `forbidden-import`。
+
+一份配置是一个 mapping，字段都要有：
+
+| 字段 | 含义 |
+| --- | --- |
+| `name` | 这组规则的名字 |
+| `description` | 一句话说明这组规则在管什么 |
+| `rationale` | 为什么要这条约束 |
+| `examples` | 列表。每一项有 `violation` 和 `fix`，分别是一段会违规的写法和对应改法。可以是空列表 |
+| `rules` | 至少一条规则 |
+
+一条 `forbidden-import` 规则的字段：
+
+| 字段 | 含义 |
+| --- | --- |
+| `name` | 违规对象上的规则名，同一份配置里不能重复 |
+| `type` | 目前只接受 `forbidden-import` |
+| `sources` | 仓库内相对路径的 glob。文件不命中就不检查 |
+| `targets` | 模块说明符的 glob。命中的 import 算违规 |
+| `message` | 写给读者的说明，原样出现在违规里 |
+
+`sources` 对的是文件路径，例如 `packages/ai/src/index.ts`。`targets` 对的是说明符原文，例如 `@vetta/desktop` 或 `../test/fixture`，不会先解析成磁盘路径。会算进去的依赖边是 `import`、`export ... from`、`import()`、`require()` 和 `import x = require()`，包括 `import type`。注释、普通字符串，以及说明符不是字符串字面量的 `import(name)`，不算。
+
+glob 按 `/` 分段。`*` 和 `?` 只匹配一段里面的字符，`**` 匹配零段或多段。写在末尾的 `**` 也匹配零段，所以 `@vetta/desktop/**` 同时盖住 `@vetta/desktop`。以 `!` 开头的模式表示排除，按书写顺序生效，后面的模式可以再把文件选回来。模式使用 `/`。以 `*`、`!`、`@` 或 `&` 开头时必须加引号；不加引号的 `!` 会被 YAML 当成标签。
+
+```yaml
+rules:
+  - name: libs-must-not-depend-on-apps
+    type: forbidden-import
+    sources:
+      - packages/ai/**
+    targets:
+      - "@vetta/desktop"
+      - "@vetta/desktop/**"
+    message: Core libraries must not depend on application packages
+```
+
+仓库根目录下的 `scripts/quality/` 脚本这样跑（规则路径相对仓库根目录）：
+
+```javascript
+import { readFileSync } from "node:fs";
+import { checkDocument, loadRuleDocument } from "./arch-engine/rule-engine.mjs";
+
+const document = loadRuleDocument("scripts/quality/rules/package-boundaries.yml");
+const path = "packages/ai/src/index.ts";
+const violations = checkDocument(document, [{ path, text: readFileSync(path, "utf8") }]);
+```
+
+`violations` 是 `CheckViolation`。`file` 用 `/`，`line` 从 1 开始，`rule` 和 `message` 来自 YAML。配置读不出来、字段缺失、规则类型不认识，或者 glob 是空的，会抛 `RuleDocumentError`，消息里带文件路径。`loadRuleDirectory` 按文件名顺序读取目录里的 `.yml` 和 `.yaml`，其它文件忽略。
 
 ## 守卫错误处理
 

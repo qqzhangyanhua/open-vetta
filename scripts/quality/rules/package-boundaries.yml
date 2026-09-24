@@ -1,0 +1,52 @@
+name: package-boundaries
+description: Dependency direction for core libraries and production code.
+rationale: |
+  Core libraries stay independent of application packages. Production code
+  does not import test helpers. check-package-boundaries.mjs still enforces
+  the live set; this file is the declarative form of the same constraint.
+examples:
+  - violation: |
+      // packages/ai/src/index.ts
+      import { DesktopConfig } from "@vetta/desktop";
+    fix: |
+      // Share the type from a library package.
+      import { Config } from "@vetta/config";
+  - violation: |
+      // packages/ai/src/index.ts
+      import { fixture } from "../test/fixture";
+    fix: |
+      // Keep the fixture inside the test that uses it.
+rules:
+  - name: libs-must-not-depend-on-apps
+    type: forbidden-import
+    sources:
+      - packages/ai/**
+      - packages/agent/**
+      - packages/runtime-*/**
+    targets:
+      - "@vetta/desktop"
+      - "@vetta/desktop/**"
+      - "@vetta/cli-host"
+      - "@vetta/cli-host/**"
+      - apps/desktop/**
+      - apps/cli-host/**
+    message: Core libraries must not depend on application packages
+  - name: no-test-imports-in-production
+    type: forbidden-import
+    sources:
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.js"
+      - "**/*.mjs"
+      - "!**/*.test.ts"
+      - "!**/*.test.tsx"
+      - "!**/*.spec.ts"
+      - "!**/*.spec.tsx"
+      - "!**/test/**"
+    targets:
+      - "**/test/**"
+      - "**/*.test.ts"
+      - "**/*.test.tsx"
+      - "**/*.spec.ts"
+      - "**/*.spec.tsx"
+    message: Production code must not import test utilities
