@@ -5,12 +5,13 @@ import { inputValueAtom, mentionedFilesAtom } from "@shared/store/atoms";
 import { activeInputDraftKeyAtom } from "@shared/store/session-input-draft";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { useAtomValue, useSetAtom } from "jotai";
-import { memo, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
 import { useTranslation } from "react-i18next";
 import { InputBar } from "../InputBar";
 import type { ActiveActionCapsule } from "./ActiveActionCapsules";
 import type { ConnectedInputBarProps, InputBarDrawerItem, InputBarModel, InputBarTodoModel } from "./types";
+import { setExternalImagesBlocked } from "./editor/inputEditorHandle";
 import { useInputBarAttachmentModel } from "./useInputBarAttachmentModel";
 import { useInputBarContextMenuModel } from "./useInputBarContextMenuModel";
 import {
@@ -38,6 +39,11 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const mentionedFiles = useAtomValue(mentionedFilesAtom);
 	const draftKey = useAtomValue(activeInputDraftKeyAtom);
 	const [externalRecipientId, setExternalRecipientId] = useState("penguin");
+	useEffect(() => {
+		const blocked = externalRecipientId !== "penguin";
+		setExternalImagesBlocked(blocked);
+		return () => setExternalImagesBlocked(false);
+	}, [externalRecipientId]);
 	const placeExternalInvocation = useSetAtom(openExternalInvocationTabAtom);
 	const invocationStatus = useRef<Record<string, "running" | "finished">>({});
 	const runtimeId = session.activeSession?.runtimeId;

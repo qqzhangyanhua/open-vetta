@@ -156,7 +156,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 							<MessageInput.Content className={classNames?.cardContent}>
 								{commands ? <PerfSendProfiler id="ib:CommandPanel">
 									<CommandPanel
-										open={commands.slashOpen}
+										open={commands.slashOpen && !sendingExternally}
 										onClose={commands.onSlashClose}
 										onSelect={commands.onSlashSelect}
 										onSelectConnector={commands.onConnectorSelect}

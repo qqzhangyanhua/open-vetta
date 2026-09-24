@@ -14,6 +14,11 @@ describe("grok single-instruction args", () => {
 			paths: ["/work/app/src/a.ts", "/work/app/src"],
 			args: ["--single", "@/work/app/src/a.ts\n@/work/app/src\nfix the test"],
 		},
+		{
+			prompt: "看一下 @/work/app/src/a.ts 的测试",
+			paths: ["/work/app/src/a.ts"],
+			args: ["--single", "@/work/app/src/a.ts\n看一下 的测试"],
+		},
 	])(
 		"builds argv for $prompt",
 		({ prompt, paths, args }: { prompt: string; paths?: readonly string[]; args: readonly string[] }) => {

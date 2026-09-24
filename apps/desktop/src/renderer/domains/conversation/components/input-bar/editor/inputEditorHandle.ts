@@ -25,6 +25,13 @@ import {
 import { $applySegments, $insertTokenNodes, $readSelectedSegments } from "./tokens/segments";
 import { $removeTriggerBeforeCaret } from "./tokens/trigger";
 
+/** 接收方是外部智能体时，粘贴、拖放和文件框都不能再塞进图片。 */
+let externalImagesBlocked = false;
+
+export function setExternalImagesBlocked(blocked: boolean): void {
+	externalImagesBlocked = blocked;
+}
+
 /**
  * 当前挂载的输入编辑器。
  *
@@ -103,6 +110,7 @@ export function insertFileToken(path: string, isDirectory = false, options?: Ins
 }
 
 export function insertImageToken(path: string, options?: InsertTokenOptions): void {
+	if (externalImagesBlocked) return;
 	insert(() => [$createImageTokenNode(path)], options);
 }
 
