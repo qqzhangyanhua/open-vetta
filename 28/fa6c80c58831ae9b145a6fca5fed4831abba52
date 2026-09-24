@@ -1,0 +1,52 @@
+scripts/quality/runtime-coding-agent-independence.test.mjs
+  s_f4266741bba945::t_cb74421e6a8854 2
+scripts/quality/runtime-subagents-boundary.test.mjs
+  s_f4266741bba945::t_4551487fbab9af 2
+  s_f4266741bba945::t_5027e3b3b96707 45-55
+scripts/quality/runtime-failure-contract.test.mjs
+  s_f4266741bba945::t_842aed3f90bd6f 31-36
+  s_f4266741bba945::t_635aff033fa990 2
+scripts/quality/check-guards.mjs
+  s_f4266741bba945::t_3d2a225d892fdf 18-19
+.github/release-notes/v0.5.59.md
+  s_f4266741bba945::t_0c70ef3de15d65 233
+docs/dev/quality-gates.md
+  s_f4266741bba945::t_c522b775fb0d81 41,61-62,68,299-307
+  s_f4266741bba945::t_8f9a3b9611a0e2 308
+package.json
+  s_f4266741bba945::t_20ef628a548e16 103
+scripts/quality/arch-engine/runtime-rules.mjs
+  s_f4266741bba945::t_ee4b7f4009ba3b 237-238
+  s_f4266741bba945::t_635aff033fa990 1-236,239-408
+scripts/quality/arch-engine/runtime-rules.test.mjs
+  s_f4266741bba945::t_d4d8b8d56325c0 22,27,29-62,64-84,87-88,90
+  s_f4266741bba945::t_698c1599bf314d 19-21
+  s_f4266741bba945::t_e855e6e5142684 23-26
+  s_f4266741bba945::t_57a87ad2e89cf7 28
+  s_f4266741bba945::t_3d95d257a25245 63
+  s_f4266741bba945::t_954db12d99cd41 85-86
+  s_f4266741bba945::t_c51e5db6d68d0b 89
+  s_f4266741bba945::t_57e4a7fc53e8df 91
+scripts/quality/rules/runtime-boundaries.yml
+  s_f4266741bba945::t_87fa6ac9b6bf40 56
+  s_f4266741bba945::t_e0a8d4c0c7aa4d 53-55
+  s_f4266741bba945::t_478f61f7240ccb 57-59
+scripts/quality/check-runtime-boundaries.mjs
+  s_f4266741bba945::t_635aff033fa990 1-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "28fa6c80c58831ae9b145a6fca5fed4831abba52",
+  "prompts": {},
+  "sessions": {
+    "s_f4266741bba945": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d22f-a22f-75b0-9519-7b07ca187dff",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
