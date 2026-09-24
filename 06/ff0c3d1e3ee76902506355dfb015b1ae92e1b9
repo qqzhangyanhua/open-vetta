@@ -1,0 +1,34 @@
+apps/desktop/src/renderer/domains/conversation/components/message-list/SubagentReplyCard.test.tsx
+  h_4132837b09b7e7 1-49
+apps/desktop/src/renderer/domains/conversation/components/message-list/turnDuration.test.ts
+  h_4132837b09b7e7 3
+apps/desktop/src/renderer/domains/conversation/components/message-list/turnDuration.ts
+  h_4132837b09b7e7 3-4
+apps/desktop/src/renderer/domains/conversation/connectors/team/teamChatModel.test.ts
+  h_4132837b09b7e7 1933-2047
+apps/desktop/src/renderer/domains/conversation/connectors/team/teamChatModel.ts
+  h_4132837b09b7e7 13,15,190,275-277,297-298,330,354,455-466,620-624,777,781,786-792,796,800
+apps/desktop/src/renderer/domains/conversation/services/chat-service.ts
+  h_4132837b09b7e7 2,6,924,936
+apps/desktop/src/renderer/shared/conversation/index.ts
+  h_4132837b09b7e7 6
+apps/desktop/src/renderer/shared/conversation/message-stream.ts
+  h_4132837b09b7e7 6,36,182
+apps/desktop/src/renderer/shared/conversation/work-duration.test.ts
+  h_4132837b09b7e7 1-18
+apps/desktop/src/renderer/shared/conversation/work-duration.ts
+  h_4132837b09b7e7 1-21
+apps/desktop/src/renderer/shared/store/chat-atoms.ts
+  h_4132837b09b7e7 31-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "06ff0c3d1e3ee76902506355dfb015b1ae92e1b9",
+  "prompts": {},
+  "humans": {
+    "h_4132837b09b7e7": {
+      "author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
