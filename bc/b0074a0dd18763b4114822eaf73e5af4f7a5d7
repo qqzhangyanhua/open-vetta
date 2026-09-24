@@ -1,0 +1,24 @@
+scripts/quality/quality-gates.test.mjs
+  s_e4daa5f6ed6b4a::t_96f8ccc7b67739 1,34-47,138-160
+  s_e4daa5f6ed6b4a::t_dac84eb3ccf004 161-162
+scripts/quality/lib.mjs
+  s_e4daa5f6ed6b4a::t_96f8ccc7b67739 7-8,166-198,201-202,204-208,210-211
+.github/release-notes/v0.5.59.md
+  s_e4daa5f6ed6b4a::t_61df2aca917db7 224
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "bcb0074a0dd18763b4114822eaf73e5af4f7a5d7",
+  "prompts": {},
+  "sessions": {
+    "s_e4daa5f6ed6b4a": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d15a-696e-7f71-bcbd-7624ef3ea8f3",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
