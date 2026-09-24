@@ -13,7 +13,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionContextMenu } from "../../../project/components/SessionContextMenu";
 import { DefaultSessionList } from "../../../project/components/sidebar/projects/panel/DefaultSessionList";
 import type { SidebarConversationInfo } from "../../../project/services/sidebar-conversation-projection";
-import { SessionExternalInvocationPage, type ExternalInvocationClient } from "./SessionExternalInvocationPage";
+import {
+	SessionExternalInvocationPage,
+	type ExternalInvocationClient,
+	type ExternalInvocationClientEvent,
+} from "./SessionExternalInvocationPage";
 
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
 
@@ -46,6 +50,7 @@ vi.mock("@vetta-org/ui", () => ({
 }));
 
 const DRAFT = "/work/vetta-1.jsonl";
+let originDropped = false;
 
 function externalSession(id: string, name: string): SidebarConversationInfo {
 	return {
@@ -69,6 +74,7 @@ function MenuHost(): JSX.Element | null {
 }
 
 beforeEach(async () => {
+	originDropped = false;
 	clearExternalRecipients();
 	clearExternalHistoryResumes();
 	clearExternalInvocationOrigins();
@@ -100,7 +106,10 @@ beforeEach(async () => {
 		value: {
 			externalInvocations: {
 				recordedDirectoryExists: async () => true,
-				origins: async () => [{ externalSessionId: "sess-9", sessionId: "vetta-1", invocationId: "inv-1" }],
+				origins: async () =>
+					originDropped
+						? []
+						: [{ externalSessionId: "sess-9", sessionId: "vetta-1", invocationId: "inv-1" }],
 			},
 			shell: { showInFolder: () => undefined },
 		},
@@ -174,5 +183,74 @@ describe("penguin-initiated external history", () => {
 		await user.click(screen.getByRole("menuitem", { name: "在当前会话里用 Grok 续跑" }));
 		expect(screen.queryByText("续跑：Fix the login bug")).toBeNull();
 		await waitFor(() => expect((screen.getByLabelText("发给") as HTMLSelectElement).value).toBe("grok"));
+
+		originDropped = true;
+		const store = (await import("jotai")).getDefaultStore();
+		store.set(sessionsMapAtom, new Map());
+		await waitFor(() =>
+			expect(screen.getByRole("button", { name: /Fix the login bug/ }).textContent).not.toContain("由 penguin 发起"),
+		);
+		await user.click(within(started).getByRole("button", { name: "更多" }));
+		expect(screen.queryByRole("menuitem", { name: "打开发起它的会话" })).toBeNull();
+	});
+
+	it("shows the penguin marker after the run finishes, without remounting the sidebar", async () => {
+		let located = false;
+		Object.defineProperty(window, "vetta", {
+			configurable: true,
+			value: {
+				externalInvocations: {
+					recordedDirectoryExists: async () => true,
+					origins: async () =>
+						located ? [{ externalSessionId: "sess-9", sessionId: "vetta-1", invocationId: "inv-1" }] : [],
+				},
+			},
+		});
+		let emit: ((event: ExternalInvocationClientEvent) => void) | null = null;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: async () => ({ invocationId: "inv-1" }),
+			subscribe: (_sessionId, listener) => {
+				emit = listener;
+				return () => {
+					emit = null;
+				};
+			},
+		};
+		function Flow(): JSX.Element {
+			const [prompt, setPrompt] = useState("");
+			return (
+				<>
+					<DefaultSessionList
+						activeSessionPath=""
+						activeTeamSessionId=""
+						cwd="/tmp/grok"
+						filter="external"
+						loading={false}
+						onRenameSession={() => undefined}
+						onSelectSession={() => undefined}
+						scrollParent={null}
+						sessions={[externalSession("sess-9", "Fix the login bug")]}
+					/>
+					<SessionExternalInvocationPage
+						session={{ sessionId: "vetta-1", cwd: "/work" }}
+						client={client}
+						draftKey={DRAFT}
+						prompt={prompt}
+						onPromptChange={setPrompt}
+						showPrompt
+						penguinTools={<span>模型</span>}
+					/>
+				</>
+			);
+		}
+		render(<Flow />);
+		await waitFor(() => expect(screen.getByRole("button", { name: /Fix the login bug/ })).toBeTruthy());
+		expect(screen.getByRole("button", { name: /Fix the login bug/ }).textContent).not.toContain("由 penguin 发起");
+		located = true;
+		emit?.({ type: "completed", invocationId: "inv-1", agentId: "grok", externalSessionId: "sess-9" });
+		await waitFor(() =>
+			expect(screen.getByRole("button", { name: /Fix the login bug/ }).textContent).toContain("由 penguin 发起"),
+		);
 	});
 });

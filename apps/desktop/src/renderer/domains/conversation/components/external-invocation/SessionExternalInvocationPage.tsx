@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore, type JSX, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { reloadExternalInvocationOrigins } from "@shared/hooks/useExternalInvocationOrigins";
 import {
 	clearExternalHistoryResume,
 	externalHistoryResumeFor,
@@ -213,6 +214,9 @@ export function SessionExternalInvocationPage({
 		if (!client || !sessionId || !cwd) return;
 		return client.subscribe(sessionId, (event) => {
 			if (event.externalSessionId) setResumeSessionId(event.externalSessionId);
+			if (event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
+				void reloadExternalInvocationOrigins();
+			}
 			if (event.type === "output" || event.type === "truncated") {
 				onInvocationEvent?.(event);
 				return;
