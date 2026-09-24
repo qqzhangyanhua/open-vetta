@@ -1229,6 +1229,8 @@ export function registerSessionIpc(webContents: WebContents): () => void {
 		// ADR-0007: 「对话」项目下的 session cwd 是独立子目录；删除 session 时
 		// 连带回收子目录里的产物。读 header 先取 cwd，再 delete，最后 rm 子目录。
 		const cwdFromHeader = await readSessionCwdFromHeader(sessionPath);
+		const { externalInvocationService } = await import("./external-invocation.js");
+		await externalInvocationService().deleteSession(basename(sessionPath).replace(/\.jsonl$/i, ""));
 		await runtime.deleteSession(sessionPath);
 		notifyAutomationSessionsDeleted((path) => path === sessionPath);
 		if (cwdFromHeader && isConversationSubCwd(cwdFromHeader)) {

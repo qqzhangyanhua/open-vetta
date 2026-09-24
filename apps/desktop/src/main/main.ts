@@ -39,6 +39,7 @@ import { fixPath } from "./fix-path.js";
 import { initAppLanguage } from "./i18n/index.js";
 import { getImHost } from "./im-host/index.js";
 import { syncAppshotGesture } from "./ipc/appshot.js";
+import { externalInvocationService } from "./ipc/external-invocation.js";
 import { persistVettaCliPaths } from "./ipc/fs.js";
 import { registerI18nIpc } from "./ipc/i18n.js";
 import {
@@ -925,6 +926,7 @@ setQuitCleanup(async () => {
 	// 面板没了，dev server 还占着端口在后台跑。同步、且排在所有 await 之前——后面任何
 	// 一步卡住，都不该连累到「关掉我启动的进程」这件事。
 	disposeAllTerminals();
+	externalInvocationService().shutdown();
 
 	const consumerShutdownResults = await Promise.allSettled([
 		shutdownScheduler(),

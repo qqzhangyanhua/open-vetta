@@ -41,7 +41,11 @@ class FakeProcess implements ExternalInvocationProcess {
 		this.written.push(data);
 	}
 
-	kill(): void {}
+	killed = false;
+
+	kill(): void {
+		this.killed = true;
+	}
 }
 
 function harness(options?: { failStart?: Error; limit?: number }) {
@@ -66,13 +70,16 @@ function harness(options?: { failStart?: Error; limit?: number }) {
 			append(entry) {
 				entries.push(entry);
 			},
+			list() {
+				return entries;
+			},
 		},
-		artifactDirectory: () => directory,
+		artifactDirectory: (sessionId) => join(directory, sessionId),
 		clock: { now: () => now },
 		ids: { next: () => `id-${nextId++}` },
 		outputLimitBytes: options?.limit,
 	});
-	service.subscribe("session-1", (event) => events.push(event));
+	const unsubscribe = service.subscribe("session-1", (event) => events.push(event));
 	return {
 		service,
 		entries,
@@ -80,6 +87,7 @@ function harness(options?: { failStart?: Error; limit?: number }) {
 		started,
 		procs,
 		directory,
+		unsubscribe,
 		advance: (ms: number) => {
 			now += ms;
 		},
@@ -116,7 +124,7 @@ describe("external invocation service", () => {
 			prompt: "fix the test",
 		});
 		expect(h.entries[0]).not.toBe(h.entries[1]);
-		expect(readFileSync(join(h.directory, `${started.invocationId}.pty`), "utf8")).toBe("hello grok");
+		expect(readFileSync(join(h.directory, "session-1", `${started.invocationId}.pty`), "utf8")).toBe("hello grok");
 	});
 
 	it("records a non-zero exit as failed and keeps the exit code", async () => {
@@ -150,7 +158,7 @@ describe("external invocation service", () => {
 		h.procs[0]?.emitData("AAAABBBBCCCC");
 		h.procs[0]?.emitExit(0);
 		await viWait();
-		expect(readFileSync(join(h.directory, `${started.invocationId}.pty`), "utf8")).toBe("AAAACCCC");
+		expect(readFileSync(join(h.directory, "session-1", `${started.invocationId}.pty`), "utf8")).toBe("AAAACCCC");
 		expect(h.entries.at(-1)?.data.discardedBytes).toBe(4);
 	});
 
@@ -187,8 +195,8 @@ describe("external invocation service", () => {
 					throw new Error("unused");
 				},
 			},
-			entries: { append() {} },
-			artifactDirectory: () => h.directory,
+			artifactDirectory: (sessionId) => join(h.directory, sessionId),
+			entries: { append() {}, list: () => [] },
 			clock: { now: () => Date.parse("2026-09-24T06:00:00.000Z") },
 			ids: { next: () => "later" },
 		});
@@ -223,6 +231,122 @@ describe("external invocation service", () => {
 		).rejects.toThrow(/remote projects do not support/i);
 		expect(h.started).toEqual([]);
 		expect(h.entries).toEqual([]);
+	});
+
+	it("keeps running after the renderer disconnects and replays the full output on resubscribe", async () => {
+		const h = harness();
+		const started = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "keep going",
+			agentId: "grok",
+		});
+		h.procs[0]?.emitData("before ");
+		h.unsubscribe();
+		h.procs[0]?.emitData("away ");
+		expect(h.procs[0]?.killed).toBe(false);
+		const seen: string[] = [];
+		h.service.subscribe("session-1", (event) => {
+			if (event.type === "output" && event.invocationId === started.invocationId) seen.push(event.chunk);
+		});
+		expect(seen.join("")).toBe("before away ");
+		h.procs[0]?.emitData("live");
+		expect(seen.join("")).toBe("before away live");
+	});
+
+	it("stops the process and deletes artifacts when the session is deleted, and stops every process on shutdown", async () => {
+		const h = harness();
+		const first = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "one",
+			agentId: "grok",
+		});
+		const second = await h.service.start({
+			sessionId: "session-2",
+			cwd: "/work/other",
+			prompt: "two",
+			agentId: "grok",
+		});
+		h.procs[0]?.emitData("kept");
+		await h.service.deleteSession("session-1");
+		expect(h.procs[0]?.killed).toBe(true);
+		expect(h.procs[1]?.killed).toBe(false);
+		expect(() => readFileSync(join(h.directory, "session-1", `${first.invocationId}.pty`))).toThrow();
+		h.service.shutdown();
+		expect(h.procs[1]?.killed).toBe(true);
+		expect(h.entries.filter((entry) => entry.data.invocationId === second.invocationId).at(-1)?.data.status).toBe(
+			"running",
+		);
+	});
+
+	it("marks running and queued invocations interrupted by app exit when recovering at startup", async () => {
+		const h = harness();
+		const started = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "still going",
+			agentId: "grok",
+		});
+		h.service.shutdown();
+		h.entries.push({
+			sessionId: "session-1",
+			entryId: "queued-entry",
+			customType: "vetta.external_invocation",
+			timestamp: "2026-09-24T06:00:00.000Z",
+			data: {
+				invocationId: "queued-1",
+				agentId: "grok",
+				prompt: "wait",
+				cwd: "/work/app",
+				status: "queued",
+				exitCode: null,
+				failureReason: null,
+				interruptReason: null,
+				discardedBytes: 0,
+				outputPath: join(h.directory, "session-1", "queued-1.pty"),
+				startedAt: "2026-09-24T06:00:00.000Z",
+				endedAt: null,
+			},
+		});
+		await h.service.recover();
+		const latest = (invocationId: string) =>
+			h.entries.filter((entry) => entry.data.invocationId === invocationId).at(-1)?.data;
+		expect(latest(started.invocationId)).toMatchObject({
+			status: "interrupted",
+			interruptReason: "app-exit",
+			failureReason: "已中断（应用退出）",
+		});
+		expect(latest("queued-1")).toMatchObject({
+			status: "interrupted",
+			interruptReason: "app-exit",
+			failureReason: "已中断（应用退出）",
+		});
+	});
+
+	it("writes that the user stopped the invocation", async () => {
+		const h = harness();
+		const started = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "stop me",
+			agentId: "grok",
+		});
+		h.service.stop(started.invocationId);
+		h.procs[0]?.emitExit(0);
+		await viWait();
+		expect(h.procs[0]?.killed).toBe(true);
+		expect(h.entries.at(-1)?.data).toMatchObject({
+			status: "interrupted",
+			interruptReason: "user",
+			failureReason: "已中断（你停止了它）",
+		});
+		expect(h.events.at(-1)).toMatchObject({
+			type: "interrupted",
+			reason: "user",
+			message: "已中断（你停止了它）",
+		});
+		expect(h.events.some((event) => event.type === "completed" || event.type === "failed")).toBe(false);
 	});
 
 	it("writes terminal keyboard input into the process", async () => {

@@ -6,3 +6,6 @@ import { atom } from "jotai";
  * sidebar 用它给 session item 加 spin、给 project icon 叠加 pulse 点。
  */
 export const runningSessionPathsAtom = atom<Set<string>>(new Set<string>());
+
+/** 外部调用仍在运行的 Vetta 会话 id。切走会话后侧栏继续显示运行中。 */
+export const externalInvocationRunningSessionIdsAtom = atom<ReadonlySet<string>>(new Set<string>());

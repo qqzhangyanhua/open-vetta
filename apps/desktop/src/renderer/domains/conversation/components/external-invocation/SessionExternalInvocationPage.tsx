@@ -9,18 +9,23 @@ import {
 } from "./SessionExternalInvocationView";
 
 const externalInvocationStatusKey = {
+	queued: "externalInvocation.status.queued",
 	running: "externalInvocation.status.running",
 	completed: "externalInvocation.status.completed",
 	failed: "externalInvocation.status.failed",
+	interruptedUser: "externalInvocation.status.interruptedUser",
+	interruptedAppExit: "externalInvocation.status.interruptedAppExit",
+	interruptedCancelled: "externalInvocation.status.interruptedCancelled",
 } as const;
 
 export interface ExternalInvocationClientEvent {
-	readonly type: "running" | "completed" | "failed" | "output" | "truncated";
+	readonly type: "running" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 	readonly invocationId: string;
 	readonly prompt?: string;
 	readonly agentId?: string;
 	readonly exitCode?: number | null;
-	readonly reason?: string;
+	readonly reason?: "user" | "app-exit" | "cancelled" | string;
+	readonly message?: string;
 	readonly chunk?: string;
 	readonly discardedBytes?: number;
 }
@@ -35,6 +40,7 @@ export interface ExternalInvocationClient {
 		referencedPaths?: readonly string[];
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationClientEvent) => void): () => void;
+	subscribeRunning?(listener: (sessionIds: readonly string[]) => void): () => void;
 	stop?(invocationId: string): void;
 	writeInput?(invocationId: string, data: string): void;
 }
@@ -43,9 +49,27 @@ export function applyExternalInvocationEvent(
 	cards: readonly ExternalInvocationCardModel[],
 	event: ExternalInvocationClientEvent,
 	agentLabel: string,
-	statusLabel: (status: "running" | "completed" | "failed") => string,
+	statusLabel: (status: keyof typeof externalInvocationStatusKey) => string,
 ): readonly ExternalInvocationCardModel[] {
 	if (event.type === "output" || event.type === "truncated") return cards;
+	if (event.type === "interrupted") {
+		const status =
+			event.reason === "app-exit"
+				? "interruptedAppExit"
+				: event.reason === "cancelled"
+					? "interruptedCancelled"
+					: "interruptedUser";
+		const next = {
+			invocationId: event.invocationId,
+			agentLabel,
+			prompt: event.prompt ?? "",
+			statusLabel: statusLabel(status),
+			exitCode: null,
+			failureReason: null,
+		};
+		const existing = cards.some((card) => card.invocationId === event.invocationId);
+		return existing ? cards.map((card) => (card.invocationId === event.invocationId ? { ...card, ...next } : card)) : [...cards, next];
+	}
 	if (event.type === "running") {
 		return [
 			...cards.filter((card) => card.invocationId !== event.invocationId),
@@ -115,6 +139,12 @@ export function SessionExternalInvocationPage({
 		onRecipientChange?.(recipientId);
 	}, [onRecipientChange, recipientId]);
 	const [cards, setCards] = useState<readonly ExternalInvocationCardModel[]>([]);
+	const sessionId = session?.sessionId ?? null;
+	const [cardsSessionId, setCardsSessionId] = useState(sessionId);
+	if (cardsSessionId !== sessionId) {
+		setCardsSessionId(sessionId);
+		setCards([]);
+	}
 	const agents: ExternalInvocationAgentOption[] = [
 		{ id: "penguin", label: t("externalInvocation.agent.penguin") },
 		...detected.map((agent) => ({ id: agent.id, label: agent.label, disabled: remote })),
@@ -134,9 +164,10 @@ export function SessionExternalInvocationPage({
 		};
 	}, [client]);
 
+	const cwd = session?.cwd ?? null;
 	useEffect(() => {
-		if (!client || !session) return;
-		return client.subscribe(session.sessionId, (event) => {
+		if (!client || !sessionId || !cwd) return;
+		return client.subscribe(sessionId, (event) => {
 			if (event.type === "output" || event.type === "truncated") {
 				onInvocationEvent?.(event);
 				return;
@@ -147,7 +178,7 @@ export function SessionExternalInvocationPage({
 				applyExternalInvocationEvent(current, event, label, (status) => t(externalInvocationStatusKey[status])),
 			);
 		});
-	}, [client, recipient?.label, session, t]);
+	}, [client, cwd, recipient?.label, sessionId, t]);
 
 	return (
 		<SessionExternalInvocationView

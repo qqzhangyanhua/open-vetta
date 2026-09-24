@@ -524,9 +524,13 @@
 		"remoteUnsupported": "Remote projects are not supported yet",
 		"exitCode": "Exit code {{code}}",
 		"status": {
+			"queued": "Queued",
 			"running": "Running",
 			"completed": "Completed",
-			"failed": "Failed"
+			"failed": "Failed",
+			"interruptedUser": "Interrupted (you stopped it)",
+			"interruptedAppExit": "Interrupted (app quit)",
+			"interruptedCancelled": "Interrupted (cancelled)"
 		},
 		"viewInTerminal": "View in terminal",
 		"panel": "External invocation",

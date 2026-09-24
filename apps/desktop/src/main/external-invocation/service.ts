@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { EXTERNAL_INVOCATION_CUSTOM_TYPE } from "@vetta/runtime-core/conversation";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
@@ -29,9 +29,10 @@ export interface ExternalInvocationEntryData {
 	readonly agentId: string;
 	readonly prompt: string;
 	readonly cwd: string;
-	readonly status: "running" | "completed" | "failed";
+	readonly status: "queued" | "running" | "completed" | "failed" | "interrupted";
 	readonly exitCode: number | null;
 	readonly failureReason: string | null;
+	readonly interruptReason: "user" | "app-exit" | "cancelled" | null;
 	readonly discardedBytes: number;
 	readonly outputPath: string;
 	readonly startedAt: string;
@@ -40,6 +41,7 @@ export interface ExternalInvocationEntryData {
 
 export interface ExternalInvocationEntryStore {
 	append(entry: ExternalInvocationEntry): Promise<void> | void;
+	list(): readonly ExternalInvocationEntry[];
 }
 
 export type ExternalInvocationEvent =
@@ -66,6 +68,15 @@ export type ExternalInvocationEvent =
 			readonly discardedBytes: number;
 	  }
 	| {
+			readonly type: "interrupted";
+			readonly sessionId: string;
+			readonly invocationId: string;
+			readonly reason: "user" | "app-exit" | "cancelled";
+			readonly message: string;
+			readonly agentId?: string;
+			readonly prompt?: string;
+	  }
+	| {
 			readonly type: "output";
 			readonly sessionId: string;
 			readonly invocationId: string;
@@ -87,10 +98,20 @@ export interface ExternalInvocationService {
 		referencedPaths?: readonly string[];
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationEvent) => void): () => void;
+	subscribeRunning(listener: (sessionIds: readonly string[]) => void): () => void;
 	writeInput(invocationId: string, data: string): void;
 	stop(invocationId: string): void;
+	deleteSession(sessionId: string): Promise<void>;
+	shutdown(): void;
+	recover(): Promise<void>;
 	readOutput(sessionId: string, invocationId: string): { head: string; tail: string; discardedBytes: number } | null;
 }
+
+const INTERRUPT_MESSAGE = {
+	user: "已中断（你停止了它）",
+	"app-exit": "已中断（应用退出）",
+	cancelled: "已中断（已取消）",
+} as const;
 
 export function createExternalInvocationService(deps: {
 	processes: ExternalInvocationProcesses;
@@ -106,8 +127,27 @@ export function createExternalInvocationService(deps: {
 		{ sessionId: string; invocationId: string; head: string; tail: string; discardedBytes: number }
 	>();
 	const processes = new Map<string, ExternalInvocationProcess>();
+	const open = new Map<string, { sessionId: string; data: ExternalInvocationEntryData }>();
+	const settled = new Set<string>();
+	const statusEvents = new Map<string, ExternalInvocationEvent>();
+	const runningListeners = new Set<(sessionIds: readonly string[]) => void>();
+
+	function runningSessionIds(): readonly string[] {
+		const ids = new Set<string>();
+		for (const invocationId of processes.keys()) {
+			const sessionId = open.get(invocationId)?.sessionId;
+			if (sessionId) ids.add(sessionId);
+		}
+		return [...ids];
+	}
+
+	function notifyRunning(): void {
+		const ids = runningSessionIds();
+		for (const listener of runningListeners) listener(ids);
+	}
 
 	function emit(event: ExternalInvocationEvent): void {
+		if (event.type !== "output" && event.type !== "truncated") statusEvents.set(event.invocationId, event);
 		for (const listener of listeners.get(event.sessionId) ?? []) listener(event);
 	}
 
@@ -124,6 +164,9 @@ export function createExternalInvocationService(deps: {
 			const set = listeners.get(sessionId) ?? new Set();
 			set.add(listener);
 			listeners.set(sessionId, set);
+			for (const status of statusEvents.values()) {
+				if (status.sessionId === sessionId) listener(status);
+			}
 			for (const saved of savedOutput.values()) {
 				if (saved.sessionId !== sessionId) continue;
 				if (saved.head.length > 0) {
@@ -143,12 +186,86 @@ export function createExternalInvocationService(deps: {
 			}
 			return () => set.delete(listener);
 		},
+		subscribeRunning(listener) {
+			runningListeners.add(listener);
+			listener(runningSessionIds());
+			return () => runningListeners.delete(listener);
+		},
 		writeInput(invocationId, data) {
 			processes.get(invocationId)?.write(data);
 		},
 		stop(invocationId) {
-			processes.get(invocationId)?.kill();
+			const current = open.get(invocationId);
+			const proc = processes.get(invocationId);
+			if (!current || !proc || settled.has(invocationId)) return;
+			settled.add(invocationId);
+			proc.kill();
 			processes.delete(invocationId);
+			notifyRunning();
+			const endedAt = timestamp();
+			const message = INTERRUPT_MESSAGE.user;
+			void append({
+				sessionId: current.sessionId,
+				entryId: deps.ids.next(),
+				customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
+				timestamp: endedAt,
+				data: {
+					...current.data,
+					status: "interrupted",
+					exitCode: null,
+					failureReason: message,
+					interruptReason: "user",
+					endedAt,
+				},
+			});
+			emit({
+				type: "interrupted",
+				sessionId: current.sessionId,
+				invocationId,
+				agentId: current.data.agentId,
+				prompt: current.data.prompt,
+				reason: "user",
+				message,
+			});
+		},
+		async deleteSession(sessionId) {
+			for (const [invocationId, proc] of processes) {
+				if (open.get(invocationId)?.sessionId !== sessionId) continue;
+				settled.add(invocationId);
+				proc.kill();
+				processes.delete(invocationId);
+			}
+			rmSync(deps.artifactDirectory(sessionId), { recursive: true, force: true });
+			notifyRunning();
+		},
+		shutdown() {
+			for (const [invocationId, proc] of processes) {
+				settled.add(invocationId);
+				proc.kill();
+			}
+			processes.clear();
+			notifyRunning();
+		},
+		async recover() {
+			const latest = new Map<string, ExternalInvocationEntry>();
+			for (const entry of deps.entries.list()) latest.set(entry.data.invocationId, entry);
+			for (const entry of latest.values()) {
+				if (entry.data.status !== "running" && entry.data.status !== "queued") continue;
+				const endedAt = timestamp();
+				await append({
+					sessionId: entry.sessionId,
+					entryId: deps.ids.next(),
+					customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
+					timestamp: endedAt,
+					data: {
+						...entry.data,
+						status: "interrupted",
+						interruptReason: "app-exit",
+						failureReason: INTERRUPT_MESSAGE["app-exit"],
+						endedAt,
+					},
+				});
+			}
 		},
 		readOutput(sessionId, invocationId) {
 			const saved = savedOutput.get(invocationId);
@@ -200,6 +317,19 @@ export function createExternalInvocationService(deps: {
 					status: "running",
 					exitCode: null,
 					failureReason: null,
+					interruptReason: null,
+					discardedBytes: 0,
+					endedAt: null,
+				},
+			});
+			open.set(invocationId, {
+				sessionId: request.sessionId,
+				data: {
+					...base,
+					status: "running",
+					exitCode: null,
+					failureReason: null,
+					interruptReason: null,
 					discardedBytes: 0,
 					endedAt: null,
 				},
@@ -232,6 +362,7 @@ export function createExternalInvocationService(deps: {
 						status: "failed",
 						exitCode: null,
 						failureReason: reason,
+						interruptReason: null,
 						discardedBytes: 0,
 						endedAt,
 					},
@@ -248,6 +379,7 @@ export function createExternalInvocationService(deps: {
 			}
 
 			processes.set(invocationId, process);
+			notifyRunning();
 			const capture = new ExternalInvocationOutputCapture(
 				deps.outputLimitBytes ?? EXTERNAL_INVOCATION_OUTPUT_LIMIT_BYTES,
 			);
@@ -279,6 +411,10 @@ export function createExternalInvocationService(deps: {
 				});
 			});
 			process.onExit((event) => {
+				if (settled.has(invocationId)) return;
+				settled.add(invocationId);
+				processes.delete(invocationId);
+				notifyRunning();
 				flush();
 				const snapshot = capture.snapshot();
 				const endedAt = timestamp();
@@ -293,6 +429,7 @@ export function createExternalInvocationService(deps: {
 						status: failed ? "failed" : "completed",
 						exitCode: event.exitCode,
 						failureReason: failed ? `exit ${event.exitCode ?? "null"}` : null,
+						interruptReason: null,
 						discardedBytes: snapshot.discardedBytes,
 						endedAt,
 					},

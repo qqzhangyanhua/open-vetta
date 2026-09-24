@@ -4,6 +4,7 @@ import { getAgentDir } from "@vetta/coding-agent/config";
 import { EXTERNAL_INVOCATION_CUSTOM_TYPE } from "@vetta/runtime-core/conversation";
 import { ipcMain } from "electron";
 import { detectExternalAgentsOnPath, readLoginShellPath } from "../external-invocation/detect-agents.js";
+import { createExternalInvocationEntryLedger } from "../external-invocation/entry-ledger.js";
 import { createExternalInvocationService, type ExternalInvocationService } from "../external-invocation/service.js";
 import { getSharedRuntime } from "../runtime.js";
 import { createLocalPtyBackendFactory } from "../terminal/local-pty-backend.js";
@@ -15,13 +16,23 @@ export const EXTERNAL_INVOCATION_CHANNELS = {
 	writeInput: "external-invocation:write-input",
 	stop: "external-invocation:stop",
 	readOutput: "external-invocation:read-output",
+	attach: "external-invocation:attach",
+	detach: "external-invocation:detach",
+	watchRunning: "external-invocation:watch-running",
+	running: "external-invocation:running",
 } as const;
 
 let service: ExternalInvocationService | undefined;
+let ledger: ReturnType<typeof createExternalInvocationEntryLedger> | undefined;
 
 export function externalInvocationService(): ExternalInvocationService {
 	if (!service) {
 		const processes = createLocalPtyBackendFactory();
+		ledger = createExternalInvocationEntryLedger(
+			join(getAgentDir(), "external-invocations", "ledger.jsonl"),
+			(entry) =>
+				getSharedRuntime().appendSessionMetadataEntry(entry.sessionId, EXTERNAL_INVOCATION_CUSTOM_TYPE, entry.data),
+		);
 		service = createExternalInvocationService({
 			processes: {
 				async start(options) {
@@ -40,14 +51,7 @@ export function externalInvocationService(): ExternalInvocationService {
 					};
 				},
 			},
-			entries: {
-				append: (entry) =>
-					getSharedRuntime().appendSessionMetadataEntry(
-						entry.sessionId,
-						EXTERNAL_INVOCATION_CUSTOM_TYPE,
-						entry.data,
-					),
-			},
+			entries: ledger,
 			artifactDirectory: (sessionId) => join(getAgentDir(), "external-invocations", sessionId),
 			clock: { now: () => Date.now() },
 			ids: { next: () => crypto.randomUUID() },
@@ -57,7 +61,9 @@ export function externalInvocationService(): ExternalInvocationService {
 }
 
 export function registerExternalInvocationIpc(): () => void {
-	const subscriptions = new Map<string, () => void>();
+	const subscriptions = new Map<string, { count: number; unsubscribe: () => void }>();
+	const runningWatches = new Map<number, () => void>();
+	void externalInvocationService().recover();
 	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.listAgents, () => {
 		return detectExternalAgentsOnPath(readLoginShellPath(), (candidate) => {
 			try {
@@ -68,20 +74,52 @@ export function registerExternalInvocationIpc(): () => void {
 			}
 		});
 	});
-	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.start, async (event, request: unknown) => {
-		const parsed = parseStart(request);
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.start, async (_event, request: unknown) => {
+		return externalInvocationService().start(parseStart(request));
+	});
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.attach, async (event, sessionId: unknown) => {
+		if (typeof sessionId !== "string" || sessionId.length === 0) {
+			throw new Error("external invocation: sessionId must be a non-empty string");
+		}
+		const key = `${event.sender.id}:${sessionId}`;
+		const existing = subscriptions.get(key);
+		if (existing) {
+			existing.count += 1;
+			await ledger?.retry(sessionId);
+			return;
+		}
 		const invocation = externalInvocationService();
-		const key = `${event.sender.id}:${parsed.sessionId}`;
-		subscriptions.get(key)?.();
-		const unsubscribe = invocation.subscribe(parsed.sessionId, (update) => {
+		const unsubscribe = invocation.subscribe(sessionId, (update) => {
 			if (!event.sender.isDestroyed()) event.sender.send(EXTERNAL_INVOCATION_CHANNELS.event, update);
 		});
-		subscriptions.set(key, unsubscribe);
+		subscriptions.set(key, { count: 1, unsubscribe });
 		event.sender.once("destroyed", () => {
 			unsubscribe();
 			subscriptions.delete(key);
 		});
-		return invocation.start(parsed);
+		await ledger?.retry(sessionId);
+	});
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.detach, (event, sessionId: unknown) => {
+		if (typeof sessionId !== "string" || sessionId.length === 0) return;
+		const key = `${event.sender.id}:${sessionId}`;
+		const existing = subscriptions.get(key);
+		if (!existing) return;
+		existing.count -= 1;
+		if (existing.count > 0) return;
+		existing.unsubscribe();
+		subscriptions.delete(key);
+	});
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.watchRunning, (event) => {
+		const senderId = event.sender.id;
+		runningWatches.get(senderId)?.();
+		const unsubscribe = externalInvocationService().subscribeRunning((sessionIds) => {
+			if (!event.sender.isDestroyed()) event.sender.send(EXTERNAL_INVOCATION_CHANNELS.running, sessionIds);
+		});
+		runningWatches.set(senderId, unsubscribe);
+		event.sender.once("destroyed", () => {
+			unsubscribe();
+			runningWatches.delete(senderId);
+		});
 	});
 	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.writeInput, (_event, invocationId: unknown, data: unknown) => {
 		if (typeof invocationId !== "string" || invocationId.length === 0) {
@@ -106,10 +144,15 @@ export function registerExternalInvocationIpc(): () => void {
 		return externalInvocationService().readOutput(sessionId, invocationId);
 	});
 	return () => {
-		for (const unsubscribe of subscriptions.values()) unsubscribe();
+		for (const subscription of subscriptions.values()) subscription.unsubscribe();
 		subscriptions.clear();
+		for (const unsubscribe of runningWatches.values()) unsubscribe();
+		runningWatches.clear();
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.listAgents);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.start);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.attach);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.detach);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.watchRunning);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.writeInput);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.stop);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.readOutput);

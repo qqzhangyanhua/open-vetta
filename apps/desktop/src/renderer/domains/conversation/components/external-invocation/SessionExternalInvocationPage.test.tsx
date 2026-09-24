@@ -3,7 +3,7 @@
 import { i18n, initI18n } from "@shared/i18n";
 import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ExternalInvocationTerminalSession } from "./ExternalInvocationTerminalSession";
 import { clearExternalRecipients } from "@shared/store/external-recipient";
@@ -254,4 +254,110 @@ describe("external invocation terminal in the session", () => {
 		expect(screen.queryByRole("dialog", { name: "停止这次调用？" })).toBeNull();
 		expect(screen.queryByRole("region", { name: "外部调用" })).toBeNull();
 	});
+
+	it("keeps a running invocation when switching away and restores the card and terminal on return", async () => {
+		const user = userEvent.setup();
+		const listeners = new Map<string, Set<(event: ExternalInvocationClientEvent) => void>>();
+		const runningListeners = new Set<(sessionIds: readonly string[]) => void>();
+		const saved = new Map<string, { sessionId: string; status: ExternalInvocationClientEvent; chunks: string[] }>();
+		let running = new Set<string>();
+		function publishRunning(): void {
+			const ids = [...running];
+			for (const listener of runningListeners) listener(ids);
+		}
+		function emit(sessionId: string, event: ExternalInvocationClientEvent): void {
+			if (event.type === "running") {
+				running = new Set(running).add(sessionId);
+				publishRunning();
+				saved.set(event.invocationId, { sessionId, status: event, chunks: [] });
+			}
+			if (event.type === "output") {
+				const current = saved.get(event.invocationId);
+				if (current) current.chunks.push(event.chunk ?? "");
+			}
+			for (const listener of listeners.get(sessionId) ?? []) listener(event);
+		}
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: async () => ({ invocationId: "inv-1" }),
+			subscribe(sessionId, listener) {
+				const set = listeners.get(sessionId) ?? new Set();
+				set.add(listener);
+				listeners.set(sessionId, set);
+				for (const item of saved.values()) {
+					if (item.sessionId !== sessionId) continue;
+					listener(item.status);
+					if (item.chunks.length > 0) {
+						listener({ type: "output", invocationId: item.status.invocationId, chunk: item.chunks.join("") });
+					}
+				}
+				return () => set.delete(listener);
+			},
+			subscribeRunning(listener) {
+				runningListeners.add(listener);
+				listener([...running]);
+				return () => runningListeners.delete(listener);
+			},
+		};
+		function Switcher(): JSX.Element {
+			const [session, setSession] = useState({ sessionId: "session-a", cwd: "/work/app" });
+			const [runningIds, setRunningIds] = useState<readonly string[]>([]);
+			return (
+				<>
+					<nav aria-label="会话">
+						<span>会话 A{runningIds.includes("session-a") ? " 运行中" : ""}</span>
+						<button type="button" onClick={() => setSession({ sessionId: "session-b", cwd: "/work/fresh" })}>
+							新会话
+						</button>
+						<button type="button" onClick={() => setSession({ sessionId: "session-a", cwd: "/work/app" })}>
+							回到会话 A
+						</button>
+					</nav>
+					<ExternalInvocationRunningWatch client={client} onChange={setRunningIds} />
+					<ExternalInvocationTerminalSession
+						session={session}
+						client={client}
+						prompt="fix the test"
+						onPromptChange={() => undefined}
+					/>
+				</>
+			);
+		}
+		render(<Switcher />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		act(() => {
+			emit("session-a", { type: "running", invocationId: "inv-1", prompt: "fix the test", agentId: "grok" });
+			emit("session-a", { type: "output", invocationId: "inv-1", chunk: "before " });
+		});
+		expect(screen.getByRole("navigation", { name: "会话" }).textContent).toContain("运行中");
+		expect(screen.getByRole("region", { name: "外部调用" }).querySelector("pre")?.textContent).toContain("before");
+		await user.click(screen.getByRole("button", { name: "新会话" }));
+		expect(screen.queryByRole("region", { name: "外部调用" })).toBeNull();
+		expect(screen.getByRole("navigation", { name: "会话" }).textContent).toContain("运行中");
+		act(() => {
+			emit("session-a", { type: "output", invocationId: "inv-1", chunk: "away " });
+		});
+		await user.click(screen.getByRole("button", { name: "回到会话 A" }));
+		expect(screen.getAllByText("运行中").length).toBeGreaterThan(0);
+		const replay = await screen.findByRole("region", { name: "外部调用" });
+		expect(replay.querySelector("pre")?.textContent).toContain("before");
+		expect(replay.querySelector("pre")?.textContent).toContain("away");
+		act(() => {
+			emit("session-a", { type: "output", invocationId: "inv-1", chunk: "live" });
+		});
+		expect(screen.getByRole("region", { name: "外部调用" }).querySelector("pre")?.textContent).toContain("live");
+	});
 });
+
+function ExternalInvocationRunningWatch({
+	client,
+	onChange,
+}: {
+	client: ExternalInvocationClient;
+	onChange: (sessionIds: readonly string[]) => void;
+}): null {
+	useEffect(() => client.subscribeRunning?.(onChange), [client, onChange]);
+	return null;
+}

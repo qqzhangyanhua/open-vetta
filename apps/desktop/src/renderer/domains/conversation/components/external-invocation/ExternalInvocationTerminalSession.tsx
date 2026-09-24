@@ -9,7 +9,7 @@ import {
 	reduceBottomPanel,
 	type BottomPanelSessionState,
 } from "@shared/store/bottom-panel-layout";
-import { type JSX, useState } from "react";
+import { type JSX, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	SessionExternalInvocationPage,
@@ -48,6 +48,15 @@ export function ExternalInvocationTerminalSession({
 	const [views, setViews] = useState<Readonly<Record<string, string>>>({});
 	const [scrollTo, setScrollTo] = useState<string | null>(null);
 	const [confirmTab, setConfirmTab] = useState<string | null>(null);
+	const [boundSessionId, setBoundSessionId] = useState(session.sessionId);
+	if (boundSessionId !== session.sessionId) {
+		setBoundSessionId(session.sessionId);
+		setLayout(emptyBottomPanelState());
+		setTranscripts({});
+		setViews({});
+		setScrollTo(null);
+		setConfirmTab(null);
+	}
 	const projectLabel = pathBasename(session.cwd);
 
 	function open(invocationId: string, status: "running" | "finished"): void {
@@ -63,7 +72,9 @@ export function ExternalInvocationTerminalSession({
 
 	function remember(event: ExternalInvocationClientEvent): void {
 		if (event.type === "running") open(event.invocationId, "running");
-		if (event.type === "completed" || event.type === "failed") open(event.invocationId, "finished");
+		if (event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
+			open(event.invocationId, "finished");
+		}
 		if (event.type === "output") {
 			setTranscripts((current) => {
 				const prev = current[event.invocationId] ?? { head: "", tail: "", discardedBytes: 0 };
@@ -85,19 +96,24 @@ export function ExternalInvocationTerminalSession({
 		}
 	}
 
-	const wrapped: ExternalInvocationClient = {
-		...client,
-		start: async (request) => {
-			const started = await client.start(request);
-			open(started.invocationId, "running");
-			return started;
-		},
-		subscribe: (sessionId, listener) =>
-			client.subscribe(sessionId, (event) => {
-				remember(event);
-				listener(event);
-			}),
-	};
+	const rememberRef = useRef(remember);
+	rememberRef.current = remember;
+	const wrapped = useMemo<ExternalInvocationClient>(
+		() => ({
+			...client,
+			start: async (request) => {
+				const started = await client.start(request);
+				rememberRef.current({ type: "running", invocationId: started.invocationId, agentId: request.agentId });
+				return started;
+			},
+			subscribe: (sessionId, listener) =>
+				client.subscribe(sessionId, (event) => {
+					rememberRef.current(event);
+					listener(event);
+				}),
+		}),
+		[client],
+	);
 
 	const active = activeBottomPanelTab(layout);
 	const activeId = active?.componentId === EXTERNAL_INVOCATION_COMPONENT_ID ? active.tabId : null;

@@ -248,7 +248,7 @@ export interface InputBarModel {
 			subscribe(
 				sessionId: string,
 				listener: (event: {
-					type: "running" | "completed" | "failed" | "output" | "truncated";
+					type: "running" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 					chunk?: string;
 					discardedBytes?: number;
 					invocationId: string;
@@ -260,7 +260,7 @@ export interface InputBarModel {
 			): () => void;
 		} | null;
 		readonly onInvocationEvent?: (event: {
-			readonly type: "running" | "completed" | "failed" | "output" | "truncated";
+			readonly type: "running" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 			readonly invocationId: string;
 		}) => void;
 		readonly onViewInTerminal?: (invocationId: string) => void;

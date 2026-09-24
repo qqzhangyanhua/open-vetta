@@ -201,7 +201,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 			onInvocationEvent: (event) => {
 				const active = session.activeSession;
 				if (!active) return;
-				if (event.type === "running" || event.type === "completed" || event.type === "failed") {
+				if (event.type === "running" || event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
 					const status = event.type === "running" ? "running" : "finished";
 					invocationStatus.current[event.invocationId] = status;
 					placeExternalInvocation({

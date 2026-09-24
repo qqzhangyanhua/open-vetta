@@ -1,6 +1,7 @@
 export const EXTERNAL_INVOCATION_CUSTOM_TYPE = "vetta.external_invocation";
 
-export type ExternalInvocationStatus = "running" | "completed" | "failed";
+export type ExternalInvocationStatus = "queued" | "running" | "completed" | "failed" | "interrupted";
+export type ExternalInvocationInterruptReason = "user" | "app-exit" | "cancelled";
 
 export interface ExternalInvocationRecord {
 	readonly invocationId: string;
@@ -9,6 +10,7 @@ export interface ExternalInvocationRecord {
 	readonly status: ExternalInvocationStatus;
 	readonly exitCode: number | null;
 	readonly failureReason: string | null;
+	readonly interruptReason?: ExternalInvocationInterruptReason | null;
 	readonly discardedBytes: number;
 }
 
@@ -21,12 +23,21 @@ export function parseExternalInvocationRecord(data: unknown): ExternalInvocation
 	if (typeof invocationId !== "string" || invocationId.length === 0) return undefined;
 	if (typeof agentId !== "string" || agentId.length === 0) return undefined;
 	if (typeof prompt !== "string") return undefined;
-	if (status !== "running" && status !== "completed" && status !== "failed") return undefined;
+	if (
+		status !== "queued" &&
+		status !== "running" &&
+		status !== "completed" &&
+		status !== "failed" &&
+		status !== "interrupted"
+	) {
+		return undefined;
+	}
 	const exitCode = data.exitCode;
 	if (exitCode !== null && exitCode !== undefined && typeof exitCode !== "number") return undefined;
 	const failureReason = data.failureReason;
 	if (failureReason !== null && failureReason !== undefined && typeof failureReason !== "string") return undefined;
 	const discardedBytes = data.discardedBytes;
+	const interruptReason = data.interruptReason;
 	return {
 		invocationId,
 		agentId,
@@ -34,6 +45,9 @@ export function parseExternalInvocationRecord(data: unknown): ExternalInvocation
 		status,
 		exitCode: typeof exitCode === "number" ? exitCode : null,
 		failureReason: typeof failureReason === "string" ? failureReason : null,
+		...(interruptReason === "user" || interruptReason === "app-exit" || interruptReason === "cancelled"
+			? { interruptReason }
+			: {}),
 		discardedBytes: typeof discardedBytes === "number" && discardedBytes >= 0 ? discardedBytes : 0,
 	};
 }

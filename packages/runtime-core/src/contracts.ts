@@ -497,9 +497,10 @@ export type HistoryEntry =
 			invocationId: string;
 			agentId: string;
 			prompt: string;
-			status: "running" | "completed" | "failed";
+			status: "queued" | "running" | "completed" | "failed" | "interrupted";
 			exitCode: number | null;
 			failureReason: string | null;
+			interruptReason?: "user" | "app-exit" | "cancelled" | null;
 			discardedBytes: number;
 			timestamp: string;
 	  }

@@ -4,6 +4,7 @@ import {
 	automationSessionLinksAtom,
 	conversationFilterTagId,
 	conversationTagsAtom,
+	externalInvocationRunningSessionIdsAtom,
 	pinnedSessionPathsAtom,
 	renamingSessionPathAtom,
 	runningSessionPathsAtom,
@@ -93,6 +94,7 @@ export function useDefaultSessionListModel({
 	const viewCacheRef = useRef(new Map<string, DefaultSessionListItemView>());
 	const [renamingSessionPath, setRenamingSessionPath] = useAtom(renamingSessionPathAtom);
 	const runningSessionPaths = useAtomValue(runningSessionPathsAtom);
+	const externalInvocationRunningSessionIds = useAtomValue(externalInvocationRunningSessionIdsAtom);
 	const pinnedSessionPaths = useAtomValue(pinnedSessionPathsAtom);
 	const scheduledSessionPaths = useAtomValue(scheduledSessionPathsAtom);
 	const scheduledBasenames = useMemo(() => {
@@ -178,7 +180,9 @@ export function useDefaultSessionListModel({
 			});
 			const isActive = isSidebarConversationActive(session, activeSessionPath, activeTeamSessionId);
 			const isRenaming = identity.mutable && renamingSessionPath === session.path;
-			const isRunning = runningSessionPaths.has(session.path);
+			const isRunning =
+				runningSessionPaths.has(session.path) ||
+				(session.kind === "conversation" && externalInvocationRunningSessionIds.has(session.id));
 			const isSchedule =
 				identity.mutable &&
 				(scheduledSessionPaths.has(session.path) ||
@@ -233,6 +237,7 @@ export function useDefaultSessionListModel({
 		ordering.visible,
 		i18n.language,
 		renamingSessionPath,
+		externalInvocationRunningSessionIds,
 		runningSessionPaths,
 		pinnedSessionPaths,
 		scheduledBasenames,

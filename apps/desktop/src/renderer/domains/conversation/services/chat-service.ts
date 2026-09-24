@@ -649,6 +649,7 @@ export function fullHistoryToChat(entries: HistoryEntry[]): ChatConversationItem
 					status: entry.status,
 					exitCode: entry.exitCode,
 					failureReason: entry.failureReason,
+					interruptReason: entry.interruptReason,
 				},
 			});
 			continue;

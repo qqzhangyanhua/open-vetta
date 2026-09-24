@@ -54,6 +54,7 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
 });
 
 const externalInvocationStatusKey = {
+	queued: "externalInvocation.status.queued",
 	running: "externalInvocation.status.running",
 	completed: "externalInvocation.status.completed",
 	failed: "externalInvocation.status.failed",
@@ -65,9 +66,10 @@ const ExternalInvocationHistoryCard = memo(function ExternalInvocationHistoryCar
 	event: {
 		readonly agentId: string;
 		readonly prompt: string;
-		readonly status: "running" | "completed" | "failed";
+		readonly status: "queued" | "running" | "completed" | "failed" | "interrupted";
 		readonly exitCode: number | null;
 		readonly failureReason: string | null;
+		readonly interruptReason?: "user" | "app-exit" | "cancelled" | null;
 	};
 }) {
 	const { t } = useTranslation("chat");
@@ -75,9 +77,19 @@ const ExternalInvocationHistoryCard = memo(function ExternalInvocationHistoryCar
 	return (
 		<article aria-label={`${agent} ${event.prompt}`}>
 			<p>{event.prompt}</p>
-			<p>{t(externalInvocationStatusKey[event.status])}</p>
+			<p>
+				{event.status === "interrupted"
+					? t(
+							event.interruptReason === "app-exit"
+								? "externalInvocation.status.interruptedAppExit"
+								: event.interruptReason === "cancelled"
+									? "externalInvocation.status.interruptedCancelled"
+									: "externalInvocation.status.interruptedUser",
+						)
+					: t(externalInvocationStatusKey[event.status])}
+			</p>
 			{event.exitCode !== null ? <p>{t("externalInvocation.exitCode", { code: event.exitCode })}</p> : null}
-			{event.failureReason ? <p>{event.failureReason}</p> : null}
+			{event.status !== "interrupted" && event.failureReason ? <p>{event.failureReason}</p> : null}
 		</article>
 	);
 });
