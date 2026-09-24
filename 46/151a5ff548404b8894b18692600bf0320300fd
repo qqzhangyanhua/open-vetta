@@ -1,0 +1,28 @@
+docs/dev/quality-gates.md
+  s_5f5c5449731b16::t_62601f47e9a3a9 16,210
+  s_5f5c5449731b16::t_522fac0e0c268f 314
+AGENTS.md
+  s_5f5c5449731b16::t_368a34e417970b 213
+scripts/quality/test-impact.mjs
+  s_5f5c5449731b16::t_cc55bcae6792ae 92
+scripts/quality/quality-gates.test.mjs
+  s_5f5c5449731b16::t_9673449fa4b2b5 441
+.github/release-notes/v0.5.59.md
+  s_5f5c5449731b16::t_2f64a8a84587e9 231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "46151a5ff548404b8894b18692600bf0320300fd",
+  "prompts": {},
+  "sessions": {
+    "s_5f5c5449731b16": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d1fc-7740-7fd0-8220-ace514ff4664",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
