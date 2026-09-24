@@ -1,6 +1,6 @@
 import { appendFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { changedFiles } from "./lib.mjs";
+import { changedFiles, toPosix } from "./lib.mjs";
 
 const PACKAGED_SMOKE_PATTERNS = [
 	/^apps\/desktop\/(src\/main|src\/preload|scripts\/(prepare-pack\.js|desktop-build-environment\.mjs|mac-signing-config\.mjs|run-open-source-build\.mjs)|scripts\/desktop-packaging-layout\.mjs|scripts\/packaged-native-dependencies\.|vite\..*config\.|package\.json|wdio\.conf\.ts|e2e\/)/,
@@ -10,7 +10,7 @@ const PACKAGED_SMOKE_PATTERNS = [
 ];
 
 export function classifyDesktopPackagingRisk(paths) {
-	const normalized = paths.map((path) => path.replaceAll("\\", "/"));
+	const normalized = paths.map((path) => toPosix(path));
 	const reasons = normalized.filter((path) => PACKAGED_SMOKE_PATTERNS.some((pattern) => pattern.test(path)));
 	return {
 		packagedSmokeRequired: reasons.length > 0,

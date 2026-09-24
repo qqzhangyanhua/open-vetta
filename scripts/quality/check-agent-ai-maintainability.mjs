@@ -2,7 +2,7 @@
 
 import { join } from "node:path";
 import ts from "typescript";
-import { fail, isDirectRun, ok, readText, rel, repoRoot, walkFiles } from "./lib.mjs";
+import { fail, isDirectRun, ok, readText, rel, repoRoot, toPosix, walkFiles } from "./lib.mjs";
 
 const FACADE_FILES = Object.freeze([
 	"packages/ai/src/providers/amazon-bedrock.ts",
@@ -53,7 +53,7 @@ const REQUIRED_AGENT_LOOP_IMPORTS = Object.freeze([
 
 export function findAgentAiMaintainabilityViolations(files) {
 	const violations = [];
-	const byPath = new Map(files.map((file) => [file.path.replaceAll("\\", "/"), file.text]));
+	const byPath = new Map(files.map((file) => [toPosix(file.path), file.text]));
 	for (const path of REQUIRED_OWNER_FILES) {
 		if (!byPath.has(path)) violations.push(`${path}: required responsibility owner is missing`);
 	}

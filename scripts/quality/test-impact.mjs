@@ -20,6 +20,7 @@ import {
 	parseFileSelectionArgs,
 	repoRoot,
 	runBun,
+	toPosix,
 	WORKSPACE_PACKAGES,
 } from "./lib.mjs";
 
@@ -49,12 +50,12 @@ function supportsTargetedVitest(testScript) {
 	return (
 		typeof testScript === "string" &&
 		!testScript.includes("&&") &&
-		/^bun\s+\S*scripts\/quality\/run-vitest\.mjs(?:\s|$)/.test(testScript.replaceAll("\\", "/"))
+		/^bun\s+\S*scripts\/quality\/run-vitest\.mjs(?:\s|$)/.test(toPosix(testScript))
 	);
 }
 
 function staticVitestArgs(testScript) {
-	const normalized = testScript.replaceAll("\\", "/");
+	const normalized = toPosix(testScript);
 	const match = normalized.match(/^bun\s+\S*scripts\/quality\/run-vitest\.mjs(?:\s+(.*))?$/);
 	if (!match) return [];
 	return (match[1] ?? "")
@@ -75,7 +76,7 @@ export function parseImpactArgs(args, root = repoRoot) {
 }
 
 export function createImpactTestPlan(files, pathExists = (file) => existsSync(join(repoRoot, file))) {
-	const normalizedFiles = [...new Set(files.map((file) => file.replaceAll("\\", "/")))].sort();
+	const normalizedFiles = [...new Set(files.map((file) => toPosix(file)))].sort();
 	const runQuality = normalizedFiles.some((file) => file.startsWith("scripts/"));
 	const fallbackReasons = [];
 	if (normalizedFiles.some((file) => ROOT_GLOBAL_TEST_FILES.has(file))) {

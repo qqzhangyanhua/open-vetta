@@ -1,4 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { findPackageBoundaryViolations, findPackageManifestBoundaryViolations } from "./check-package-boundaries.mjs";
@@ -18,6 +19,7 @@ import {
 	changedFiles,
 	expandTestablePackages,
 	formatElapsedTime,
+	normalizeRepoPath,
 	packagesFromPaths,
 	parseBaseArgs,
 	parseFileSelectionArgs,
@@ -90,6 +92,34 @@ describe("changed file selection", () => {
 		});
 		expect(() => parseFileSelectionArgs(["../outside.ts"])).toThrow("inside the repository");
 		expect(() => parseFileSelectionArgs(["..\\outside.ts"])).toThrow("inside the repository");
+	});
+
+	it("rejects path traversal outside the repository", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-repo-path-"));
+		try {
+			expect(() => normalizeRepoPath("../../etc/passwd", root)).toThrow("inside the repository");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("normalizes Windows separators to forward slashes", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-repo-path-"));
+		try {
+			expect(normalizeRepoPath("packages\\ai\\src\\index.ts", root)).toBe("packages/ai/src/index.ts");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("keeps a lexical path when a middle component is a file", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-repo-path-"));
+		try {
+			writeFileSync(join(root, "file.txt"), "text\n");
+			expect(normalizeRepoPath("file.txt/child.ts", root)).toBe("file.txt/child.ts");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
 	});
 });
 

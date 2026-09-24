@@ -9,7 +9,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { fail, isBinaryLike, ok, readText, rel, repoRoot, stagedFiles, walkFiles } from "./lib.mjs";
+import { fail, isBinaryLike, ok, readText, rel, repoRoot, stagedFiles, toPosix, walkFiles } from "./lib.mjs";
 
 // Build markers at runtime so this file is not flagged by its own patterns.
 const begin = "-----BEGIN ";
@@ -37,7 +37,7 @@ const SKIP_DIR_PARTS = [
 ];
 
 function shouldSkip(posixPath) {
-	const p = `/${posixPath.replaceAll("\\", "/")}`;
+	const p = `/${toPosix(posixPath)}`;
 	if (p.endsWith("/check-private-keys.mjs")) return true;
 	return SKIP_DIR_PARTS.some((part) => p.includes(part));
 }

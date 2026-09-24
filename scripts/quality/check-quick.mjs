@@ -10,12 +10,12 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { changedFiles, isDirectRun, ok, parseFileSelectionArgs, repoRoot, runBun } from "./lib.mjs";
+import { changedFiles, isDirectRun, ok, parseFileSelectionArgs, repoRoot, runBun, toPosix } from "./lib.mjs";
 
 const MAX_BATCH_CHARS = 16_000;
 
 export function isBiomeGlobalTrigger(file) {
-	const normalized = file.replaceAll("\\", "/");
+	const normalized = toPosix(file);
 	return normalized === ".editorconfig" || /(?:^|\/)biome\.jsonc?$/.test(normalized);
 }
 
@@ -38,7 +38,7 @@ export function batchPaths(paths, maxChars = MAX_BATCH_CHARS) {
 }
 
 export function createQuickCheckPlan(files, pathExists = (file) => existsSync(join(repoRoot, file))) {
-	const normalizedFiles = [...new Set(files.map((file) => file.replaceAll("\\", "/")))].sort();
+	const normalizedFiles = [...new Set(files.map((file) => toPosix(file)))].sort();
 	const existingFiles = normalizedFiles.filter(pathExists);
 	const fullBiome = normalizedFiles.some(isBiomeGlobalTrigger);
 	return {

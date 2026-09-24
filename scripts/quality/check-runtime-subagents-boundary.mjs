@@ -1,7 +1,7 @@
 /** Keep the subagent runtime independent from product and tool-protocol concerns. */
 
 import { join } from "node:path";
-import { fail, isDirectRun, ok, readText, rel, repoRoot, walkFiles } from "./lib.mjs";
+import { fail, isDirectRun, ok, readText, rel, repoRoot, toPosix, walkFiles } from "./lib.mjs";
 
 const PACKAGE_DIR = "packages/runtime-subagents";
 const DEPENDENCY_SECTIONS = Object.freeze([
@@ -50,7 +50,7 @@ const COORDINATOR_FORBIDDEN_TOKENS = Object.freeze([
 
 export function findRuntimeSubagentsBoundaryViolations({ manifest, files }) {
 	const violations = [];
-	const paths = new Set(files.map((file) => file.path.replaceAll("\\", "/")));
+	const paths = new Set(files.map((file) => toPosix(file.path)));
 	for (const section of DEPENDENCY_SECTIONS) {
 		for (const dependency of Object.keys(manifest.content[section] ?? {})) {
 			if (!dependency.startsWith("@vetta/")) continue;
@@ -58,7 +58,7 @@ export function findRuntimeSubagentsBoundaryViolations({ manifest, files }) {
 		}
 	}
 	for (const file of files) {
-		const normalizedPath = file.path.replaceAll("\\", "/");
+		const normalizedPath = toPosix(file.path);
 		for (const [index, line] of file.text.split(/\r?\n/u).entries()) {
 			for (const token of FORBIDDEN_SOURCE_TOKENS) {
 				if (!line.includes(token)) continue;

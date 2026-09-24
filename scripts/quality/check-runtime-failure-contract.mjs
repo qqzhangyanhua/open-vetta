@@ -1,7 +1,7 @@
 /** Keep production runtime failures structured and recovery decisions explicit. */
 
 import { join } from "node:path";
-import { fail, isDirectRun, ok, readText, repoRoot, walkFiles } from "./lib.mjs";
+import { fail, isDirectRun, ok, readText, repoRoot, toPosix, walkFiles } from "./lib.mjs";
 
 export const REQUIRED_RUNTIME_FAILURE_MARKERS = Object.freeze({
 	"packages/coding-agent/src/rpc/rpc-failure.ts": [
@@ -80,7 +80,7 @@ const FORBIDDEN_BOUNDARY_PATTERNS = [
 
 export function findRuntimeFailureContractViolations(files, { requireBaseline = true } = {}) {
 	const violations = [];
-	const filesByPath = new Map(files.map((file) => [normalizePath(file.path), file.text]));
+	const filesByPath = new Map(files.map((file) => [toPosix(file.path), file.text]));
 
 	if (requireBaseline) {
 		for (const [path, markers] of Object.entries(REQUIRED_RUNTIME_FAILURE_MARKERS)) {
@@ -97,22 +97,18 @@ export function findRuntimeFailureContractViolations(files, { requireBaseline = 
 
 	for (const file of files) {
 		for (const forbidden of FORBIDDEN_BOUNDARY_PATTERNS) {
-			if (forbidden.pattern.test(file.text)) violations.push(`${normalizePath(file.path)}: ${forbidden.label}`);
+			if (forbidden.pattern.test(file.text)) violations.push(`${toPosix(file.path)}: ${forbidden.label}`);
 		}
 	}
 
 	return violations;
 }
 
-function normalizePath(path) {
-	return path.replaceAll("\\", "/");
-}
-
 function readCurrentBoundaryFiles() {
 	const files = BOUNDARY_ROOTS.flatMap((directory) =>
 		walkFiles(join(repoRoot, directory), { extensions: [".ts", ".go"] })
 			.filter((path) => !path.endsWith("_test.go") && !path.endsWith(".test.ts"))
-			.map((path) => ({ path: normalizePath(path.slice(repoRoot.length + 1)), text: readText(path) })),
+			.map((path) => ({ path: toPosix(path.slice(repoRoot.length + 1)), text: readText(path) })),
 	);
 	for (const path of BOUNDARY_FILES) files.push({ path, text: readText(join(repoRoot, path)) });
 	return files;

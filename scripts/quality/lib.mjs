@@ -10,8 +10,13 @@ import { fileURLToPath } from "node:url";
 
 export const repoRoot = process.cwd();
 
+/** Normalize separators to `/`, including Windows paths observed on POSIX. */
+export function toPosix(p) {
+	return p.replaceAll("\\", "/");
+}
+
 function workspaceKey(directory) {
-	const parts = directory.replaceAll("\\", "/").split("/");
+	const parts = toPosix(directory).split("/");
 	if (parts[0] === "packages" && parts[1] === "plugins") {
 		if ((parts[2] === "presets" || parts[2] === "externals") && parts[3]) {
 			return `${parts[2]}/${parts[3]}`;
@@ -25,7 +30,7 @@ function workspaceKey(directory) {
 }
 
 function expandWorkspacePattern(pattern, root = repoRoot) {
-	const normalized = pattern.replaceAll("\\", "/");
+	const normalized = toPosix(pattern);
 	if (!normalized.includes("*")) return [normalized];
 	const segments = normalized.split("/");
 	let directories = [""];
@@ -160,7 +165,7 @@ export function parseBaseArgs(args, defaultBase = "origin/dev") {
 
 export function normalizeRepoPath(input, root = repoRoot) {
 	if (typeof input !== "string" || input.length === 0) throw new Error("file path must be non-empty");
-	const absolute = resolve(root, input.replaceAll("\\", sep));
+	const absolute = resolve(root, toPosix(input));
 	const relativePath = relative(root, absolute);
 	if (
 		relativePath === "" ||
@@ -213,7 +218,7 @@ export function packagesFromPaths(paths) {
 	const found = new Set();
 	const workspacesBySpecificity = [...WORKSPACE_PACKAGES].sort((left, right) => right.dir.length - left.dir.length);
 	for (const file of paths) {
-		const norm = file.replaceAll("\\", "/");
+		const norm = toPosix(file);
 		if (!norm.startsWith("packages/") && !norm.startsWith("apps/")) continue;
 		const workspace = workspacesBySpecificity.find(({ dir }) => norm === dir || norm.startsWith(`${dir}/`));
 		if (workspace) found.add(workspace.key);
@@ -310,10 +315,6 @@ export function walkFiles(dir, { extensions = [".ts", ".tsx", ".js", ".mjs", ".c
 
 export function readText(filePath) {
 	return readFileSync(filePath, "utf8");
-}
-
-export function toPosix(p) {
-	return p.split(sep).join("/");
 }
 
 export function rel(filePath) {

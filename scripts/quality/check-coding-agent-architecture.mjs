@@ -2,7 +2,7 @@
 
 import { join, posix } from "node:path";
 import ts from "typescript";
-import { fail, isDirectRun, ok, readText, rel, repoRoot, walkFiles } from "./lib.mjs";
+import { fail, isDirectRun, ok, readText, rel, repoRoot, toPosix, walkFiles } from "./lib.mjs";
 
 const SOURCE_ROOT = "packages/coding-agent/src";
 const PACKAGE_ROOT = "packages/coding-agent";
@@ -78,7 +78,7 @@ const MEMORY_RUNTIME_COMPOSITION_ROOTS = Object.freeze([
 const RPC_HOST_COMPOSITION_ROOTS = Object.freeze(["apps/cli-host/src/rpc/runtime-host/runtime-host.ts"]);
 
 export function collectCodingAgentArchitectureState({ files, packageJson }) {
-	const normalizedFiles = files.map((file) => ({ ...file, path: normalizePath(file.path) }));
+	const normalizedFiles = files.map((file) => ({ ...file, path: toPosix(file.path) }));
 	const edges = normalizedFiles.flatMap(collectModuleEdges);
 	const sourcePaths = normalizedFiles
 		.filter((file) => file.path.startsWith(`${SOURCE_ROOT}/`))
@@ -1642,10 +1642,6 @@ function scriptKind(path) {
 	return ts.ScriptKind.TS;
 }
 
-function normalizePath(path) {
-	return path.replaceAll("\\", "/");
-}
-
 function readCurrentInput() {
 	const packagePath = join(repoRoot, PACKAGE_ROOT, "package.json");
 	const codingAgentFiles = walkFiles(join(repoRoot, SOURCE_ROOT), { extensions: [".ts", ".tsx"] }).map((path) => ({
@@ -1656,7 +1652,10 @@ function readCurrentInput() {
 		.flatMap((workspaceRoot) =>
 			walkFiles(join(repoRoot, workspaceRoot), { extensions: [".ts", ".tsx", ".js", ".mjs", ".cjs"] }),
 		)
-		.filter((path) => !normalizePath(path).includes("/node_modules/") && !normalizePath(path).includes("/dist/"))
+		.filter((path) => {
+			const normalized = toPosix(path);
+			return !normalized.includes("/node_modules/") && !normalized.includes("/dist/");
+		})
 		.map((path) => ({ path: rel(path), text: readText(path) }))
 		.filter(
 			(file) =>

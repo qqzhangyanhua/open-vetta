@@ -14,7 +14,7 @@
 
 import { join } from "node:path";
 import ts from "typescript";
-import { fail, isDirectRun, ok, readText, rel, repoRoot, walkFiles } from "./lib.mjs";
+import { fail, isDirectRun, ok, readText, rel, repoRoot, toPosix, walkFiles } from "./lib.mjs";
 
 /** Reusable package prefixes that must not depend on concrete applications. */
 const LIB_PREFIXES = [
@@ -229,7 +229,7 @@ function usesDesktopPluginGlobal(filePath, text) {
 }
 
 function forbiddenAppId(specifier) {
-	const normalized = specifier.replaceAll("\\", "/");
+	const normalized = toPosix(specifier);
 	for (const packageName of ["@vetta/desktop", "@vetta/cli-host", "@vetta/site", "shadcn-admin"]) {
 		if (normalized === packageName || normalized.startsWith(`${packageName}/`)) return packageName;
 	}
@@ -249,7 +249,7 @@ function checkTestTreeImports(posixPath, specifiers, findings) {
 	const isTestFile = posixPath.includes("/test/") || /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(posixPath);
 	if (isTestFile) return;
 	for (const specifier of specifiers) {
-		const normalized = specifier.replaceAll("\\", "/");
+		const normalized = toPosix(specifier);
 		if (/(?:^|\/)test(?:\/|$)/.test(normalized)) {
 			findings.push(`${posixPath}: production code must not import test trees (${specifier})`);
 		}
@@ -266,7 +266,7 @@ function checkPluginDesktopDeepImport(posixPath, specifiers, findings) {
 function checkDesktopCliSourceImports(posixPath, specifiers, findings) {
 	if (!posixPath.startsWith("apps/desktop/src/")) return;
 	for (const specifier of specifiers) {
-		const normalized = specifier.replaceAll("\\", "/");
+		const normalized = toPosix(specifier);
 		if (normalized.includes("cli-host/src/")) {
 			findings.push(`${posixPath}: desktop must consume cli-host through a package export (${specifier})`);
 		}

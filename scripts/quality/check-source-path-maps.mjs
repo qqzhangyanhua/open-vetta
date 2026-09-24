@@ -8,12 +8,12 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import { repoRoot } from "./lib.mjs";
+import { repoRoot, toPosix } from "./lib.mjs";
 
 const WORKSPACE_ROOTS = ["packages", "apps"];
 
 export function typesExportToSourceRel(typesPath) {
-	const normalized = typesPath.replaceAll("\\", "/");
+	const normalized = toPosix(typesPath);
 	if (!normalized.startsWith("./dist/") || !normalized.endsWith(".d.ts")) return null;
 	return `src/${normalized.slice("./dist/".length, -".d.ts".length)}.ts`;
 }
@@ -40,7 +40,7 @@ export function findSourcePathMapViolations({ paths, packages, fileExists = exis
 	const violations = [];
 	for (const workspacePackage of packages) {
 		for (const entry of collectTypeScriptExportEntries(workspacePackage.manifest)) {
-			const expectedTarget = `./${workspacePackage.dir}/${entry.sourceRel}`.replaceAll("\\", "/");
+			const expectedTarget = toPosix(`./${workspacePackage.dir}/${entry.sourceRel}`);
 			const mapped = paths[entry.specifier];
 			if (!mapped) {
 				violations.push(
@@ -100,9 +100,10 @@ export function findImportedSourcePathMapViolations({ paths, importedSpecifiers,
 	for (const specifier of [...new Set(importedSpecifiers)].sort()) {
 		const entry = exportsBySpecifier.get(specifier);
 		if (!entry) continue;
-		const relativeTarget = relative(configDir, join(entry.packageDir, entry.sourceRel)).replaceAll("\\", "/");
+		const relativeTarget = toPosix(relative(configDir, join(entry.packageDir, entry.sourceRel)));
 		const expectedTarget = relativeTarget.startsWith(".") ? relativeTarget : `./${relativeTarget}`;
-		const mappedTarget = resolvePathMapTarget(paths, specifier)?.replaceAll("\\", "/");
+		const mapped = resolvePathMapTarget(paths, specifier);
+		const mappedTarget = mapped === undefined ? undefined : toPosix(mapped);
 		if (!pathMapTargetResolvesToSource(mappedTarget, expectedTarget)) {
 			violations.push(
 				`${specifier}: ${configDir}/tsconfig.json maps to ${mappedTarget ?? "(missing)"}, expected ${expectedTarget}`,
@@ -128,7 +129,7 @@ function collectWorkspacePackages(rootPath) {
 			const nextRelative = relativeDir ? `${relativeDir}/${name}` : name;
 			if (existsSync(manifestPath)) {
 				packages.push({
-					dir: nextRelative.replaceAll("\\", "/"),
+					dir: toPosix(nextRelative),
 					manifest: readJson(manifestPath),
 				});
 			}

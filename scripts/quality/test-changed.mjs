@@ -16,6 +16,7 @@ import {
 	parseFileSelectionArgs,
 	runBun,
 	TESTABLE_PACKAGES,
+	toPosix,
 } from "./lib.mjs";
 
 const GLOBAL_TEST_FILES = new Set([
@@ -31,7 +32,7 @@ const GLOBAL_TEST_FILES = new Set([
 export const parseArgs = parseFileSelectionArgs;
 
 export function isGlobalTestTrigger(file) {
-	const normalized = file.replaceAll("\\", "/");
+	const normalized = toPosix(file);
 	return GLOBAL_TEST_FILES.has(normalized) || normalized.startsWith("scripts/quality/");
 }
 
@@ -39,7 +40,7 @@ export function createChangedTestPlan(files) {
 	const touched = packagesFromPaths(files);
 	const globalTriggers = files.filter(isGlobalTestTrigger);
 	const runQuality = files.some((file) => {
-		const normalized = file.replaceAll("\\", "/");
+		const normalized = toPosix(file);
 		return normalized === "package.json" || normalized === "turbo.json" || normalized.startsWith("scripts/quality/");
 	});
 	const direct = globalTriggers.length > 0 ? Object.keys(TESTABLE_PACKAGES) : touched;

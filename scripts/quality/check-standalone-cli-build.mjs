@@ -1,6 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { extname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { toPosix } from "./lib.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
 const canonicalCompilerPath = "apps/cli-host/scripts/compile-standalone.mjs";
@@ -12,12 +13,8 @@ const governedConsumers = [
 const scanRoots = ["apps/cli-host/src", "apps/desktop/scripts", "apps/desktop/src/main"];
 const sourceExtensions = new Set([".js", ".mjs", ".ts", ".tsx"]);
 
-function normalizePath(value) {
-	return value.replaceAll("\\", "/");
-}
-
 export function findStandaloneCliBuildViolations(filePath, source) {
-	const normalizedFilePath = normalizePath(filePath);
+	const normalizedFilePath = toPosix(filePath);
 	if (
 		normalizedFilePath === canonicalCompilerPath ||
 		normalizedFilePath.includes(".test.") ||
@@ -63,7 +60,7 @@ export async function checkStandaloneCliBuild(rootPath = repositoryRoot) {
 	for (const scanRoot of scanRoots) {
 		const absoluteRoot = join(rootPath, scanRoot);
 		for (const absoluteFilePath of await collectSourceFiles(absoluteRoot)) {
-			const filePath = normalizePath(relative(rootPath, absoluteFilePath));
+			const filePath = toPosix(relative(rootPath, absoluteFilePath));
 			const source = await readFile(absoluteFilePath, "utf8");
 			violations.push(...findStandaloneCliBuildViolations(filePath, source));
 		}

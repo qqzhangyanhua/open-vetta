@@ -6,7 +6,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { fail, isDirectRun, ok, readText, rel, repoRoot, walkFiles } from "./lib.mjs";
+import { fail, isDirectRun, ok, readText, rel, repoRoot, toPosix, walkFiles } from "./lib.mjs";
 
 export const INDEPENDENT_RUNTIME_PACKAGES = Object.freeze([
 	"packages/runtime-core",
@@ -54,7 +54,7 @@ export function findRuntimeCodingAgentIndependenceViolations(input) {
 			if (line.includes("@vetta/coding-agent")) {
 				violations.push(`${file.path}:${index + 1}: Runtime package file depends on @vetta/coding-agent`);
 			}
-			if (!file.path.replaceAll("\\", "/").includes("/src/")) continue;
+			if (!toPosix(file.path).includes("/src/")) continue;
 			for (const token of FORBIDDEN_PRODUCT_SOURCE_TOKENS) {
 				if (!line.includes(token)) continue;
 				violations.push(`${file.path}:${index + 1}: Runtime source hardcodes product token ${token}`);
