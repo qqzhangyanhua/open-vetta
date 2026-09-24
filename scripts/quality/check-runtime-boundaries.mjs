@@ -95,11 +95,12 @@ function collect(guard) {
 	return collectRuntimeFailureContractInput(guard);
 }
 
-export function main() {
-	try {
-		let code = 0;
-		for (const guard of rules().guards) {
-			const input = collect(guard);
+/** Run each guard on its own. One read failure does not hide the other results. */
+export function runRuntimeGuards(guards, loadInput) {
+	let code = 0;
+	for (const guard of guards) {
+		try {
+			const input = loadInput(guard);
 			const violations = evaluateRuntimeGuard(guard, input);
 			if (violations.length > 0) {
 				for (const violation of violations) fail(`[${guard.label}] ${violation}`);
@@ -107,15 +108,17 @@ export function main() {
 				continue;
 			}
 			ok(`[${guard.label}] ok (${formatRuntimeSummary(guard, input)})`);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			fail(`[${guard.label}] internal error: ${message}`);
+			code = 1;
 		}
-		return code;
-	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
-		fail(`[runtime-boundaries] internal error: ${message}`);
-		return 1;
 	}
+	return code;
 }
 
-if (isDirectRun(import.meta.url)) {
-	process.exit(main());
+export function main() {
+	return runRuntimeGuards(rules().guards, collect);
 }
+
+if (isDirectRun(import.meta.url)) process.exitCode = main();

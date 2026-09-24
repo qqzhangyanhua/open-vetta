@@ -9,6 +9,39 @@ function contractFixture() {
 }
 
 describe("runtime failure contract gate", () => {
+	it("keeps the production failure markers", () => {
+		expect(REQUIRED_RUNTIME_FAILURE_MARKERS).toEqual({
+			"packages/coding-agent/src/rpc/rpc-failure.ts": [
+				"RpcFailureMetadataSchema",
+				'"retry_safe"',
+				'"continue_session"',
+				'"restart_session"',
+				'"user_action"',
+				'"fatal"',
+			],
+			"packages/coding-agent/src/rpc/rpc-types.ts": ["RpcFailureMetadata"],
+			"packages/coding-agent/src/rpc/rpc-client.ts": ["reject(rpcClientErrorFromResponse(response))"],
+			"packages/coding-agent/src/composition/runtime-host-retry.ts": [
+				"CONVERSATION_STORAGE_ERROR_CODES.OWNERSHIP_CONFLICT",
+				'runtimeError("SESSION_LOCKED"',
+			],
+			"apps/cli-host/src/session-compatibility-error.ts": ["recoverability"],
+			"packages/runtime-core/src/errors.ts": ["SESSION_BUSY", "SESSION_LOCKED", "isSessionError"],
+			"apps/desktop/src/main/conversations/desktop-conversation-service.ts": [
+				"RUNTIME_ERROR_CODES.SESSION_BUSY",
+				"RUNTIME_ERROR_CODES.SESSION_LOCKED",
+			],
+			"packages/runtime-desktop/src/lifecycle.ts": ["DesktopRuntimeFailure", "DesktopRuntimeHealth"],
+			"apps/im-gateway/internal/hostclient/types.go": [
+				"type TypedFailure interface",
+				"FailureRecoverability() FailureRecoverability",
+			],
+			"apps/im-gateway/internal/hostclient/local/session.go": ["failureFromResponse(resp, commandPhase(cmd.Type))"],
+			"apps/im-gateway/internal/hostclient/pool.go": ["func (a *Acquired) Discard() error"],
+			"apps/im-gateway/internal/router/router.go": ["discardRestartRequiredSession", "FailureRestartSession"],
+		});
+	});
+
 	it("accepts structured failure boundaries with explicit recovery values", () => {
 		expect(findRuntimeFailureContractViolations(contractFixture())).toEqual([]);
 	});

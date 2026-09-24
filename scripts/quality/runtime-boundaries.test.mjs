@@ -1,6 +1,5 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { parseRuntimeDocument } from "./arch-engine/runtime-rules.mjs";
 import {
 	collectRuntimeCodingAgentIndependenceInput,
 	collectRuntimeFailureContractInput,
@@ -8,17 +7,87 @@ import {
 	findRuntimeCodingAgentIndependenceViolations,
 	findRuntimeFailureContractViolations,
 	findRuntimeSubagentsBoundaryViolations,
+	main,
 	REQUIRED_RUNTIME_FAILURE_MARKERS,
+	runRuntimeGuards,
 } from "./check-runtime-boundaries.mjs";
-import { repoRoot } from "./lib.mjs";
+
+function capture(run) {
+	const lines = [];
+	const errors = [];
+	const log = console.log;
+	const error = console.error;
+	const exitCode = process.exitCode;
+	console.log = (message) => lines.push(message);
+	console.error = (message) => errors.push(message);
+	try {
+		return { code: run(), lines, errors };
+	} finally {
+		console.log = log;
+		console.error = error;
+		process.exitCode = exitCode;
+	}
+}
+
+function fileGuard(name, label) {
+	return [
+		`  - name: ${name}`,
+		`    label: ${label}`,
+		'    summary: "boundary files={files}, violations=0"',
+		"    input: files",
+		"    scan:",
+		"      kind: boundary",
+		"      roots:",
+		"        - apps/im-gateway/internal/router",
+		"      extensions:",
+		'        - ".go"',
+		"      excludeSuffixes:",
+		"        - _test.go",
+		"      files:",
+		"        - packages/runtime-core/src/errors.ts",
+		"    patterns:",
+		"      - label: blocks replay",
+		"        source: replay",
+	].join("\n");
+}
 
 describe("runtime boundary guard", () => {
-	it("keeps the guard runner on the YAML checker", () => {
-		const runner = readFileSync(join(repoRoot, "scripts/quality/check-guards.mjs"), "utf8");
-		expect(runner).toContain('["run", "scripts/quality/check-runtime-boundaries.mjs"]');
-		expect(runner).not.toContain("check-runtime-coding-agent-independence.mjs");
-		expect(runner).not.toContain("check-runtime-subagents-boundary.mjs");
-		expect(runner).not.toContain("check-runtime-failure-contract.mjs");
+	it("prints one result line for each boundary on the current tree", () => {
+		const independence = collectRuntimeCodingAgentIndependenceInput();
+		const subagents = collectRuntimeSubagentsBoundaryInput();
+		const failure = collectRuntimeFailureContractInput();
+		const { code, lines, errors } = capture(() => main());
+		expect(code).toBe(0);
+		expect(errors).toEqual([]);
+		expect(lines).toEqual([
+			`[runtime-independence] ok (${independence.manifests.length} manifests, ${independence.files.length} code/config files, Coding Agent dependencies=0)`,
+			`[runtime-subagents-boundary] ok (${subagents.files.length} source files, workspace dependencies=0, tool protocol tokens=0)`,
+			`[runtime-failure-contract] ok (boundary files=${failure.length}, violations=0)`,
+		]);
+	});
+
+	it("still reports the next boundary when one guard cannot read its files", () => {
+		const document = parseRuntimeDocument(
+			[
+				"name: sample",
+				"description: Sample runtime boundary.",
+				"rationale: Keep the sample valid.",
+				"examples: []",
+				"guards:",
+				fileGuard("broken", "runtime-independence"),
+				fileGuard("later", "runtime-failure-contract"),
+				"",
+			].join("\n"),
+		);
+		const { code, lines, errors } = capture(() =>
+			runRuntimeGuards(document.guards, (guard) => {
+				if (guard.name === "broken") throw new Error("missing package.json");
+				return [];
+			}),
+		);
+		expect(code).toBe(1);
+		expect(errors).toEqual(["[runtime-independence] internal error: missing package.json"]);
+		expect(lines).toEqual(["[runtime-failure-contract] ok (boundary files=0, violations=0)"]);
 	});
 
 	it("accepts the current Runtime packages", () => {

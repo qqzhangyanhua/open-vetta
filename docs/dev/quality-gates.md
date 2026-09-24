@@ -176,6 +176,8 @@ const violations = checkDocument(document, [{ path, text: readFileSync(path, "ut
 
 包边界检查沿用扫描文件数作为成功输出，因为操作者要知道扫过多少文件。失败时仍是上面的 `[package-boundaries] 文件:行号: 说明 (规则)`，下一行再打出 YAML 里的 `fix`。规则文件读不出来时打印 `[package-boundaries] internal error: ...`。Coding Agent 架构检查同样保留源文件数、模块边数和 manifest 导出数作为成功输出；失败时除了 `[coding-agent-architecture] 文件:行号: 说明 (规则)`，还会列出 YAML `docs` 里的 ADR 和设计文档。
 
+Runtime 边界把原来的三道检查放在同一次运行里。成功时仍分别打印合并前的计数，前缀是 `[runtime-independence]`、`[runtime-subagents-boundary]`、`[runtime-failure-contract]`。失败时仍打印合并前的句子，不加 `(规则)`，否则和已经写进测试的说明对不上。某一道读文件失败只打印自己的 `[标签] internal error: ...`，另外两道照常出结果。直接运行时把返回码赋给 `process.exitCode`。
+
 ```javascript
 import { CheckViolation, isDirectRun, lineNumberAt, runCheck } from "./lib.mjs";
 
