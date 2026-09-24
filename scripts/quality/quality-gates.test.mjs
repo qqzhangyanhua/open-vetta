@@ -1,10 +1,16 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { checkConflictMarkers, findConflictMarkerViolationsInText } from "./check-conflict-markers.mjs";
 import { findPackageBoundaryViolations, findPackageManifestBoundaryViolations } from "./check-package-boundaries.mjs";
+import { checkPrivateKeys, findPrivateKeyViolationsInText } from "./check-private-keys.mjs";
 import { batchPaths, createQuickCheckPlan, isBiomeGlobalTrigger } from "./check-quick.mjs";
-import { findSkillFrontmatterProblems } from "./check-skill-frontmatter.mjs";
+import {
+	checkSkillFrontmatter,
+	findSkillFrontmatterProblems,
+	findSkillFrontmatterViolations,
+} from "./check-skill-frontmatter.mjs";
 import {
 	collectTypeScriptExportEntries,
 	findImportedSourcePathMapViolations,
@@ -16,6 +22,7 @@ import { findTurboConfigurationProblems, readTurboConfiguration } from "./check-
 import { findVitestRunnerViolations } from "./check-vitest-runner.mjs";
 import {
 	buildableTestDependencies,
+	CheckViolation,
 	changedFiles,
 	discoverWorkspacePackages,
 	expandTestablePackages,
@@ -26,6 +33,7 @@ import {
 	parseBaseArgs,
 	parseFileSelectionArgs,
 	repoRoot,
+	runCheck,
 	stagedFiles,
 	TESTABLE_PACKAGES,
 	WORKSPACE_PACKAGES,
@@ -1697,5 +1705,259 @@ describe("skill frontmatter analysis", () => {
 	it("requires frontmatter and a description", () => {
 		expect(findSkillFrontmatterProblems("# No frontmatter\n")).toHaveLength(1);
 		expect(findSkillFrontmatterProblems(wrap("name: demo"))).toHaveLength(1);
+	});
+});
+
+describe("guard error reporting", () => {
+	it("keeps process.exit out of the migrated guard scripts", () => {
+		for (const file of [
+			"scripts/quality/check-private-keys.mjs",
+			"scripts/quality/check-conflict-markers.mjs",
+			"scripts/quality/check-skill-frontmatter.mjs",
+		]) {
+			expect(readFileSync(join(repoRoot, file), "utf8"), file).not.toContain("process.exit(");
+		}
+	});
+
+	it("records the file, line, rule, message, and error severity", () => {
+		expect(new CheckViolation("apps/demo.ts", 4, "conflict-marker", "unresolved conflict marker")).toEqual({
+			file: "apps/demo.ts",
+			line: 4,
+			rule: "conflict-marker",
+			message: "unresolved conflict marker",
+			severity: "error",
+		});
+	});
+
+	it("keeps an explicit severity on the violation", () => {
+		expect(new CheckViolation("apps/demo.ts", 1, "demo", "heads up", "warning").severity).toBe("warning");
+	});
+
+	it("prints a pass line and returns 0 when the guard finds nothing", () => {
+		const lines = [];
+		const code = runCheck("conflict-markers", () => [], { log: (line) => lines.push(line) });
+
+		expect(code).toBe(0);
+		expect(lines).toEqual(["[conflict-markers] passed"]);
+	});
+
+	it("writes the pass line to stdout when no reporter is passed", () => {
+		const lines = [];
+		const spy = vi.spyOn(console, "log").mockImplementation((line) => {
+			lines.push(line);
+		});
+		try {
+			expect(runCheck("conflict-markers", () => [])).toBe(0);
+			expect(lines).toEqual(["[conflict-markers] passed"]);
+		} finally {
+			spy.mockRestore();
+		}
+	});
+
+	it("prints file:line: message (rule) and returns 1 without exiting", () => {
+		const previousExitCode = process.exitCode;
+		const lines = [];
+		const code = runCheck(
+			"conflict-markers",
+			() => [new CheckViolation("apps/demo.ts", 4, "conflict-marker", "unresolved conflict marker")],
+			{ error: (line) => lines.push(line) },
+		);
+
+		expect(code).toBe(1);
+		expect(lines).toEqual(["[conflict-markers] apps/demo.ts:4: unresolved conflict marker (conflict-marker)"]);
+		expect(process.exitCode).toBe(previousExitCode);
+	});
+
+	it("turns a thrown check into an internal error status", () => {
+		const lines = [];
+		const code = runCheck(
+			"private-key",
+			() => {
+				throw new Error("disk full");
+			},
+			{ error: (line) => lines.push(line) },
+		);
+
+		expect(code).toBe(1);
+		expect(lines).toEqual(["[private-key] internal error: disk full"]);
+	});
+});
+
+describe("conflict marker guard", () => {
+	const start = `${"<".repeat(7)} `;
+	const middle = "=".repeat(7);
+	const end = `${">".repeat(7)} `;
+
+	it("reports every marker line through the shared status code", () => {
+		const text = `keep\n${start}HEAD\nours\n${middle}\ntheirs\n${end}branch\n`;
+		const violations = findConflictMarkerViolationsInText("apps/demo.ts", text);
+		const lines = [];
+		const code = runCheck("conflict-markers", () => violations, { error: (line) => lines.push(line) });
+
+		expect(violations).toEqual([
+			new CheckViolation("apps/demo.ts", 2, "conflict-marker", "unresolved conflict marker"),
+			new CheckViolation("apps/demo.ts", 4, "conflict-marker", "unresolved conflict marker"),
+			new CheckViolation("apps/demo.ts", 6, "conflict-marker", "unresolved conflict marker"),
+		]);
+		expect(code).toBe(1);
+		expect(lines).toEqual([
+			"[conflict-markers] apps/demo.ts:2: unresolved conflict marker (conflict-marker)",
+			"[conflict-markers] apps/demo.ts:4: unresolved conflict marker (conflict-marker)",
+			"[conflict-markers] apps/demo.ts:6: unresolved conflict marker (conflict-marker)",
+		]);
+	});
+
+	it("accepts a clean file and ignores a marker that is not at column 0", () => {
+		expect(findConflictMarkerViolationsInText("apps/demo.ts", "no markers\n")).toEqual([]);
+		expect(findConflictMarkerViolationsInText("apps/demo.ts", `  ${start}not a marker\n`)).toEqual([]);
+	});
+
+	it("reports a marker stored with CRLF newlines", () => {
+		expect(findConflictMarkerViolationsInText("apps/demo.ts", `keep\r\n${middle}\r\n`)).toEqual([
+			new CheckViolation("apps/demo.ts", 2, "conflict-marker", "unresolved conflict marker"),
+		]);
+	});
+
+	it("skips a file that cannot be read and still checks the rest", () => {
+		const violations = checkConflictMarkers(["missing.ts", "apps/demo.ts"], (file) => {
+			if (file === "missing.ts") throw new Error("ENOENT");
+			return `${middle}\n`;
+		});
+
+		expect(violations).toEqual([
+			new CheckViolation("apps/demo.ts", 1, "conflict-marker", "unresolved conflict marker"),
+		]);
+	});
+
+	it("reads a repo-relative path with the default reader", () => {
+		expect(checkConflictMarkers(["scripts/quality/lib.mjs"])).toEqual([]);
+	});
+});
+
+describe("private key guard", () => {
+	const begin = "-----BEGIN ";
+	const endKey = "PRIVATE KEY-----";
+
+	it("reports the first matching key and its line", () => {
+		const text = `note\n${begin}RSA ${endKey}\nbody\n`;
+		const violations = findPrivateKeyViolationsInText("secrets/id_rsa", text);
+		const lines = [];
+		const code = runCheck("private-key", () => violations, { error: (line) => lines.push(line) });
+
+		expect(violations).toEqual([
+			new CheckViolation("secrets/id_rsa", 2, "rsa-private-key", "possible RSA private key"),
+		]);
+		expect(code).toBe(1);
+		expect(lines).toEqual(["[private-key] secrets/id_rsa:2: possible RSA private key (rsa-private-key)"]);
+	});
+
+	it("reports a generic key block when no specific type matches", () => {
+		expect(findPrivateKeyViolationsInText("secrets/key.pem", `${begin}${endKey}\n`)).toEqual([
+			new CheckViolation("secrets/key.pem", 1, "generic-private-key", "possible generic PRIVATE KEY block"),
+		]);
+	});
+
+	it("reports EC, DSA, and PGP private keys", () => {
+		expect(findPrivateKeyViolationsInText("secrets/ec.pem", `${begin}EC ${endKey}\n`)).toEqual([
+			new CheckViolation("secrets/ec.pem", 1, "ec-private-key", "possible EC private key"),
+		]);
+		expect(findPrivateKeyViolationsInText("secrets/dsa.pem", `${begin}DSA ${endKey}\n`)).toEqual([
+			new CheckViolation("secrets/dsa.pem", 1, "dsa-private-key", "possible DSA private key"),
+		]);
+		expect(findPrivateKeyViolationsInText("secrets/key.asc", `${begin}PGP PRIVATE KEY BLOCK-----\n`)).toEqual([
+			new CheckViolation("secrets/key.asc", 1, "pgp-private-key", "possible PGP private key block"),
+		]);
+	});
+
+	it("accepts text with no key and ignores a key past the size cap", () => {
+		expect(findPrivateKeyViolationsInText("secrets/note.txt", "just a note\n")).toEqual([]);
+		const huge = `${"a".repeat(2_000_000)}\n${begin}RSA ${endKey}\n`;
+		expect(findPrivateKeyViolationsInText("secrets/huge.pem", huge)).toEqual([]);
+	});
+
+	it("skips a file that cannot be read and still checks the rest", () => {
+		const violations = checkPrivateKeys(["missing.pem", "secrets/id_rsa"], (file) => {
+			if (file === "missing.pem") throw new Error("ENOENT");
+			return `${begin}OPENSSH ${endKey}\n`;
+		});
+
+		expect(violations).toEqual([
+			new CheckViolation("secrets/id_rsa", 1, "openssh-private-key", "possible OPENSSH private key"),
+		]);
+	});
+});
+
+describe("skill frontmatter guard", () => {
+	const wrap = (frontmatter) => `---\n${frontmatter}\n---\n\n# Skill body\n`;
+
+	it("reports an unquoted colon with its line and returns status 1", () => {
+		const file = "packages/demo/SKILL.md";
+		const text = wrap("name: demo\ndescription: Use it: it does a thing.");
+		const violations = findSkillFrontmatterViolations(file, text);
+		const lines = [];
+		const code = runCheck("skill-frontmatter", () => violations, { error: (line) => lines.push(line) });
+
+		expect(violations).toEqual([
+			new CheckViolation(
+				file,
+				3,
+				"unquoted-scalar",
+				'`description` contains ": " — YAML reads it as a nested mapping and fails to parse (wrap the value in double quotes)',
+			),
+		]);
+		expect(code).toBe(1);
+		expect(lines).toEqual([
+			'[skill-frontmatter] packages/demo/SKILL.md:3: `description` contains ": " — YAML reads it as a nested mapping and fails to parse (wrap the value in double quotes) (unquoted-scalar)',
+		]);
+	});
+
+	it("reports a missing block and a missing description", () => {
+		expect(findSkillFrontmatterViolations("packages/demo/SKILL.md", "# No frontmatter\n")).toEqual([
+			new CheckViolation(
+				"packages/demo/SKILL.md",
+				1,
+				"frontmatter-block",
+				"missing or unterminated --- frontmatter block",
+			),
+		]);
+		expect(findSkillFrontmatterViolations("packages/demo/SKILL.md", wrap("name: demo"))).toEqual([
+			new CheckViolation(
+				"packages/demo/SKILL.md",
+				1,
+				"description-required",
+				"description is required — it is the only text the model sees before invoking the skill",
+			),
+		]);
+		expect(findSkillFrontmatterViolations("packages/demo/SKILL.md", wrap("name: demo\ndescription:"))).toEqual([
+			new CheckViolation(
+				"packages/demo/SKILL.md",
+				3,
+				"description-required",
+				"description is required — it is the only text the model sees before invoking the skill",
+			),
+		]);
+	});
+
+	it("reports an oversized folded description on the key line", () => {
+		const long = `name: demo\ndescription: >\n  ${"x".repeat(1100)}`;
+		expect(findSkillFrontmatterViolations("packages/demo/SKILL.md", wrap(long))).toEqual([
+			new CheckViolation("packages/demo/SKILL.md", 3, "description-length", "description is 1100 chars (max 1024)"),
+		]);
+	});
+
+	it("skips a file that cannot be read and still checks the rest", () => {
+		const violations = checkSkillFrontmatter(["missing/SKILL.md", "packages/demo/SKILL.md"], (file) => {
+			if (file === "missing/SKILL.md") throw new Error("ENOENT");
+			return "# No frontmatter\n";
+		});
+
+		expect(violations).toEqual([
+			new CheckViolation(
+				"packages/demo/SKILL.md",
+				1,
+				"frontmatter-block",
+				"missing or unterminated --- frontmatter block",
+			),
+		]);
 	});
 });

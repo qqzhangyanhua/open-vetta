@@ -44,6 +44,44 @@ scripts/quality/
 knip.config.ts                 Knip（可选）
 ```
 
+## 守卫错误处理
+
+新守卫，以及从旧写法迁过来的守卫，用 `scripts/quality/lib.mjs` 里的 `CheckViolation` 和 `runCheck()`。失败信息只有一种格式：
+
+```text
+[guard] file:line: message (rule)
+```
+
+`CheckViolation` 记下 `file`、`line`（从 1 开始）、`rule`、`message` 和 `severity`。`severity` 默认是 `error`。目前只要返回了违规，检查就失败；严重级别先记在对象上，不单独决定退出码。
+
+`runCheck(name, checkFn)` 调用 `checkFn`，期望它返回 `CheckViolation[]`：
+
+- 空数组：向 stdout 打 `[name] passed`，返回 `0`
+- 有违规：每条打到 stderr，返回 `1`
+- `checkFn` 抛错：打 `[name] internal error: ...`，返回 `1`
+
+它不调用 `process.exit()`，也不改 `process.exitCode`。测试可以传入 `{ log, error }` 把输出接走。脚本只有在被直接运行时才把返回码赋给 `process.exitCode`：
+
+```javascript
+import { CheckViolation, isDirectRun, lineNumberAt, runCheck } from "./lib.mjs";
+
+export function findDemoViolations(file, text) {
+	const index = text.indexOf("FIXME");
+	if (index === -1) return [];
+	return [new CheckViolation(file, lineNumberAt(text, index), "demo-fixme", "unresolved FIXME")];
+}
+
+export function main() {
+	return runCheck("demo", () => findDemoViolations("apps/demo.ts", "ok\nFIXME\n"));
+}
+
+if (isDirectRun(import.meta.url)) process.exitCode = main();
+```
+
+多个文件用 `collectFileViolations(files, findInText, readFile)`：读不到的文件会跳过，再把每个文件的违规拼起来。已经迁移的三个守卫都走它。抛出的异常会变成上面的 internal error，不要在检查函数里退出进程。
+
+已经按这个模式运行的守卫：`check-private-keys.mjs`（`private-key`）、`check-conflict-markers.mjs`（`conflict-markers`）、`check-skill-frontmatter.mjs`（`skill-frontmatter`）。成功时只打 `[name] passed`，不再附带扫描文件数。
+
 ## 根 package.json scripts
 
 | Script | 说明 |

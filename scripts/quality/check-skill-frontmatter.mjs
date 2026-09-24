@@ -19,7 +19,16 @@
 
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { fail, isDirectRun, ok, readText, rel, repoRoot, stagedFiles } from "./lib.mjs";
+import {
+	CheckViolation,
+	collectFileViolations,
+	isDirectRun,
+	readText,
+	rel,
+	repoRoot,
+	runCheck,
+	stagedFiles,
+} from "./lib.mjs";
 
 /** Mirrors MAX_DESCRIPTION_LENGTH in packages/coding-agent/src/core/skills.ts. */
 const MAX_DESCRIPTION_LENGTH = 1024;
@@ -63,14 +72,11 @@ function findSkillFiles(dir, results = []) {
 
 function collectTargets(stagedOnly) {
 	if (stagedOnly) {
-		return stagedFiles()
-			.filter((file) => file.endsWith("SKILL.md"))
-			.map((file) => join(repoRoot, file))
-			.filter((file) => existsSync(file));
+		return stagedFiles().filter((file) => file.endsWith("SKILL.md") && existsSync(join(repoRoot, file)));
 	}
 	const results = [];
 	for (const root of SCAN_ROOTS) findSkillFiles(join(repoRoot, root), results);
-	return results;
+	return results.map((file) => rel(file));
 }
 
 /** Same extraction as packages/coding-agent/src/resources/shared/frontmatter.ts. */
@@ -100,26 +106,45 @@ function scalarHazard(value) {
 	return null;
 }
 
-/** Human-readable problems with one SKILL.md's frontmatter; empty = fine. */
-export function findSkillFrontmatterProblems(text) {
+function legacyMessageIncludesLine(problem) {
+	return problem.rule === "frontmatter-entry" || problem.rule === "unquoted-scalar";
+}
+
+/** Structured frontmatter findings. `line` is 1-based in the original file. */
+function analyzeSkillFrontmatter(text) {
 	const problems = [];
 	const yamlString = frontmatterOf(text);
-	if (yamlString === null) return ["missing or unterminated --- frontmatter block"];
+	if (yamlString === null) {
+		return [
+			{
+				line: 1,
+				rule: "frontmatter-block",
+				message: "missing or unterminated --- frontmatter block",
+			},
+		];
+	}
 
 	const values = new Map();
+	let descriptionLine = 1;
 	const lines = yamlString.split("\n");
 	for (let index = 0; index < lines.length; index++) {
 		const line = lines[index];
+		const lineNumber = index + 2;
 		// Only top-level `key: value` lines are validated; indented blocks,
 		// list items, comments and blanks are left to the real parser.
 		if (line.trim() === "" || line.startsWith("#") || /^\s/.test(line) || line.startsWith("-")) continue;
 		const match = line.match(/^([A-Za-z_][\w-]*):\s*(.*)$/);
 		if (!match) {
-			problems.push(`line ${index + 2}: not a \`key: value\` entry — ${JSON.stringify(line.slice(0, 60))}`);
+			problems.push({
+				line: lineNumber,
+				rule: "frontmatter-entry",
+				message: `not a \`key: value\` entry — ${JSON.stringify(line.slice(0, 60))}`,
+			});
 			continue;
 		}
 		const [, key, rawValue] = match;
 		const value = rawValue.trim();
+		if (key === "description") descriptionLine = lineNumber;
 		if (isBlockScalar(value)) {
 			// Folded/literal block: the value is every indented line below it.
 			const block = [];
@@ -137,34 +162,56 @@ export function findSkillFrontmatterProblems(text) {
 		values.set(key, value);
 		if (value === "") continue;
 		const hazard = scalarHazard(value);
-		if (hazard) problems.push(`line ${index + 2}: \`${key}\` ${hazard} (wrap the value in double quotes)`);
+		if (hazard) {
+			problems.push({
+				line: lineNumber,
+				rule: "unquoted-scalar",
+				message: `\`${key}\` ${hazard} (wrap the value in double quotes)`,
+			});
+		}
 	}
 
 	const description = values.get("description");
 	if (description === undefined || description === "") {
-		problems.push("description is required — it is the only text the model sees before invoking the skill");
+		problems.push({
+			line: descriptionLine,
+			rule: "description-required",
+			message: "description is required — it is the only text the model sees before invoking the skill",
+		});
 	} else if (description.length > MAX_DESCRIPTION_LENGTH) {
-		problems.push(`description is ${description.length} chars (max ${MAX_DESCRIPTION_LENGTH})`);
+		problems.push({
+			line: descriptionLine,
+			rule: "description-length",
+			message: `description is ${description.length} chars (max ${MAX_DESCRIPTION_LENGTH})`,
+		});
 	}
 	return problems;
 }
 
+/** Human-readable problems with one SKILL.md's frontmatter; empty = fine. */
+export function findSkillFrontmatterProblems(text) {
+	return analyzeSkillFrontmatter(text).map((problem) =>
+		legacyMessageIncludesLine(problem) ? `line ${problem.line}: ${problem.message}` : problem.message,
+	);
+}
+
+/** Same findings as {@link findSkillFrontmatterProblems}, as guard violations. */
+export function findSkillFrontmatterViolations(file, text) {
+	return analyzeSkillFrontmatter(text).map(
+		(problem) => new CheckViolation(file, problem.line, problem.rule, problem.message),
+	);
+}
+
+/** Read each repo-relative path and return frontmatter violations. A file that cannot be read is skipped. */
+export function checkSkillFrontmatter(files, readFile = (file) => readText(join(repoRoot, file))) {
+	return collectFileViolations(files, findSkillFrontmatterViolations, readFile);
+}
+
+export function main(argv = process.argv) {
+	const stagedOnly = argv.includes("--staged");
+	return runCheck("skill-frontmatter", () => checkSkillFrontmatter(collectTargets(stagedOnly)));
+}
+
 if (isDirectRun(import.meta.url)) {
-	const stagedOnly = process.argv.includes("--staged");
-	const targets = collectTargets(stagedOnly);
-	let hits = 0;
-
-	for (const file of targets) {
-		const problems = findSkillFrontmatterProblems(readText(file));
-		if (problems.length === 0) continue;
-		hits += 1;
-		for (const problem of problems) fail(`[skill-frontmatter] ${rel(file)}: ${problem}`);
-	}
-
-	if (hits === 0) {
-		ok(`[skill-frontmatter] ok (${targets.length} file(s)${stagedOnly ? ", staged" : ""})`);
-	} else {
-		fail(`[skill-frontmatter] ${hits} file(s) failed`);
-		process.exit(1);
-	}
+	process.exitCode = main();
 }

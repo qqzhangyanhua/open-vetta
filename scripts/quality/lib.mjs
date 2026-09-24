@@ -130,6 +130,84 @@ export function fail(message) {
 	process.exitCode = 1;
 }
 
+/**
+ * One guard finding. `severity` is recorded for later migrations;
+ * `runCheck` still returns 1 when any violation is returned.
+ */
+export class CheckViolation {
+	constructor(file, line, rule, message, severity = "error") {
+		this.file = file;
+		this.line = line;
+		this.rule = rule;
+		this.message = message;
+		this.severity = severity;
+	}
+
+	format(guardName) {
+		return `[${guardName}] ${this.file}:${this.line}: ${this.message} (${this.rule})`;
+	}
+}
+
+/**
+ * Run a guard and return its status code.
+ * Does not call `process.exit` or set `process.exitCode`; the direct-run
+ * entry assigns the returned code once so tests can capture the result.
+ *
+ * @param {string} name
+ * @param {() => CheckViolation[]} checkFn
+ * @param {{ log?: (message: string) => void, error?: (message: string) => void }} [reporters]
+ * @returns {0 | 1}
+ */
+export function runCheck(name, checkFn, reporters = {}) {
+	const log = reporters.log ?? console.log;
+	const error = reporters.error ?? console.error;
+	try {
+		const violations = checkFn();
+		if (violations.length > 0) {
+			for (const violation of violations) error(violation.format(name));
+			return 1;
+		}
+		log(`[${name}] passed`);
+		return 0;
+	} catch (caught) {
+		const message = caught instanceof Error ? caught.message : String(caught);
+		error(`[${name}] internal error: ${message}`);
+		return 1;
+	}
+}
+
+/**
+ * Read each path and append findings from `findInText(file, text)`.
+ * Unreadable files are skipped. A guard that must fail closed on a read error should not use this.
+ *
+ * @param {string[]} files
+ * @param {(file: string, text: string) => CheckViolation[]} findInText
+ * @param {(file: string) => string} readFile
+ */
+export function collectFileViolations(files, findInText, readFile) {
+	const violations = [];
+	for (const file of files) {
+		let text;
+		try {
+			text = readFile(file);
+		} catch {
+			continue;
+		}
+		violations.push(...findInText(file, text));
+	}
+	return violations;
+}
+
+/** 1-based line number of a character index. Index 0 and text before the first newline are line 1. */
+export function lineNumberAt(text, index) {
+	let line = 1;
+	const end = Math.min(index, text.length);
+	for (let cursor = 0; cursor < end; cursor += 1) {
+		if (text.charCodeAt(cursor) === 10) line += 1;
+	}
+	return line;
+}
+
 export function ok(message) {
 	console.log(message);
 }

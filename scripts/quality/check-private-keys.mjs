@@ -9,19 +9,34 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { fail, isBinaryLike, ok, readText, rel, repoRoot, stagedFiles, toPosix, walkFiles } from "./lib.mjs";
+import {
+	CheckViolation,
+	collectFileViolations,
+	isBinaryLike,
+	isDirectRun,
+	lineNumberAt,
+	readText,
+	rel,
+	repoRoot,
+	runCheck,
+	stagedFiles,
+	toPosix,
+	walkFiles,
+} from "./lib.mjs";
 
 // Build markers at runtime so this file is not flagged by its own patterns.
 const begin = "-----BEGIN ";
 const endKey = "PRIVATE KEY-----";
 const PATTERNS = [
-	{ name: "RSA private key", re: new RegExp(`${begin}RSA ${endKey}`) },
-	{ name: "OPENSSH private key", re: new RegExp(`${begin}OPENSSH ${endKey}`) },
-	{ name: "EC private key", re: new RegExp(`${begin}EC ${endKey}`) },
-	{ name: "DSA private key", re: new RegExp(`${begin}DSA ${endKey}`) },
-	{ name: "PGP private key block", re: new RegExp(`${begin}PGP PRIVATE KEY BLOCK-----`) },
-	{ name: "generic PRIVATE KEY block", re: new RegExp(`${begin}([A-Z0-9 ]+)?${endKey}`) },
+	{ name: "RSA private key", rule: "rsa-private-key", re: new RegExp(`${begin}RSA ${endKey}`) },
+	{ name: "OPENSSH private key", rule: "openssh-private-key", re: new RegExp(`${begin}OPENSSH ${endKey}`) },
+	{ name: "EC private key", rule: "ec-private-key", re: new RegExp(`${begin}EC ${endKey}`) },
+	{ name: "DSA private key", rule: "dsa-private-key", re: new RegExp(`${begin}DSA ${endKey}`) },
+	{ name: "PGP private key block", rule: "pgp-private-key", re: new RegExp(`${begin}PGP PRIVATE KEY BLOCK-----`) },
+	{ name: "generic PRIVATE KEY block", rule: "generic-private-key", re: new RegExp(`${begin}([A-Z0-9 ]+)?${endKey}`) },
 ];
+
+const MAX_TEXT_LENGTH = 2_000_000;
 
 const SKIP_DIR_PARTS = [
 	"/node_modules/",
@@ -37,18 +52,29 @@ const SKIP_DIR_PARTS = [
 ];
 
 function shouldSkip(posixPath) {
-	const p = `/${toPosix(posixPath)}`;
-	if (p.endsWith("/check-private-keys.mjs")) return true;
-	return SKIP_DIR_PARTS.some((part) => p.includes(part));
+	const path = `/${toPosix(posixPath)}`;
+	if (path.endsWith("/check-private-keys.mjs")) return true;
+	return SKIP_DIR_PARTS.some((part) => path.includes(part));
+}
+
+/** First matching key in one file. Text above the size cap is ignored. */
+export function findPrivateKeyViolationsInText(file, text) {
+	if (text.length > MAX_TEXT_LENGTH) return [];
+	for (const pattern of PATTERNS) {
+		const index = text.search(pattern.re);
+		if (index === -1) continue;
+		return [new CheckViolation(file, lineNumberAt(text, index), pattern.rule, `possible ${pattern.name}`)];
+	}
+	return [];
 }
 
 function collectTargets(stagedOnly) {
 	if (stagedOnly) {
-		return stagedFiles()
-			.map((f) => join(repoRoot, f))
-			.filter((f) => existsSync(f) && !isBinaryLike(f) && !shouldSkip(rel(f)));
+		return stagedFiles().filter(
+			(file) => existsSync(join(repoRoot, file)) && !isBinaryLike(file) && !shouldSkip(file),
+		);
 	}
-	const roots = ["packages", "apps", "scripts", "deploy"].map((d) => join(repoRoot, d));
+	const roots = ["packages", "apps", "scripts", "deploy"].map((dir) => join(repoRoot, dir));
 	const files = [];
 	for (const root of roots) {
 		files.push(
@@ -72,34 +98,19 @@ function collectTargets(stagedOnly) {
 			}),
 		);
 	}
-	return files.filter((f) => !shouldSkip(rel(f)) && !isBinaryLike(f));
+	return files.map((file) => rel(file)).filter((file) => !shouldSkip(file) && !isBinaryLike(file));
 }
 
-const stagedOnly = process.argv.includes("--staged");
-const targets = collectTargets(stagedOnly);
-let hits = 0;
-
-for (const file of targets) {
-	let text;
-	try {
-		text = readText(file);
-	} catch {
-		continue;
-	}
-	// skip huge files
-	if (text.length > 2_000_000) continue;
-	for (const { name, re } of PATTERNS) {
-		if (re.test(text)) {
-			hits += 1;
-			fail(`[private-key] ${rel(file)}: possible ${name}`);
-			break;
-		}
-	}
+/** Read each repo-relative path and return key violations. A file that cannot be read is skipped. */
+export function checkPrivateKeys(files, readFile = (file) => readText(join(repoRoot, file))) {
+	return collectFileViolations(files, findPrivateKeyViolationsInText, readFile);
 }
 
-if (hits === 0) {
-	ok(`[private-key] ok (${targets.length} file(s)${stagedOnly ? ", staged" : ""})`);
-} else {
-	fail(`[private-key] ${hits} file(s) failed`);
-	process.exit(1);
+export function main(argv = process.argv) {
+	const stagedOnly = argv.includes("--staged");
+	return runCheck("private-key", () => checkPrivateKeys(collectTargets(stagedOnly)));
+}
+
+if (isDirectRun(import.meta.url)) {
+	process.exitCode = main();
 }

@@ -8,49 +8,63 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { fail, isBinaryLike, ok, readText, rel, repoRoot, stagedFiles, walkFiles } from "./lib.mjs";
+import {
+	CheckViolation,
+	collectFileViolations,
+	isBinaryLike,
+	isDirectRun,
+	readText,
+	rel,
+	repoRoot,
+	runCheck,
+	stagedFiles,
+	walkFiles,
+} from "./lib.mjs";
 
-const MARKER_RE = /^(<<<<<<< |>>>>>>> |=======$)/m;
+function isConflictMarkerLine(line) {
+	const text = line.endsWith("\r") ? line.slice(0, -1) : line;
+	return text.startsWith("<<<<<<< ") || text.startsWith(">>>>>>> ") || text === "=======";
+}
+
+/** Marker lines in one file. `file` is the path printed in the guard message. */
+export function findConflictMarkerViolationsInText(file, text) {
+	const violations = [];
+	const lines = text.split("\n");
+	for (let index = 0; index < lines.length; index += 1) {
+		if (!isConflictMarkerLine(lines[index])) continue;
+		violations.push(new CheckViolation(file, index + 1, "conflict-marker", "unresolved conflict marker"));
+	}
+	return violations;
+}
 
 function collectTargets(stagedOnly) {
 	if (stagedOnly) {
-		return stagedFiles()
-			.map((f) => join(repoRoot, f))
-			.filter((f) => existsSync(f) && !isBinaryLike(f));
+		return stagedFiles().filter((file) => existsSync(join(repoRoot, file)) && !isBinaryLike(file));
 	}
-	const roots = ["packages", "apps", "scripts"].map((d) => join(repoRoot, d));
+	const roots = ["packages", "apps", "scripts"].map((dir) => join(repoRoot, dir));
 	const files = [];
-	for (const root of roots) {
-		files.push(...walkFiles(root));
-	}
-	return files.filter((f) => {
-		const p = rel(f);
-		return (
-			!p.includes("/node_modules/") && !p.includes("/dist/") && !p.includes("/.next/") && !p.includes("/coverage/")
+	for (const root of roots) files.push(...walkFiles(root));
+	return files
+		.map((file) => rel(file))
+		.filter(
+			(file) =>
+				!file.includes("/node_modules/") &&
+				!file.includes("/dist/") &&
+				!file.includes("/.next/") &&
+				!file.includes("/coverage/"),
 		);
-	});
 }
 
-const stagedOnly = process.argv.includes("--staged");
-const targets = collectTargets(stagedOnly);
-let hits = 0;
-
-for (const file of targets) {
-	let text;
-	try {
-		text = readText(file);
-	} catch {
-		continue;
-	}
-	if (MARKER_RE.test(text)) {
-		hits += 1;
-		fail(`[conflict-markers] ${rel(file)}`);
-	}
+/** Read each repo-relative path and return marker violations. A file that cannot be read is skipped. */
+export function checkConflictMarkers(files, readFile = (file) => readText(join(repoRoot, file))) {
+	return collectFileViolations(files, findConflictMarkerViolationsInText, readFile);
 }
 
-if (hits === 0) {
-	ok(`[conflict-markers] ok (${targets.length} file(s)${stagedOnly ? ", staged" : ""})`);
-} else {
-	fail(`[conflict-markers] ${hits} file(s) failed`);
-	process.exit(1);
+export function main(argv = process.argv) {
+	const stagedOnly = argv.includes("--staged");
+	return runCheck("conflict-markers", () => checkConflictMarkers(collectTargets(stagedOnly)));
+}
+
+if (isDirectRun(import.meta.url)) {
+	process.exitCode = main();
 }
