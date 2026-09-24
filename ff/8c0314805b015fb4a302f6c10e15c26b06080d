@@ -1,0 +1,62 @@
+scripts/quality/check-private-keys.mjs
+  s_afd6f2a955f3af::t_92b42a73ae17a1 11-12,65-89,105
+  s_afd6f2a955f3af::t_b0de5f45cecdfb 2-4
+scripts/quality/check-conflict-markers.mjs
+  s_afd6f2a955f3af::t_21a6fbe68167ad 2-4
+  s_afd6f2a955f3af::t_d565e22a47455c 11-12,22,26-72,91,93
+scripts/quality/quality-gates.test.mjs
+  s_afd6f2a955f3af::t_cf647a93609138 8,1985,2334-2364
+  s_afd6f2a955f3af::t_a83163d0e040ef 769-776
+  s_afd6f2a955f3af::t_e704ff55955bf0 1966,1979-1981,2052-2056,2300-2301
+  s_afd6f2a955f3af::t_39c8eda37c567f 11-16,25-30,1951-1965,1967-1978,1982-1984
+  s_afd6f2a955f3af::t_263827ba9d7ab3 9,2297-2299,2302-2333
+  s_afd6f2a955f3af::t_b156bb143dc0fa 2039-2051,2057-2066
+  s_afd6f2a955f3af::t_7578ebb86b0d15 2365
+scripts/quality/arch-engine/cache.mjs
+  s_afd6f2a955f3af::t_64eb26c26fc26d 46-47,128-147
+scripts/quality/arch-engine/boundary-scan-worker.mjs
+  s_afd6f2a955f3af::t_989727e4d38b5b 11,25-27,38
+scripts/quality/check-quick.mjs
+  s_afd6f2a955f3af::t_9f446b08834958 15,73-77
+scripts/quality/arch-engine/boundary-rules.mjs
+  s_afd6f2a955f3af::t_f61583416ee529 679-683
+  s_afd6f2a955f3af::t_dd2d0c07613294 1022
+scripts/quality/check-package-boundaries.mjs
+  s_afd6f2a955f3af::t_e704ff55955bf0 21
+  s_afd6f2a955f3af::t_685d3c2901bca9 156,165-166,179
+docs/dev/quality-gates-reference.md
+  s_afd6f2a955f3af::t_fc8bf866b37124 34,79
+scripts/quality/generate-docs.test.mjs
+  s_afd6f2a955f3af::t_5529b3f776d5fa 355
+scripts/quality/test-impact.mjs
+  s_afd6f2a955f3af::t_1d1c7456abd8b6 92
+scripts/quality/arch-engine/coding-agent-rules.mjs
+  s_afd6f2a955f3af::t_038a494c01f00a 708-711
+  s_afd6f2a955f3af::t_f4294ccc140377 14-15,650-667,670-671,674-677,679,683-686,689,691,693-707,712,715-718,720,725-729,731
+scripts/quality/arch-engine/rule-engine.mjs
+  s_afd6f2a955f3af::t_b4811f915f2fb2 164-170
+  s_afd6f2a955f3af::t_6ee167628623b8 21,295
+scripts/quality/arch-engine/boundary-scan.mjs
+  s_afd6f2a955f3af::t_e704ff55955bf0 36
+  s_afd6f2a955f3af::t_74e6aa79f6b862 47-50
+scripts/quality/lib.mjs
+  s_afd6f2a955f3af::t_29f45bcec45d65 449-450
+.github/release-notes/v0.5.59.md
+  s_afd6f2a955f3af::t_a9fa0f1daa3127 195-198
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "ff8c0314805b015fb4a302f6c10e15c26b06080d",
+  "prompts": {},
+  "sessions": {
+    "s_afd6f2a955f3af": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d25b-a7fe-7d93-96b5-653b487c1a99",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
