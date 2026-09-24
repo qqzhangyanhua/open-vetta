@@ -43,14 +43,17 @@ scripts/quality/
   quality-gates.test.mjs       质量脚本定向测试
   arch-engine/ast-walker.mjs   可序列化的 TypeScript 语法树
   arch-engine/cache.mjs        按 mtime 与内容 hash 缓存语法树
-  arch-engine/rule-engine.mjs  从 YAML 加载并执行架构规则
-  rules/                       规则配置（*.yml），check 还不会读取
+  arch-engine/rule-engine.mjs  从 YAML 加载并执行 forbidden-import
+  arch-engine/boundary-rules.mjs 加载并执行包边界 YAML
+  check-package-boundaries.legacy.mjs 迁移前的包边界实现，只给差分测试对照
+  package-boundaries-differential.test.mjs 新旧包边界结果对照
+  rules/package-boundaries.yml 包边界规则，由 check-package-boundaries.mjs 读取
 knip.config.ts                 Knip（可选）
 ```
 
 ## 架构引擎
 
-`scripts/quality/arch-engine/` 是后续架构守卫共用的解析和缓存。现有的 `check-package-boundaries` 等守卫还没有迁过来，跑 `check` 的结果不受这层影响。
+`scripts/quality/arch-engine/` 是架构守卫共用的解析、缓存和规则执行。`check-package-boundaries` 已经改为读取 YAML；其余架构守卫还没有迁过来。
 
 `parseSource(filePath, text)` 按扩展名选择 script kind（`.tsx` / `.jsx` 才会解析 JSX），返回一棵可写成 JSON 的语法树。节点字段：
 
@@ -89,7 +92,7 @@ const specifier = findNodes(ast, (node) => node.kind === "ImportDeclaration")[0]
 
 ## 声明式规则
 
-`scripts/quality/rules/*.yml` 是架构规则的配置。`check` 和 `check-package-boundaries.mjs` 还不会读这个目录，所以改这里不会改变当前门禁结果。`scripts/quality/rules/package-boundaries.yml` 是第一份配置，只覆盖核心库不依赖应用包、以及生产代码不导入测试工具这两类 `forbidden-import`。
+`scripts/quality/arch-engine/rule-engine.mjs` 能加载下面这种 `forbidden-import` 配置。`check` 不会把整个 `rules/` 目录交给这个加载器。包边界的现行规则是另一份结构，见后面的「包边界规则」。
 
 一份配置是一个 mapping，字段都要有：
 
@@ -127,13 +130,14 @@ rules:
     message: Core libraries must not depend on application packages
 ```
 
-仓库根目录下的 `scripts/quality/` 脚本这样跑（规则路径相对仓库根目录）：
+在仓库根目录这样跑一份 `forbidden-import` 配置。下面的 `example.yml` 只说明调用方式，不是现行的 `package-boundaries.yml`。
 
 ```javascript
 import { readFileSync } from "node:fs";
-import { checkDocument, loadRuleDocument } from "./arch-engine/rule-engine.mjs";
+import { checkDocument, parseRuleDocument } from "./arch-engine/rule-engine.mjs";
 
-const document = loadRuleDocument("scripts/quality/rules/package-boundaries.yml");
+const source = "scripts/quality/rules/example.yml";
+const document = parseRuleDocument(readFileSync(source, "utf8"), source);
 const path = "packages/ai/src/index.ts";
 const violations = checkDocument(document, [{ path, text: readFileSync(path, "utf8") }]);
 ```
@@ -156,7 +160,9 @@ const violations = checkDocument(document, [{ path, text: readFileSync(path, "ut
 - 有违规：每条打到 stderr，返回 `1`
 - `checkFn` 抛错：打 `[name] internal error: ...`，返回 `1`
 
-它不调用 `process.exit()`，也不改 `process.exitCode`。测试可以传入 `{ log, error }` 把输出接走。脚本只有在被直接运行时才把返回码赋给 `process.exitCode`：
+它不调用 `process.exit()`，也不改 `process.exitCode`。测试可以传入 `{ log, error }` 把输出接走。脚本只有在被直接运行时才把返回码赋给 `process.exitCode`。
+
+包边界检查沿用扫描文件数作为成功输出，因为操作者要知道扫过多少文件。失败时仍是上面的 `[package-boundaries] 文件:行号: 说明 (规则)`，下一行再打出 YAML 里的 `fix`。规则文件读不出来时打印 `[package-boundaries] internal error: ...`。
 
 ```javascript
 import { CheckViolation, isDirectRun, lineNumberAt, runCheck } from "./lib.mjs";
@@ -233,6 +239,12 @@ bun run test:pkg <name>
 包装器会查找 Node 20+（可用 `VETTA_TEST_NODE` 指定 `node.exe`），再执行仓库里的 `node_modules/vitest/vitest.mjs`。不要使用 `bunx vitest`、`npx vitest` 或包脚本里的裸 `vitest`。`check-vitest-runner.mjs` 会扫描 workspace `package.json` 并拒绝这些入口。
 
 ## 包边界规则（`check-package-boundaries`）
+
+现行规则在 `scripts/quality/rules/package-boundaries.yml`。`check-package-boundaries.mjs` 读取这份文件。新增一条导入、标识符或声明限制时改 YAML，不用改检查脚本。`scripts/quality/check-package-boundaries.legacy.mjs` 是迁移前的实现，只给差分测试对照，不要在那里加规则。
+
+一条规则至少要有 `name`，并用 `scope` 选文件。`prefix` / `path` / `suffix` 命中任一即可；`notPrefix`、`notPath`、`notSuffix` 是排除。`excludeTestFile` 跳过 `test` 目录和测试文件名，`excludeTestSuffix` 只跳过测试文件名，`requireSrc` 要求路径里有 `/src/`。`imports` 检查模块说明符，`walk` 检查标识符、字面量、声明、`new` / 调用和属性访问，`textIncludes` / `textGate` 检查原文，`bannedPath` 表示这个路径本身不该存在。`report` 是写进结果里的那句说明，`fix` 是失败时另外打印的改法。文件选择用架构引擎的 glob。
+
+违规结果与迁移前一致：`findPackageBoundaryViolations` 仍返回 `路径: 说明`。直接跑检查时，失败行是 `[package-boundaries] 文件:行号: 说明 (规则)`；没有违规时仍打印扫描文件数。
 
 依赖方向与 README 一致：**应用 → runtime-\* / coding-agent / agent / ai**；核心库不感知宿主。
 

@@ -253,8 +253,45 @@ describe("rule documents", () => {
 		});
 	});
 
-	it("loads the package-boundaries rules and reports the sample violations", () => {
-		const document = loadRuleDocument(join(rulesDirectory, "package-boundaries.yml"));
+	it("does not treat the live package-boundaries document as a forbidden-import file", () => {
+		expect(() => loadRuleDocument(join(rulesDirectory, "package-boundaries.yml"))).toThrow(/unknown field/);
+	});
+
+	it("loads a forbidden-import sample and reports its violations", () => {
+		const document = parseRuleDocument(
+			[
+				"name: package-boundaries",
+				"description: Dependency direction for one sample.",
+				"rationale: Core libraries stay independent of application packages.",
+				"examples:",
+				'  - violation: import { DesktopConfig } from "@vetta/desktop";',
+				'    fix: import { Config } from "@vetta/config";',
+				'  - violation: import { fixture } from "../test/fixture";',
+				"    fix: keep the fixture in the test.",
+				"rules:",
+				"  - name: libs-must-not-depend-on-apps",
+				"    type: forbidden-import",
+				"    sources:",
+				"      - packages/ai/**",
+				"    targets:",
+				'      - "@vetta/desktop"',
+				'      - "@vetta/desktop/**"',
+				"    message: Core libraries must not depend on application packages",
+				"  - name: no-test-imports-in-production",
+				"    type: forbidden-import",
+				"    sources:",
+				'      - "**/*.ts"',
+				'      - "**/*.js"',
+				'      - "!**/*.test.ts"',
+				'      - "!**/*.test.js"',
+				"    targets:",
+				'      - "**/test/**"',
+				'      - "**/*.test.js"',
+				"    message: Production code must not import test utilities",
+				"",
+			].join("\n"),
+			"package-boundaries.yml",
+		);
 		const violations = checkDocument(document, [
 			{
 				path: "packages/ai/src/index.ts",

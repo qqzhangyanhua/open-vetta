@@ -1,9 +1,11 @@
+# Live package-boundary rules. check-package-boundaries.mjs loads this file.
+# The generic forbidden-import engine does not. Add a rule here instead of editing the checker.
 name: package-boundaries
-description: Dependency direction for core libraries and production code.
+description: Dependency direction and coding-agent boundaries for the monorepo.
 rationale: |
-  Core libraries stay independent of application packages. Production code
-  does not import test helpers. This file states those two constraints.
-  It is not the live package-boundary rule set, and check does not load it.
+  Core libraries stay independent of application packages, production code does
+  not import test helpers, and Coding Agent composition stays inside the
+  boundaries the legacy checker enforced. Messages below are that contract.
 examples:
   - violation: |
       // packages/ai/src/index.ts
@@ -16,45 +18,1097 @@ examples:
       import { fixture } from "../test/fixture";
     fix: |
       // Keep the fixture inside the test that uses it.
+lists:
+  libPrefixes:
+    - "packages/capability-sdk/"
+    - "packages/capability-runtime/"
+    - "packages/ai/"
+    - "packages/agent/"
+    - "packages/coding-agent/"
+    - "packages/ecosystem-adapter/"
+    - "packages/runtime-core/"
+    - "packages/runtime-knowledge/"
+    - "packages/runtime-tools/"
+    - "packages/runtime-storage/"
+    - "packages/runtime-node/"
+    - "packages/runtime-mcp/"
+    - "packages/runtime-telemetry/"
+    - "packages/runtime-desktop/"
+    - "packages/action-rpc/"
+    - "packages/toolkit/"
+    - "packages/theme-sdk/"
+    - "packages/theme-ui/"
+    - "packages/markdown/"
+    - "packages/ui/"
+    - "packages/plugins/plugin-sdk/"
+    - "packages/plugins/plugin-vite/"
+  pluginPrefixes:
+    - "packages/plugins/presets/"
+    - "packages/plugins/externals/"
+  manifestTruthPackages:
+    - "@vetta/coding-agent"
+    - "@vetta/runtime-knowledge"
+    - "@vetta/runtime-storage"
+    - "@vetta/runtime-node"
+    - "@vetta/runtime-tools"
+    - "@vetta/runtime-desktop"
+    - "@vetta/cli-host"
+    - "@vetta/desktop"
+  retiredToolExports:
+    - "bashTool"
+    - "codingTools"
+    - "createAskUserQuestionTool"
+    - "createBashTool"
+    - "createCodingTools"
+    - "createEditTool"
+    - "createExtractTextFromImgTool"
+    - "createExtractTextFromPdfTool"
+    - "createFindTool"
+    - "createGlobTool"
+    - "createGrepTool"
+    - "createHtmlToPdfTool"
+    - "createImSendAttachmentTool"
+    - "createKbFilterByTagsTool"
+    - "createKbListTagsTool"
+    - "createKbWritePageTool"
+    - "createLsTool"
+    - "createProgressTool"
+    - "createReadOnlyTools"
+    - "createReadTool"
+    - "createRenderPdfPageTool"
+    - "createShellTool"
+    - "createTaskOutputTool"
+    - "createTaskStopTool"
+    - "createToolSearchTool"
+    - "createTreeTool"
+    - "createWriteTool"
+    - "editTool"
+    - "extractTextFromImgTool"
+    - "extractTextFromPdfTool"
+    - "findTool"
+    - "globTool"
+    - "grepTool"
+    - "htmlToPdfTool"
+    - "kbFilterByTagsTool"
+    - "kbListTagsTool"
+    - "kbWritePageTool"
+    - "lsTool"
+    - "progressTool"
+    - "readOnlyTools"
+    - "readTool"
+    - "renderPdfPageTool"
+    - "shellTool"
+    - "treeTool"
+    - "writeTool"
+  retiredCliForwarders:
+    - "apps/cli-host/src/conversation-ownership-binding.ts"
+    - "apps/cli-host/src/greenfield-runtime-composition.ts"
+    - "apps/cli-host/src/greenfield-runtime-host-session-backend.ts"
+    - "apps/cli-host/src/greenfield-session-execution-runtime.ts"
+    - "apps/cli-host/src/greenfield-session-peripherals.ts"
+    - "apps/cli-host/src/greenfield-subagent-child.ts"
+    - "apps/cli-host/src/greenfield-subagent-runtime.ts"
+    - "apps/cli-host/src/greenfield-subagent-state-persistence.ts"
+    - "apps/cli-host/src/rpc/greenfield-conversation-path.ts"
+    - "apps/cli-host/src/runtime-tools-composition.ts"
+  retiredModelContextFiles:
+    - "packages/coding-agent/src/core/messages.ts"
+    - "packages/coding-agent/src/core/subconscious.ts"
+    - "packages/coding-agent/src/core/system-prompt.ts"
+  historicalSessionConsumers:
+    - "apps/cli-host/src/coding-agent-bootstrap.ts"
+    - "apps/cli-host/src/rpc/cli-session-format-compatibility.ts"
+    - "apps/cli-host/src/rpc/runtime-host/runtime-host-contract.ts"
+    - "apps/cli-host/src/rpc/runtime-host/runtime-host.ts"
+    - "apps/cli-host/src/session-compatibility-error.ts"
+    - "apps/cli-host/src/html-export-runtime.ts"
+    - "packages/runtime-desktop/src/historical-session-format.ts"
+    - "packages/runtime-desktop/src/historical-session-import-backend.ts"
+  externalSessionConsumers:
+    - "apps/desktop/src/main/agent-runtime/composition.ts"
+    - "apps/desktop/src/main/conversations/desktop-conversation-service.ts"
+    - "apps/desktop/src/main/external-sessions/desktop-external-session-continue-from.ts"
+    - "apps/desktop/src/main/external-sessions/grok-session-locator.ts"
+    - "packages/runtime-desktop/src/external-session-format.ts"
+    - "packages/runtime-desktop/src/external-session-host.ts"
+  platformGlobals:
+    - "Buffer"
+    - "Bun"
+    - "process"
+  startupSymbols:
+    - "createLegacyAgentBootstrap"
+    - "runLegacyAgentWithBootstrap"
+  activeSessionSymbols:
+    - "ExtensionCommandContextActions"
+    - "CodingAgentRuntimeComposition"
+    - "CodingAgentSessionTransitionRuntimePort"
+    - "SessionManager"
+    - "Buffer"
+    - "process"
+    - "migrateLegacySessionToV2"
+  knowledgeContractSymbols:
+    - "AgentSession"
+    - "CodingAgentRuntimeComposition"
+    - "SessionManager"
+    - "createAgentSession"
+  subagentSymbols:
+    - "CodingAgentSubagentProfile"
+    - "CodingAgentSubagentRuntime"
+    - "SubagentChildHandle"
+    - "SubagentLifecycle"
+    - "SubagentSnapshot"
+    - "SubagentSpawnRequest"
+    - "SubagentTypeDefinition"
+    - "createCodingAgentSubagentChildHandle"
+    - "runSubagentStart"
+    - "runSubagentStop"
+    - "validateRecoveredSubagentTranscript"
+  subagentLiterals:
+    - ".subagents"
+    - "subagent-notification"
+    - "subagents_update"
+  turnSymbols:
+    - "CodingAgentContinuationOrchestrator"
+    - "CodingAgentModelCallMessageFinalizer"
+    - "CodingAgentModelCallFrameComposer"
+    - "CodingAgentPluginRunOrchestrator"
+    - "CodingAgentPluginToolRuntime"
+    - "CodingAgentPromptRequestAdapter"
+    - "CodingAgentPromptRuntime"
+    - "CodingAgentStopHookContinuationSource"
+    - "CodingAgentTodoContinuationSource"
+    - "RuntimeCapabilityComposition"
+    - "createCodingAgentInvokeSkillFeature"
+    - "createCodingAgentPromptResourceResolver"
+    - "createCodingAgentPromptRuntime"
+    - "joinPromptAddons"
+    - "previewSystemPrompt"
+    - "toPluginToolActivation"
+  promptSymbols:
+    - "GreenfieldPromptPreparationContext"
+    - "GreenfieldPreparedPrompt"
+    - "GreenfieldPromptInterceptionResult"
+    - "GreenfieldHandledPromptResult"
+    - "GreenfieldPromptResult"
+    - "GreenfieldPromptAdapter"
+  productSymbols:
+    - "AskUserQuestion"
+    - "BackgroundTaskInfo"
+    - "CodingToolCategory"
+    - "ConversationScenario"
+    - "McpReloadEndEvent"
+    - "McpReloadStartEvent"
+    - "McpStatusEvent"
+    - "RuntimeSubagentSnapshot"
+    - "RuntimeSubagentUsageSnapshot"
+    - "SubagentInfo"
+    - "agentMode"
+    - "enableSubagents"
+    - "interactiveResume"
+  productLiterals:
+    - "background_tasks_update"
+    - "mcp.reload.end"
+    - "mcp.reload.start"
+    - "mcp.status"
+    - "scene_expansion"
+    - "settings_assist_marker"
+    - "skill_expansion"
+    - "subagents_update"
+  lifecycleSymbols:
+    - "CODING_AGENT_ASK_USER_QUESTION_TOOL_NAME"
+    - "CodingAgentBackgroundWorkController"
+    - "CodingAgentSessionRuntimeResources"
+    - "createSessionPeripherals"
+    - "hookSessionController"
+    - "hookSessionEnded"
+    - "isCodingAgentAskUserQuestionEnabled"
+    - "onConversationContinued"
+    - "readActiveToolNames"
+    - "sessionCleanup"
+    - "stateSource"
+    - "withAgentMode"
+  registrySymbols:
+    - "InMemoryCodingAgentSessionMarkerIndex"
+    - "InMemoryCodingAgentSessionValueIndex"
+    - "RetryableCleanup"
+    - "compositionCleanup"
+    - "contextRuntimes"
+    - "hookSessionDisposers"
+    - "memoryRuntimes"
+    - "ownershipBindings"
+    - "prepareCompositionCleanup"
+    - "todoRuntimes"
+    - "turnCapabilityAssemblies"
+  mcpSymbols:
+    - "McpRuntimeToolSynchronizer"
+    - "createMcpDeferredToolController"
+    - "createMcpRuntimeToolSynchronizer"
+    - "mergeMcpSnapshots"
+    - "mergeMcpToolViews"
+    - "refreshAndMergeMcpViews"
+  mcpLiterals:
+    - "mcp.reload.start"
+    - "mcp.reload.end"
+  initSymbols:
+    - "CodingAgentGreenfieldContextRuntime"
+    - "CodingAgentMemoryRolloverOrchestrator"
+    - "CodingAgentTodoRuntime"
+    - "CodingAgentSessionConfigurationState"
+    - "CodingAgentSessionExecutionRuntime"
+    - "InitializationRollbackScope"
+    - "createEcosystemHookRuntime"
+    - "createForkContextFeature"
+    - "createCodingAgentSessionResourceLifecycle"
+    - "createCodingAgentSubagentSessionAssembly"
+    - "createCodingAgentTurnCapabilitySessionAssembly"
+    - "createSessionPluginRuntime"
+  initRollbackIds:
+    - "capability-composition"
+    - "configuration-state-binding"
+    - "context-runtime"
+    - "conversation-context-overlay"
+    - "conversation-ownership"
+    - "execution-runtime"
+    - "hook-session"
+    - "mcp-controller-binding"
+    - "memory-runtime"
+    - "plugin-mcp-runtime"
+    - "resource-context-binding"
+    - "session-bindings"
+    - "subagent-runtime"
+    - "todo-runtime"
+  initConstructors:
+    - "CodingAgentGreenfieldContextRuntime"
+    - "CodingAgentSessionMemoryController"
+    - "CodingAgentMemoryRolloverOrchestrator"
+    - "CodingAgentTodoRuntime"
+    - "GreenfieldRuntimeModel"
+    - "CodingAgentSessionConfigurationState"
+    - "CodingAgentSessionExecutionRuntime"
+  initFactories:
+    - "createCodingAgentSpecializedToolRegistrations"
+    - "createCodingAgentTodoRuntimeToolRegistration"
+    - "createEcosystemHookRuntime"
+    - "createForkContextFeature"
+    - "createCodingAgentSubagentSessionAssembly"
+    - "createSessionPluginRuntime"
+  toolSurfaceSymbols:
+    - "CODING_AGENT_MODEL_TOOL_ORDER"
+    - "CODING_TOOL_SCOPES"
+    - "adaptCodingAgentToolRegistration"
+    - "createCodingToolsRuntimeComposition"
+    - "createCodingAgentMcpSessionCoordinator"
+    - "createKbFilterByTagsTool"
+    - "createKbListTagsTool"
+    - "isCodingAgentKnowledgeToolEnabled"
+    - "isKnowledgeToolEnabled"
+    - "resolveCodingAgentToolActivation"
+    - "resolveTurnToolActivation"
+  toolPortSymbols:
+    - "CodingToolsRuntimeComposition"
+    - "FeatureCompiler"
+    - "InMemoryCodingToolRegistry"
+  compositionPolicyNames:
+    - "CodingAgentToolAvailability"
+    - "isCodingAgentKnowledgeToolEnabled"
+    - "resolveCodingAgentToolActivation"
+  adapterPolicyNames:
+    - "CODING_AGENT_MODEL_TOOL_ORDER"
+    - "CODING_AGENT_SUBAGENT_MODEL_TOOL_ORDER_STEP"
+  childSymbols:
+    - "_createPluginMcpRuntime"
+    - "_extensionTools"
+    - "_mcpSource"
+    - "childComposition"
+    - "childCompositionOptions"
+  hostControlSymbols:
+    - "appendSessionContext"
+    - "bindExtensionRunner"
+    - "clearSessionExecutionContext"
+    - "deliverSessionContext"
+    - "executionRuntimes"
+    - "extensionEventBridges"
+    - "flushMemory"
+    - "hookSessionControllers"
+    - "memoryControllers"
+    - "preserveSessionExecutionContext"
+    - "quiesceSessionBackgroundCommands"
+    - "refreshExtensionTools"
+    - "resourceContexts"
+    - "sessionHooks"
+  hostOwnedNames:
+    - "CodingAgentBackgroundWorkController"
+    - "CodingAgentPluginReconfiguration"
+    - "CodingAgentSessionConfigurationState"
+    - "CodingAgentSessionExecutionRuntime"
+    - "CodingAgentSubagentWorkRuntime"
+  historicalRuntimeSymbols:
+    - "acquireLegacySessionFormatLease"
+    - "CODING_AGENT_LEGACY_AGENT_MESSAGE_CONTEXT_TYPE"
+    - "LegacyRuntimeSessionCatalog"
+    - "LegacyRuntimeSessionFileHistoryReader"
+    - "LegacySessionFormatLeaseResult"
+    - "normalizeCodingAgentLegacySessionEntry"
+    - "restoreCodingAgentLegacyAgentMessageEntry"
+    - "CodingAgentLegacySessionIncompatibilityCode"
+    - "CodingAgentLegacySessionMigration"
+    - "CodingAgentLegacySessionMigrationIncompatible"
+    - "CodingAgentLegacySessionMigrationSuccess"
+    - "migrateCodingAgentLegacySession"
+  protectedLegacySymbols:
+    - "createLegacyRuntimeHostOptions"
+    - "LegacyCodingAgentSessionBackend"
+    - "LegacyRuntimeSessionCatalog"
+    - "LegacyRuntimeSessionFileHistoryReader"
+    - "LegacyRuntimeSharedModelController"
+scan:
+  roots:
+    - "packages/capability-sdk"
+    - "packages/capability-runtime"
+    - "packages/ai"
+    - "packages/agent"
+    - "packages/coding-agent"
+    - "packages/ecosystem-adapter"
+    - "packages/runtime-core"
+    - "packages/runtime-knowledge"
+    - "packages/runtime-tools"
+    - "packages/runtime-storage"
+    - "packages/runtime-node"
+    - "packages/runtime-mcp"
+    - "packages/runtime-telemetry"
+    - "packages/runtime-desktop"
+    - "packages/action-rpc"
+    - "packages/toolkit"
+    - "packages/theme-sdk"
+    - "packages/theme-ui"
+    - "packages/markdown"
+    - "packages/ui"
+    - "packages/plugins"
+    - "packages/themes"
+    - "apps/cli-host"
+    - "apps/desktop"
+  entryPaths:
+    - "tsconfig.json"
+  skipContains:
+    - "/node_modules/"
+    - "/dist/"
+    - "/agent/cli/"
+    - "/examples/"
 rules:
   - name: libs-must-not-depend-on-apps
-    type: forbidden-import
-    sources:
-      - packages/ai/**
-      - packages/agent/**
-      - packages/runtime-*/**
-    targets:
-      - "@vetta/desktop"
-      - "@vetta/desktop/**"
-      - "@vetta/cli-host"
-      - "@vetta/cli-host/**"
-      - apps/desktop/**
-      - apps/cli-host/**
-    message: Core libraries must not depend on application packages
+    fix: "Import a shared library instead of an application package."
+    scope:
+      prefixFrom: [libPrefixes, pluginPrefixes]
+    imports:
+      clauses:
+        - where:
+            appId:
+              packages: ["@vetta/desktop", "@vetta/cli-host", "@vetta/site", "shadcn-admin"]
+              segments: ["desktop", "cli-host", "admin", "site"]
+          report: "libs/plugins must not import app package ({id})"
   - name: no-test-imports-in-production
-    type: forbidden-import
-    sources:
-      - "**/*.ts"
-      - "**/*.tsx"
-      - "**/*.js"
-      - "**/*.mjs"
-      - "!**/*.test.ts"
-      - "!**/*.test.tsx"
-      - "!**/*.test.js"
-      - "!**/*.test.mjs"
-      - "!**/*.spec.ts"
-      - "!**/*.spec.tsx"
-      - "!**/*.spec.js"
-      - "!**/*.spec.mjs"
-      - "!**/test/**"
-    targets:
-      - "**/test/**"
-      - "**/*.test.ts"
-      - "**/*.test.tsx"
-      - "**/*.test.js"
-      - "**/*.test.mjs"
-      - "**/*.spec.ts"
-      - "**/*.spec.tsx"
-      - "**/*.spec.js"
-      - "**/*.spec.mjs"
-    message: Production code must not import test utilities
+    fix: "Move the helper into the production module or keep the import inside a test."
+    scope:
+      excludeTestFile: true
+    imports:
+      clauses:
+        - where:
+            testTree: true
+          report: "production code must not import test trees ({specifier})"
+  - name: plugins-must-not-deep-import-desktop
+    fix: "Call the public plugin SDK instead of desktop source files."
+    scope:
+      prefixFrom: [pluginPrefixes]
+    imports:
+      once: any
+      clauses:
+        - whereAny:
+            - regex: '(?:^|/)desktop/src/'
+            - startsWith: ["@/main/"]
+          report: "plugins must not deep-import desktop internals"
+  - name: desktop-must-use-cli-host-package
+    fix: "Import the cli-host package export instead of its source tree."
+    scope:
+      prefix: ["apps/desktop/src/"]
+    imports:
+      clauses:
+        - where:
+            includes: ["cli-host/src/"]
+          report: "desktop must consume cli-host through a package export ({specifier})"
+  - name: desktop-renderer-mcp-browser-entry
+    fix: "Import runtime MCP values from @vetta/runtime-mcp/browser."
+    scope:
+      prefix: ["apps/desktop/src/renderer/"]
+    imports:
+      runtime: true
+      clauses:
+        - where:
+            prefix: ["@vetta/runtime-mcp"]
+            skipExact: ["@vetta/runtime-mcp/browser"]
+          report: "desktop renderer must import MCP runtime values from @vetta/runtime-mcp/browser ({specifier})"
+  - name: plugins-must-use-sdk-not-window-vetta
+    fix: "Use the public plugin SDK instead of window.vetta."
+    scope:
+      prefixFrom: [pluginPrefixes]
+      notPrefix:
+        - packages/plugins/presets/plugin-workbench/
+        - packages/plugins/externals/security-probe/
+      notSuffix: [".d.ts"]
+    walk:
+      - kind: propertyAccess
+        object: window
+        property: vetta
+        once: true
+        report: "plugins must use the public plugin SDK instead of window.vetta"
+  - name: capability-internals-avoid-public-sdks
+    fix: "Keep capability internals off public SDKs and app packages."
+    scope:
+      prefix: ["packages/capability-sdk/", "packages/capability-runtime/"]
+    imports:
+      clauses:
+        - where:
+            prefix: ["@vetta-org/plugin-sdk", "@vetta/action-rpc", "@vetta/desktop", "@vetta-org/theme-sdk", "@vetta-org/theme-ui"]
+          report: "capability internals must not import public system SDKs or app packages ({specifier})"
+        - where:
+            prefix: ["@vetta/capability-runtime"]
+            skipWhenPrefix: ["packages/capability-runtime/"]
+          report: "capability internals must not import public system SDKs or app packages ({specifier})"
+  - name: public-sdks-avoid-capability-internals
+    fix: "Expose a public capability token instead of an internal adapter path."
+    scope:
+      prefix: ["packages/theme-sdk/", "packages/plugins/plugin-sdk/"]
+    imports:
+      clauses:
+        - where:
+            startsWith: ["@vetta-org/capability-sdk/internal/"]
+          report: "public system SDKs must not expose built-in capability adapters ({specifier})"
+  - name: no-raw-capability-ids
+    fix: "Import the capability token instead of pasting its raw id."
+    scope:
+      notPath: ["packages/capability-sdk/src/contracts.ts"]
+      notPrefix:
+        - packages/capability-sdk/src/domain/
+        - packages/capability-sdk/src/foundation/
+    walk:
+      - kind: literalPattern
+        patterns: ['^cap\.(?:foundation|domain)\.']
+        report: "import a capability token instead of using raw id {name}"
+  - name: capability-definitions-are-schema-backed
+    fix: "Define capabilities with schemas and publish the generated catalog."
+    scope:
+      prefix:
+        - packages/capability-sdk/src/domain/
+        - packages/capability-sdk/src/foundation/
+    textGate:
+      includes: "defineCapability<"
+      checks:
+        - regex: '\bparse(?:Input|Output)\s*:'
+          report: "capability tokens must use schema-backed input and output definitions"
+        - missing: "createCapabilityCatalog"
+          report: "capability definition files must publish a generated catalog"
+  - name: greenfield-runtime-avoids-coding-agent
+    fix: "Depend on a runtime contract instead of coding-agent."
+    scope:
+      prefix:
+        - packages/runtime-storage/src/conversation/
+        - packages/runtime-knowledge/src/
+        - packages/runtime-tools/src/coding/
+        - packages/runtime-mcp/src/
+    imports:
+      clauses:
+        - where:
+            prefix: ["@vetta/coding-agent"]
+          report: "greenfield runtime modules must not import coding-agent ({specifier})"
+  - name: runtime-storage-avoids-platform
+    fix: "Call a host port instead of a platform package."
+    scope:
+      prefix: ["packages/runtime-storage/src/"]
+    imports:
+      clauses:
+        - whereAny:
+            - startsWith: ["node:"]
+            - prefix: ["@vetta/runtime-node", "@vetta/runtime-desktop"]
+          report: "runtime-storage protocol must not import platform implementation ({specifier})"
+  - name: runtime-tools-avoids-platform
+    fix: "Call a host port instead of a platform package."
+    scope:
+      prefix: ["packages/runtime-tools/src/"]
+    imports:
+      clauses:
+        - whereAny:
+            - startsWith: ["node:"]
+            - prefix: ["@vetta/runtime-node", "@vetta/runtime-desktop"]
+          report: "runtime-tools protocol must not import platform implementation ({specifier})"
+  - name: runtime-mcp-avoids-platform
+    fix: "Call a host port instead of a platform package."
+    scope:
+      prefix: ["packages/runtime-mcp/src/"]
+    imports:
+      clauses:
+        - whereAny:
+            - startsWith: ["node:"]
+            - prefix: ["@vetta/runtime-node", "@vetta/runtime-desktop"]
+          report: "runtime-mcp protocol must not import platform implementation ({specifier})"
+  - name: runtime-core-avoids-platform
+    fix: "Use a host port instead of Node, Bun, or a platform package."
+    scope:
+      prefix: ["packages/runtime-core/src/"]
+    imports:
+      clauses:
+        - whereAny:
+            - startsWith: ["node:"]
+            - prefix: ["@vetta/runtime-node", "@vetta/runtime-desktop"]
+          report: "runtime-core must use host ports instead of platform implementation ({specifier})"
+    walk:
+      - kind: identifier
+        namesFrom: [platformGlobals]
+        unique: true
+        report: "runtime-core must not depend on platform global ({name})"
+  - name: greenfield-product-avoids-legacy-startup
+    fix: "Report compatibility facts instead of calling the legacy startup entry."
+    scope:
+      prefix:
+        - apps/cli-host/src/rpc/
+        - packages/coding-agent/src/composition/
+    walk:
+      - kind: identifier
+        namesFrom: [startupSymbols]
+        unique: true
+        report: "greenfield product modules must not use legacy startup symbol {name}"
+      - kind: literal
+        names: ["legacy-extension"]
+        unique: true
+        report: "greenfield product modules must report compatibility facts instead of {name}"
+  - name: active-session-transaction-boundary
+    fix: "Keep active-session transactions on host ports."
+    scope:
+      path: ["packages/runtime-core/src/runtime-host/active-session-host.ts"]
+    imports:
+      clauses:
+        - where:
+            startsWith: ["node:"]
+          report: "active-session transactions must use host ports instead of {specifier}"
+        - where:
+            includes: ["core/session-manager", "legacy-session-import-normalizer"]
+          report: "active-session transactions must delegate Legacy session seed construction"
+        - where:
+            prefix: ["@vetta/coding-agent"]
+          report: "active-session transactions must not import Coding Agent products"
+        - where:
+            includes: ["core/extensions"]
+          report: "active-session transactions must use neutral session action ports"
+    walk:
+      - kind: identifier
+        namesFrom: [activeSessionSymbols]
+        report: "active-session transactions must not use {name}"
+  - name: branch-navigation-neutral-contract
+    fix: "Expose a neutral options contract for branch navigation."
+    scope:
+      path: ["packages/coding-agent/src/host/session-history/branch-navigation-host.ts"]
+    walk:
+      - kind: identifier
+        names: ["ExtensionCommandContextActions"]
+        report: "branch navigation must expose a neutral options contract"
+  - name: knowledge-processing-session-neutral-contract
+    fix: "Depend on the neutral Knowledge Processing contract."
+    scope:
+      path: ["packages/coding-agent/src/composition/knowledge-processing-session.ts"]
+    imports:
+      clauses:
+        - where:
+            includes: ["legacy-knowledge-processing-session"]
+          report: "Knowledge Processing must depend on the neutral contract"
+  - name: knowledge-processing-contract-avoids-backends
+    fix: "Keep the Knowledge Processing contract off backend types."
+    scope:
+      path: ["packages/coding-agent/src/composition/knowledge-processing-contract.ts"]
+    imports:
+      clauses:
+        - whereAny:
+            - prefix: ["@vetta/runtime-core"]
+            - includes: ["agent-session", "runtime-composition", "legacy-knowledge-processing-session", "session-manager", "/sdk"]
+          report: "Knowledge Processing contract must not depend on a backend implementation"
+    walk:
+      - kind: identifier
+        namesFrom: [knowledgeContractSymbols]
+        report: "Knowledge Processing contract must not use {name}"
+  - name: composition-root-delegates-subagent-assembly
+    fix: "Delegate Subagent assembly out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [subagentSymbols]
+        report: "Coding Agent Composition Root must delegate Subagent assembly ({name})"
+      - kind: literal
+        namesFrom: [subagentLiterals]
+        report: "Coding Agent Composition Root must not own Subagent policy ({name})"
+  - name: composition-root-delegates-turn-capability
+    fix: "Delegate Turn Capability assembly out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [turnSymbols]
+        report: "Coding Agent Composition Root must delegate Turn Capability assembly ({name})"
+  - name: composition-root-delegates-session-lifecycle
+    fix: "Delegate session resource lifecycle out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [lifecycleSymbols]
+        report: "Coding Agent Composition Root must delegate Session Resource Lifecycle assembly ({name})"
+  - name: composition-root-delegates-resource-registry
+    fix: "Delegate the resource registry and shutdown out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [registrySymbols]
+        report: "Coding Agent Composition Root must delegate resource registry and shutdown ({name})"
+  - name: composition-root-delegates-mcp-session
+    fix: "Delegate MCP session coordination out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [mcpSymbols]
+        report: "Coding Agent Composition Root must delegate MCP Session coordination ({name})"
+      - kind: literal
+        namesFrom: [mcpLiterals]
+        report: "Coding Agent Composition Root must not own MCP refresh observation policy ({name})"
+  - name: composition-root-delegates-session-initialization
+    fix: "Delegate session initialization out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [initSymbols]
+        report: "Coding Agent Composition Root must delegate Session initialization ({name})"
+      - kind: literal
+        namesFrom: [initRollbackIds]
+        report: "Coding Agent Composition Root must not own Session initialization rollback ({name})"
+  - name: session-initialization-profile
+    fix: "Pass a narrow initialization profile instead of the composition object."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: propertyAssignment
+        names: ["composition"]
+        report: "Coding Agent Composition Root must project Session initialization options through a profile"
+  - name: session-initialization-transaction-profile
+    fix: "Depend on the initialization profile, not the composition options type."
+    scope:
+      path: ["packages/coding-agent/src/composition/session-initialization/transaction.ts"]
+    walk:
+      - kind: identifier
+        names: ["CodingAgentRuntimeCompositionOptions", "composition"]
+        report: "Session initialization transaction must depend on its narrow profile ({name})"
+  - name: session-initialization-delegates-construction
+    fix: "Delegate staged runtime construction out of the initialization transaction."
+    scope:
+      path: ["packages/coding-agent/src/composition/session-initialization/transaction.ts"]
+    walk:
+      - kind: new
+        namesFrom: [initConstructors]
+        report: "Session initialization transaction must delegate staged runtime construction ({name})"
+      - kind: call
+        namesFrom: [initFactories]
+        report: "Session initialization transaction must delegate staged runtime policy ({name})"
+  - name: composition-root-delegates-tool-surface
+    fix: "Delegate the runtime tool surface out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [toolSurfaceSymbols]
+        report: "Coding Agent Composition Root must delegate Runtime Tool Surface ({name})"
+      - kind: literal
+        names: ["knowledge_mode_instruction"]
+        report: "Coding Agent Composition Root must not own Knowledge Tool activation policy"
+  - name: tool-port-uses-registry
+    fix: "Type the tool port against CodingToolRegistry."
+    scope:
+      path: ["packages/coding-agent/src/composition/contracts/runtime-composition-result.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [toolPortSymbols]
+        report: "Greenfield Runtime Tool access must depend on CodingToolRegistry ({name})"
+  - name: coding-tools-composition-exposes-registry
+    fix: "Type the registry property as CodingToolRegistry."
+    scope:
+      path: ["packages/coding-agent/src/composition/tool-surface/runtime-tools-composition.ts"]
+    interfaceMember:
+      interface: CodingToolsRuntimeComposition
+      property: registry
+      typeNot: CodingToolRegistry
+      report: "Coding Tools composition must expose its Registry through CodingToolRegistry"
+  - name: adapters-do-not-own-tool-policy
+    fix: "Move tool policy out of the adapter."
+    scope:
+      prefix: ["packages/coding-agent/src/adapters/"]
+    walk:
+      - kind: declaration
+        declarationKinds: ["VariableDeclaration"]
+        namesFrom: [adapterPolicyNames]
+        report: "Coding Agent Adapter must not own Tool policy ({name})"
+  - name: composition-does-not-declare-tool-policy
+    fix: "Move tool policy out of composition."
+    scope:
+      prefix: ["packages/coding-agent/src/composition/"]
+    walk:
+      - kind: declaration
+        declarationKinds: ["FunctionDeclaration", "InterfaceDeclaration", "TypeAliasDeclaration"]
+        namesFrom: [compositionPolicyNames]
+        report: "Coding Agent Composition must not declare Tool policy ({name})"
+  - name: domain-depends-on-contracts-not-adapters
+    fix: "Import a contract instead of an adapter module."
+    scope:
+      prefix:
+        - packages/coding-agent/src/extensions/
+        - packages/coding-agent/src/features/
+        - packages/coding-agent/src/memory/
+        - packages/coding-agent/src/mcp/
+        - packages/coding-agent/src/model-context/
+        - packages/coding-agent/src/plugins/
+        - packages/coding-agent/src/resources/
+        - packages/coding-agent/src/sessions/
+    imports:
+      clauses:
+        - where:
+            includes: ["adapters/"]
+          report: "Coding Agent domain must depend on contracts instead of Adapters ({specifier})"
+  - name: runtime-prompt-stable-identity
+    fix: "Use the stable Runtime Prompt contract names."
+    scope:
+      prefix: ["packages/runtime-core/src/"]
+    walk:
+      - kind: identifier
+        namesFrom: [promptSymbols]
+        unique: true
+        report: "Runtime Prompt contract must use its stable identity ({name})"
+  - name: runtime-avoids-product-semantics
+    fix: "Keep product vocabulary in the product package."
+    scope:
+      prefix:
+        - packages/runtime-core/src/
+        - packages/runtime-tools/src/coding/
+        - packages/runtime-node/src/coding/
+    walk:
+      - kind: bucket
+        report: "Runtime must expose generic extension/platform contracts instead of product semantic ({name})"
+        match:
+          - kind: identifier
+            namesFrom: [productSymbols]
+          - kind: literal
+            namesFrom: [productLiterals]
+          - kind: literalPattern
+            flags: i
+            patterns:
+              - '\bSKILL\.md\b'
+              - '\binvoke_skill\b'
+              - '\bknowledge wiki\b'
+  - name: composition-root-delegates-child-policy
+    fix: "Delegate child composition policy out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [childSymbols]
+        report: "Coding Agent Composition Root must delegate Child Composition policy ({name})"
+      - kind: propertyAssignment
+        names: ["enableSubagents"]
+        initializer: false
+        report: "Coding Agent Composition Root must not own recursive Child isolation policy"
+      - kind: accessChain
+        chainObject: backend
+        chainNames: ["create", "resume"]
+        report: "Coding Agent Composition Root must delegate Child Composition projection"
+  - name: composition-root-delegates-host-controls
+    fix: "Delegate runtime host controls out of the composition root."
+    scope:
+      path: ["packages/coding-agent/src/composition/runtime-composition.ts"]
+    walk:
+      - kind: identifier
+        namesFrom: [hostControlSymbols]
+        report: "Coding Agent Composition Root must delegate Runtime Host Controls ({name})"
+  - name: composition-does-not-declare-session-host
+    fix: "Leave session host capabilities to the host package."
+    scope:
+      prefix: ["packages/coding-agent/src/composition/"]
+    walk:
+      - kind: declaration
+        declarationKinds: ["ClassDeclaration", "InterfaceDeclaration", "TypeAliasDeclaration"]
+        namesFrom: [hostOwnedNames]
+        report: "Coding Agent Composition must not declare Session Host capability ({name})"
+  - name: no-automatic-legacy-fallback
+    fix: "Report an explicit compatibility failure instead of a legacy fallback token."
+    scope:
+      prefix:
+        - apps/cli-host/src/
+        - packages/coding-agent/src/
+      notSuffix: [".d.ts"]
+      excludeTestSuffix: true
+    walk:
+      - kind: literal
+        names: ["legacy-extension", "legacy-session", "session-migration-gap"]
+        unique: true
+        report: "automatic {name} fallback is retired; report an explicit compatibility failure instead"
+  - name: retired-runtime-composition-tree
+    fix: "Leave the retired runtime-composition package deleted."
+    scope:
+      prefix: ["packages/runtime-composition/"]
+    bannedPath: true
+    report: "retired runtime-composition package must stay deleted"
+  - name: retired-runtime-composition-reference
+    fix: "Remove references to the retired runtime-composition package."
+    textIncludes: "@vetta/runtime-composition"
+    report: "retired @vetta/runtime-composition reference must stay deleted"
+  - name: retired-cli-composition-forwarders
+    fix: "Leave the retired CLI composition forwarders deleted."
+    scope:
+      pathFrom: [retiredCliForwarders]
+    bannedPath: true
+    report: "retired CLI composition forwarding module must stay deleted"
+  - name: cli-does-not-reexport-composition
+    fix: "Keep Coding Agent composition off the CLI public entry."
+    scope:
+      path: ["apps/cli-host/src/index.ts"]
+    imports:
+      once: any
+      clauses:
+        - where:
+            exact: ["@vetta/coding-agent/composition"]
+          report: "CLI public API must not re-export Coding Agent composition"
+  - name: desktop-imports-composition-from-owner
+    fix: "Import Coding Agent composition contracts from their owner."
+    scope:
+      prefix: ["apps/desktop/src/"]
+    imports:
+      once: any
+      clauses:
+        - where:
+            exact: ["@vetta/cli-host"]
+          whenText: '\b(?:CodingAgentGreenfieldActiveSessionHost|CodingToolsRuntimeComposition|GreenfieldCliSessionOptions|CodingAgentRuntimeComposition(?:Options)?|GreenfieldRuntimeHostSessionBackend|resolveGreenfieldSessionIdFromPath)\b'
+          report: "Desktop must import Coding Agent composition contracts from their owner"
+  - name: internal-consumers-use-coding-agent-subpaths
+    fix: "Import an explicit @vetta/coding-agent subpath."
+    scope:
+      prefix: ["packages/", "apps/"]
+      notPrefix:
+        - packages/coding-agent/
+        - packages/agent/src/
+        - packages/runtime-core/src/
+        - packages/runtime-storage/src/conversation/
+        - packages/runtime-tools/src/coding/
+        - packages/runtime-mcp/src/
+    imports:
+      once: any
+      clauses:
+        - where:
+            exact: ["@vetta/coding-agent"]
+          report: "internal consumers must use an explicit @vetta/coding-agent subpath instead of the compatibility root"
+  - name: coding-agent-public-surface-hides-tools
+    fix: "Export orchestration from the public surface, not concrete tools."
+    scope:
+      path:
+        - packages/coding-agent/src/index.ts
+        - packages/coding-agent/src/public-api/rpc.ts
+    exportSurface:
+      module:
+        includes: ["core/tools"]
+        prefix: ["@vetta/runtime-tools/coding"]
+        report: "coding-agent public surfaces must not forward concrete Tool implementations ({specifier})"
+      namesFrom: [retiredToolExports]
+      report: "coding-agent public surfaces must not export concrete Tool symbol {name}"
+  - name: retired-coding-agent-knowledge-tree
+    fix: "Leave the retired Coding Agent knowledge tree deleted."
+    scope:
+      prefix: ["packages/coding-agent/src/core/knowledge/"]
+    bannedPath: true
+    report: "retired Coding Agent Knowledge implementation must stay deleted"
+  - name: retired-coding-agent-knowledge-import
+    fix: "Import knowledge from the runtime package, not the retired surface."
+    imports:
+      clauses:
+        - whereAny:
+            - exact: ["@vetta/coding-agent/knowledge"]
+            - includes: ["core/knowledge"]
+          report: "retired Coding Agent Knowledge surface import ({specifier})"
+  - name: retired-model-context-files
+    fix: "Leave the retired model-context core files deleted."
+    scope:
+      pathFrom: [retiredModelContextFiles]
+    bannedPath: true
+    report: "retired Coding Agent model-context implementation must stay deleted"
+  - name: retired-model-context-import
+    fix: "Do not import the retired model-context core files."
+    imports:
+      clauses:
+        - where:
+            regex: 'core/(?:messages|subconscious|system-prompt)(?:\.js)?$'
+          report: "retired Coding Agent model-context import ({specifier})"
+  - name: retired-core-compaction-tree
+    fix: "Leave the retired core compaction tree deleted."
+    scope:
+      prefix: ["packages/coding-agent/src/core/compaction/"]
+    bannedPath: true
+    report: "retired Coding Agent core Compaction implementation must stay deleted"
+  - name: retired-core-compaction-import
+    fix: "Do not import the retired core compaction tree."
+    imports:
+      clauses:
+        - where:
+            includes: ["core/compaction"]
+          report: "retired Coding Agent core Compaction import ({specifier})"
+  - name: compaction-policy-dependencies
+    fix: "Keep compaction policy off session implementations."
+    scope:
+      prefix: ["packages/coding-agent/src/compaction/"]
+    imports:
+      clauses:
+        - whereAny:
+            - includes: ["/core/", "/adapters/"]
+            - prefix: ["@vetta/runtime-core", "@vetta/runtime-storage"]
+              skipWhenPrefix: ["packages/coding-agent/src/compaction/runtime/"]
+          report: "Compaction policy must not depend on Session implementations; only compaction/runtime may consume Runtime Core contracts ({specifier})"
+  - name: legacy-compatibility-allowlists
+    fix: "Keep legacy and external session imports inside the host allowlist."
+    scope:
+      requireSrc: true
+      excludeTestSuffix: true
+    phases:
+      - imports:
+          clauses:
+            - where:
+                startsWith: ["@vetta/coding-agent/legacy/"]
+              report: "production Legacy subpath import is outside the compatibility allowlist"
+            - where:
+                exact: ["@vetta/coding-agent/historical-sessions"]
+              unlessPathsFrom: [historicalSessionConsumers]
+              report: "historical Session public surface is outside the host compatibility allowlist"
+            - where:
+                exact: ["@vetta/coding-agent/external-sessions"]
+              unlessPathsFrom: [externalSessionConsumers]
+              report: "external Session public surface is outside the host compatibility allowlist"
+      - scan: used
+      - when:
+          prefix: ["apps/cli-host/src/"]
+          notPrefix: ["apps/cli-host/src/rpc/"]
+        present:
+          id: used
+          order: listed
+          names: ["runLegacyAgent", "runLegacyAgentWithBootstrap"]
+          report: "Legacy startup symbol {name} is outside the execution gateway"
+      - when:
+          prefix:
+            - packages/coding-agent/src/sessions/legacy/
+            - packages/coding-agent/src/sessions/external/
+        imports:
+          clauses:
+            - where:
+                includes: ["agent-session", "/sdk", "legacy-session-backend"]
+              report: "{format} session-format modules must not import execution code ({specifier})"
+      - when:
+          prefix:
+            - packages/coding-agent/src/sessions/legacy/
+            - packages/coding-agent/src/sessions/external/
+        present:
+          id: used
+          order: listed
+          names: ["AgentSession", "createAgentSession", "LegacyCodingAgentSessionBackend", "ModelRegistry"]
+          report: "{format} session-format modules must not use execution symbol {name}"
+      - when:
+          path:
+            - packages/coding-agent/src/adapters/runtime-core/index.ts
+            - packages/coding-agent/src/adapters/runtime-core/greenfield.ts
+        present:
+          id: used
+          order: seen
+          namesFrom: [historicalRuntimeSymbols]
+          report: "Runtime Host must not expose historical Session symbol {name}"
+      - stopWhen:
+          prefix:
+            - packages/coding-agent/src/sessions/legacy/
+            - packages/coding-agent/src/sessions/external/
+      - present:
+          id: used
+          order: seen
+          namesFrom: [protectedLegacySymbols]
+          skip:
+            - path: packages/coding-agent/src/public-api/historical-sessions.ts
+              names: ["LegacyRuntimeSessionCatalog", "LegacyRuntimeSessionFileHistoryReader"]
+          report: "Legacy Runtime adapter {name} is outside the compatibility allowlist"
+  - name: workspace-imports-are-declared
+    fix: "Declare the workspace package in dependencies, optionalDependencies, or peerDependencies."
+    scope:
+      requireSrc: true
+    manifestImport:
+      packagesFrom: [manifestTruthPackages]
+      scopes: ["@vetta/", "@vetta-org/"]
+      report: "workspace import {packageName} is not declared by {manifest}"
+  - name: runtime-core-avoids-coding-agent
+    fix: "Keep runtime-core off coding-agent."
+    scope:
+      prefix: ["packages/runtime-core/src/"]
+    imports:
+      clauses:
+        - where:
+            prefix: ["@vetta/coding-agent"]
+          report: "runtime-core production code must not import coding-agent ({specifier})"
+  - name: agent-core-avoids-runtime-and-product
+    fix: "Keep the agent kernel off runtime and product packages."
+    scope:
+      prefix: ["packages/agent/src/"]
+    imports:
+      clauses:
+        - whereAny:
+            - startsWith: ["@vetta/runtime-"]
+            - prefix: ["@vetta/coding-agent"]
+          report: "agent-core must not import runtime or product packages ({specifier})"
+  - name: retired-coding-agent-runtime-host-import
+    fix: "Import the replacement runtime entry instead of the retired host path."
+    whenNoFindings: true
+    imports:
+      once: first
+      clauses:
+        - where:
+            prefix: ["@vetta/coding-agent/runtime-host"]
+          report: "retired Coding Agent Runtime Host import ({specifier})"
+  - name: retired-coding-agent-runtime-host-alias
+    fix: "Remove the retired runtime-host resolution alias."
+    scope:
+      path: ["tsconfig.json"]
+      suffix: ["/tsconfig.json", "/vitest.config.ts"]
+    textIncludes: "@vetta/coding-agent/runtime-host"
+    report: "retired Coding Agent Runtime Host resolution alias"
+manifests:
+  - name: retired-runtime-composition-package
+    whenName: "@vetta/runtime-composition"
+    finding: "packages/runtime-composition/package.json: retired package must stay deleted"
+    fix: "Leave the retired package deleted."
+  - name: retired-runtime-composition-dependency
+    dependency: "@vetta/runtime-composition"
+    groups: [dependencies, devDependencies, optionalDependencies, peerDependencies]
+    finding: "{name}: retired @vetta/runtime-composition dependency"
+    missingName: "workspace package"
+    fix: "Remove the retired dependency."
+  - name: agent-core-production-dependencies
+    whenName: "@vetta/agent-core"
+    groups: [dependencies, optionalDependencies, peerDependencies]
+    dependencyWhere:
+      prefix: ["@vetta/runtime-"]
+      exact: ["@vetta/coding-agent"]
+    finding: "@vetta/agent-core: lower-level execution kernel must not depend on {dependency}"
+    fix: "Keep the agent kernel dependency-free of runtime and product packages."
+  - name: coding-agent-retired-exports
+    whenName: "@vetta/coding-agent"
+    exports:
+      - keys: ["./knowledge"]
+        finding: "packages/coding-agent/package.json: retired ./knowledge export must stay deleted"
+      - keys: ["./core/messages.js", "./core/subconscious.js", "./core/system-prompt.js"]
+        finding: "packages/coding-agent/package.json: retired {key} export must stay deleted"
+      - prefix: "./runtime-host"
+        finding: "packages/coding-agent/package.json: retired {key} export must stay deleted"
+    fix: "Leave the retired export deleted."

@@ -12,6 +12,7 @@ const steps = [
 	["apps/desktop/scripts/build-agent-modes.mjs", "--check"],
 	["scripts/quality/check-private-keys.mjs"],
 	["scripts/quality/check-conflict-markers.mjs"],
+	// Rules: scripts/quality/rules/package-boundaries.yml
 	["scripts/quality/check-package-boundaries.mjs"],
 	["scripts/quality/check-coding-agent-architecture.mjs"],
 	["scripts/quality/check-runtime-coding-agent-independence.mjs"],
