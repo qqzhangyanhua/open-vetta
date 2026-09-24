@@ -37,8 +37,6 @@ const CODE_FILE_PATTERN = /\.(?:[cm]?[jt]sx?)$/i;
 const TEST_FILE_PATTERN = /(?:^|\/)(?:test|tests|__tests__)(?:\/|$)|\.(?:test|spec)\.[cm]?[jt]sx?$/i;
 const PUBLIC_CONTRACT_PATTERN = /(?:^|\/)src\/(?:index\.[cm]?[jt]sx?|public-api\/)/i;
 const CONTRACT_DIRECTORY_PATTERN = /(?:^|\/)(?:contracts?|runtime-contracts)(?:\/|$)/i;
-const PACKAGE_CONFIG_PATTERN =
-	/(?:^|\/)(?:package\.json|vitest\.config\.[cm]?[jt]s|vite\.config\.[cm]?[jt]s|tsconfig(?:\.[^.]+)?\.json)$/i;
 
 function supportsTargetedVitest(testScript) {
 	return (
@@ -83,22 +81,17 @@ export function createImpactTestPlan(files, pathExists = (file) => existsSync(jo
 		const workspace = workspaceForFile(file);
 		if (!workspace) continue;
 		const relativeFile = file.slice(workspace.dir.length + 1);
-		if (!workspace.scripts.test) {
-			fallbackReasons.push(`${workspace.key} has no direct test entry point`);
-			continue;
-		}
+		// test:changed is only for impact Vitest related cannot see: a missing file,
+		// or a public contract consumed outside this package.
 		if (!pathExists(file)) {
 			fallbackReasons.push(`${file} was deleted`);
 			continue;
 		}
-		if (
-			PUBLIC_CONTRACT_PATTERN.test(relativeFile) ||
-			CONTRACT_DIRECTORY_PATTERN.test(relativeFile) ||
-			PACKAGE_CONFIG_PATTERN.test(relativeFile)
-		) {
-			fallbackReasons.push(`${file} may affect package consumers or test configuration`);
+		if (PUBLIC_CONTRACT_PATTERN.test(relativeFile) || CONTRACT_DIRECTORY_PATTERN.test(relativeFile)) {
+			fallbackReasons.push(`${file} may affect package consumers`);
 			continue;
 		}
+		if (!workspace.scripts.test) continue;
 		let target = grouped.get(workspace.key);
 		if (!target) {
 			target = {

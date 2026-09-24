@@ -413,14 +413,99 @@ describe("affected package selection", () => {
 		]);
 	});
 
-	it("falls back for public contracts, deleted files, and workspaces without tests", () => {
-		expect(createImpactTestPlan(["packages/ai/src/index.ts"]).fallbackChanged).toBe(true);
+	it("falls back only for root config, deleted files, public entries, and contract directories", () => {
+		const root = createImpactTestPlan(["package.json", "packages/ai/src/providers/retry-policy.ts"]);
+		expect(root.fallbackChanged).toBe(true);
+		expect(root.fallbackReasons).toEqual(["root test configuration changed"]);
+
+		expect(createImpactTestPlan(["packages/ai/src/index.ts"]).fallbackReasons).toEqual([
+			"packages/ai/src/index.ts may affect package consumers",
+		]);
 		expect(
 			createImpactTestPlan(["packages/coding-agent/src/composition/contracts/runtime-session-options.ts"])
-				.fallbackChanged,
-		).toBe(true);
-		expect(createImpactTestPlan(["packages/ai/src/provider.ts"], () => false).fallbackChanged).toBe(true);
-		expect(createImpactTestPlan(["packages/action-rpc/src/rpc.ts"]).fallbackChanged).toBe(true);
+				.fallbackReasons,
+		).toEqual([
+			"packages/coding-agent/src/composition/contracts/runtime-session-options.ts may affect package consumers",
+		]);
+		expect(createImpactTestPlan(["packages/ai/src/public-api/types.ts"], () => true).fallbackReasons).toEqual([
+			"packages/ai/src/public-api/types.ts may affect package consumers",
+		]);
+		expect(createImpactTestPlan(["packages/action-rpc/src/index.ts"]).fallbackReasons).toEqual([
+			"packages/action-rpc/src/index.ts may affect package consumers",
+		]);
+
+		const deleted = createImpactTestPlan(["packages/ai/src/provider.ts"], () => false);
+		expect(deleted.fallbackChanged).toBe(true);
+		expect(deleted.targets).toEqual([]);
+		expect(deleted.fallbackReasons).toEqual(["packages/ai/src/provider.ts was deleted"]);
+		expect(createImpactTestPlan(["packages/action-rpc/src/rpc.ts"]).fallbackReasons).toEqual([
+			"packages/action-rpc/src/rpc.ts was deleted",
+		]);
+	});
+
+	it("keeps package configuration and untested workspaces off the conservative fallback", () => {
+		const packageConfig = createImpactTestPlan(["packages/ai/package.json"]);
+		expect(packageConfig.fallbackChanged).toBe(false);
+		expect(packageConfig.targets).toMatchObject([{ key: "ai", full: true, directTests: [], relatedSources: [] }]);
+
+		const vitestConfig = createImpactTestPlan(["packages/ai/vitest.config.ts"], () => true);
+		expect(vitestConfig.fallbackChanged).toBe(false);
+		expect(vitestConfig.targets).toMatchObject([
+			{ key: "ai", full: false, directTests: [], relatedSources: ["vitest.config.ts"] },
+		]);
+
+		const nestedIndex = createImpactTestPlan(["packages/ai/src/providers/index.ts"], () => true);
+		expect(nestedIndex.fallbackChanged).toBe(false);
+		expect(nestedIndex.targets).toMatchObject([
+			{ key: "ai", full: false, relatedSources: ["src/providers/index.ts"] },
+		]);
+
+		const untested = createImpactTestPlan(["packages/action-rpc/src/client.ts"]);
+		expect(untested.fallbackChanged).toBe(false);
+		expect(untested.targets).toEqual([]);
+	});
+
+	it("returns an empty impact plan when the file list is empty", () => {
+		expect(createImpactTestPlan([])).toEqual({
+			files: [],
+			fallbackChanged: false,
+			fallbackReasons: [],
+			runQuality: false,
+			targets: [],
+		});
+	});
+
+	it("keeps more than 100 ordinary sources on Vitest related selection", () => {
+		const files = Array.from(
+			{ length: 101 },
+			(_, index) => `packages/ai/src/impact-bulk/file-${String(index).padStart(3, "0")}.ts`,
+		);
+		const plan = createImpactTestPlan(files, () => true);
+
+		expect(plan.files).toHaveLength(101);
+		expect(plan.fallbackChanged).toBe(false);
+		expect(plan.fallbackReasons).toEqual([]);
+		expect(plan.targets).toMatchObject([
+			{
+				key: "ai",
+				full: false,
+				directTests: [],
+				relatedSources: files.map((file) => file.slice("packages/ai/".length)),
+			},
+		]);
+	});
+
+	it("falls back when every selected workspace file was deleted", () => {
+		const files = ["packages/agent/src/c.ts", "packages/ai/src/a.ts", "packages/ai/src/b.ts"];
+		const plan = createImpactTestPlan(files, () => false);
+
+		expect(plan.fallbackChanged).toBe(true);
+		expect(plan.targets).toEqual([]);
+		expect(plan.fallbackReasons).toEqual([
+			"packages/agent/src/c.ts was deleted",
+			"packages/ai/src/a.ts was deleted",
+			"packages/ai/src/b.ts was deleted",
+		]);
 	});
 
 	it("runs quality tests for scripts while documentation-only changes need no package tests", () => {

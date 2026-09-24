@@ -13,7 +13,7 @@
 | 质量脚本测试 | `bun run test:quality` | 修改 `scripts/quality` | 变更选择、依赖传播与包边界规则 |
 | 单元测试 | `bun run test` / `bun run test:unit` | 逻辑变更 | 先由 Turbo 生成测试消费的 workspace 依赖产物，再顺序运行所有声明 `test` 的 TypeScript workspace |
 | 按包 | `bun run test:pkg <name>` | 改单包 | 例：`test:pkg ai` |
-| 按任务影响 | `bun run test:impact -- <file...>` | 日常实现与 Agent 任务 | 直接运行显式测试和 Vitest 依赖相关测试；高风险或不确定输入自动回退 `test:changed` |
+| 按任务影响 | `bun run test:impact -- <file...>` | 日常实现与 Agent 任务 | 直接运行显式测试和 Vitest 依赖相关测试；根配置、删除文件、公共入口和合同目录回退 `test:changed` |
 | 按变更 | `bun run test:changed` | 提 PR 前可选 | 合并已提交/工作区/未跟踪改动，测试触达包及其下游依赖 |
 | 按需 Desktop UI 验收 | `bun run verify:ui:*` | 仅用户明确要求使用 UI 验证或具体命令时 | 不由 UI、图标、样式或 Renderer/Main 改动自动触发；见 [README](./README.md) |
 | Desktop 生产边界 | `bun run verify:desktop:contracts`；受影响时由 GitHub Actions 在 Windows/macOS/Linux 运行 packaged smoke 与 updater E2E | 修改 Desktop 主进程、preload、打包脚本、原生依赖或远程控制 | 见下文 |
@@ -207,7 +207,7 @@ if (isDirectRun(import.meta.url)) process.exitCode = main();
 | `test:quality` | 质量脚本定向测试 |
 | `test` / `test:unit` | 从 workspace manifest 自动发现并顺序运行所有声明 `test` 的包 |
 | `test:pkg` | 见 `bun run test:pkg --list` |
-| `test:impact` | 显式任务文件走精确测试；公共合同、删除和配置变化自动回退 `test:changed` |
+| `test:impact` | 显式任务文件走精确测试；根配置、删除文件、公共入口和合同目录回退 `test:changed` |
 | `test:changed` | 默认比较 `origin/dev`；`--base origin/main` 可改基线 |
 | `deadcode` / `deadcode:report` | Knip 严格 / 仅报告 |
 
@@ -306,7 +306,14 @@ Desktop build task 显式依赖 `@vetta-org/plugin-vite`。开发前置构建读
 
 `test:changed` 会从根 workspace 和各包 `package.json#scripts.test` 自动发现可测包，并按全部 workspace manifest 自动计算下游依赖闭包；没有测试脚本的上游包发生变化时，其可测消费者也会进入计划。测试启动前，`test-pkg.mjs` 会让 Turbo 构建所选测试消费的 workspace 依赖，确保干净 checkout 中指向 `dist` 的包导出可被解析，同时不会构建 Desktop、Docs 或 Remote Relay 这些叶子应用本身。`package.json`、`bun.lock`、根 TypeScript/Biome 配置和 `scripts/quality/**` 变化会触发全部 workspace 测试；无效基线会直接失败，不会静默跳过。
 
-`test:impact` 面向本地短反馈循环：显式测试文件直接运行，普通源码交给 Vitest 的 `related` 依赖图选择；若没有关联测试则回退包测试。公共入口、包/测试配置、删除文件、无测试 workspace 和根配置会自动转交 `test:changed`，因此精确模式不会把无法证明安全的范围当作“无需测试”。不传文件时它仍使用完整 Git 差异。CI 继续使用 `test:changed`，保证跨包、跨平台门禁不因本地加速而收窄。
+`test:impact` 面向本地短反馈循环：显式测试文件直接运行，普通源码交给 Vitest 的 `related` 依赖图选择；若没有关联测试则回退该包自己的测试脚本。只有下面四类输入会转交 `test:changed`：
+
+- 根配置：仓库根的 `biome.json`、`biome.jsonc`、`bun.lock`、`package.json`、`turbo.json`、`tsconfig.base.json`、`tsconfig.json`
+- 已删除的 workspace 文件：路径不存在，依赖图无法判断影响范围
+- 公共入口：包内 `src/index.*` 或 `src/public-api/`
+- 合同目录：路径中含 `contract`、`contracts` 或 `runtime-contracts`
+
+包内 `package.json` 和其它非源码文件只跑该包的完整测试，不再升级到 `test:changed`。`vitest.config.ts` 这类源码配置交给 Vitest 的 `related`；没有关联测试时再跑该包自己的测试。没有 `test` 脚本的 workspace 会被跳过，不因此回退；跨包影响仍由 `test:changed` 和 CI 覆盖。空文件列表不跑测试。不传文件时仍使用完整 Git 差异。CI 继续使用 `test:changed`，保证跨包、跨平台门禁不因本地加速而收窄。
 
 `check:quick` 复用同一套 Git 变更选择器，因此不带路径时不会漏掉未暂存或未跟踪文件；`check:quick -- <file...>` 可限制为本次任务实际修改的文件。删除文件会从 Biome 输入中排除；修改任意 `biome.json` / `biome.jsonc` 或根 `.editorconfig` 时，会自动回退为全仓 Biome，避免配置影响未被检查。它不做类型检查，不能替代任务结束时的完整 `check`。
 
