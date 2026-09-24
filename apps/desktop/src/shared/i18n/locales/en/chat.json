@@ -533,6 +533,10 @@
 			"interruptedCancelled": "Interrupted (cancelled)"
 		},
 		"viewInTerminal": "View in terminal",
+		"ordinal": "Run {{n}}",
+		"separator": "Run {{n}} · {{time}} · {{status}}",
+		"newSession": "New session",
+		"cancel": "Cancel",
 		"panel": "External invocation",
 		"clear": "Clear",
 		"closeTab": "Close tab",

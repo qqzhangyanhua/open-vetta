@@ -23,6 +23,8 @@ export {
 	type ResolveGrokSessionsDirectoryInput,
 	resolveGrokSessionsDirectory,
 } from "../sessions/external/grok-session-directory.js";
+export type { GrokSummaryHeader } from "../sessions/external/grok-summary.js";
+export { findGrokSummaryHeader } from "../sessions/external/grok-summary.js";
 export type {
 	ExternalSessionDirectoryEntry,
 	ExternalSessionFileHost,

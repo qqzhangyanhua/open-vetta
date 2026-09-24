@@ -83,6 +83,7 @@ export interface ExternalInvocationPanelPayload {
 	readonly agentLabel?: string;
 	readonly projectLabel?: string;
 	readonly sessionId?: string;
+	readonly externalSessionId?: string | null;
 }
 
 export function emptyBottomPanelState(): BottomPanelSessionState {

@@ -19,6 +19,8 @@ export interface ExternalInvocationCardModel {
 	readonly statusLabel: string;
 	readonly exitCode: number | null;
 	readonly failureReason: string | null;
+	readonly ordinal: number;
+	readonly queued: boolean;
 }
 
 export interface SessionExternalInvocationModel {
@@ -39,6 +41,9 @@ export interface SessionExternalInvocationModel {
 	readonly imageRejectedLabel: string;
 	readonly remoteNote: string | null;
 	readonly sendBlocked: boolean;
+	readonly newSession: boolean;
+	readonly onNewSession: () => void;
+	readonly onCancel: (invocationId: string) => void;
 }
 
 export function SessionExternalInvocationView({
@@ -90,6 +95,9 @@ export function SessionExternalInvocationView({
 					{model.showPrompt ? (
 						<textarea aria-label={t("externalInvocation.message")} value={model.prompt} onChange={(event) => model.onPromptChange(event.target.value)} />
 					) : null}
+					<button type="button" aria-pressed={model.newSession} onClick={model.onNewSession}>
+						{t("externalInvocation.newSession")}
+					</button>
 					<button type="button" disabled={model.sendBlocked} onClick={model.onSend}>
 						{model.sendLabel}
 					</button>
@@ -100,7 +108,13 @@ export function SessionExternalInvocationView({
 			{model.cards.map((card) => (
 				<article key={card.invocationId} aria-label={`${card.agentLabel} ${card.prompt}`}>
 					<p>{card.prompt}</p>
+					<p>{t("externalInvocation.ordinal", { n: card.ordinal })}</p>
 					<p>{card.statusLabel}</p>
+					{card.queued ? (
+						<button type="button" onClick={() => model.onCancel(card.invocationId)}>
+							{t("externalInvocation.cancel")}
+						</button>
+					) : null}
 					{card.exitCode !== null ? <p>{t("externalInvocation.exitCode", { code: card.exitCode })}</p> : null}
 					{card.failureReason ? <p>{card.failureReason}</p> : null}
 					{model.onViewInTerminal ? (

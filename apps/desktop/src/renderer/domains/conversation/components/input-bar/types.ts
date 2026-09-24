@@ -244,11 +244,13 @@ export interface InputBarModel {
 				prompt: string;
 				agentId: string;
 				referencedPaths?: readonly string[];
+				externalSessionId?: string | null;
+				newSession?: boolean;
 			}): Promise<{ invocationId: string }>;
 			subscribe(
 				sessionId: string,
 				listener: (event: {
-					type: "running" | "completed" | "failed" | "interrupted" | "output" | "truncated";
+					type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 					chunk?: string;
 					discardedBytes?: number;
 					invocationId: string;
@@ -260,8 +262,11 @@ export interface InputBarModel {
 			): () => void;
 		} | null;
 		readonly onInvocationEvent?: (event: {
-			readonly type: "running" | "completed" | "failed" | "interrupted" | "output" | "truncated";
+			readonly type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 			readonly invocationId: string;
+			readonly externalSessionId?: string | null;
+			readonly ordinal?: number;
+			readonly startedAt?: string;
 		}) => void;
 		readonly onViewInTerminal?: (invocationId: string) => void;
 		readonly prompt: string;

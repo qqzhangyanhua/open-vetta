@@ -13,6 +13,7 @@ export const openExternalInvocationTabAtom = atom(
 			readonly cwd: string;
 			readonly sessionId: string;
 			readonly agentLabel?: string;
+			readonly externalSessionId?: string | null;
 		},
 	) => {
 		set(dispatchBottomPanelAtom, {
@@ -25,6 +26,7 @@ export const openExternalInvocationTabAtom = atom(
 				agentLabel: input.agentLabel ?? "Grok",
 				projectLabel: pathBasename(input.cwd),
 				sessionId: input.sessionId,
+				externalSessionId: input.externalSessionId,
 			},
 		});
 	},

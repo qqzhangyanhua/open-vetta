@@ -19,7 +19,7 @@ const externalInvocationStatusKey = {
 } as const;
 
 export interface ExternalInvocationClientEvent {
-	readonly type: "running" | "completed" | "failed" | "interrupted" | "output" | "truncated";
+	readonly type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 	readonly invocationId: string;
 	readonly prompt?: string;
 	readonly agentId?: string;
@@ -28,6 +28,9 @@ export interface ExternalInvocationClientEvent {
 	readonly message?: string;
 	readonly chunk?: string;
 	readonly discardedBytes?: number;
+	readonly ordinal?: number;
+	readonly externalSessionId?: string | null;
+	readonly startedAt?: string;
 }
 
 export interface ExternalInvocationClient {
@@ -38,6 +41,8 @@ export interface ExternalInvocationClient {
 		prompt: string;
 		agentId: string;
 		referencedPaths?: readonly string[];
+		externalSessionId?: string | null;
+		newSession?: boolean;
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationClientEvent) => void): () => void;
 	subscribeRunning?(listener: (sessionIds: readonly string[]) => void): () => void;
@@ -66,31 +71,40 @@ export function applyExternalInvocationEvent(
 			statusLabel: statusLabel(status),
 			exitCode: null,
 			failureReason: null,
+			ordinal: event.ordinal ?? 1,
+			queued: false,
 		};
-		const existing = cards.some((card) => card.invocationId === event.invocationId);
-		return existing ? cards.map((card) => (card.invocationId === event.invocationId ? { ...card, ...next } : card)) : [...cards, next];
+		const previous = cards.find((card) => card.invocationId === event.invocationId);
+		const nextCard = { ...next, ordinal: event.ordinal ?? previous?.ordinal ?? 1 };
+		return previous
+			? cards.map((card) => (card.invocationId === event.invocationId ? { ...card, ...nextCard } : card))
+			: [...cards, nextCard];
 	}
-	if (event.type === "running") {
+	if (event.type === "running" || event.type === "queued") {
+		const status = event.type === "queued" ? "queued" : "running";
 		return [
 			...cards.filter((card) => card.invocationId !== event.invocationId),
 			{
 				invocationId: event.invocationId,
 				agentLabel,
 				prompt: event.prompt ?? "",
-				statusLabel: statusLabel("running"),
+				statusLabel: statusLabel(status),
 				exitCode: null,
 				failureReason: null,
+				ordinal: event.ordinal ?? 1,
+				queued: event.type === "queued",
 			},
 		];
 	}
 	const status = event.type === "failed" ? "failed" : "completed";
 	return cards.map((card) =>
 		card.invocationId === event.invocationId
-			? {
+				? {
 					...card,
 					statusLabel: statusLabel(status),
 					exitCode: event.exitCode ?? null,
 					failureReason: event.reason ?? null,
+					queued: false,
 				}
 			: card,
 	);
@@ -139,7 +153,15 @@ export function SessionExternalInvocationPage({
 		onRecipientChange?.(recipientId);
 	}, [onRecipientChange, recipientId]);
 	const [cards, setCards] = useState<readonly ExternalInvocationCardModel[]>([]);
+	const [newSession, setNewSession] = useState(false);
+	const [resumeSessionId, setResumeSessionId] = useState<string | null>(null);
 	const sessionId = session?.sessionId ?? null;
+	const [resumeScope, setResumeScope] = useState(sessionId);
+	if (resumeScope !== sessionId) {
+		setResumeScope(sessionId);
+		setResumeSessionId(null);
+		setNewSession(false);
+	}
 	const [cardsSessionId, setCardsSessionId] = useState(sessionId);
 	if (cardsSessionId !== sessionId) {
 		setCardsSessionId(sessionId);
@@ -168,6 +190,7 @@ export function SessionExternalInvocationPage({
 	useEffect(() => {
 		if (!client || !sessionId || !cwd) return;
 		return client.subscribe(sessionId, (event) => {
+			if (event.externalSessionId) setResumeSessionId(event.externalSessionId);
 			if (event.type === "output" || event.type === "truncated") {
 				onInvocationEvent?.(event);
 				return;
@@ -203,11 +226,17 @@ export function SessionExternalInvocationPage({
 						prompt,
 						agentId: recipientId,
 						referencedPaths,
+						externalSessionId: newSession ? null : resumeSessionId,
+						newSession,
 					});
+					setNewSession(false);
 					onPromptChange("");
 				},
 				cards,
 				onViewInTerminal,
+				newSession,
+				onNewSession: () => setNewSession((current) => !current),
+				onCancel: (invocationId) => client?.stop?.(invocationId),
 				images,
 				onRemoveImage: (path) => onRemoveImage?.(path),
 				imageRejectedLabel: t("externalInvocation.imageRejected", { agent: recipient?.label ?? "" }),

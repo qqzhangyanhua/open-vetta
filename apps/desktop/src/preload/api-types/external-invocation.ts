@@ -1,5 +1,5 @@
 export interface DesktopExternalInvocationEvent {
-	readonly type: "running" | "completed" | "failed" | "interrupted" | "output" | "truncated";
+	readonly type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 	readonly chunk?: string;
 	readonly sessionId: string;
 	readonly invocationId: string;
@@ -9,6 +9,9 @@ export interface DesktopExternalInvocationEvent {
 	readonly reason?: "user" | "app-exit" | "cancelled" | string;
 	readonly message?: string;
 	readonly discardedBytes?: number;
+	readonly ordinal?: number;
+	readonly externalSessionId?: string | null;
+	readonly startedAt?: string;
 }
 
 export interface DesktopExternalInvocationsApi {
@@ -19,6 +22,8 @@ export interface DesktopExternalInvocationsApi {
 		prompt: string;
 		agentId: string;
 		referencedPaths?: readonly string[];
+		externalSessionId?: string | null;
+		newSession?: boolean;
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: DesktopExternalInvocationEvent) => void): () => void;
 	subscribeRunning(listener: (sessionIds: readonly string[]) => void): () => void;

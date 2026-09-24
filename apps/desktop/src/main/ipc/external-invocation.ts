@@ -6,6 +6,7 @@ import { ipcMain } from "electron";
 import { detectExternalAgentsOnPath, readLoginShellPath } from "../external-invocation/detect-agents.js";
 import { createExternalInvocationEntryLedger } from "../external-invocation/entry-ledger.js";
 import { createExternalInvocationService, type ExternalInvocationService } from "../external-invocation/service.js";
+import { detectGrokSessionsDirectory } from "../external-sessions/grok-session-locator.js";
 import { getSharedRuntime } from "../runtime.js";
 import { createLocalPtyBackendFactory } from "../terminal/local-pty-backend.js";
 
@@ -55,6 +56,7 @@ export function externalInvocationService(): ExternalInvocationService {
 			artifactDirectory: (sessionId) => join(getAgentDir(), "external-invocations", sessionId),
 			clock: { now: () => Date.now() },
 			ids: { next: () => crypto.randomUUID() },
+			sessionsDirectory: (agentId) => (agentId === "grok" ? (detectGrokSessionsDirectory().path ?? null) : null),
 		});
 	}
 	return service;
@@ -165,6 +167,8 @@ function parseStart(value: unknown): {
 	prompt: string;
 	agentId: string;
 	referencedPaths: readonly string[];
+	externalSessionId: string | null;
+	newSession: boolean;
 } {
 	if (typeof value !== "object" || value === null) throw new Error("external invocation: request must be an object");
 	const input = value as Record<string, unknown>;
@@ -175,7 +179,19 @@ function parseStart(value: unknown): {
 	const referencedPaths = Array.isArray(input.referencedPaths)
 		? input.referencedPaths.filter((path): path is string => typeof path === "string" && path.length > 0)
 		: [];
-	return { sessionId, cwd, prompt, agentId, referencedPaths };
+	const externalSessionId =
+		typeof input.externalSessionId === "string" && input.externalSessionId.length > 0
+			? input.externalSessionId
+			: null;
+	return {
+		sessionId,
+		cwd,
+		prompt,
+		agentId,
+		referencedPaths,
+		externalSessionId,
+		newSession: input.newSession === true,
+	};
 }
 
 function requireString(value: unknown, field: string): string {

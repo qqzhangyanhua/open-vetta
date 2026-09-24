@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -56,6 +56,7 @@ function harness(options?: { failStart?: Error; limit?: number }) {
 	let now = Date.parse("2026-09-24T06:00:00.000Z");
 	let nextId = 0;
 	const directory = mkdtempSync(join(tmpdir(), "vetta-external-invocation-"));
+	const sessionsRoot = mkdtempSync(join(tmpdir(), "vetta-grok-sessions-"));
 	const service = createExternalInvocationService({
 		processes: {
 			async start(request) {
@@ -78,6 +79,7 @@ function harness(options?: { failStart?: Error; limit?: number }) {
 		clock: { now: () => now },
 		ids: { next: () => `id-${nextId++}` },
 		outputLimitBytes: options?.limit,
+		sessionsDirectory: () => sessionsRoot,
 	});
 	const unsubscribe = service.subscribe("session-1", (event) => events.push(event));
 	return {
@@ -87,6 +89,7 @@ function harness(options?: { failStart?: Error; limit?: number }) {
 		started,
 		procs,
 		directory,
+		sessionsRoot,
 		unsubscribe,
 		advance: (ms: number) => {
 			now += ms;
@@ -307,6 +310,8 @@ describe("external invocation service", () => {
 				outputPath: join(h.directory, "session-1", "queued-1.pty"),
 				startedAt: "2026-09-24T06:00:00.000Z",
 				endedAt: null,
+				externalSessionId: null,
+				ordinal: 2,
 			},
 		});
 		await h.service.recover();
@@ -349,6 +354,103 @@ describe("external invocation service", () => {
 		expect(h.events.some((event) => event.type === "completed" || event.type === "failed")).toBe(false);
 	});
 
+	it("queues a follow-up on the same external session, then resumes it after the first run locates that session", async () => {
+		const h = harness();
+		const first = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "fix the test",
+			agentId: "grok",
+		});
+		const second = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "and the lint",
+			agentId: "grok",
+		});
+		expect(h.started).toHaveLength(1);
+		expect(h.events.some((event) => event.type === "queued" && event.invocationId === second.invocationId)).toBe(
+			true,
+		);
+		writeGrokSummary(h.sessionsRoot, "sess-9", "/work/app", "2026-09-24T06:00:00.000Z");
+		h.procs[0]?.emitExit(0);
+		await viWait();
+		expect(
+			h.entries.filter((entry) => entry.data.invocationId === first.invocationId).at(-1)?.data.externalSessionId,
+		).toBe("sess-9");
+		expect(h.started).toEqual([
+			{ file: "grok", args: ["--single", "fix the test"], cwd: "/work/app" },
+			{ file: "grok", args: ["--single", "and the lint", "--resume", "sess-9"], cwd: "/work/app" },
+		]);
+		expect(h.events.some((event) => event.type === "running" && event.invocationId === second.invocationId)).toBe(
+			true,
+		);
+	});
+
+	it("queues a second Vetta session that resumes the same external session", async () => {
+		const h = harness();
+		h.unsubscribe();
+		const seen: ExternalInvocationEvent[] = [];
+		h.service.subscribe("session-b", (event) => seen.push(event));
+		await h.service.start({
+			sessionId: "session-a",
+			cwd: "/work/app",
+			prompt: "first",
+			agentId: "grok",
+			externalSessionId: "sess-9",
+		});
+		const queued = await h.service.start({
+			sessionId: "session-b",
+			cwd: "/work/app",
+			prompt: "second",
+			agentId: "grok",
+			externalSessionId: "sess-9",
+		});
+		expect(h.started).toHaveLength(1);
+		expect(seen.map((event) => event.type)).toEqual(["queued"]);
+		h.procs[0]?.emitExit(0);
+		await viWait();
+		expect(h.started[1]?.args).toEqual(["--single", "second", "--resume", "sess-9"]);
+		expect(seen.some((event) => event.type === "running" && event.invocationId === queued.invocationId)).toBe(true);
+	});
+
+	it("never starts a follow-up that was cancelled while queued", async () => {
+		const h = harness();
+		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "first", agentId: "grok" });
+		const queued = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "second",
+			agentId: "grok",
+		});
+		h.service.stop(queued.invocationId);
+		writeGrokSummary(h.sessionsRoot, "sess-9", "/work/app", "2026-09-24T06:00:00.000Z");
+		h.procs[0]?.emitExit(0);
+		await viWait();
+		expect(h.started).toHaveLength(1);
+		expect(h.entries.filter((entry) => entry.data.invocationId === queued.invocationId).at(-1)?.data).toMatchObject({
+			status: "interrupted",
+			interruptReason: "cancelled",
+		});
+	});
+
+	it("starts an explicit new session immediately instead of queueing behind the current one", async () => {
+		const h = harness();
+		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "first", agentId: "grok" });
+		await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "elsewhere",
+			agentId: "grok",
+			newSession: true,
+		});
+		expect(h.started).toEqual([
+			{ file: "grok", args: ["--single", "first"], cwd: "/work/app" },
+			{ file: "grok", args: ["--single", "elsewhere"], cwd: "/work/app" },
+		]);
+		expect(h.events.some((event) => event.type === "queued")).toBe(false);
+	});
+
 	it("writes terminal keyboard input into the process", async () => {
 		const h = harness();
 		const started = await h.service.start({
@@ -364,4 +466,19 @@ describe("external invocation service", () => {
 
 async function viWait(): Promise<void> {
 	await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+function writeGrokSummary(root: string, id: string, cwd: string, lastActiveAt: string): void {
+	const dir = join(root, "workspace", id);
+	mkdirSync(dir, { recursive: true });
+	writeFileSync(
+		join(dir, "summary.json"),
+		JSON.stringify({
+			info: { id, cwd },
+			chat_format_version: 1,
+			git_root_dir: cwd,
+			last_active_at: lastActiveAt,
+			generated_title: id,
+		}),
+	);
 }

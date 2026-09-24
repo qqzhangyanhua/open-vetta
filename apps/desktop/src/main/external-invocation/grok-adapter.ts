@@ -1,3 +1,5 @@
+import { locateGrokSessionId } from "../external-sessions/grok-session-locator.js";
+
 /** 单条指令只带提示本身。确认、信任和跳过权限都留给 Grok 自己的终端询问。 */
 const SKIP_CONFIRMATION_FLAGS = ["--always-approve", "--trust", "--yolo", "--dangerously-skip-permissions"] as const;
 
@@ -6,6 +8,8 @@ export interface ExternalAgentAdapter {
 	readonly label: "Grok";
 	readonly executable: "grok";
 	singleInstructionArgs(prompt: string, referencedPaths?: readonly string[]): readonly string[];
+	resumeArgs(prompt: string, externalSessionId: string, referencedPaths?: readonly string[]): readonly string[];
+	locateSessionId(input: { sessionsRoot: string; cwd: string; startedAt: number }): string | null;
 }
 
 export const grokAdapter: ExternalAgentAdapter = {
@@ -16,13 +20,14 @@ export const grokAdapter: ExternalAgentAdapter = {
 		const lines = referencedPaths.map(attachmentLine);
 		const question = questionWithoutAttachmentTokens(prompt, lines);
 		const instruction = lines.length > 0 ? `${lines.join("\n")}\n${question}` : question;
-		const args = ["--single", instruction];
-		for (const flag of SKIP_CONFIRMATION_FLAGS) {
-			if (args.includes(flag)) {
-				throw new Error(`Grok single-instruction args must not include ${flag}`);
-			}
-		}
-		return args;
+		return guardArgs(["--single", instruction]);
+	},
+	resumeArgs(prompt: string, externalSessionId: string, referencedPaths: readonly string[] = []): readonly string[] {
+		const instruction = grokAdapter.singleInstructionArgs(prompt, referencedPaths)[1] ?? "";
+		return guardArgs(["--single", instruction, "--resume", externalSessionId]);
+	},
+	locateSessionId(input): string | null {
+		return locateGrokSessionId(input);
 	},
 };
 
@@ -46,4 +51,11 @@ function questionWithoutAttachmentTokens(prompt: string, lines: readonly string[
 
 export function findExternalAgentAdapter(agentId: string): ExternalAgentAdapter | undefined {
 	return externalAgentAdapters.find((adapter) => adapter.id === agentId);
+}
+
+function guardArgs(args: readonly string[]): readonly string[] {
+	for (const flag of SKIP_CONFIRMATION_FLAGS) {
+		if (args.includes(flag)) throw new Error(`Grok single-instruction args must not include ${flag}`);
+	}
+	return args;
 }

@@ -37,6 +37,8 @@ export interface ExternalInvocationEntryData {
 	readonly outputPath: string;
 	readonly startedAt: string;
 	readonly endedAt: string | null;
+	readonly externalSessionId: string | null;
+	readonly ordinal: number;
 }
 
 export interface ExternalInvocationEntryStore {
@@ -51,6 +53,18 @@ export type ExternalInvocationEvent =
 			readonly invocationId: string;
 			readonly agentId: string;
 			readonly prompt: string;
+			readonly ordinal: number;
+			readonly externalSessionId: string | null;
+			readonly startedAt: string;
+	  }
+	| {
+			readonly type: "queued";
+			readonly sessionId: string;
+			readonly invocationId: string;
+			readonly agentId: string;
+			readonly prompt: string;
+			readonly ordinal: number;
+			readonly externalSessionId: string | null;
 	  }
 	| {
 			readonly type: "completed";
@@ -58,6 +72,8 @@ export type ExternalInvocationEvent =
 			readonly invocationId: string;
 			readonly exitCode: 0;
 			readonly discardedBytes: number;
+			readonly externalSessionId: string | null;
+			readonly ordinal: number;
 	  }
 	| {
 			readonly type: "failed";
@@ -96,6 +112,8 @@ export interface ExternalInvocationService {
 		prompt: string;
 		agentId: string;
 		referencedPaths?: readonly string[];
+		externalSessionId?: string | null;
+		newSession?: boolean;
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationEvent) => void): () => void;
 	subscribeRunning(listener: (sessionIds: readonly string[]) => void): () => void;
@@ -120,6 +138,7 @@ export function createExternalInvocationService(deps: {
 	clock: { now(): number };
 	ids: { next(): string };
 	outputLimitBytes?: number;
+	sessionsDirectory?(agentId: string): string | null;
 }): ExternalInvocationService {
 	const listeners = new Map<string, Set<(event: ExternalInvocationEvent) => void>>();
 	const savedOutput = new Map<
@@ -131,6 +150,9 @@ export function createExternalInvocationService(deps: {
 	const settled = new Set<string>();
 	const statusEvents = new Map<string, ExternalInvocationEvent>();
 	const runningListeners = new Set<(sessionIds: readonly string[]) => void>();
+	const queues = new Map<string, string[]>();
+	const lockOf = new Map<string, string>();
+	const referencedPathsOf = new Map<string, readonly string[]>();
 
 	function runningSessionIds(): readonly string[] {
 		const ids = new Set<string>();
@@ -157,6 +179,268 @@ export function createExternalInvocationService(deps: {
 
 	async function append(entry: ExternalInvocationEntry): Promise<void> {
 		await deps.entries.append(entry);
+	}
+
+	function lockKey(agentId: string, externalSessionId: string): string {
+		return `${agentId}\0${externalSessionId}`;
+	}
+
+	function latestExternalSessionId(sessionId: string, agentId: string): string | null {
+		let found: string | null = null;
+		for (const entry of deps.entries.list()) {
+			if (entry.sessionId === sessionId && entry.data.agentId === agentId && entry.data.externalSessionId) {
+				found = entry.data.externalSessionId;
+			}
+		}
+		for (const live of open.values()) {
+			if (live.sessionId === sessionId && live.data.agentId === agentId && live.data.externalSessionId) {
+				found = live.data.externalSessionId;
+			}
+		}
+		return found;
+	}
+
+	function pendingHead(sessionId: string, agentId: string): string | null {
+		let head: string | null = null;
+		let started = "";
+		for (const [id, live] of open) {
+			if (settled.has(id) || live.sessionId !== sessionId || live.data.agentId !== agentId) continue;
+			if (live.data.externalSessionId) continue;
+			if (live.data.status !== "running" && live.data.status !== "queued") continue;
+			if (!head || live.data.startedAt >= started) {
+				head = id;
+				started = live.data.startedAt;
+			}
+		}
+		return head;
+	}
+
+	function lockBusy(lock: string): boolean {
+		for (const [id, live] of open) {
+			if (lockOf.get(id) === lock && live.data.status === "running" && !settled.has(id)) return true;
+		}
+		return false;
+	}
+
+	function ordinalFor(agentId: string, externalSessionId: string | null, headId: string | null): number {
+		if (externalSessionId) {
+			const ids = new Set<string>();
+			for (const entry of deps.entries.list()) {
+				if (entry.data.agentId === agentId && entry.data.externalSessionId === externalSessionId) {
+					ids.add(entry.data.invocationId);
+				}
+			}
+			for (const [id, live] of open) {
+				if (live.data.agentId === agentId && live.data.externalSessionId === externalSessionId) ids.add(id);
+			}
+			return ids.size + 1;
+		}
+		if (!headId) return 1;
+		const lock = lockOf.get(headId) ?? `pending\0${headId}`;
+		return (open.get(headId)?.data.ordinal ?? 1) + (queues.get(lock)?.length ?? 0) + 1;
+	}
+
+	function enqueue(lock: string, invocationId: string): void {
+		const waiting = queues.get(lock) ?? [];
+		waiting.push(invocationId);
+		queues.set(lock, waiting);
+		lockOf.set(invocationId, lock);
+	}
+
+	function pump(lock: string): void {
+		if (lockBusy(lock)) return;
+		const waiting = queues.get(lock) ?? [];
+		while (waiting.length > 0) {
+			const next = waiting.shift();
+			if (!next || settled.has(next)) continue;
+			const live = open.get(next);
+			if (!live || live.data.status !== "queued") continue;
+			void launch(next);
+			return;
+		}
+	}
+
+	function locatedExternalSessionId(data: ExternalInvocationEntryData): string | null {
+		const root = deps.sessionsDirectory?.(data.agentId) ?? null;
+		const adapter = findExternalAgentAdapter(data.agentId);
+		if (!root || !adapter) return data.externalSessionId;
+		return (
+			adapter.locateSessionId({
+				sessionsRoot: root,
+				cwd: data.cwd,
+				startedAt: Date.parse(data.startedAt),
+			}) ?? data.externalSessionId
+		);
+	}
+
+	function release(invocationId: string, externalSessionId: string | null): void {
+		const current = lockOf.get(invocationId);
+		if (!current) return;
+		const agentId = open.get(invocationId)?.data.agentId;
+		const pending = `pending\0${invocationId}`;
+		const waiters = queues.get(pending) ?? [];
+		queues.delete(pending);
+		if (externalSessionId && agentId && waiters.length > 0) {
+			const next = lockKey(agentId, externalSessionId);
+			for (const id of waiters) {
+				const live = open.get(id);
+				if (!live) continue;
+				open.set(id, { ...live, data: { ...live.data, externalSessionId } });
+				lockOf.set(id, next);
+			}
+			queues.set(next, [...(queues.get(next) ?? []), ...waiters]);
+			pump(next);
+			return;
+		}
+		if (waiters.length > 0) queues.set(pending, waiters);
+		pump(current);
+	}
+
+	async function launch(invocationId: string): Promise<void> {
+		const current = open.get(invocationId);
+		if (!current || settled.has(invocationId)) return;
+		const adapter = findExternalAgentAdapter(current.data.agentId);
+		if (!adapter) return;
+		let data = current.data;
+		if (data.status === "queued") {
+			data = { ...data, status: "running" };
+			open.set(invocationId, { sessionId: current.sessionId, data });
+			await append({
+				sessionId: current.sessionId,
+				entryId: deps.ids.next(),
+				customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
+				timestamp: timestamp(),
+				data,
+			});
+		}
+		emit({
+			type: "running",
+			sessionId: current.sessionId,
+			invocationId,
+			agentId: data.agentId,
+			prompt: data.prompt,
+			ordinal: data.ordinal,
+			externalSessionId: data.externalSessionId,
+			startedAt: data.startedAt,
+		});
+		const paths = referencedPathsOf.get(invocationId) ?? [];
+		let process: ExternalInvocationProcess;
+		try {
+			process = await deps.processes.start({
+				file: adapter.executable,
+				args: data.externalSessionId
+					? adapter.resumeArgs(data.prompt, data.externalSessionId, paths)
+					: adapter.singleInstructionArgs(data.prompt, paths),
+				cwd: data.cwd,
+			});
+		} catch (error) {
+			const reason = error instanceof Error ? error.message : String(error);
+			const endedAt = timestamp();
+			settled.add(invocationId);
+			await append({
+				sessionId: current.sessionId,
+				entryId: deps.ids.next(),
+				customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
+				timestamp: endedAt,
+				data: {
+					...data,
+					status: "failed",
+					exitCode: null,
+					failureReason: reason,
+					interruptReason: null,
+					discardedBytes: 0,
+					endedAt,
+				},
+			});
+			emit({
+				type: "failed",
+				sessionId: current.sessionId,
+				invocationId,
+				exitCode: null,
+				reason,
+				discardedBytes: 0,
+			});
+			release(invocationId, data.externalSessionId);
+			return;
+		}
+		processes.set(invocationId, process);
+		notifyRunning();
+		const capture = new ExternalInvocationOutputCapture(
+			deps.outputLimitBytes ?? EXTERNAL_INVOCATION_OUTPUT_LIMIT_BYTES,
+		);
+		savedOutput.set(invocationId, {
+			sessionId: current.sessionId,
+			invocationId,
+			head: "",
+			tail: "",
+			discardedBytes: 0,
+		});
+		const flush = (): void => {
+			const snapshot = capture.snapshot();
+			writeFileSync(data.outputPath, snapshot.body);
+			const parts = capture.parts();
+			writeFileSync(
+				`${data.outputPath}.meta.json`,
+				JSON.stringify({ discardedBytes: parts.discardedBytes, headBytes: parts.headBytes }),
+			);
+			savedOutput.set(invocationId, { sessionId: current.sessionId, invocationId, ...parts });
+		};
+		process.onData((chunk) => {
+			capture.push(chunk);
+			flush();
+			emit({ type: "output", sessionId: current.sessionId, invocationId, chunk });
+		});
+		process.onExit((event) => {
+			if (settled.has(invocationId)) return;
+			settled.add(invocationId);
+			processes.delete(invocationId);
+			notifyRunning();
+			flush();
+			const snapshot = capture.snapshot();
+			const endedAt = timestamp();
+			const failed = event.exitCode !== 0;
+			const externalSessionId = locatedExternalSessionId(data);
+			const finished = {
+				...data,
+				externalSessionId,
+				status: failed ? ("failed" as const) : ("completed" as const),
+				exitCode: event.exitCode,
+				failureReason: failed ? `exit ${event.exitCode ?? "null"}` : null,
+				interruptReason: null,
+				discardedBytes: snapshot.discardedBytes,
+				endedAt,
+			};
+			open.set(invocationId, { sessionId: current.sessionId, data: finished });
+			void append({
+				sessionId: current.sessionId,
+				entryId: deps.ids.next(),
+				customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
+				timestamp: endedAt,
+				data: finished,
+			}).then(() => {
+				if (failed) {
+					emit({
+						type: "failed",
+						sessionId: current.sessionId,
+						invocationId,
+						exitCode: event.exitCode,
+						reason: `exit ${event.exitCode ?? "null"}`,
+						discardedBytes: snapshot.discardedBytes,
+					});
+				} else {
+					emit({
+						type: "completed",
+						sessionId: current.sessionId,
+						invocationId,
+						exitCode: 0,
+						discardedBytes: snapshot.discardedBytes,
+						externalSessionId,
+						ordinal: data.ordinal,
+					});
+				}
+				release(invocationId, externalSessionId);
+			});
+		});
 	}
 
 	return {
@@ -196,8 +480,43 @@ export function createExternalInvocationService(deps: {
 		},
 		stop(invocationId) {
 			const current = open.get(invocationId);
+			if (!current || settled.has(invocationId)) return;
 			const proc = processes.get(invocationId);
-			if (!current || !proc || settled.has(invocationId)) return;
+			if (!proc) {
+				if (current.data.status !== "queued") return;
+				settled.add(invocationId);
+				for (const [lock, waiting] of queues)
+					queues.set(
+						lock,
+						waiting.filter((id) => id !== invocationId),
+					);
+				const endedAt = timestamp();
+				const message = INTERRUPT_MESSAGE.cancelled;
+				void append({
+					sessionId: current.sessionId,
+					entryId: deps.ids.next(),
+					customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
+					timestamp: endedAt,
+					data: {
+						...current.data,
+						status: "interrupted",
+						exitCode: null,
+						failureReason: message,
+						interruptReason: "cancelled",
+						endedAt,
+					},
+				});
+				emit({
+					type: "interrupted",
+					sessionId: current.sessionId,
+					invocationId,
+					agentId: current.data.agentId,
+					prompt: current.data.prompt,
+					reason: "cancelled",
+					message,
+				});
+				return;
+			}
 			settled.add(invocationId);
 			proc.kill();
 			processes.delete(invocationId);
@@ -227,6 +546,8 @@ export function createExternalInvocationService(deps: {
 				reason: "user",
 				message,
 			});
+			const released = lockOf.get(invocationId);
+			if (released) pump(released);
 		},
 		async deleteSession(sessionId) {
 			for (const [invocationId, proc] of processes) {
@@ -299,6 +620,19 @@ export function createExternalInvocationService(deps: {
 			const directory = deps.artifactDirectory(request.sessionId);
 			mkdirSync(directory, { recursive: true });
 			const outputPath = join(directory, `${invocationId}.pty`);
+			const resumeId = request.newSession
+				? null
+				: (request.externalSessionId ?? latestExternalSessionId(request.sessionId, adapter.id));
+			const head = !request.newSession && !resumeId ? pendingHead(request.sessionId, adapter.id) : null;
+			const lock = resumeId
+				? lockKey(adapter.id, resumeId)
+				: head
+					? (lockOf.get(head) ?? `pending\0${head}`)
+					: `pending\0${invocationId}`;
+			const shouldQueue =
+				!request.newSession &&
+				(Boolean(head) || Boolean(resumeId && (lockBusy(lock) || (queues.get(lock)?.length ?? 0) > 0)));
+			const ordinal = ordinalFor(adapter.id, resumeId, head);
 			const base = {
 				invocationId,
 				agentId: adapter.id,
@@ -306,154 +640,43 @@ export function createExternalInvocationService(deps: {
 				cwd: request.cwd,
 				outputPath,
 				startedAt,
+				externalSessionId: resumeId,
+				ordinal,
+			};
+			const data: ExternalInvocationEntryData = {
+				...base,
+				status: shouldQueue ? "queued" : "running",
+				exitCode: null,
+				failureReason: null,
+				interruptReason: null,
+				discardedBytes: 0,
+				endedAt: null,
 			};
 			await append({
 				sessionId: request.sessionId,
 				entryId: deps.ids.next(),
 				customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
 				timestamp: startedAt,
-				data: {
-					...base,
-					status: "running",
-					exitCode: null,
-					failureReason: null,
-					interruptReason: null,
-					discardedBytes: 0,
-					endedAt: null,
-				},
+				data,
 			});
-			open.set(invocationId, {
-				sessionId: request.sessionId,
-				data: {
-					...base,
-					status: "running",
-					exitCode: null,
-					failureReason: null,
-					interruptReason: null,
-					discardedBytes: 0,
-					endedAt: null,
-				},
-			});
-			emit({
-				type: "running",
-				sessionId: request.sessionId,
-				invocationId,
-				agentId: adapter.id,
-				prompt: request.prompt,
-			});
-
-			let process: ExternalInvocationProcess;
-			try {
-				process = await deps.processes.start({
-					file: adapter.executable,
-					args: adapter.singleInstructionArgs(request.prompt, request.referencedPaths),
-					cwd: request.cwd,
-				});
-			} catch (error) {
-				const reason = error instanceof Error ? error.message : String(error);
-				const endedAt = timestamp();
-				await append({
-					sessionId: request.sessionId,
-					entryId: deps.ids.next(),
-					customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
-					timestamp: endedAt,
-					data: {
-						...base,
-						status: "failed",
-						exitCode: null,
-						failureReason: reason,
-						interruptReason: null,
-						discardedBytes: 0,
-						endedAt,
-					},
-				});
+			open.set(invocationId, { sessionId: request.sessionId, data });
+			referencedPathsOf.set(invocationId, request.referencedPaths ?? []);
+			if (shouldQueue) {
+				enqueue(lock, invocationId);
 				emit({
-					type: "failed",
+					type: "queued",
 					sessionId: request.sessionId,
 					invocationId,
-					exitCode: null,
-					reason,
-					discardedBytes: 0,
+					agentId: adapter.id,
+					prompt: request.prompt,
+					ordinal,
+					externalSessionId: resumeId,
 				});
 				return { invocationId };
 			}
+			lockOf.set(invocationId, lock);
 
-			processes.set(invocationId, process);
-			notifyRunning();
-			const capture = new ExternalInvocationOutputCapture(
-				deps.outputLimitBytes ?? EXTERNAL_INVOCATION_OUTPUT_LIMIT_BYTES,
-			);
-			savedOutput.set(invocationId, {
-				sessionId: request.sessionId,
-				invocationId,
-				head: "",
-				tail: "",
-				discardedBytes: 0,
-			});
-			const flush = (): void => {
-				const snapshot = capture.snapshot();
-				writeFileSync(outputPath, snapshot.body);
-				const parts = capture.parts();
-				writeFileSync(
-					`${outputPath}.meta.json`,
-					JSON.stringify({ discardedBytes: parts.discardedBytes, headBytes: parts.headBytes }),
-				);
-				savedOutput.set(invocationId, { sessionId: request.sessionId, invocationId, ...parts });
-			};
-			process.onData((chunk) => {
-				capture.push(chunk);
-				flush();
-				emit({
-					type: "output",
-					sessionId: request.sessionId,
-					invocationId,
-					chunk,
-				});
-			});
-			process.onExit((event) => {
-				if (settled.has(invocationId)) return;
-				settled.add(invocationId);
-				processes.delete(invocationId);
-				notifyRunning();
-				flush();
-				const snapshot = capture.snapshot();
-				const endedAt = timestamp();
-				const failed = event.exitCode !== 0;
-				void append({
-					sessionId: request.sessionId,
-					entryId: deps.ids.next(),
-					customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
-					timestamp: endedAt,
-					data: {
-						...base,
-						status: failed ? "failed" : "completed",
-						exitCode: event.exitCode,
-						failureReason: failed ? `exit ${event.exitCode ?? "null"}` : null,
-						interruptReason: null,
-						discardedBytes: snapshot.discardedBytes,
-						endedAt,
-					},
-				}).then(() => {
-					if (failed) {
-						emit({
-							type: "failed",
-							sessionId: request.sessionId,
-							invocationId,
-							exitCode: event.exitCode,
-							reason: `exit ${event.exitCode ?? "null"}`,
-							discardedBytes: snapshot.discardedBytes,
-						});
-						return;
-					}
-					emit({
-						type: "completed",
-						sessionId: request.sessionId,
-						invocationId,
-						exitCode: 0,
-						discardedBytes: snapshot.discardedBytes,
-					});
-				});
-			});
+			await launch(invocationId);
 			return { invocationId };
 		},
 	};

@@ -15,7 +15,7 @@ const CHANNELS = {
 } as const;
 
 export interface ExternalInvocationEvent {
-	readonly type: "running" | "completed" | "failed" | "interrupted" | "output" | "truncated";
+	readonly type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 	readonly chunk?: string;
 	readonly sessionId: string;
 	readonly invocationId: string;
@@ -24,6 +24,9 @@ export interface ExternalInvocationEvent {
 	readonly exitCode?: number | null;
 	readonly reason?: string;
 	readonly discardedBytes?: number;
+	readonly ordinal?: number;
+	readonly externalSessionId?: string | null;
+	readonly startedAt?: string;
 }
 
 export function createExternalInvocationApi(ipc: IpcRenderer): Pick<DesktopApi, "externalInvocations"> {

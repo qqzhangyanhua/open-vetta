@@ -67,6 +67,8 @@ describe("session page external invocation", () => {
 			prompt: "fix the test",
 			agentId: "grok",
 			referencedPaths: [],
+			externalSessionId: null,
+			newSession: false,
 		});
 		await act(async () => {
 			listener?.({ type: "running", invocationId: "inv-1", prompt: "fix the test", agentId: "grok" });
@@ -348,6 +350,128 @@ describe("external invocation terminal in the session", () => {
 			emit("session-a", { type: "output", invocationId: "inv-1", chunk: "live" });
 		});
 		expect(screen.getByRole("region", { name: "外部调用" }).querySelector("pre")?.textContent).toContain("live");
+	});
+
+	it("appends a follow-up to the same tab with a separator, and a new session opens another tab", async () => {
+		const user = userEvent.setup();
+		const start = vi.fn(async (_request: Parameters<ExternalInvocationClient["start"]>[0]) => ({
+			invocationId: "inv-1",
+		}));
+		let listener: ((event: ExternalInvocationClientEvent) => void) | undefined;
+		let n = 1;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: async (request) => {
+				start(request);
+				return { invocationId: `inv-${n}` };
+			},
+			subscribe: (_sessionId, next) => {
+				listener = next;
+				return () => {
+					listener = undefined;
+				};
+			},
+		};
+		function Prompt(): JSX.Element {
+			const [prompt, setPrompt] = useState("fix the test");
+			return (
+				<ExternalInvocationTerminalSession
+					session={{ sessionId: "session-1", cwd: "/work/app" }}
+					client={client}
+					prompt={prompt}
+					onPromptChange={setPrompt}
+				/>
+			);
+		}
+		render(<Prompt />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		await act(async () => {
+			listener?.({ type: "running", invocationId: "inv-1", prompt: "fix the test", agentId: "grok", ordinal: 1 });
+			listener?.({ type: "output", invocationId: "inv-1", chunk: "first" });
+			listener?.({
+				type: "completed",
+				invocationId: "inv-1",
+				exitCode: 0,
+				externalSessionId: "sess-9",
+				ordinal: 1,
+			});
+		});
+		n = 2;
+		await user.clear(screen.getByLabelText("消息"));
+		await user.type(screen.getByLabelText("消息"), "and the lint");
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		expect(start).toHaveBeenLastCalledWith(expect.objectContaining({ externalSessionId: "sess-9", newSession: false }));
+		await act(async () => {
+			listener?.({
+				type: "running",
+				invocationId: "inv-2",
+				prompt: "and the lint",
+				agentId: "grok",
+				ordinal: 2,
+				externalSessionId: "sess-9",
+				startedAt: "2026-09-24T06:05:00.000Z",
+			});
+			listener?.({ type: "output", invocationId: "inv-2", chunk: "second" });
+		});
+		const panel = screen.getByRole("region", { name: "外部调用" });
+		expect(within(panel).getAllByRole("button", { name: "Grok" })).toHaveLength(1);
+		const transcript = panel.querySelector("pre")?.textContent ?? "";
+		expect(transcript).toContain("first");
+		expect(transcript).toContain("第 2 次 · 2026-09-24T06:05:00.000Z · 运行中");
+		expect(transcript).toContain("second");
+		expect(screen.getAllByText("第 2 次").length).toBeGreaterThan(0);
+
+		n = 3;
+		await user.click(screen.getByRole("button", { name: "开新会话" }));
+		await user.clear(screen.getByLabelText("消息"));
+		await user.type(screen.getByLabelText("消息"), "start over");
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		expect(start).toHaveBeenLastCalledWith(expect.objectContaining({ newSession: true, externalSessionId: null }));
+		await act(async () => {
+			listener?.({ type: "running", invocationId: "inv-3", prompt: "start over", agentId: "grok", ordinal: 1 });
+		});
+		expect(within(screen.getByRole("region", { name: "外部调用" })).getAllByRole("button", { name: "Grok" })).toHaveLength(2);
+	});
+
+	it("cancels a queued card before it starts", async () => {
+		const user = userEvent.setup();
+		const stop = vi.fn();
+		let listener: ((event: ExternalInvocationClientEvent) => void) | undefined;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: async () => ({ invocationId: "inv-2" }),
+			stop,
+			subscribe: (_sessionId, next) => {
+				listener = next;
+				return () => {
+					listener = undefined;
+				};
+			},
+		};
+		render(
+			<ExternalInvocationTerminalSession
+				session={{ sessionId: "session-1", cwd: "/work/app" }}
+				client={client}
+				prompt="wait"
+				onPromptChange={() => undefined}
+			/>,
+		);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		await act(async () => {
+			listener?.({
+				type: "queued",
+				invocationId: "inv-2",
+				prompt: "wait",
+				agentId: "grok",
+				ordinal: 2,
+			});
+		});
+		expect(screen.getByText("排队中")).toBeTruthy();
+		await user.click(screen.getByRole("button", { name: "取消" }));
+		expect(stop).toHaveBeenCalledWith("inv-2");
 	});
 });
 

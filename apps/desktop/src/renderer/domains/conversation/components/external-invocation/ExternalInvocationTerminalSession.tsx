@@ -48,9 +48,13 @@ export function ExternalInvocationTerminalSession({
 	const [views, setViews] = useState<Readonly<Record<string, string>>>({});
 	const [scrollTo, setScrollTo] = useState<string | null>(null);
 	const [confirmTab, setConfirmTab] = useState<string | null>(null);
+	const tabByInvocation = useRef<Record<string, string>>({});
+	const tabByExternalSession = useRef<Record<string, string>>({});
 	const [boundSessionId, setBoundSessionId] = useState(session.sessionId);
 	if (boundSessionId !== session.sessionId) {
 		setBoundSessionId(session.sessionId);
+		tabByInvocation.current = {};
+		tabByExternalSession.current = {};
 		setLayout(emptyBottomPanelState());
 		setTranscripts({});
 		setViews({});
@@ -70,28 +74,55 @@ export function ExternalInvocationTerminalSession({
 		);
 	}
 
+	function tabIdFor(event: ExternalInvocationClientEvent): string {
+		const known = event.externalSessionId ? tabByExternalSession.current[event.externalSessionId] : undefined;
+		if (known) return known;
+		return tabByInvocation.current[event.invocationId] ?? event.invocationId;
+	}
+
 	function remember(event: ExternalInvocationClientEvent): void {
-		if (event.type === "running") open(event.invocationId, "running");
-		if (event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
-			open(event.invocationId, "finished");
+		if (event.type === "running") {
+			if (tabByInvocation.current[event.invocationId]) return;
+			const existing = event.externalSessionId ? tabByExternalSession.current[event.externalSessionId] : undefined;
+			if (existing) {
+				tabByInvocation.current[event.invocationId] = existing;
+				const separator = t("externalInvocation.separator", {
+					n: event.ordinal ?? 1,
+					time: event.startedAt ?? "",
+					status: t("externalInvocation.status.running"),
+				});
+				setViews((current) => ({ ...current, [existing]: `${current[existing] ?? ""}\n${separator}\n` }));
+			} else {
+				tabByInvocation.current[event.invocationId] = event.invocationId;
+				if (event.externalSessionId) tabByExternalSession.current[event.externalSessionId] = event.invocationId;
+				open(event.invocationId, "running");
+			}
 		}
+		if (event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
+			if (event.externalSessionId) {
+				tabByExternalSession.current[event.externalSessionId] =
+					tabByInvocation.current[event.invocationId] ?? event.invocationId;
+			}
+			open(tabIdFor(event), "finished");
+		}
+		const viewId = tabIdFor(event);
 		if (event.type === "output") {
 			setTranscripts((current) => {
-				const prev = current[event.invocationId] ?? { head: "", tail: "", discardedBytes: 0 };
+				const prev = current[viewId] ?? { head: "", tail: "", discardedBytes: 0 };
 				const next = prev.discardedBytes > 0 ? { ...prev, tail: prev.tail + (event.chunk ?? "") } : { ...prev, head: prev.head + (event.chunk ?? "") };
-				return { ...current, [event.invocationId]: next };
+				return { ...current, [viewId]: next };
 			});
-			setViews((current) => ({ ...current, [event.invocationId]: (current[event.invocationId] ?? "") + (event.chunk ?? "") }));
+			setViews((current) => ({ ...current, [viewId]: (current[viewId] ?? "") + (event.chunk ?? "") }));
 		}
 		if (event.type === "truncated") {
 			const notice = t("externalInvocation.truncated", { bytes: event.discardedBytes ?? 0 });
 			setTranscripts((current) => {
-				const prev = current[event.invocationId] ?? { head: "", tail: "", discardedBytes: 0 };
-				return { ...current, [event.invocationId]: { ...prev, discardedBytes: event.discardedBytes ?? 0 } };
+				const prev = current[viewId] ?? { head: "", tail: "", discardedBytes: 0 };
+				return { ...current, [viewId]: { ...prev, discardedBytes: event.discardedBytes ?? 0 } };
 			});
 			setViews((current) => ({
 				...current,
-				[event.invocationId]: `${current[event.invocationId] ?? ""}\n${notice}\n`,
+				[viewId]: `${current[viewId] ?? ""}\n${notice}\n`,
 			}));
 		}
 	}
@@ -103,7 +134,9 @@ export function ExternalInvocationTerminalSession({
 			...client,
 			start: async (request) => {
 				const started = await client.start(request);
-				rememberRef.current({ type: "running", invocationId: started.invocationId, agentId: request.agentId });
+				if (request.newSession || !request.externalSessionId) {
+					rememberRef.current({ type: "running", invocationId: started.invocationId, agentId: request.agentId });
+				}
 				return started;
 			},
 			subscribe: (sessionId, listener) =>

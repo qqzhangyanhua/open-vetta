@@ -46,6 +46,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	}, [externalRecipientId]);
 	const placeExternalInvocation = useSetAtom(openExternalInvocationTabAtom);
 	const invocationStatus = useRef<Record<string, "running" | "finished">>({});
+	const tabByExternalSession = useRef<Record<string, string>>({});
 	const runtimeId = session.activeSession?.runtimeId;
 	const interactions = useInputBarInteractionSource(runtimeId);
 	const firstSuggestion = useInputBarSuggestionSource(runtimeId);
@@ -203,13 +204,19 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 				if (!active) return;
 				if (event.type === "running" || event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
 					const status = event.type === "running" ? "running" : "finished";
+					const tabId =
+						(event.externalSessionId ? tabByExternalSession.current[event.externalSessionId] : undefined) ??
+						event.invocationId;
+					if (event.externalSessionId) tabByExternalSession.current[event.externalSessionId] = tabId;
 					invocationStatus.current[event.invocationId] = status;
+					invocationStatus.current[tabId] = status;
 					placeExternalInvocation({
-						invocationId: event.invocationId,
+						invocationId: tabId,
 						status,
 						cwd: session.effectiveCwd,
 						sessionId: active.runtimeId,
 						agentLabel: externalRecipientId === "grok" ? "Grok" : externalRecipientId,
+						externalSessionId: event.externalSessionId,
 					});
 				}
 			},

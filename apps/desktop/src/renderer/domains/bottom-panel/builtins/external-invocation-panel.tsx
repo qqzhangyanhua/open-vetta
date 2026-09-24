@@ -34,6 +34,9 @@ export function ExternalInvocationSurface(): JSX.Element {
 	const status = payload?.status ?? "finished";
 	const statusRef = useRef(status);
 	statusRef.current = status;
+	const externalSessionIdRef = useRef(payload?.externalSessionId);
+	externalSessionIdRef.current = payload?.externalSessionId;
+	const seenInvocations = useRef(new Set<string>());
 
 	useEffect(() => {
 		const agent = payload?.agentLabel || t("externalInvocation.panel");
@@ -75,7 +78,19 @@ export function ExternalInvocationSurface(): JSX.Element {
 		terminalRef.current = terminal;
 		let acceptLive = false;
 		const unsubscribe = api.subscribe(sessionId, (event) => {
-			if (!acceptLive || event.invocationId !== invocationId) return;
+			const sameSession =
+				Boolean(event.externalSessionId) && event.externalSessionId === externalSessionIdRef.current;
+			if (!acceptLive || (event.invocationId !== invocationId && !sameSession)) return;
+			if (event.type === "running" && event.invocationId !== invocationId && !seenInvocations.current.has(event.invocationId)) {
+				seenInvocations.current.add(event.invocationId);
+				terminal.writeln(
+					`\r\n${t("externalInvocation.separator", {
+						n: event.ordinal ?? 1,
+						time: event.startedAt ?? "",
+						status: t("externalInvocation.status.running"),
+					})}`,
+				);
+			}
 			if (event.type === "output" && event.chunk) terminal.write(event.chunk);
 			if (event.type === "truncated") {
 				terminal.writeln(`\r\n${t("externalInvocation.truncated", { bytes: event.discardedBytes ?? 0 })}`);

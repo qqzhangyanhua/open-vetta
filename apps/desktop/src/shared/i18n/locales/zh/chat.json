@@ -533,6 +533,10 @@
 			"interruptedCancelled": "已中断（已取消）"
 		},
 		"viewInTerminal": "在终端查看",
+		"ordinal": "第 {{n}} 次",
+		"separator": "第 {{n}} 次 · {{time}} · {{status}}",
+		"newSession": "开新会话",
+		"cancel": "取消",
 		"panel": "外部调用",
 		"clear": "清屏",
 		"closeTab": "关闭标签",
