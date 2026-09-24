@@ -172,6 +172,33 @@ describe("external invocation service", () => {
 		expect(seen).toEqual(["saved", " live"]);
 	});
 
+	it("reads the saved output back after the service is recreated", async () => {
+		const h = harness();
+		const started = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "replay",
+			agentId: "grok",
+		});
+		h.procs[0]?.emitData("HEADTAIL");
+		const again = createExternalInvocationService({
+			processes: {
+				async start() {
+					throw new Error("unused");
+				},
+			},
+			entries: { append() {} },
+			artifactDirectory: () => h.directory,
+			clock: { now: () => Date.parse("2026-09-24T06:00:00.000Z") },
+			ids: { next: () => "later" },
+		});
+		expect(again.readOutput("session-1", started.invocationId)).toEqual({
+			head: "HEADTAIL",
+			tail: "",
+			discardedBytes: 0,
+		});
+	});
+
 	it("writes terminal keyboard input into the process", async () => {
 		const h = harness();
 		const started = await h.service.start({

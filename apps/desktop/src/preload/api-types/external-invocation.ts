@@ -21,4 +21,8 @@ export interface DesktopExternalInvocationsApi {
 	subscribe(sessionId: string, listener: (event: DesktopExternalInvocationEvent) => void): () => void;
 	writeInput(invocationId: string, data: string): Promise<void>;
 	stop(invocationId: string): Promise<void>;
+	readOutput(
+		sessionId: string,
+		invocationId: string,
+	): Promise<{ head: string; tail: string; discardedBytes: number } | null>;
 }

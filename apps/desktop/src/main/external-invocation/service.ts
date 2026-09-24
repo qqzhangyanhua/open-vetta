@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { EXTERNAL_INVOCATION_CUSTOM_TYPE } from "@vetta/runtime-core/conversation";
 import { findExternalAgentAdapter } from "./grok-adapter.js";
@@ -87,6 +87,7 @@ export interface ExternalInvocationService {
 	subscribe(sessionId: string, listener: (event: ExternalInvocationEvent) => void): () => void;
 	writeInput(invocationId: string, data: string): void;
 	stop(invocationId: string): void;
+	readOutput(sessionId: string, invocationId: string): { head: string; tail: string; discardedBytes: number } | null;
 }
 
 export function createExternalInvocationService(deps: {
@@ -146,6 +147,27 @@ export function createExternalInvocationService(deps: {
 		stop(invocationId) {
 			processes.get(invocationId)?.kill();
 			processes.delete(invocationId);
+		},
+		readOutput(sessionId, invocationId) {
+			const saved = savedOutput.get(invocationId);
+			if (saved && saved.sessionId === sessionId) {
+				return { head: saved.head, tail: saved.tail, discardedBytes: saved.discardedBytes };
+			}
+			const file = join(deps.artifactDirectory(sessionId), `${invocationId}.pty`);
+			if (!existsSync(file)) return null;
+			const body = readFileSync(file);
+			const metaPath = `${file}.meta.json`;
+			const meta = existsSync(metaPath)
+				? (JSON.parse(readFileSync(metaPath, "utf8")) as { discardedBytes?: number; headBytes?: number })
+				: {};
+			const discardedBytes = meta.discardedBytes ?? 0;
+			const headBytes = meta.headBytes ?? body.length;
+			if (discardedBytes <= 0) return { head: body.toString("utf8"), tail: "", discardedBytes: 0 };
+			return {
+				head: body.subarray(0, headBytes).toString("utf8"),
+				tail: body.subarray(headBytes).toString("utf8"),
+				discardedBytes,
+			};
 		},
 		async start(request) {
 			const adapter = findExternalAgentAdapter(request.agentId);
@@ -235,6 +257,10 @@ export function createExternalInvocationService(deps: {
 				const snapshot = capture.snapshot();
 				writeFileSync(outputPath, snapshot.body);
 				const parts = capture.parts();
+				writeFileSync(
+					`${outputPath}.meta.json`,
+					JSON.stringify({ discardedBytes: parts.discardedBytes, headBytes: parts.headBytes }),
+				);
 				savedOutput.set(invocationId, { sessionId: request.sessionId, invocationId, ...parts });
 			};
 			process.onData((chunk) => {

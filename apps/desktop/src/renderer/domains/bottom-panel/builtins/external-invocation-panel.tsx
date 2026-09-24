@@ -73,12 +73,26 @@ export function ExternalInvocationSurface(): JSX.Element {
 		});
 		terminal.open(container);
 		terminalRef.current = terminal;
+		let acceptLive = false;
 		const unsubscribe = api.subscribe(sessionId, (event) => {
-			if (event.invocationId !== invocationId) return;
+			if (!acceptLive || event.invocationId !== invocationId) return;
 			if (event.type === "output" && event.chunk) terminal.write(event.chunk);
 			if (event.type === "truncated") {
 				terminal.writeln(`\r\n${t("externalInvocation.truncated", { bytes: event.discardedBytes ?? 0 })}`);
 			}
+		});
+		void api.readOutput(sessionId, invocationId).then((saved) => {
+			if (!saved) {
+				acceptLive = true;
+				return;
+			}
+			terminal.write(saved.head);
+			if (saved.discardedBytes > 0) {
+				terminal.writeln(`\r\n${t("externalInvocation.truncated", { bytes: saved.discardedBytes })}`);
+			}
+			if (saved.tail) terminal.write(saved.tail);
+			terminal.scrollToTop();
+			acceptLive = true;
 		});
 		const input = terminal.onData((data) => {
 			if (statusRef.current === "running") void api.writeInput(invocationId, data);

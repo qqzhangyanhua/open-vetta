@@ -7,6 +7,7 @@ const CHANNELS = {
 	event: "external-invocation:event",
 	writeInput: "external-invocation:write-input",
 	stop: "external-invocation:stop",
+	readOutput: "external-invocation:read-output",
 } as const;
 
 export interface ExternalInvocationEvent {
@@ -35,6 +36,7 @@ export function createExternalInvocationApi(ipc: IpcRenderer): Pick<DesktopApi, 
 			},
 			writeInput: (invocationId, data) => ipc.invoke(CHANNELS.writeInput, invocationId, data),
 			stop: (invocationId) => ipc.invoke(CHANNELS.stop, invocationId),
+			readOutput: (sessionId, invocationId) => ipc.invoke(CHANNELS.readOutput, sessionId, invocationId),
 		},
 	};
 }

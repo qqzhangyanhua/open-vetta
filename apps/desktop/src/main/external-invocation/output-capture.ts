@@ -45,18 +45,21 @@ export class ExternalInvocationOutputCapture {
 	}
 
 	/** 截断时把头尾拆开，方便回放时在中间插入说明。未截断时正文全在 head。 */
-	parts(): { head: string; tail: string; discardedBytes: number } {
+	parts(): { head: string; tail: string; discardedBytes: number; headBytes: number } {
 		if (this.discardedBytes === 0) {
+			const body = Buffer.concat([this.head, this.tail]);
 			return {
-				head: Buffer.concat([this.head, this.tail]).toString("utf8"),
+				head: body.toString("utf8"),
 				tail: "",
 				discardedBytes: 0,
+				headBytes: body.length,
 			};
 		}
 		return {
 			head: this.head.toString("utf8"),
 			tail: this.tail.toString("utf8"),
 			discardedBytes: this.discardedBytes,
+			headBytes: this.head.length,
 		};
 	}
 }

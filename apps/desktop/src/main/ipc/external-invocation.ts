@@ -14,6 +14,7 @@ export const EXTERNAL_INVOCATION_CHANNELS = {
 	event: "external-invocation:event",
 	writeInput: "external-invocation:write-input",
 	stop: "external-invocation:stop",
+	readOutput: "external-invocation:read-output",
 } as const;
 
 let service: ExternalInvocationService | undefined;
@@ -95,6 +96,15 @@ export function registerExternalInvocationIpc(): () => void {
 		}
 		externalInvocationService().stop(invocationId);
 	});
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.readOutput, (_event, sessionId: unknown, invocationId: unknown) => {
+		if (typeof sessionId !== "string" || sessionId.length === 0) {
+			throw new Error("external invocation: sessionId must be a non-empty string");
+		}
+		if (typeof invocationId !== "string" || invocationId.length === 0) {
+			throw new Error("external invocation: invocationId must be a non-empty string");
+		}
+		return externalInvocationService().readOutput(sessionId, invocationId);
+	});
 	return () => {
 		for (const unsubscribe of subscriptions.values()) unsubscribe();
 		subscriptions.clear();
@@ -102,6 +112,7 @@ export function registerExternalInvocationIpc(): () => void {
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.start);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.writeInput);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.stop);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.readOutput);
 	};
 }
 
