@@ -2,8 +2,8 @@ name: package-boundaries
 description: Dependency direction for core libraries and production code.
 rationale: |
   Core libraries stay independent of application packages. Production code
-  does not import test helpers. check-package-boundaries.mjs still enforces
-  the live set; this file is the declarative form of the same constraint.
+  does not import test helpers. This file states those two constraints.
+  It is not the live package-boundary rule set, and check does not load it.
 examples:
   - violation: |
       // packages/ai/src/index.ts
@@ -40,13 +40,21 @@ rules:
       - "**/*.mjs"
       - "!**/*.test.ts"
       - "!**/*.test.tsx"
+      - "!**/*.test.js"
+      - "!**/*.test.mjs"
       - "!**/*.spec.ts"
       - "!**/*.spec.tsx"
+      - "!**/*.spec.js"
+      - "!**/*.spec.mjs"
       - "!**/test/**"
     targets:
       - "**/test/**"
       - "**/*.test.ts"
       - "**/*.test.tsx"
+      - "**/*.test.js"
+      - "**/*.test.mjs"
       - "**/*.spec.ts"
       - "**/*.spec.tsx"
+      - "**/*.spec.js"
+      - "**/*.spec.mjs"
     message: Production code must not import test utilities

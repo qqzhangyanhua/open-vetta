@@ -5,8 +5,9 @@
  * specifier text, not a resolved file. A trailing `**` matches zero or more
  * segments, so `@vetta/desktop/**` includes `@vetta/desktop`. A pattern whose
  * first character is `!` removes a match; a later pattern can match again.
- * Type-only imports still count. Comments, string literals, and non-literal
- * `import()` / `require()` do not.
+ * Type-only imports and `import("mod")` in type position still count, as do
+ * no-substitution template literals. A template with `${}` does not. An
+ * identifier callee named `require` counts even when that name is local.
  *
  * Quote a pattern that starts with `*`, `!`, `@`, or `&`. An unquoted `!` is a
  * YAML tag and would otherwise become an empty pattern.
@@ -113,25 +114,50 @@ export function matchesGlobs(value, patterns) {
 	return matched;
 }
 
-function literalSpecifier(node) {
-	if (node?.kind !== "StringLiteral" || typeof node.text !== "string") return null;
-	return { text: node.text, line: node.line };
+function unwrapParens(node) {
+	let current = node;
+	while (current?.kind === "ParenthesizedExpression") current = current.children?.[0];
+	return current;
+}
+
+function moduleLiteral(node) {
+	const current = unwrapParens(node);
+	if (
+		(current?.kind === "StringLiteral" || current?.kind === "NoSubstitutionTemplateLiteral") &&
+		typeof current.text === "string"
+	) {
+		return { text: current.text, line: current.line };
+	}
+	return null;
+}
+
+function firstModuleLiteral(nodes) {
+	if (!nodes) return null;
+	for (const node of nodes) {
+		const literal = moduleLiteral(node);
+		if (literal) return literal;
+	}
+	return null;
 }
 
 function moduleSpecifier(node) {
 	if (node.kind === "ImportDeclaration" || node.kind === "ExportDeclaration") {
-		return literalSpecifier(node.children?.find((child) => child.kind === "StringLiteral"));
+		return firstModuleLiteral(node.children);
 	}
 	if (node.kind === "ImportEqualsDeclaration") {
 		const reference = node.children?.find((child) => child.kind === "ExternalModuleReference");
-		return literalSpecifier(reference?.children?.find((child) => child.kind === "StringLiteral"));
+		return firstModuleLiteral(reference?.children);
+	}
+	if (node.kind === "ImportType") {
+		const literalType = node.children?.find((child) => child.kind === "LiteralType");
+		return firstModuleLiteral(node.children) ?? firstModuleLiteral(literalType?.children);
 	}
 	if (node.kind !== "CallExpression") return null;
-	const callee = node.children?.[0];
+	const callee = unwrapParens(node.children?.[0]);
 	const dynamicImport = callee?.kind === "ImportKeyword";
 	const required = callee?.kind === "Identifier" && callee.text === "require";
 	if (!dynamicImport && !required) return null;
-	return literalSpecifier(node.children?.[1]);
+	return firstModuleLiteral(node.children?.slice(1));
 }
 
 function collectModuleSpecifiers(ast) {

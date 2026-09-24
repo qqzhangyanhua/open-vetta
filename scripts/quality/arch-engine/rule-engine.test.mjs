@@ -71,7 +71,7 @@ describe("glob patterns", () => {
 		expect(matchesGlobs("packages/index.js", ["packages/**/index.ts"])).toBe(false);
 		expect(matchesGlobs("packages/ai/src/index.ts", ["packages/?i/**"])).toBe(true);
 		expect(matchesGlobs("packages/abi/src/index.ts", ["packages/?i/**"])).toBe(false);
-		expect(matchesGlobs("@vetta/desktop", ["@vetta/desktop", "@vetta/desktop/**"])).toBe(true);
+		expect(matchesGlobs("@vetta/desktop", ["@vetta/desktop/**"])).toBe(true);
 		expect(matchesGlobs("@vetta/desktop/src/main", ["@vetta/desktop/**"])).toBe(true);
 		expect(matchesGlobs("@vetta/desktop-extra", ["@vetta/desktop"])).toBe(false);
 		expect(matchesGlobs("@vetta/agent", ["@vetta/*"])).toBe(true);
@@ -157,6 +157,22 @@ describe("forbidden-import", () => {
 				"Core libraries must not depend on application packages",
 			),
 		]);
+	});
+
+	it("still sees a specifier written as a template, a type argument, or a type query", () => {
+		const text = [
+			"export { screen } from `@vetta/desktop`;",
+			'const typed = import<string>("@vetta/desktop/screen");',
+			'const wrapped = require(("apps/desktop"));',
+			'type Desktop = import("@vetta/desktop").App;',
+			'const name = "desktop";',
+			"const dynamic = import(`@vetta/$" + "{name}`);",
+			"",
+		].join("\n");
+
+		expect(
+			checkRule(LIB_RULE, [{ path: "packages/ai/src/index.ts", text }]).map((violation) => violation.line),
+		).toEqual([1, 2, 3, 4]);
 	});
 
 	it("ignores a dynamic import whose specifier is not a string literal", () => {
@@ -252,6 +268,14 @@ describe("rule documents", () => {
 				path: "apps/desktop/src/main.ts",
 				text: 'import { DesktopConfig } from "@vetta/desktop";\n',
 			},
+			{
+				path: "packages/ai/src/load.js",
+				text: 'import { fixture } from "../fixture.test.js";\n',
+			},
+			{
+				path: "packages/ai/src/load.test.js",
+				text: 'import { fixture } from "../fixture.test.js";\n',
+			},
 		]);
 
 		expect(document.examples.map((example) => example.violation)).toEqual([
@@ -274,6 +298,12 @@ describe("rule documents", () => {
 			new CheckViolation(
 				"packages/ai/src/index.ts",
 				2,
+				"no-test-imports-in-production",
+				"Production code must not import test utilities",
+			),
+			new CheckViolation(
+				"packages/ai/src/load.js",
+				1,
 				"no-test-imports-in-production",
 				"Production code must not import test utilities",
 			),

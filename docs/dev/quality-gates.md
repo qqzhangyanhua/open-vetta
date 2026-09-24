@@ -111,7 +111,7 @@ const specifier = findNodes(ast, (node) => node.kind === "ImportDeclaration")[0]
 | `targets` | 模块说明符的 glob。命中的 import 算违规 |
 | `message` | 写给读者的说明，原样出现在违规里 |
 
-`sources` 对的是文件路径，例如 `packages/ai/src/index.ts`。`targets` 对的是说明符原文，例如 `@vetta/desktop` 或 `../test/fixture`，不会先解析成磁盘路径。会算进去的依赖边是 `import`、`export ... from`、`import()`、`require()` 和 `import x = require()`，包括 `import type`。注释、普通字符串，以及说明符不是字符串字面量的 `import(name)`，不算。
+`sources` 对的是文件路径，例如 `packages/ai/src/index.ts`。`targets` 对的是说明符原文，例如 `@vetta/desktop` 或 `../test/fixture`，不会先解析成磁盘路径。会算进去的依赖边是 `import`、`export ... from`、`import()`、`require()`、`import x = require()`，以及类型位置的 `import("模块")`。`import type` 也算。没有插值的模板字符串、写在类型参数后面的说明符也算，说明符外面的括号会去掉。注释、普通字符串、带 `${}` 的模板，以及 `import(name)` 这种不是字面量的说明符，不算。被调用的名字是 `require` 时会当成依赖，即使它是当前文件里的本地函数；引擎不做作用域分析。
 
 glob 按 `/` 分段。`*` 和 `?` 只匹配一段里面的字符，`**` 匹配零段或多段。写在末尾的 `**` 也匹配零段，所以 `@vetta/desktop/**` 同时盖住 `@vetta/desktop`。以 `!` 开头的模式表示排除，按书写顺序生效，后面的模式可以再把文件选回来。模式使用 `/`。以 `*`、`!`、`@` 或 `&` 开头时必须加引号；不加引号的 `!` 会被 YAML 当成标签。
 
@@ -138,7 +138,7 @@ const path = "packages/ai/src/index.ts";
 const violations = checkDocument(document, [{ path, text: readFileSync(path, "utf8") }]);
 ```
 
-`violations` 是 `CheckViolation`。`file` 用 `/`，`line` 从 1 开始，`rule` 和 `message` 来自 YAML。配置读不出来、字段缺失、规则类型不认识，或者 glob 是空的，会抛 `RuleDocumentError`，消息里带文件路径。`loadRuleDirectory` 按文件名顺序读取目录里的 `.yml` 和 `.yaml`，其它文件忽略。
+`violations` 是 `CheckViolation` 数组。`file` 用 `/`，`line` 从 1 开始，`rule` 和 `message` 来自 YAML。配置读不出来、字段缺失、规则类型不认识，或者 glob 是空的，会抛 `RuleDocumentError`，消息里带文件路径。`loadRuleDirectory` 按文件名顺序读取目录里的 `.yml` 和 `.yaml`，其它文件忽略。
 
 ## 守卫错误处理
 
