@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -30,6 +30,20 @@ import {
 } from "./lib.mjs";
 import { createChangedTestPlan, parseArgs } from "./test-changed.mjs";
 import { createImpactTestPlan, parseImpactArgs, relatedResultAction, runCapturedBun } from "./test-impact.mjs";
+
+function canCreateSymlink() {
+	const directory = mkdtempSync(join(tmpdir(), "vetta-symlink-probe-"));
+	try {
+		symlinkSync(directory, join(directory, "link"), "dir");
+		return true;
+	} catch (error) {
+		const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+		if (code === "EPERM" || code === "EACCES" || code === "ENOTSUP") return false;
+		throw error;
+	} finally {
+		rmSync(directory, { recursive: true, force: true });
+	}
+}
 
 describe("changed file selection", () => {
 	it("combines committed, working tree, and untracked paths", () => {
@@ -119,6 +133,31 @@ describe("changed file selection", () => {
 			expect(normalizeRepoPath("file.txt/child.ts", root)).toBe("file.txt/child.ts");
 		} finally {
 			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it.skipIf(!canCreateSymlink())("keeps an in-repo symlink and rejects one that resolves outside", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-repo-path-"));
+		const outside = mkdtempSync(join(tmpdir(), "vetta-repo-outside-"));
+		try {
+			mkdirSync(join(root, "packages"));
+			writeFileSync(join(root, "packages", "real.ts"), "export {}\n");
+			symlinkSync(join(root, "packages", "real.ts"), join(root, "packages", "alias.ts"), "file");
+			writeFileSync(join(outside, "secret.txt"), "secret\n");
+			symlinkSync(join(outside, "secret.txt"), join(root, "escape.txt"), "file");
+			symlinkSync(outside, join(root, "linked-out"), "dir");
+			symlinkSync(join(root, "packages"), join(root, "pkg-link"), "dir");
+			symlinkSync(root, join(root, "link-root"), "dir");
+
+			expect(normalizeRepoPath("packages/alias.ts", root)).toBe("packages/alias.ts");
+			expect(normalizeRepoPath("pkg-link/missing.ts", root)).toBe("pkg-link/missing.ts");
+			expect(normalizeRepoPath("link-root", root)).toBe("link-root");
+			expect(() => normalizeRepoPath("escape.txt", root)).toThrow("inside the repository");
+			expect(() => normalizeRepoPath("linked-out/secret.txt", root)).toThrow("inside the repository");
+			expect(() => normalizeRepoPath("linked-out/missing.ts", root)).toThrow("inside the repository");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+			rmSync(outside, { recursive: true, force: true });
 		}
 	});
 });

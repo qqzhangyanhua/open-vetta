@@ -4,8 +4,8 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { isAbsolute, join, relative, resolve, sep } from "node:path";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const repoRoot = process.cwd();
@@ -163,19 +163,52 @@ export function parseBaseArgs(args, defaultBase = "origin/dev") {
 	return { base };
 }
 
+function pathErrorCode(error) {
+	return error && typeof error === "object" && "code" in error ? error.code : undefined;
+}
+
+function outsideRepository(absolute, root) {
+	const relativePath = relative(root, absolute);
+	return relativePath === ".." || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath);
+}
+
+/**
+ * Resolve symlinks for the containment check.
+ * ENOENT and ENOTDIR walk upward so a missing suffix, or a suffix below a file,
+ * stays lexical. A loop has no provable target.
+ */
+function realPathForContainment(absolute) {
+	const missing = [];
+	let current = absolute;
+	while (true) {
+		try {
+			const real = realpathSync(current);
+			return missing.length === 0 ? real : join(real, ...missing);
+		} catch (error) {
+			const code = pathErrorCode(error);
+			if (code === "ELOOP") return null;
+			if (code !== "ENOENT" && code !== "ENOTDIR") throw error;
+		}
+		const parent = dirname(current);
+		if (parent === current) return absolute;
+		missing.unshift(basename(current));
+		current = parent;
+	}
+}
+
 export function normalizeRepoPath(input, root = repoRoot) {
 	if (typeof input !== "string" || input.length === 0) throw new Error("file path must be non-empty");
+	// The returned path stays the lexical name the caller passed. `..` is collapsed
+	// first. Symlinks are followed only to reject a real path that leaves the repository.
 	const absolute = resolve(root, toPosix(input));
-	const relativePath = relative(root, absolute);
-	if (
-		relativePath === "" ||
-		relativePath.startsWith(`..${sep}`) ||
-		relativePath === ".." ||
-		isAbsolute(relativePath)
-	) {
-		throw new Error(`file path must stay inside the repository: ${input}`);
+	const lexicalRelative = relative(root, absolute);
+	let escaped = lexicalRelative === "" || outsideRepository(absolute, root);
+	if (!escaped) {
+		const realAbsolute = realPathForContainment(absolute);
+		escaped = realAbsolute === null || outsideRepository(realAbsolute, realpathSync(root));
 	}
-	return toPosix(relativePath);
+	if (escaped) throw new Error(`file path must stay inside the repository: ${input}`);
+	return toPosix(lexicalRelative);
 }
 
 /** Parse a Git base plus optional task-owned files for changed-file quality commands. */
