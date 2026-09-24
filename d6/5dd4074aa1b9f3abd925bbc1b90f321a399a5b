@@ -1,0 +1,54 @@
+scripts/quality/check-private-keys.mjs
+  s_e15aeb8f49590e::t_a79d42af71579f 73-75
+  s_e15aeb8f49590e::t_838397832b6da3 14,106
+  s_e15aeb8f49590e::t_90bb40f8d621a0 12-13
+  s_e15aeb8f49590e::t_cae64ce9e24bb6 15-17
+  s_e15aeb8f49590e::t_64e6e1992ff6ec 104-105
+  s_e15aeb8f49590e::t_a6e59b03f449ce 107
+docs/dev/quality-gates.md
+  s_e15aeb8f49590e::t_398832cfc353ba 75
+  s_e15aeb8f49590e::t_a44f03b1723142 47-74,76-80,82-84
+  s_e15aeb8f49590e::t_fb0ab8990eca07 81
+scripts/quality/quality-gates.test.mjs
+  s_e15aeb8f49590e::t_a79d42af71579f 7,1944
+  s_e15aeb8f49590e::t_0a2ce7a2037afa 10-13,1886-1926,1935-1943,1945-1960,1962-1963
+  s_e15aeb8f49590e::t_550603c65c5134 4,1742-1754
+  s_e15aeb8f49590e::t_d9e284cb5f7f20 1787,1789
+  s_e15aeb8f49590e::t_5b905631710755 5,1783-1786,1788,1790-1828,1961
+  s_e15aeb8f49590e::t_cad9c641da91ed 1712-1721,1830-1833,1927-1934
+  s_e15aeb8f49590e::t_8e88998b17eac6 1860-1871
+  s_e15aeb8f49590e::t_018180478de253 25,36,1710-1711,1722-1741,1755-1782
+  s_e15aeb8f49590e::t_c2885ea0608dbc 1829,1834-1859,1872-1885
+  s_e15aeb8f49590e::t_2934f81e23d5f0 9
+scripts/quality/lib.mjs
+  s_e15aeb8f49590e::t_1556726d4317cd 133-134,136-176,199-210
+  s_e15aeb8f49590e::t_95215e344a1676 135,177-198
+scripts/quality/check-skill-frontmatter.mjs
+  s_e15aeb8f49590e::t_2b93c0c288a2c9 75,79,110-114,117-125,128,132,138-142,147,165-171,176,178-180,182-186,191-193,195-196,198-206,208-216
+  s_e15aeb8f49590e::t_f59b395a50abd2 22-31,109,177,194,207
+.github/release-notes/v0.5.59.md
+  s_e15aeb8f49590e::t_66e075d8e58914 226
+scripts/quality/check-conflict-markers.mjs
+  s_e15aeb8f49590e::t_09674076aab74e 42,44,46-54,58-59,65
+  s_e15aeb8f49590e::t_82a61391ed979f 13,60
+  s_e15aeb8f49590e::t_13c5108181eb9b 11-12
+  s_e15aeb8f49590e::t_b647397db90755 14-16
+  s_e15aeb8f49590e::t_ffaca7c6ff05be 61
+  s_e15aeb8f49590e::t_9d15f627b88c73 63-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "d65dd4074aa1b9f3abd925bbc1b90f321a399a5b",
+  "prompts": {},
+  "sessions": {
+    "s_e15aeb8f49590e": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d170-b74c-76f2-836a-2628ba68dc16",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
