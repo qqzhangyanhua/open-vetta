@@ -9,7 +9,8 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
 	buildableTestDependencies,
@@ -134,8 +135,8 @@ export function createImpactTestPlan(files, pathExists = (file) => existsSync(jo
 	};
 }
 
-function runCapturedBun(args, cwd) {
-	const result = spawnSync("bun", args, {
+export function runCapturedBun(args, cwd, spawn = spawnSync) {
+	const result = spawn("bun", args, {
 		cwd,
 		encoding: "utf8",
 		env: process.env,
@@ -144,11 +145,33 @@ function runCapturedBun(args, cwd) {
 	});
 	if (result.stdout) process.stdout.write(result.stdout);
 	if (result.stderr) process.stderr.write(result.stderr);
-	if (result.error) console.error(result.error.message);
+	if (result.error) {
+		throw new Error(`failed to spawn vitest: ${result.error.message}`);
+	}
 	return {
 		code: result.status ?? 1,
-		output: `${result.stdout ?? ""}\n${result.stderr ?? ""}`,
 	};
+}
+
+function readVitestJsonReport(reportFile) {
+	try {
+		const parsed = JSON.parse(readFileSync(reportFile, "utf8"));
+		return parsed && typeof parsed === "object" ? parsed : null;
+	} catch {
+		return null;
+	}
+}
+
+export function relatedResultAction(code, report) {
+	if (code === 0) return "pass";
+	if (!report || typeof report !== "object") return "fail";
+	const noTests =
+		report.numTotalTests === 0 &&
+		report.numFailedTests === 0 &&
+		report.numFailedTestSuites === 0 &&
+		Array.isArray(report.testResults) &&
+		report.testResults.length === 0;
+	return noTests ? "fallback" : "fail";
 }
 
 function runTargetedTests(target) {
@@ -163,12 +186,30 @@ function runTargetedTests(target) {
 	if (target.relatedSources.length === 0) return 0;
 
 	ok(`[test:impact] ${target.key}: tests related to ${target.relatedSources.join(", ")}`);
-	const related = runCapturedBun(
-		[runner, "related", ...target.relatedSources, "--run", "--passWithNoTests=false", ...sharedArgs],
-		cwd,
-	);
-	if (related.code === 0) return 0;
-	if (!/No test files found|No test suite found/i.test(related.output)) return related.code;
+	const reportDir = mkdtempSync(join(tmpdir(), "vetta-impact-"));
+	const reportFile = join(reportDir, "related.json");
+	try {
+		const related = runCapturedBun(
+			[
+				runner,
+				"related",
+				...target.relatedSources,
+				"--run",
+				"--passWithNoTests=false",
+				"--reporter=default",
+				"--reporter=json",
+				"--outputFile",
+				reportFile,
+				...sharedArgs,
+			],
+			cwd,
+		);
+		const action = relatedResultAction(related.code, readVitestJsonReport(reportFile));
+		if (action === "pass") return 0;
+		if (action === "fail") return related.code;
+	} finally {
+		rmSync(reportDir, { recursive: true, force: true });
+	}
 
 	ok(`[test:impact] ${target.key}: no related tests found; falling back to the package test script`);
 	return runBun(["run", "test"], { cwd });

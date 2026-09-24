@@ -27,7 +27,7 @@ import {
 	WORKSPACE_PACKAGES,
 } from "./lib.mjs";
 import { createChangedTestPlan, parseArgs } from "./test-changed.mjs";
-import { createImpactTestPlan, parseImpactArgs } from "./test-impact.mjs";
+import { createImpactTestPlan, parseImpactArgs, relatedResultAction, runCapturedBun } from "./test-impact.mjs";
 
 describe("changed file selection", () => {
 	it("combines committed, working tree, and untracked paths", () => {
@@ -352,6 +352,56 @@ describe("affected package selection", () => {
 			dryRun: true,
 			files: ["packages/ai/src/providers/retry-policy.ts"],
 		});
+	});
+
+	it("throws when vitest fails to start and returns the exit code when tests fail", () => {
+		const spawnFailure = () => ({
+			error: Object.assign(new Error("spawn bun ENOENT"), { code: "ENOENT" }),
+			status: null,
+			signal: null,
+			stdout: "",
+			stderr: "",
+		});
+		expect(() => runCapturedBun(["scripts/quality/run-vitest.mjs"], repoRoot, spawnFailure)).toThrow(
+			/failed to spawn vitest: spawn bun ENOENT/,
+		);
+
+		const testFailure = () => ({
+			status: 1,
+			signal: null,
+			stdout: "",
+			stderr: "",
+		});
+		expect(runCapturedBun(["scripts/quality/run-vitest.mjs"], repoRoot, testFailure)).toMatchObject({
+			code: 1,
+		});
+	});
+
+	it("falls back to the package suite only when the vitest report contains no tests", () => {
+		expect(
+			relatedResultAction(1, {
+				numTotalTests: 0,
+				numFailedTests: 0,
+				numFailedTestSuites: 0,
+				testResults: [],
+			}),
+		).toBe("fallback");
+		expect(
+			relatedResultAction(1, {
+				numTotalTests: 2,
+				numFailedTests: 1,
+				numFailedTestSuites: 1,
+				testResults: [{ name: "src/retry-policy.test.ts" }],
+			}),
+		).toBe("fail");
+		expect(relatedResultAction(1, null)).toBe("fail");
+		expect(relatedResultAction(0, { numTotalTests: 1, numFailedTests: 0, testResults: [{}] })).toBe("pass");
+	});
+
+	it("does not classify a missing related run by vitest's error message text", () => {
+		const source = readFileSync(new URL("./test-impact.mjs", import.meta.url), "utf8");
+		expect(source).not.toMatch(/No test files found\|No test suite found/);
+		expect(relatedResultAction(1, null)).toBe("fail");
 	});
 
 	it("builds generated workspace exports required by tests without building leaf applications", () => {
