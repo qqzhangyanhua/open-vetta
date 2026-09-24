@@ -9,9 +9,17 @@ describe("grok single-instruction args", () => {
 		{ prompt: 'say "hi"', args: ["--single", 'say "hi"'] },
 		{ prompt: "line1\nline2", args: ["--single", "line1\nline2"] },
 		{ prompt: "", args: ["--single", ""] },
-	])("builds argv for $prompt", ({ prompt, args }) => {
-		expect(grokAdapter.executable).toBe("grok");
-		expect(grokAdapter.singleInstructionArgs(prompt)).toEqual(args);
-		expect(grokAdapter.singleInstructionArgs(prompt).some((arg) => SKIP_FLAGS.includes(arg))).toBe(false);
-	});
+		{
+			prompt: "fix the test",
+			paths: ["/work/app/src/a.ts", "/work/app/src"],
+			args: ["--single", "@/work/app/src/a.ts\n@/work/app/src\nfix the test"],
+		},
+	])(
+		"builds argv for $prompt",
+		({ prompt, paths, args }: { prompt: string; paths?: readonly string[]; args: readonly string[] }) => {
+			expect(grokAdapter.executable).toBe("grok");
+			expect(grokAdapter.singleInstructionArgs(prompt, paths)).toEqual(args);
+			expect(grokAdapter.singleInstructionArgs(prompt, paths).some((arg) => SKIP_FLAGS.includes(arg))).toBe(false);
+		},
+	);
 });

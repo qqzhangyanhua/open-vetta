@@ -199,6 +199,32 @@ describe("external invocation service", () => {
 		});
 	});
 
+	it("passes @ path lines in front of the question to the CLI", async () => {
+		const h = harness();
+		await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "fix the test",
+			agentId: "grok",
+			referencedPaths: ["/work/app/src/a.ts", "/work/app/src"],
+		});
+		expect(h.started[0]?.args).toEqual(["--single", "@/work/app/src/a.ts\n@/work/app/src\nfix the test"]);
+	});
+
+	it("rejects a remote project directory before starting a process", async () => {
+		const h = harness();
+		await expect(
+			h.service.start({
+				sessionId: "session-1",
+				cwd: "ssh://host-1/srv/app",
+				prompt: "fix the test",
+				agentId: "grok",
+			}),
+		).rejects.toThrow(/remote projects do not support/i);
+		expect(h.started).toEqual([]);
+		expect(h.entries).toEqual([]);
+	});
+
 	it("writes terminal keyboard input into the process", async () => {
 		const h = harness();
 		const started = await h.service.start({

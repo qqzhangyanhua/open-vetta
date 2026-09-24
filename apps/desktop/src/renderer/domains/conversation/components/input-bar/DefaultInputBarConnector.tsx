@@ -1,7 +1,9 @@
 import { useBottomPanelPills } from "@domains/bottom-panel/hooks/useBottomPanelPills";
 import { pathBasename, toVettaFileUrl } from "@shared/lib/utils";
 import type { InputBarContextMenuViewProps } from "@vetta-org/theme-ui/chat";
-import { inputValueAtom } from "@shared/store/atoms";
+import { inputValueAtom, mentionedFilesAtom } from "@shared/store/atoms";
+import { activeInputDraftKeyAtom } from "@shared/store/session-input-draft";
+import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { useAtomValue, useSetAtom } from "jotai";
 import { memo, useMemo, useRef, useState } from "react";
 import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
@@ -33,6 +35,8 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const session = useInputBarSessionSource(props.cwdOverride);
 	const draft = useInputBarDraftSource();
 	const inputValue = useAtomValue(inputValueAtom);
+	const mentionedFiles = useAtomValue(mentionedFilesAtom);
+	const draftKey = useAtomValue(activeInputDraftKeyAtom);
 	const [externalRecipientId, setExternalRecipientId] = useState("penguin");
 	const placeExternalInvocation = useSetAtom(openExternalInvocationTabAtom);
 	const invocationStatus = useRef<Record<string, "running" | "finished">>({});
@@ -183,6 +187,11 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 			prompt: inputValue,
 			onPromptChange: draft.setInputValue,
 			onRecipientChange: setExternalRecipientId,
+			draftKey,
+			images: imageAttachments.map((image) => ({ path: image.path, name: image.name })),
+			onRemoveImage: attachments.removeImage,
+			referencedPaths: mentionedFiles.map((file) => file.path),
+			remote: isSshProjectUri(session.effectiveCwd),
 			onInvocationEvent: (event) => {
 				const active = session.activeSession;
 				if (!active) return;

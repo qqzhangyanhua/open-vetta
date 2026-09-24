@@ -230,7 +230,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 											 * 标记给命令区的 click-outside 判定用：否则 mousedown 先收起、
 											 * 随后的 click 又打开，按钮无法关闭面板。
 											 */}
-											{commands ? <InputBarSkillsAction
+											{commands && !sendingExternally ? <InputBarSkillsAction
 												active={commands.slashOpen}
 												disabled={!model.hasSession}
 												title={model.labels.toolbar.skills}
@@ -249,6 +249,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 												disabled={!model.hasSession}
 												visible={!commands || commands.slashOpen}
 												addImageTitle={model.labels.toolbar.addImage}
+												addImageDisabled={sendingExternally}
 												attachFileTitle={model.labels.toolbar.attachFile}
 												onSelectFiles={() => void model.actions.handleSelectFiles()}
 												onSelectImages={() => void model.actions.handleSelectImages()}
@@ -261,6 +262,11 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 									onPromptChange={model.externalInvocation.onPromptChange}
 									showPrompt={false}
 									penguinTools={null}
+									draftKey={model.externalInvocation.draftKey}
+									images={model.externalInvocation.images}
+									onRemoveImage={model.externalInvocation.onRemoveImage}
+									referencedPaths={model.externalInvocation.referencedPaths}
+									remote={model.externalInvocation.remote}
 									onRecipientChange={(recipientId) => {
 										setExternalRecipientId(recipientId);
 										model.externalInvocation?.onRecipientChange(recipientId);

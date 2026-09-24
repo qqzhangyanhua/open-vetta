@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { EXTERNAL_INVOCATION_CUSTOM_TYPE } from "@vetta/runtime-core/conversation";
+import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { findExternalAgentAdapter } from "./grok-adapter.js";
 import { EXTERNAL_INVOCATION_OUTPUT_LIMIT_BYTES, ExternalInvocationOutputCapture } from "./output-capture.js";
 
@@ -83,6 +84,7 @@ export interface ExternalInvocationService {
 		cwd: string;
 		prompt: string;
 		agentId: string;
+		referencedPaths?: readonly string[];
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationEvent) => void): () => void;
 	writeInput(invocationId: string, data: string): void;
@@ -170,6 +172,9 @@ export function createExternalInvocationService(deps: {
 			};
 		},
 		async start(request) {
+			if (isSshProjectUri(request.cwd)) {
+				throw new Error("Remote projects do not support external invocations");
+			}
 			const adapter = findExternalAgentAdapter(request.agentId);
 			if (!adapter) throw new Error(`Unknown external agent: ${request.agentId}`);
 			const invocationId = deps.ids.next();
@@ -211,7 +216,7 @@ export function createExternalInvocationService(deps: {
 			try {
 				process = await deps.processes.start({
 					file: adapter.executable,
-					args: adapter.singleInstructionArgs(request.prompt),
+					args: adapter.singleInstructionArgs(request.prompt, request.referencedPaths),
 					cwd: request.cwd,
 				});
 			} catch (error) {

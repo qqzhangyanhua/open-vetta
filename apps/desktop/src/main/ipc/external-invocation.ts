@@ -116,14 +116,23 @@ export function registerExternalInvocationIpc(): () => void {
 	};
 }
 
-function parseStart(value: unknown): { sessionId: string; cwd: string; prompt: string; agentId: string } {
+function parseStart(value: unknown): {
+	sessionId: string;
+	cwd: string;
+	prompt: string;
+	agentId: string;
+	referencedPaths: readonly string[];
+} {
 	if (typeof value !== "object" || value === null) throw new Error("external invocation: request must be an object");
 	const input = value as Record<string, unknown>;
 	const sessionId = requireString(input.sessionId, "sessionId");
 	const cwd = requireString(input.cwd, "cwd");
 	const prompt = requireString(input.prompt, "prompt");
 	const agentId = requireString(input.agentId, "agentId");
-	return { sessionId, cwd, prompt, agentId };
+	const referencedPaths = Array.isArray(input.referencedPaths)
+		? input.referencedPaths.filter((path): path is string => typeof path === "string" && path.length > 0)
+		: [];
+	return { sessionId, cwd, prompt, agentId, referencedPaths };
 }
 
 function requireString(value: unknown, field: string): string {

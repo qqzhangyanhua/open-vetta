@@ -4,6 +4,12 @@ import { useTranslation } from "react-i18next";
 export interface ExternalInvocationAgentOption {
 	readonly id: string;
 	readonly label: string;
+	readonly disabled?: boolean;
+}
+
+export interface ExternalInvocationImage {
+	readonly path: string;
+	readonly name: string;
 }
 
 export interface ExternalInvocationCardModel {
@@ -28,14 +34,21 @@ export interface SessionExternalInvocationModel {
 	readonly onSend: () => void;
 	readonly cards: readonly ExternalInvocationCardModel[];
 	readonly onViewInTerminal?: (invocationId: string) => void;
+	readonly images: readonly ExternalInvocationImage[];
+	readonly onRemoveImage: (path: string) => void;
+	readonly imageRejectedLabel: string;
+	readonly remoteNote: string | null;
+	readonly sendBlocked: boolean;
 }
 
 export function SessionExternalInvocationView({
 	model,
 	penguinTools,
+	skills,
 }: {
 	readonly model: SessionExternalInvocationModel;
 	readonly penguinTools: ReactNode;
+	readonly skills?: ReactNode;
 }): JSX.Element {
 	const { t } = useTranslation("chat");
 	const external = model.recipientId !== "penguin";
@@ -49,20 +62,35 @@ export function SessionExternalInvocationView({
 					onChange={(event) => model.onRecipientChange(event.target.value)}
 				>
 					{model.agents.map((agent) => (
-						<option key={agent.id} value={agent.id}>
+						<option key={agent.id} value={agent.id} disabled={agent.disabled}>
 							{agent.label}
 						</option>
 					))}
 				</select>
 			</label>
+			{model.remoteNote ? <p>{model.remoteNote}</p> : null}
+			{external ? null : (skills ?? null)}
 			{external ? (
 				<>
 					{model.showPrompt ? <p>{model.placeholder}</p> : null}
 					<p>{model.permissionNote}</p>
+					{model.images.length > 0 ? (
+						<ul>
+							{model.images.map((image) => (
+								<li key={image.path}>
+									<span>{image.name}</span>
+									<span>{model.imageRejectedLabel}</span>
+									<button type="button" onClick={() => model.onRemoveImage(image.path)}>
+										{t("inputBar.capsule.removeImage")}
+									</button>
+								</li>
+							))}
+						</ul>
+					) : null}
 					{model.showPrompt ? (
 						<textarea aria-label={t("externalInvocation.message")} value={model.prompt} onChange={(event) => model.onPromptChange(event.target.value)} />
 					) : null}
-					<button type="button" onClick={model.onSend}>
+					<button type="button" disabled={model.sendBlocked} onClick={model.onSend}>
 						{model.sendLabel}
 					</button>
 				</>

@@ -243,6 +243,7 @@ export interface InputBarModel {
 				cwd: string;
 				prompt: string;
 				agentId: string;
+				referencedPaths?: readonly string[];
 			}): Promise<{ invocationId: string }>;
 			subscribe(
 				sessionId: string,
@@ -266,6 +267,11 @@ export interface InputBarModel {
 		readonly prompt: string;
 		readonly onPromptChange: (value: string) => void;
 		readonly onRecipientChange: (recipientId: string) => void;
+		readonly draftKey: string | null;
+		readonly images: readonly { path: string; name: string }[];
+		readonly onRemoveImage: (path: string) => void;
+		readonly referencedPaths: readonly string[];
+		readonly remote: boolean;
 	};
 	/** 工具栏按真实组成项装配，避免用 showX/capability 布尔值扩展产品分支。 */
 	leadingTools: readonly InputBarLeadingTool[];

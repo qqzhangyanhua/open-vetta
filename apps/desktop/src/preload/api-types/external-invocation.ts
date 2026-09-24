@@ -17,6 +17,7 @@ export interface DesktopExternalInvocationsApi {
 		cwd: string;
 		prompt: string;
 		agentId: string;
+		referencedPaths?: readonly string[];
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: DesktopExternalInvocationEvent) => void): () => void;
 	writeInput(invocationId: string, data: string): Promise<void>;

@@ -520,6 +520,8 @@
 		"placeholder": "This message runs in the terminal with {{agent}}. The output stays in this session",
 		"permission": "{{agent}} uses its own permission settings. Confirmations are asked in the terminal",
 		"sendLabel": "Send to {{agent}}",
+		"imageRejected": "{{agent}} does not accept images",
+		"remoteUnsupported": "Remote projects are not supported yet",
 		"exitCode": "Exit code {{code}}",
 		"status": {
 			"running": "Running",

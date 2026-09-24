@@ -6,9 +6,11 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ExternalInvocationTerminalSession } from "./ExternalInvocationTerminalSession";
+import { clearExternalRecipients } from "@shared/store/external-recipient";
 import { SessionExternalInvocationPage, type ExternalInvocationClient, type ExternalInvocationClientEvent } from "./SessionExternalInvocationPage";
 
 beforeEach(async () => {
+	clearExternalRecipients();
 	initI18n();
 	await i18n.changeLanguage("zh");
 });
@@ -64,6 +66,7 @@ describe("session page external invocation", () => {
 			cwd: "/work/app",
 			prompt: "fix the test",
 			agentId: "grok",
+			referencedPaths: [],
 		});
 		await act(async () => {
 			listener?.({ type: "running", invocationId: "inv-1", prompt: "fix the test", agentId: "grok" });
@@ -74,6 +77,110 @@ describe("session page external invocation", () => {
 		});
 		await waitFor(() => expect(screen.getByText("已完成")).toBeTruthy());
 		expect(screen.getByText("退出码 0")).toBeTruthy();
+	});
+
+	it("keeps Grok for the same session and starts a new session on penguin", async () => {
+		const user = userEvent.setup();
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: vi.fn(),
+			subscribe: () => () => undefined,
+		};
+		function Switcher(): JSX.Element {
+			const [draftKey, setDraftKey] = useState("session-a");
+			return (
+				<>
+					<button type="button" onClick={() => setDraftKey("session-b")}>
+						打开另一个会话
+					</button>
+					<button type="button" onClick={() => setDraftKey("session-a")}>
+						回到这个会话
+					</button>
+					<button type="button" onClick={() => setDraftKey("new:/work/fresh")}>
+						新会话
+					</button>
+					<SessionExternalInvocationPage
+						session={{ sessionId: draftKey, cwd: "/work/app" }}
+						client={client}
+						draftKey={draftKey}
+						prompt=""
+						onPromptChange={() => undefined}
+						showPrompt={false}
+						penguinTools={null}
+					/>
+				</>
+			);
+		}
+		render(<Switcher />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		expect((screen.getByLabelText("发给") as HTMLSelectElement).value).toBe("grok");
+		await user.click(screen.getByRole("button", { name: "打开另一个会话" }));
+		expect((screen.getByLabelText("发给") as HTMLSelectElement).value).toBe("penguin");
+		await user.click(screen.getByRole("button", { name: "回到这个会话" }));
+		expect((screen.getByLabelText("发给") as HTMLSelectElement).value).toBe("grok");
+		await user.click(screen.getByRole("button", { name: "新会话" }));
+		expect((screen.getByLabelText("发给") as HTMLSelectElement).value).toBe("penguin");
+	});
+
+	it("refuses to send while an image is attached, then sends after it is removed, and hides skills", async () => {
+		const user = userEvent.setup();
+		const start = vi.fn(async () => ({ invocationId: "inv-1" }));
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start,
+			subscribe: () => () => undefined,
+		};
+		function Images(): JSX.Element {
+			const [images, setImages] = useState([{ path: "/tmp/shot.png", name: "shot.png" }]);
+			const [prompt, setPrompt] = useState("look");
+			return (
+				<SessionExternalInvocationPage
+					session={{ sessionId: "session-1", cwd: "/work/app" }}
+					client={client}
+					prompt={prompt}
+					onPromptChange={setPrompt}
+					showPrompt
+					penguinTools={null}
+					images={images}
+					onRemoveImage={(path) => setImages((current) => current.filter((image) => image.path !== path))}
+					skills={<button type="button">技能/场景</button>}
+				/>
+			);
+		}
+		render(<Images />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		expect(screen.getByRole("button", { name: "技能/场景" })).toBeTruthy();
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		expect(screen.queryByRole("button", { name: "技能/场景" })).toBeNull();
+		expect(screen.getByText("Grok 不接收图片")).toBeTruthy();
+		expect((screen.getByRole("button", { name: "发给 Grok" }) as HTMLButtonElement).disabled).toBe(true);
+		await user.click(screen.getByRole("button", { name: "移除图片" }));
+		expect(screen.queryByText("Grok 不接收图片")).toBeNull();
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		expect(start).toHaveBeenCalledWith(expect.objectContaining({ agentId: "grok", prompt: "look" }));
+	});
+
+	it("disables external agents in a remote project and explains why", async () => {
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: vi.fn(),
+			subscribe: () => () => undefined,
+		};
+		render(
+			<SessionExternalInvocationPage
+				session={{ sessionId: "session-1", cwd: "ssh://host-1/srv/app" }}
+				client={client}
+				prompt="fix"
+				onPromptChange={() => undefined}
+				showPrompt
+				penguinTools={null}
+				remote
+			/>,
+		);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		expect((screen.getByRole("option", { name: "Grok" }) as HTMLOptionElement).disabled).toBe(true);
+		expect(screen.getByText("远程项目暂不支持")).toBeTruthy();
 	});
 
 	it("offers only penguin when no external agent is available", async () => {

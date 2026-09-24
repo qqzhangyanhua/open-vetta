@@ -24,6 +24,7 @@ import {
 	type MentionedFile,
 	mentionedFilesAtom,
 } from "./chat-atoms";
+import { rekeyExternalRecipient } from "./external-recipient";
 import {
 	appendInputHistoryEntry,
 	isSessionInputDraftEmpty,
@@ -181,6 +182,7 @@ export function claimExistingSessionInputDraft(sessionPath: string, sourceSessio
 	const draft = captureSessionInputDraft();
 	persistSessionInputDraft(sessionPath, draft);
 	store.set(activeInputDraftKeyAtom, sessionPath);
+	rekeyExternalRecipient(sourceSessionPath, sessionPath);
 	const map = store.get(sessionInputDraftMapAtom);
 	if (sourceSessionPath in map) {
 		const next = { ...map };
@@ -204,6 +206,7 @@ export function claimNewSessionInputDraft(sessionPath: string, newSessionKey: st
 	// 把当前内容也记到真实 path，发送清空后 path 下为空。
 	persistSessionInputDraft(sessionPath, captureSessionInputDraft());
 	store.set(activeInputDraftKeyAtom, sessionPath);
+	rekeyExternalRecipient(prevKey ?? newSessionKey, sessionPath);
 
 	if (newSessionKey && newSessionKey !== sessionPath) {
 		const map = store.get(sessionInputDraftMapAtom);

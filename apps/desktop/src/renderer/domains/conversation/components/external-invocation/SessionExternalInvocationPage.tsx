@@ -1,9 +1,11 @@
 import { useEffect, useState, type JSX, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { externalRecipientFor, rememberExternalRecipient } from "@shared/store/external-recipient";
 import {
 	SessionExternalInvocationView,
 	type ExternalInvocationCardModel,
 	type ExternalInvocationAgentOption,
+	type ExternalInvocationImage,
 } from "./SessionExternalInvocationView";
 
 const externalInvocationStatusKey = {
@@ -25,7 +27,13 @@ export interface ExternalInvocationClientEvent {
 
 export interface ExternalInvocationClient {
 	listAgents(): Promise<readonly { id: "grok"; label: string }[]>;
-	start(request: { sessionId: string; cwd: string; prompt: string; agentId: string }): Promise<{ invocationId: string }>;
+	start(request: {
+		sessionId: string;
+		cwd: string;
+		prompt: string;
+		agentId: string;
+		referencedPaths?: readonly string[];
+	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationClientEvent) => void): () => void;
 	stop?(invocationId: string): void;
 	writeInput?(invocationId: string, data: string): void;
@@ -71,6 +79,12 @@ export function SessionExternalInvocationPage({
 	onPromptChange,
 	showPrompt,
 	penguinTools,
+	draftKey = null,
+	images = [],
+	onRemoveImage,
+	referencedPaths = [],
+	remote = false,
+	skills = null,
 	onRecipientChange,
 	onViewInTerminal,
 	onInvocationEvent,
@@ -81,23 +95,33 @@ export function SessionExternalInvocationPage({
 	readonly onPromptChange: (value: string) => void;
 	readonly showPrompt: boolean;
 	readonly penguinTools: ReactNode;
+	readonly draftKey?: string | null;
+	readonly images?: readonly ExternalInvocationImage[];
+	readonly onRemoveImage?: (path: string) => void;
+	readonly referencedPaths?: readonly string[];
+	readonly remote?: boolean;
+	readonly skills?: ReactNode;
 	readonly onRecipientChange?: (recipientId: string) => void;
 	readonly onViewInTerminal?: (invocationId: string) => void;
 	readonly onInvocationEvent?: (event: ExternalInvocationClientEvent) => void;
 }): JSX.Element {
 	const { t } = useTranslation("chat");
 	const [detected, setDetected] = useState<readonly { id: "grok"; label: string }[]>([]);
-	const [recipientId, setRecipientId] = useState("penguin");
+	const [recipientId, setRecipientId] = useState(() => externalRecipientFor(draftKey));
+	useEffect(() => {
+		setRecipientId(externalRecipientFor(draftKey));
+	}, [draftKey]);
 	useEffect(() => {
 		onRecipientChange?.(recipientId);
 	}, [onRecipientChange, recipientId]);
 	const [cards, setCards] = useState<readonly ExternalInvocationCardModel[]>([]);
 	const agents: ExternalInvocationAgentOption[] = [
 		{ id: "penguin", label: t("externalInvocation.agent.penguin") },
-		...detected.map((agent) => ({ id: agent.id, label: agent.label })),
+		...detected.map((agent) => ({ id: agent.id, label: agent.label, disabled: remote })),
 	];
 	const recipient = agents.find((agent) => agent.id === recipientId) ?? agents[0];
 	const external = recipientId !== "penguin";
+	const sendBlocked = images.length > 0 || remote;
 
 	useEffect(() => {
 		if (!client) return;
@@ -130,7 +154,10 @@ export function SessionExternalInvocationPage({
 			model={{
 				agents,
 				recipientId,
-				onRecipientChange: setRecipientId,
+				onRecipientChange: (next) => {
+					rememberExternalRecipient(draftKey, next);
+					setRecipientId(next);
+				},
 				placeholder: t("externalInvocation.placeholder", { agent: recipient?.label ?? "" }),
 				permissionNote: t("externalInvocation.permission", { agent: recipient?.label ?? "" }),
 				sendLabel: t("externalInvocation.sendLabel", { agent: recipient?.label ?? "" }),
@@ -138,18 +165,25 @@ export function SessionExternalInvocationPage({
 				onPromptChange,
 				showPrompt,
 				onSend: () => {
-					if (!external || !client || !session || prompt.trim().length === 0) return;
+					if (!external || sendBlocked || !client || !session || prompt.trim().length === 0) return;
 					void client.start({
 						sessionId: session.sessionId,
 						cwd: session.cwd,
 						prompt,
 						agentId: recipientId,
+						referencedPaths,
 					});
 					onPromptChange("");
 				},
 				cards,
 				onViewInTerminal,
+				images,
+				onRemoveImage: (path) => onRemoveImage?.(path),
+				imageRejectedLabel: t("externalInvocation.imageRejected", { agent: recipient?.label ?? "" }),
+				remoteNote: remote ? t("externalInvocation.remoteUnsupported") : null,
+				sendBlocked,
 			}}
+			skills={skills}
 			penguinTools={penguinTools}
 		/>
 	);
