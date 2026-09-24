@@ -17,17 +17,18 @@ export function externalSessionCaption(
 	session: Pick<SessionInfo, "modifiedAt" | "origin" | "unavailableReason">,
 	t: TFunction<"project">,
 	now = Date.now(),
+	initiatedByPenguin = false,
 ): string {
 	const sourceKey = SOURCE_KEYS[session.origin?.tool ?? ""] ?? "sourceGrok";
 	const source = t(`sidebar.external.${sourceKey}`);
-	if (session.unavailableReason) {
-		const reason =
-			session.unavailableReason === "unsupported_version"
-				? t("sidebar.external.unsupportedVersion")
-				: t("sidebar.external.corruptedHeader");
-		return `${reason} · ${source}`;
-	}
-	return `${formatSidebarRelativeTime(session.modifiedAt, t, now)} · ${source}`;
+	const body = session.unavailableReason
+		? `${
+				session.unavailableReason === "unsupported_version"
+					? t("sidebar.external.unsupportedVersion")
+					: t("sidebar.external.corruptedHeader")
+			} · ${source}`
+		: `${formatSidebarRelativeTime(session.modifiedAt, t, now)} · ${source}`;
+	return initiatedByPenguin ? `${body} · ${t("sidebar.external.initiatedByPenguin")}` : body;
 }
 
 export function formatSidebarRelativeTime(timestamp: number, t: TFunction<"project">, now = Date.now()): string {

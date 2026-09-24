@@ -1,4 +1,4 @@
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import type { ExternalInvocationEntry, ExternalInvocationEntryStore } from "./service.js";
 
@@ -24,6 +24,12 @@ export function createExternalInvocationEntryLedger(
 
 	return {
 		list: read,
+		forget(sessionId) {
+			const kept = read().filter((entry) => entry.sessionId !== sessionId);
+			if (!existsSync(file) && kept.length === 0) return;
+			mkdirSync(dirname(file), { recursive: true });
+			writeFileSync(file, kept.length === 0 ? "" : `${kept.map((entry) => JSON.stringify(entry)).join("\n")}\n`);
+		},
 		async append(entry) {
 			mkdirSync(dirname(file), { recursive: true });
 			appendFileSync(file, `${JSON.stringify(entry)}\n`);

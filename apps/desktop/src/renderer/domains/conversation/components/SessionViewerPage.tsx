@@ -1,14 +1,15 @@
 import { ActivityPanel } from "@domains/activity-panel/components/ActivityPanel";
 import { Button } from "@shared/components/ui/button";
 import { cn } from "@shared/lib/utils";
-import { pageHeaderRightSlotAtom } from "@shared/store/atoms";
+import { pageHeaderRightSlotAtom, sessionsMapAtom } from "@shared/store/atoms";
 import { useActiveSessionRuntimeIds } from "@shared/workspace/active-session-runtime";
 import { createActivityWorkspace } from "@shared/workspace/activity-workspace";
 import { useThemeSurface } from "@vetta-org/theme-sdk/appearance";
 import { SessionViewerPageView } from "@vetta-org/theme-ui/chat";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo } from "react";
+import { useExternalHistoryResumeOffer } from "@shared/hooks/useExternalHistoryResumeOffer";
 import { useTranslation } from "react-i18next";
 import { useSessionViewerContinueFrom } from "../hooks/useSessionViewerContinueFrom";
 import { useSessionViewerPageModel } from "../hooks/useSessionViewerPageModel";
@@ -32,6 +33,15 @@ export function SessionViewerPage(): JSX.Element {
 		sessionPath: model.path,
 		enabled: model.canContinueFrom,
 	});
+	const sessions = useAtomValue(sessionsMapAtom);
+	const historySession = useMemo(() => {
+		for (const list of sessions.values()) {
+			const found = list.find((session) => session.path === model.path);
+			if (found) return found;
+		}
+		return null;
+	}, [model.path, sessions]);
+	const historyResume = useExternalHistoryResumeOffer(historySession);
 	const setHeaderRight = useSetAtom(pageHeaderRightSlotAtom);
 	const workspace = useMemo(() => {
 		const cwd = model.kbCwd || model.imCwd || null;
@@ -55,6 +65,16 @@ export function SessionViewerPage(): JSX.Element {
 				>
 					{model.isIm ? t("sessionViewer.badge.liveUpdate") : t("sessionViewer.badge.readOnly")}
 				</span>
+				{historyResume.visible ? (
+					<Button
+						size="xs"
+						variant="outline"
+						disabled={historyResume.disabled}
+						onClick={historyResume.onSelect}
+					>
+						{historyResume.label}
+					</Button>
+				) : null}
 				{continueFrom.enabled ? (
 					<>
 						<Button
@@ -116,6 +136,10 @@ export function SessionViewerPage(): JSX.Element {
 		),
 		[
 			continueFrom.continuing,
+			historyResume.disabled,
+			historyResume.label,
+			historyResume.onSelect,
+			historyResume.visible,
 			continueFrom.enabled,
 			continueFrom.error,
 			continueFrom.onContinue,

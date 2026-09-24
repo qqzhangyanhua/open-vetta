@@ -539,6 +539,16 @@
 		"ordinal": "第 {{n}} 次",
 		"separator": "第 {{n}} 次 · {{time}} · {{status}}",
 		"newSession": "开新会话",
+		"origin": {
+			"openSession": "打开发起它的会话"
+		},
+		"resume": {
+			"action": "在当前会话里用 {{agent}} 续跑",
+			"unavailable": "在当前会话里用 {{agent}} 续跑不可用：目录已不存在",
+			"capsule": "续跑：{{title}}",
+			"directory": "将在 {{directory}} 中续跑",
+			"dismiss": "关闭续跑"
+		},
 		"cancel": "取消",
 		"panel": "外部调用",
 		"clear": "清屏",

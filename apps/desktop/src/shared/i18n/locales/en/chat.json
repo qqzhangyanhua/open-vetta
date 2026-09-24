@@ -539,6 +539,16 @@
 		"ordinal": "Run {{n}}",
 		"separator": "Run {{n}} · {{time}} · {{status}}",
 		"newSession": "New session",
+		"origin": {
+			"openSession": "Open the session that started it"
+		},
+		"resume": {
+			"action": "Resume with {{agent}} in this session",
+			"unavailable": "Cannot resume with {{agent}}: the directory is gone",
+			"capsule": "Resume: {{title}}",
+			"directory": "Will resume in {{directory}}",
+			"dismiss": "Clear resume"
+		},
 		"cancel": "Cancel",
 		"panel": "External invocation",
 		"clear": "Clear",

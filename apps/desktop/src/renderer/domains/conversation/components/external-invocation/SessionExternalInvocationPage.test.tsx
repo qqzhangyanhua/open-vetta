@@ -6,11 +6,18 @@ import userEvent from "@testing-library/user-event";
 import { useEffect, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ExternalInvocationTerminalSession } from "./ExternalInvocationTerminalSession";
+import { activeInputDraftKeyAtom } from "@shared/store/atoms";
+import { clearExternalHistoryResumes } from "@shared/store/external-history-resume";
 import { clearExternalRecipients } from "@shared/store/external-recipient";
+import { DefaultSessionRowView } from "@vetta-org/theme-ui/project";
+import { getDefaultStore } from "jotai";
+import { useExternalHistoryResumeOffer } from "@shared/hooks/useExternalHistoryResumeOffer";
 import { SessionExternalInvocationPage, type ExternalInvocationClient, type ExternalInvocationClientEvent } from "./SessionExternalInvocationPage";
 
 beforeEach(async () => {
 	clearExternalRecipients();
+	clearExternalHistoryResumes();
+	getDefaultStore().set(activeInputDraftKeyAtom, null);
 	initI18n();
 	await i18n.changeLanguage("zh");
 });
@@ -492,6 +499,75 @@ describe("external invocation terminal in the session", () => {
 		await user.click(screen.getByRole("button", { name: "取消" }));
 		expect(stop).toHaveBeenCalledWith("inv-2");
 	});
+
+	it("resumes from history into the current session, and a row click only opens the read-only view", async () => {
+		const user = userEvent.setup();
+		const start = vi.fn(async () => ({ invocationId: "inv-1" }));
+		const onOpenViewer = vi.fn();
+		getDefaultStore().set(activeInputDraftKeyAtom, "session-1");
+		Object.defineProperty(window, "vetta", {
+			configurable: true,
+			value: {
+				externalInvocations: {
+					recordedDirectoryExists: async (cwd: string) => cwd !== "/gone",
+				},
+			},
+		});
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start,
+			subscribe: () => () => undefined,
+		};
+		function Flow({ cwd }: { cwd: string }): JSX.Element {
+			const [prompt, setPrompt] = useState("");
+			return (
+				<>
+					<HistoryRow cwd={cwd} onOpenViewer={onOpenViewer} />
+					<SessionExternalInvocationPage
+						session={{ sessionId: "session-1", cwd: "/work/app" }}
+						client={client}
+						draftKey="session-1"
+						prompt={prompt}
+						onPromptChange={setPrompt}
+						showPrompt
+						penguinTools={<span>模型</span>}
+					/>
+				</>
+			);
+		}
+		const view = render(<Flow cwd="/work/other" />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.click(screen.getByRole("button", { name: "Fix the login bug" }));
+		expect(onOpenViewer).toHaveBeenCalledOnce();
+		expect(start).not.toHaveBeenCalled();
+		expect(screen.queryByText("续跑：Fix the login bug")).toBeNull();
+		await user.click(await screen.findByRole("button", { name: "在当前会话里用 Grok 续跑" }));
+		expect(start).not.toHaveBeenCalled();
+		expect((screen.getByLabelText("发给") as HTMLSelectElement).value).toBe("grok");
+		expect(screen.getByText("续跑：Fix the login bug")).toBeTruthy();
+		expect(screen.getByText("将在 /work/other 中续跑")).toBeTruthy();
+		await user.click(screen.getByRole("button", { name: "关闭续跑" }));
+		expect(screen.queryByText("续跑：Fix the login bug")).toBeNull();
+		await user.click(await screen.findByRole("button", { name: "在当前会话里用 Grok 续跑" }));
+		await user.type(screen.getByLabelText("消息"), "keep going");
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		expect(start).toHaveBeenCalledWith({
+			sessionId: "session-1",
+			cwd: "/work/other",
+			prompt: "keep going",
+			agentId: "grok",
+			referencedPaths: [],
+			externalSessionId: "sess-9",
+			newSession: false,
+			historyResume: { externalSessionId: "sess-9", cwd: "/work/other" },
+		});
+		view.rerender(<Flow cwd="/gone" />);
+		await waitFor(() =>
+			expect((screen.getByRole("button", { name: "在当前会话里用 Grok 续跑不可用：目录已不存在" }) as HTMLButtonElement).disabled).toBe(
+				true,
+			),
+		);
+	});
 });
 
 function ExternalInvocationRunningWatch({
@@ -503,4 +579,36 @@ function ExternalInvocationRunningWatch({
 }): null {
 	useEffect(() => client.subscribeRunning?.(onChange), [client, onChange]);
 	return null;
+}
+
+function HistoryRow({ cwd, onOpenViewer }: { cwd: string; onOpenViewer: () => void }): JSX.Element {
+	const offer = useExternalHistoryResumeOffer({
+		id: "sess-9",
+		cwd,
+		name: "Fix the login bug",
+		firstMessage: "Fix the login bug",
+		origin: { tool: "grok", path: "/tmp/grok/summary.json" },
+	});
+	return (
+		<>
+			<DefaultSessionRowView
+				active={false}
+				contextMenuEnabled
+				label="Fix the login bug"
+				renaming={false}
+				running={false}
+				scheduled={false}
+				moreLabel="更多"
+				onOpenContextMenu={() => undefined}
+				onRename={() => undefined}
+				onRenameDone={() => undefined}
+				onSelect={onOpenViewer}
+			/>
+			{offer.visible ? (
+				<button type="button" disabled={offer.disabled} onClick={offer.onSelect}>
+					{offer.label}
+				</button>
+			) : null}
+		</>
+	);
 }

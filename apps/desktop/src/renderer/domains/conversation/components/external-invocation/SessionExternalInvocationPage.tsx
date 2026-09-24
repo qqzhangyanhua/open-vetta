@@ -1,6 +1,16 @@
-import { useEffect, useState, type JSX, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type JSX, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { externalRecipientFor, rememberExternalRecipient } from "@shared/store/external-recipient";
+import {
+	clearExternalHistoryResume,
+	externalHistoryResumeFor,
+	subscribeExternalHistoryResume,
+} from "@shared/store/external-history-resume";
+import {
+	externalRecipientFor,
+	externalRecipientVersion,
+	rememberExternalRecipient,
+	subscribeExternalRecipient,
+} from "@shared/store/external-recipient";
 import { externalAgentLabel } from "./external-agent-label";
 import {
 	SessionExternalInvocationView,
@@ -44,6 +54,7 @@ export interface ExternalInvocationClient {
 		referencedPaths?: readonly string[];
 		externalSessionId?: string | null;
 		newSession?: boolean;
+		historyResume?: { readonly externalSessionId: string; readonly cwd: string };
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationClientEvent) => void): () => void;
 	subscribeRunning?(listener: (sessionIds: readonly string[]) => void): () => void;
@@ -146,10 +157,16 @@ export function SessionExternalInvocationPage({
 }): JSX.Element {
 	const { t } = useTranslation("chat");
 	const [detected, setDetected] = useState<readonly { id: "grok" | "omp" | "cursor-agent"; label: string }[]>([]);
+	const historyResume = useSyncExternalStore(
+		subscribeExternalHistoryResume,
+		() => externalHistoryResumeFor(draftKey),
+		() => null,
+	);
+	const recipientVersion = useSyncExternalStore(subscribeExternalRecipient, externalRecipientVersion, () => 0);
 	const [recipientId, setRecipientId] = useState(() => externalRecipientFor(draftKey));
 	useEffect(() => {
-		setRecipientId(externalRecipientFor(draftKey));
-	}, [draftKey]);
+		setRecipientId(historyResume?.agentId ?? externalRecipientFor(draftKey));
+	}, [draftKey, historyResume, recipientVersion]);
 	useEffect(() => {
 		onRecipientChange?.(recipientId);
 	}, [onRecipientChange, recipientId]);
@@ -225,14 +242,16 @@ export function SessionExternalInvocationPage({
 				showPrompt,
 				onSend: () => {
 					if (!external || sendBlocked || !client || !session || prompt.trim().length === 0) return;
+					const bound = newSession ? null : historyResume;
 					void client.start({
 						sessionId: session.sessionId,
-						cwd: session.cwd,
+						cwd: bound?.cwd ?? session.cwd,
 						prompt,
 						agentId: recipientId,
 						referencedPaths,
-						externalSessionId: newSession ? null : resumeSessionId,
+						externalSessionId: bound?.externalSessionId ?? (newSession ? null : resumeSessionId),
 						newSession,
+						...(bound ? { historyResume: { externalSessionId: bound.externalSessionId, cwd: bound.cwd } } : {}),
 					});
 					setNewSession(false);
 					onPromptChange("");
@@ -242,6 +261,16 @@ export function SessionExternalInvocationPage({
 				newSession,
 				onNewSession: () => setNewSession((current) => !current),
 				onCancel: (invocationId) => client?.stop?.(invocationId),
+				historyResume: historyResume
+					? {
+							title: historyResume.title,
+							directoryNote:
+								historyResume.cwd === session?.cwd
+									? null
+									: t("externalInvocation.resume.directory", { directory: historyResume.cwd }),
+						}
+					: null,
+				onDismissResume: () => clearExternalHistoryResume(draftKey),
 				images,
 				onRemoveImage: (path) => onRemoveImage?.(path),
 				imageRejectedLabel: t("externalInvocation.imageRejected", { agent: recipient?.label ?? "" }),

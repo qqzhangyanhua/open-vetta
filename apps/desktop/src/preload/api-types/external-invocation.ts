@@ -26,6 +26,7 @@ export interface DesktopExternalInvocationsApi {
 		referencedPaths?: readonly string[];
 		externalSessionId?: string | null;
 		newSession?: boolean;
+		historyResume?: { readonly externalSessionId: string; readonly cwd: string };
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: DesktopExternalInvocationEvent) => void): () => void;
 	subscribeRunning(listener: (sessionIds: readonly string[]) => void): () => void;
@@ -35,4 +36,6 @@ export interface DesktopExternalInvocationsApi {
 		sessionId: string,
 		invocationId: string,
 	): Promise<{ head: string; tail: string; discardedBytes: number } | null>;
+	recordedDirectoryExists(cwd: string): Promise<boolean>;
+	origins(): Promise<readonly { externalSessionId: string; sessionId: string; invocationId: string }[]>;
 }

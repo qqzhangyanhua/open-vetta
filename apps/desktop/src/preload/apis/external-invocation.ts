@@ -8,6 +8,8 @@ const CHANNELS = {
 	writeInput: "external-invocation:write-input",
 	stop: "external-invocation:stop",
 	readOutput: "external-invocation:read-output",
+	recordedDirectory: "external-invocation:recorded-directory",
+	origins: "external-invocation:origins",
 	attach: "external-invocation:attach",
 	detach: "external-invocation:detach",
 	watchRunning: "external-invocation:watch-running",
@@ -62,6 +64,8 @@ export function createExternalInvocationApi(ipc: IpcRenderer): Pick<DesktopApi, 
 			writeInput: (invocationId, data) => ipc.invoke(CHANNELS.writeInput, invocationId, data),
 			stop: (invocationId) => ipc.invoke(CHANNELS.stop, invocationId),
 			readOutput: (sessionId, invocationId) => ipc.invoke(CHANNELS.readOutput, sessionId, invocationId),
+			recordedDirectoryExists: (cwd) => ipc.invoke(CHANNELS.recordedDirectory, cwd),
+			origins: () => ipc.invoke(CHANNELS.origins),
 		},
 	};
 }

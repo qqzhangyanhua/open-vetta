@@ -63,7 +63,8 @@
 			"sourcePi": "Pi",
 			"sourceOmp": "omp",
 			"unsupportedVersion": "格式版本不支持",
-			"corruptedHeader": "会话头部损坏"
+			"corruptedHeader": "会话头部损坏",
+			"initiatedByPenguin": "由 penguin 发起"
 		},
 		"dialogs": {
 			"deleteSessionTitle": "确认删除会话",

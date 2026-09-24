@@ -44,6 +44,8 @@ export interface SessionExternalInvocationModel {
 	readonly newSession: boolean;
 	readonly onNewSession: () => void;
 	readonly onCancel: (invocationId: string) => void;
+	readonly historyResume: { readonly title: string; readonly directoryNote: string | null } | null;
+	readonly onDismissResume: () => void;
 }
 
 export function SessionExternalInvocationView({
@@ -79,6 +81,15 @@ export function SessionExternalInvocationView({
 				<>
 					{model.showPrompt ? <p>{model.placeholder}</p> : null}
 					<p>{model.permissionNote}</p>
+					{model.historyResume ? (
+						<p>
+							<span>{t("externalInvocation.resume.capsule", { title: model.historyResume.title })}</span>
+							{model.historyResume.directoryNote ? <span>{model.historyResume.directoryNote}</span> : null}
+							<button type="button" onClick={model.onDismissResume}>
+								{t("externalInvocation.resume.dismiss")}
+							</button>
+						</p>
+					) : null}
 					{model.images.length > 0 ? (
 						<ul>
 							{model.images.map((image) => (

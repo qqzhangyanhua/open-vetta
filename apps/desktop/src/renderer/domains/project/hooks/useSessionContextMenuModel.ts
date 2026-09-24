@@ -1,15 +1,20 @@
-import type { SessionContextMenuSession } from "@shared/store/atoms";
+import { useExternalHistoryResumeOffer } from "@shared/hooks/useExternalHistoryResumeOffer";
+import { useExternalInvocationOrigins } from "@shared/hooks/useExternalInvocationOrigins";
+import type { SessionContextMenuSession, SessionInfo } from "@shared/store/atoms";
 import {
 	automationCreateRequestAtom,
 	conversationBucketCwd,
 	conversationTagEditorAtom,
 	conversationTagsAtom,
 	defaultConversationCwdAtom,
+	openSessionFnRef,
 	pinnedSessionPathsAtom,
 	renamingSessionPathAtom,
 	sessionDisplayLabel,
+	sessionsMapAtom,
 	setSessionPinnedAtom,
 } from "@shared/store/atoms";
+import { vettaSessionIdFromDraftKey } from "@shared/store/external-invocation-origins";
 import { useNavigate } from "@tanstack/react-router";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import type { SessionContextMenuViewProps } from "@vetta-org/theme-ui/project";
@@ -28,7 +33,9 @@ export function useSessionContextMenuModel(
 	onClose: () => void,
 	onDelete: (session: SessionContextMenuSession) => void,
 ): Omit<SessionContextMenuViewProps, "x" | "y"> {
-	const { t } = useTranslation("project");
+	const { t } = useTranslation(["project", "chat"]);
+	const invocationOrigins = useExternalInvocationOrigins();
+	const sessionsMap = useAtomValue(sessionsMapAtom);
 	const setRenamingSessionPath = useSetAtom(renamingSessionPathAtom);
 	const pinnedSessionPaths = useAtomValue(pinnedSessionPathsAtom);
 	const setSessionPinned = useSetAtom(setSessionPinnedAtom);
@@ -37,6 +44,9 @@ export function useSessionContextMenuModel(
 	const requestAutomation = useSetAtom(automationCreateRequestAtom);
 	const defaultCwd = useAtomValue(defaultConversationCwdAtom);
 	const navigate = useNavigate();
+	const historyResume = useExternalHistoryResumeOffer(
+		"kind" in session && session.kind === "agent-team" ? null : session,
+	);
 	const pinned = pinnedSessionPaths.has(session.path);
 	// 只有能续写的普通会话才能作为自动化的绑定会话；团队会话由团队编排，不接受外部投递。
 	const canCreateAutomation = allowMutations && session.access?.resume !== false;
@@ -139,9 +149,56 @@ export function useSessionContextMenuModel(
 	}, [canTag, onClose, openTagEditor, session.path, t, tags]);
 
 	const extraItems = useMemo<readonly ContextMenuNode[] | undefined>(() => {
-		const items = [...(tagItems ?? []), ...(automationItem ? [automationItem] : [])];
+		const origin =
+			"origin" in session && session.origin
+				? (invocationOrigins.find((item) => item.externalSessionId === session.id) ?? null)
+				: null;
+		const initiating = origin ? sessionByVettaId(sessionsMap, origin.sessionId) : null;
+		const openInitiating: ContextMenuNode | undefined = initiating
+			? {
+					kind: "item",
+					id: "open-initiating-session",
+					label: t("chat:externalInvocation.origin.openSession"),
+					iconClassName: "icon-[solar--chat-round-line-linear]",
+					onSelect: () => {
+						void openSessionFnRef.current?.(initiating.cwd, initiating.path);
+						onClose();
+					},
+				}
+			: undefined;
+		const resumeItem: ContextMenuNode | undefined = historyResume.visible
+			? {
+					kind: "item",
+					id: "external-history-resume",
+					label: historyResume.label,
+					disabled: historyResume.disabled,
+					iconClassName: "icon-[solar--play-circle-linear]",
+					onSelect: () => {
+						historyResume.onSelect();
+						onClose();
+					},
+				}
+			: undefined;
+		const items = [
+			...(resumeItem ? [resumeItem] : []),
+			...(openInitiating ? [openInitiating] : []),
+			...(tagItems ?? []),
+			...(automationItem ? [automationItem] : []),
+		];
 		return items.length > 0 ? items : undefined;
-	}, [automationItem, tagItems]);
+	}, [
+		automationItem,
+		historyResume.disabled,
+		historyResume.label,
+		historyResume.onSelect,
+		historyResume.visible,
+		onClose,
+		invocationOrigins,
+		session,
+		sessionsMap,
+		t,
+		tagItems,
+	]);
 
 	return {
 		canDelete: allowMutations && session.access?.delete !== false,
@@ -161,4 +218,15 @@ export function useSessionContextMenuModel(
 		onRename: handleRename,
 		onTogglePin: handleTogglePin,
 	};
+}
+
+function sessionByVettaId(
+	sessions: ReadonlyMap<string, readonly SessionInfo[]>,
+	sessionId: string,
+): SessionInfo | null {
+	for (const list of sessions.values()) {
+		const found = list.find((item) => item.id === sessionId || vettaSessionIdFromDraftKey(item.path) === sessionId);
+		if (found) return found;
+	}
+	return null;
 }

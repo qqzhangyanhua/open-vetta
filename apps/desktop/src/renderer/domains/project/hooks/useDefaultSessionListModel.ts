@@ -1,4 +1,5 @@
 import { notifyTeamSessionsChanged } from "@shared/agent-teams/team-session-events";
+import { useExternalInvocationOrigins } from "@shared/hooks/useExternalInvocationOrigins";
 import type { DefaultConversationFilter } from "@shared/store/atoms";
 import {
 	automationSessionLinksAtom,
@@ -90,6 +91,7 @@ export function useDefaultSessionListModel({
 	sessions,
 }: UseDefaultSessionListModelArgs) {
 	const { t, i18n } = useTranslation("project");
+	const invocationOrigins = useExternalInvocationOrigins();
 	const setContextMenu = useSetAtom(sessionContextMenuAtom);
 	const viewCacheRef = useRef(new Map<string, DefaultSessionListItemView>());
 	const [renamingSessionPath, setRenamingSessionPath] = useAtom(renamingSessionPathAtom);
@@ -199,7 +201,14 @@ export function useDefaultSessionListModel({
 				iconClassName: identity.iconClassName,
 				trailingAvatarUrls: identity.trailingAvatarUrls,
 				titleExtra: identity.titleExtra,
-				caption: isExternal ? externalSessionCaption(session, t) : undefined,
+				caption: isExternal
+					? externalSessionCaption(
+							session,
+							t,
+							Date.now(),
+							invocationOrigins.some((origin) => origin.externalSessionId === session.id),
+						)
+					: undefined,
 				tagColors: tagFilterId === null ? sessionTagColors(tags, tagColorById, session.path) : undefined,
 				session,
 			};
@@ -247,6 +256,7 @@ export function useDefaultSessionListModel({
 		tagFilterId,
 		tags,
 		isExternal,
+		invocationOrigins,
 		t,
 	]);
 

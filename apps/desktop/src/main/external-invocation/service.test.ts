@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -73,6 +73,11 @@ function harness(options?: { failStart?: Error; limit?: number }) {
 			},
 			list() {
 				return entries;
+			},
+			forget(sessionId) {
+				for (let index = entries.length - 1; index >= 0; index -= 1) {
+					if (entries[index]?.sessionId === sessionId) entries.splice(index, 1);
+				}
 			},
 		},
 		artifactDirectory: (sessionId) => join(directory, sessionId),
@@ -199,7 +204,7 @@ describe("external invocation service", () => {
 				},
 			},
 			artifactDirectory: (sessionId) => join(h.directory, sessionId),
-			entries: { append() {}, list: () => [] },
+			entries: { append() {}, list: () => [], forget() {} },
 			clock: { now: () => Date.parse("2026-09-24T06:00:00.000Z") },
 			ids: { next: () => "later" },
 		});
@@ -463,6 +468,76 @@ describe("external invocation service", () => {
 		expect(h.procs).toHaveLength(2);
 	});
 
+	it("resumes a history record in its own directory with that session id, and queues behind a run of the same session", async () => {
+		const h = harness();
+		h.unsubscribe();
+		const seen: ExternalInvocationEvent[] = [];
+		h.service.subscribe("session-b", (event) => seen.push(event));
+		const recorded = mkdtempSync(join(tmpdir(), "vetta-history-resume-"));
+		try {
+			const first = await h.service.start({
+				sessionId: "session-a",
+				cwd: "/work/app",
+				prompt: "from history",
+				agentId: "grok",
+				historyResume: { externalSessionId: "sess-9", cwd: recorded },
+			});
+			const queued = await h.service.start({
+				sessionId: "session-b",
+				cwd: "/work/other",
+				prompt: "still that session",
+				agentId: "grok",
+				historyResume: { externalSessionId: "sess-9", cwd: recorded },
+			});
+			expect(h.started).toEqual([
+				{ file: "grok", args: ["--single", "from history", "--resume", "sess-9"], cwd: recorded },
+			]);
+			expect(seen.some((event) => event.type === "queued" && event.invocationId === queued.invocationId)).toBe(true);
+			h.procs[0]?.emitExit(0);
+			await viWait();
+			expect(h.started[1]).toEqual({
+				file: "grok",
+				args: ["--single", "still that session", "--resume", "sess-9"],
+				cwd: recorded,
+			});
+			expect(
+				h.entries.some((entry) => entry.data.invocationId === first.invocationId && entry.data.cwd === recorded),
+			).toBe(true);
+		} finally {
+			rmSync(recorded, { recursive: true, force: true });
+		}
+	});
+
+	it("rejects a history resume when the recorded directory is gone", async () => {
+		const h = harness();
+		const missing = join(mkdtempSync(join(tmpdir(), "vetta-history-missing-")), "gone");
+		await expect(
+			h.service.start({
+				sessionId: "session-1",
+				cwd: "/work/app",
+				prompt: "continue",
+				agentId: "grok",
+				historyResume: { externalSessionId: "sess-9", cwd: missing },
+			}),
+		).rejects.toThrow(/directory/i);
+		expect(h.started).toHaveLength(0);
+	});
+
+	it("rebuilds penguin origins from invocation entries, and drops them when that session is deleted", async () => {
+		const h = harness();
+		h.entries.push(
+			invocationEntry("session-2", "from-history", "sess-8", "sess-8"),
+			invocationEntry("session-1", "started-here", null, null),
+			invocationEntry("session-1", "started-here", "sess-9", null),
+			invocationEntry("session-2", "resumed-later", "sess-9", "sess-9"),
+		);
+		expect(h.service.origins()).toEqual([
+			{ externalSessionId: "sess-9", sessionId: "session-1", invocationId: "started-here" },
+		]);
+		await h.service.deleteSession("session-1");
+		expect(h.service.origins()).toEqual([]);
+	});
+
 	it("writes terminal keyboard input into the process", async () => {
 		const h = harness();
 		const started = await h.service.start({
@@ -478,6 +553,36 @@ describe("external invocation service", () => {
 
 async function viWait(): Promise<void> {
 	await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+function invocationEntry(
+	sessionId: string,
+	invocationId: string,
+	externalSessionId: string | null,
+	startedWith: string | null,
+): ExternalInvocationEntry {
+	return {
+		sessionId,
+		entryId: `${invocationId}-${externalSessionId ?? "start"}`,
+		customType: "vetta.external_invocation",
+		timestamp: "2026-09-24T06:00:00.000Z",
+		data: {
+			invocationId,
+			agentId: "grok",
+			prompt: "fix the test",
+			cwd: "/work/app",
+			status: externalSessionId && startedWith === null ? "completed" : "running",
+			exitCode: externalSessionId && startedWith === null ? 0 : null,
+			failureReason: null,
+			interruptReason: null,
+			discardedBytes: 0,
+			outputPath: `/tmp/${invocationId}.pty`,
+			startedAt: "2026-09-24T06:00:00.000Z",
+			endedAt: externalSessionId && startedWith === null ? "2026-09-24T06:01:00.000Z" : null,
+			externalSessionId: externalSessionId ?? startedWith,
+			ordinal: 1,
+		},
+	};
 }
 
 function writeGrokSummary(root: string, id: string, cwd: string, lastActiveAt: string): void {

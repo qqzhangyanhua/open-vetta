@@ -18,6 +18,8 @@ export const EXTERNAL_INVOCATION_CHANNELS = {
 	writeInput: "external-invocation:write-input",
 	stop: "external-invocation:stop",
 	readOutput: "external-invocation:read-output",
+	recordedDirectory: "external-invocation:recorded-directory",
+	origins: "external-invocation:origins",
 	attach: "external-invocation:attach",
 	detach: "external-invocation:detach",
 	watchRunning: "external-invocation:watch-running",
@@ -140,6 +142,11 @@ export function registerExternalInvocationIpc(): () => void {
 		}
 		externalInvocationService().stop(invocationId);
 	});
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.recordedDirectory, (_event, cwd: unknown) => {
+		if (typeof cwd !== "string" || cwd.length === 0) return false;
+		return externalInvocationService().recordedDirectoryExists(cwd);
+	});
+	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.origins, () => externalInvocationService().origins());
 	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.readOutput, (_event, sessionId: unknown, invocationId: unknown) => {
 		if (typeof sessionId !== "string" || sessionId.length === 0) {
 			throw new Error("external invocation: sessionId must be a non-empty string");
@@ -162,6 +169,8 @@ export function registerExternalInvocationIpc(): () => void {
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.writeInput);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.stop);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.readOutput);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.recordedDirectory);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.origins);
 	};
 }
 
@@ -173,6 +182,7 @@ function parseStart(value: unknown): {
 	referencedPaths: readonly string[];
 	externalSessionId: string | null;
 	newSession: boolean;
+	historyResume?: { externalSessionId: string; cwd: string };
 } {
 	if (typeof value !== "object" || value === null) throw new Error("external invocation: request must be an object");
 	const input = value as Record<string, unknown>;
@@ -187,15 +197,25 @@ function parseStart(value: unknown): {
 		typeof input.externalSessionId === "string" && input.externalSessionId.length > 0
 			? input.externalSessionId
 			: null;
+	const historyResume = parseHistoryResume(input.historyResume);
 	return {
 		sessionId,
 		cwd,
 		prompt,
 		agentId,
 		referencedPaths,
-		externalSessionId,
+		externalSessionId: historyResume?.externalSessionId ?? externalSessionId,
 		newSession: input.newSession === true,
+		...(historyResume ? { historyResume } : {}),
 	};
+}
+
+function parseHistoryResume(value: unknown): { externalSessionId: string; cwd: string } | undefined {
+	if (typeof value !== "object" || value === null) return undefined;
+	const input = value as Record<string, unknown>;
+	if (typeof input.externalSessionId !== "string" || input.externalSessionId.length === 0) return undefined;
+	if (typeof input.cwd !== "string" || input.cwd.length === 0) return undefined;
+	return { externalSessionId: input.externalSessionId, cwd: input.cwd };
 }
 
 function requireString(value: unknown, field: string): string {

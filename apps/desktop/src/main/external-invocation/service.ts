@@ -1,8 +1,9 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { EXTERNAL_INVOCATION_CUSTOM_TYPE } from "@vetta/runtime-core/conversation";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { findExternalAgentAdapter } from "./grok-adapter.js";
+import { type ExternalInvocationOrigin, rebuildExternalInvocationOrigins } from "./origins.js";
 import { EXTERNAL_INVOCATION_OUTPUT_LIMIT_BYTES, ExternalInvocationOutputCapture } from "./output-capture.js";
 
 export interface ExternalInvocationProcess {
@@ -44,6 +45,7 @@ export interface ExternalInvocationEntryData {
 export interface ExternalInvocationEntryStore {
 	append(entry: ExternalInvocationEntry): Promise<void> | void;
 	list(): readonly ExternalInvocationEntry[];
+	forget(sessionId: string): void;
 }
 
 export type ExternalInvocationEvent =
@@ -114,15 +116,18 @@ export interface ExternalInvocationService {
 		referencedPaths?: readonly string[];
 		externalSessionId?: string | null;
 		newSession?: boolean;
+		historyResume?: { readonly externalSessionId: string; readonly cwd: string };
 	}): Promise<{ invocationId: string }>;
 	subscribe(sessionId: string, listener: (event: ExternalInvocationEvent) => void): () => void;
 	subscribeRunning(listener: (sessionIds: readonly string[]) => void): () => void;
 	writeInput(invocationId: string, data: string): void;
 	stop(invocationId: string): void;
 	deleteSession(sessionId: string): Promise<void>;
+	origins(): readonly ExternalInvocationOrigin[];
 	shutdown(): void;
 	recover(): Promise<void>;
 	readOutput(sessionId: string, invocationId: string): { head: string; tail: string; discardedBytes: number } | null;
+	recordedDirectoryExists(cwd: string): boolean;
 }
 
 const INTERRUPT_MESSAGE = {
@@ -556,8 +561,12 @@ export function createExternalInvocationService(deps: {
 				proc.kill();
 				processes.delete(invocationId);
 			}
+			deps.entries.forget(sessionId);
 			rmSync(deps.artifactDirectory(sessionId), { recursive: true, force: true });
 			notifyRunning();
+		},
+		origins() {
+			return rebuildExternalInvocationOrigins(deps.entries.list());
 		},
 		shutdown() {
 			for (const [invocationId, proc] of processes) {
@@ -609,9 +618,17 @@ export function createExternalInvocationService(deps: {
 				discardedBytes,
 			};
 		},
+		recordedDirectoryExists(cwd) {
+			return isDirectory(cwd);
+		},
 		async start(request) {
-			if (isSshProjectUri(request.cwd)) {
+			const history = request.historyResume;
+			const cwd = history?.cwd ?? request.cwd;
+			if (isSshProjectUri(cwd) || isSshProjectUri(request.cwd)) {
 				throw new Error("Remote projects do not support external invocations");
+			}
+			if (history && !isDirectory(history.cwd)) {
+				throw new Error("External session directory does not exist");
 			}
 			const adapter = findExternalAgentAdapter(request.agentId);
 			if (!adapter) throw new Error(`Unknown external agent: ${request.agentId}`);
@@ -622,7 +639,9 @@ export function createExternalInvocationService(deps: {
 			const outputPath = join(directory, `${invocationId}.pty`);
 			const resumeId = request.newSession
 				? null
-				: (request.externalSessionId ?? latestExternalSessionId(request.sessionId, adapter.id));
+				: (history?.externalSessionId ??
+					request.externalSessionId ??
+					latestExternalSessionId(request.sessionId, adapter.id));
 			const head = !request.newSession && !resumeId ? pendingHead(request.sessionId, adapter.id) : null;
 			const lock = resumeId
 				? lockKey(adapter.id, resumeId)
@@ -637,7 +656,7 @@ export function createExternalInvocationService(deps: {
 				invocationId,
 				agentId: adapter.id,
 				prompt: request.prompt,
-				cwd: request.cwd,
+				cwd,
 				outputPath,
 				startedAt,
 				externalSessionId: resumeId,
@@ -680,4 +699,12 @@ export function createExternalInvocationService(deps: {
 			return { invocationId };
 		},
 	};
+}
+
+function isDirectory(cwd: string): boolean {
+	try {
+		return statSync(cwd).isDirectory();
+	} catch {
+		return false;
+	}
 }
