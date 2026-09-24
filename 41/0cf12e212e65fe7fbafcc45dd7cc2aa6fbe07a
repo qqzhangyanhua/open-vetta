@@ -1,0 +1,72 @@
+scripts/quality/lib.mjs
+  s_47df93e3427c21::t_6def414e5f306b 6,479-500
+  s_47df93e3427c21::t_21d6c195a54feb 501-502
+scripts/quality/check-fast.mjs
+  s_47df93e3427c21::t_6727d061e1f0d7 1-30
+.github/release-notes/v0.5.59.md
+  s_47df93e3427c21::t_2e786b907c7f9e 232
+docs/架构设计与快速开发.md
+  s_47df93e3427c21::t_1d99dae067a742 256,270
+QUICKSTART.zh-CN.md
+  s_47df93e3427c21::t_725d82c4253d27 55
+docs/dev/quality-gates.md
+  s_47df93e3427c21::t_4b8468c9034b32 330
+  s_47df93e3427c21::t_9bf24aa5aa0920 12
+  s_47df93e3427c21::t_59bcdc524018d2 10-11,13-14,33-35,206,208-212,326-329,331-332,403-407,438-441
+scripts/quality/check-guards.mjs
+  s_47df93e3427c21::t_d8b80e123806df 5,8-13,15,17-27,30
+scripts/quality/quality-gates.test.mjs
+  s_47df93e3427c21::t_944cb2303fb826 7,2208-2210
+  s_47df93e3427c21::t_1c61cb8554b4d6 2102
+  s_47df93e3427c21::t_032db00edfa6a3 1,8,10-18,2060-2071,2074-2101,2104-2131,2133-2157,2159-2160,2162-2194,2212-2227
+  s_47df93e3427c21::t_8119b531934323 2103
+  s_47df93e3427c21::t_317b55f6a7be0b 2195-2196,2198-2207,2211
+  s_47df93e3427c21::t_df98f2abdf0696 2158,2161
+  s_47df93e3427c21::t_6d2fdce4cc9d0c 6,2197
+  s_47df93e3427c21::t_4d6515f444609f 19,2132
+  s_47df93e3427c21::t_fb8f0a2dfc7668 2072-2073
+scripts/quality/arch-engine/boundary-scan.mjs
+  s_47df93e3427c21::t_cec5487dce64ac 1-49
+AGENTS.md
+  s_47df93e3427c21::t_13e8320c8d4439 212,215
+README.zh-CN.md
+  s_47df93e3427c21::t_837ef05e8f045e 137
+package.json
+  s_47df93e3427c21::t_3413215fd990cd 96-98
+scripts/quality/check-private-keys.mjs
+  s_47df93e3427c21::t_b6a9db5033b861 60-64
+  s_47df93e3427c21::t_1a119c463a3b34 78,104
+scripts/quality/arch-engine/boundary-scan-worker.mjs
+  s_47df93e3427c21::t_cc4cac36a6b38b 1-6,8-39
+  s_47df93e3427c21::t_8119b531934323 7
+README.md
+  s_47df93e3427c21::t_eb30aab94454d7 166
+scripts/quality/check-architecture.mjs
+  s_47df93e3427c21::t_d76d856b276230 1-8,10-11,16-17,20-26
+  s_47df93e3427c21::t_664497a9f268c0 9,12-15,18-19
+scripts/quality/check-quick.mjs
+  s_47df93e3427c21::t_89d0ec2569384f 3-5,15-28,67-76
+  s_47df93e3427c21::t_ab7c1054b47231 66,121
+scripts/quality/check-package-boundaries.mjs
+  s_47df93e3427c21::t_8119b531934323 18,20
+  s_47df93e3427c21::t_8275fbef909272 8-10,15,17,53-56,62-69,71-72,75,79-108,110-155,157-178,192,194,203-205
+  s_47df93e3427c21::t_ffbb9859143941 57-59
+docs/新手入门与二开讲解.md
+  s_47df93e3427c21::t_7df273865b4dce 351
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "410cf12e212e65fe7fbafcc45dd7cc2aa6fbe07a",
+  "prompts": {},
+  "sessions": {
+    "s_47df93e3427c21": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d213-096c-7c93-8cd1-74658eea636a",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
