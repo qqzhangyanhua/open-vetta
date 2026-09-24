@@ -1,0 +1,57 @@
+apps/desktop/src/renderer/shared/components/external-agent-mark/ExternalAgentMark.tsx
+  s_79d68161157f59::t_44b6de8ec26c1e 9
+  s_79d68161157f59::t_3ceb2018d7863b 6-8
+  s_79d68161157f59::t_ae8432aba7f971 10-12
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelHost.tsx
+  s_79d68161157f59::t_5fe977a8f1fda0 2,119
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationView.tsx
+  s_79d68161157f59::t_109a29d91084e8 1
+  s_79d68161157f59::t_3573f63e0ef6dd 3-9,77-78,80,84-117
+packages/theme-ui/src/shared/provider-icon/index.tsx
+  s_79d68161157f59::t_f6a6720455d021 2,5,21
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelAddMenu.test.tsx
+  s_79d68161157f59::t_4a4286a1478206 50-52,88-89
+.github/release-notes/v0.5.59.md
+  s_79d68161157f59::t_b4021279ce51df 80
+  s_79d68161157f59::t_43fc795a10e91e 79
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/external-invocation-origin.test.tsx
+  s_79d68161157f59::t_e79d92688eb2ce 200
+  s_79d68161157f59::t_9d53f266a8ff38 42
+packages/theme-ui/src/shared/provider-icon/brand-mark.tsx
+  s_79d68161157f59::t_bef34e700556ce 1-35
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useExternalAgentMenuItems.ts
+  s_79d68161157f59::t_15fba46cef6318 30,64
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelAddMenu.tsx
+  s_79d68161157f59::t_fc5fce59ecef6c 1,81
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationPage.test.tsx
+  s_79d68161157f59::t_cc6947f62a5fc1 218-219,227-229,258,265-266,791-793
+  s_79d68161157f59::t_4400a032291df3 232-254
+  s_79d68161157f59::t_43cd71197b7a23 143,147,398
+  s_79d68161157f59::t_277f818e429f79 18-20
+  s_79d68161157f59::t_b71c1f0d83d813 30-35,37-38,74,140-141,145,283,323,362,396,442,465,505,610,667,740,800
+  s_79d68161157f59::t_825d7cde858e99 36,206
+  s_79d68161157f59::t_49c9a608d20ff7 177,188,205,211
+  s_79d68161157f59::t_f94cb8bd336b44 230-231
+packages/theme-ui/src/shared/index.ts
+  s_79d68161157f59::t_f4a8179e236c1c 29
+apps/desktop/src/renderer/shared/components/external-agent-mark/marks/droid.svg
+  s_79d68161157f59::t_a734f2cfb993e7 1
+packages/theme-ui/src/shared/provider-icon/agent-brand-icons.tsx
+  s_79d68161157f59::t_cb30594db4df52 1-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "f37f7b6dc16057c5ae856869cb81551de8722b99",
+  "prompts": {},
+  "sessions": {
+    "s_79d68161157f59": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d417-d356-7750-9397-8c7e07350588",
+        "model": "grok-4.7"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
