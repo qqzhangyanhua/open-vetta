@@ -12,8 +12,9 @@ import type {
 } from "./terminal-backend.js";
 
 /**
- * 指定命令启动失败：可执行文件不存在或不可执行。
+ * 指定命令启动失败：可执行文件找不到。
  * 和「进程已经起来、随后以非 0 退出」分开——后者走 {@link TerminalBackend.onExit}。
+ * 文件在、但没有执行权限，是另一种错误，不用这个类型。
  */
 export class LocalPtyCommandError extends Error {
 	readonly code = "ENOENT" as const;
@@ -167,12 +168,15 @@ export function hangUpPty(target: HangUpTarget): void {
 	}
 }
 
-function isExecutableFile(candidate: string): boolean {
+function isRegularFile(candidate: string): boolean {
 	try {
-		if (!statSync(candidate).isFile()) return false;
+		return statSync(candidate).isFile();
 	} catch {
 		return false;
 	}
+}
+
+function canExecute(candidate: string): boolean {
 	if (process.platform === "win32") return true;
 	try {
 		accessSync(candidate, constants.X_OK);
@@ -180,6 +184,10 @@ function isExecutableFile(candidate: string): boolean {
 	} catch {
 		return false;
 	}
+}
+
+function isExecutableFile(candidate: string): boolean {
+	return isRegularFile(candidate) && canExecute(candidate);
 }
 
 function commandCandidates(file: string, dir: string, env: Record<string, string>): readonly string[] {
@@ -193,7 +201,8 @@ function commandCandidates(file: string, dir: string, env: Record<string, string
 /** 路径形式必须本身可执行；纯文件名只在本次环境的 PATH 里找，找不到就拒绝启动。 */
 function resolveCommandFile(file: string, env: Record<string, string>): string {
 	if (file.includes("/") || file.includes("\\")) {
-		if (!isExecutableFile(file)) throw new LocalPtyCommandError(file);
+		if (!isRegularFile(file)) throw new LocalPtyCommandError(file);
+		if (!canExecute(file)) throw new Error(`Not executable: ${file}`);
 		return file;
 	}
 	const pathValue = env.PATH ?? env.Path ?? "";
