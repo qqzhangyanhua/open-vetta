@@ -1,0 +1,37 @@
+apps/desktop/src/main/external-invocation/grok-adapter.test.ts
+  s_5266b0e02d7c44::t_9acbae6c3bc647 18,20-23,27,32,38,45-65,67,71-72,74
+CONTEXT.md
+  s_4e8e14797313e0::t_195435c7dc82b3 755-756,762-768
+  s_4e8e14797313e0::t_805b7e2b626f95 753-754
+  s_4e8e14797313e0::t_9bab07a48c7431 745-751,761,769
+  s_4e8e14797313e0::t_6d875a758d664a 752
+  s_4e8e14797313e0::t_f73f79088166e5 757-760
+docs/adr/0128-external-agent-invocations.md
+  s_4e8e14797313e0::t_7c7b021a4d8b87 1-4,6-21,23-46
+  s_4e8e14797313e0::t_e766f7713d7b73 5
+  s_4e8e14797313e0::t_4e019736c3bb92 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "75613ea36cf2bf3a8f50d66ebdcee2568074c395",
+  "prompts": {},
+  "sessions": {
+    "s_4e8e14797313e0": {
+      "agent_id": {
+        "tool": "droid",
+        "id": "595fe0e7-da6a-433f-8f4e-bc01345ce9d9",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_5266b0e02d7c44": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d37c-9772-7d61-af2b-ff357e7f6e6c",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
