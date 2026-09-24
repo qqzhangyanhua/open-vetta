@@ -15,8 +15,10 @@ const OPTIMISTIC: TerminalCapabilities = { localPty: true };
 
 async function loadCapabilities(): Promise<TerminalCapabilities> {
 	if (cached) return cached;
+	const api = window.vetta?.terminal;
+	if (!api) return OPTIMISTIC;
 	if (!inFlight) {
-		inFlight = window.vetta.terminal
+		inFlight = api
 			.capabilities()
 			.then((result) => {
 				cached = result;

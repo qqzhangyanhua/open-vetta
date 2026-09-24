@@ -5,6 +5,15 @@ const BottomPanelInstanceContext = createContext<BottomPanelHandle | null>(null)
 
 export const BottomPanelInstanceProvider = BottomPanelInstanceContext.Provider;
 
+const BottomPanelFillContext = createContext(false);
+
+export const BottomPanelFillProvider = BottomPanelFillContext.Provider;
+
+/** 外部智能体铺满主区时为 true：内容组件据此去掉状态行和内边距。 */
+export function useBottomPanelFill(): boolean {
+	return useContext(BottomPanelFillContext);
+}
+
 /**
  * 面板内容组件取自己的实例身份与控制面。
  * 在面板之外调用是接线错误，所以直接抛而不是返回 null——否则错误会以「改名没生效」

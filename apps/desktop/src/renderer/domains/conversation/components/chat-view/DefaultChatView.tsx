@@ -11,6 +11,11 @@ import { ChatExportHost } from "../ChatExportHost";
 
 export interface DefaultChatViewProps {
 	readonly children: ReactNode;
+	/**
+	 * conversation：消息流 + 输入框 + 底部面板。
+	 * external-terminal：主区铺满外部调用终端，不挂底部输入栏。
+	 */
+	readonly surface?: "conversation" | "external-terminal";
 	/** 消息流上方的常驻条（Team 的成员胶囊条就住在这里）。 */
 	readonly subHeader?: ReactNode;
 	readonly messages: readonly ChatConversationItem[];
@@ -76,6 +81,7 @@ export function DefaultChatView({
 	rootClassName,
 	exportState,
 	activity,
+	surface = "conversation",
 }: DefaultChatViewProps): JSX.Element {
 	return (
 		<PerfSendProfiler id="ChatView(total)">
@@ -91,14 +97,18 @@ export function DefaultChatView({
 					 */}
 					<div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-clip [overflow-clip-margin:16px]">
 						{subHeader}
-						{children}
+						{surface === "conversation" ? children : null}
 						{/*
-						 * 底部面板住在消息列内部，宽度跟着消息列走、不伸到活动面板下方：
-						 * 活动面板是与消息流并列的一列，横穿它的底边会把两列看成一块。
+						 * 底部面板始终挂着：铺满主区只改 fill，不换成另一份实例。
+						 * 切走会卸掉 xterm，readOutput 回来时 _renderService 已空，报 dimensions。
+						 * 宽度跟着消息列走，不伸到活动面板下方。
 						 */}
-						<BottomPanelHost />
+						<BottomPanelHost fill={surface === "external-terminal"} />
+						{surface === "external-terminal" ? children : null}
 					</div>
-					<ActivityColumn workspace={workspace} activity={activity} />
+					{surface === "external-terminal" ? null : (
+						<ActivityColumn workspace={workspace} activity={activity} />
+					)}
 				</div>
 			</div>
 		</PerfSendProfiler>

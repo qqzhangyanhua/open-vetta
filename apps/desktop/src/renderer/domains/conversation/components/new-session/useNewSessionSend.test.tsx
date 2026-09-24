@@ -2,7 +2,8 @@
 
 import { act, renderHook } from "@testing-library/react";
 import { createConversationUserMessage } from "@shared/conversation";
-import type { OpenSessionOptions, SessionExecutionMode, StagedSendInput } from "@shared/store/atoms";
+import { activeSessionAtom, type OpenSessionOptions, type SessionExecutionMode, type StagedSendInput } from "@shared/store/atoms";
+import { getDefaultStore } from "jotai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useNewSessionSend } from "./useNewSessionSend";
 
@@ -278,5 +279,45 @@ describe("useNewSessionSend", () => {
 			await firstSend;
 		});
 		expect(openSession).toHaveBeenCalledOnce();
+	});
+
+	it("opens a session without sending a penguin prompt so the first message can go to Grok", async () => {
+		const store = getDefaultStore();
+		const openSession = vi.fn(
+			async (_cwd: string, _path?: string, _mode?: SessionExecutionMode, options?: OpenSessionOptions) => {
+				store.set(activeSessionAtom, {
+					cwd: "C:/workspace",
+					sessionPath: "/sessions/new.jsonl",
+					runtimeId: "runtime-1",
+				});
+				options?.onPromptReady?.();
+			},
+		);
+		const sendMessage = vi.fn();
+		const { result } = renderHook(() =>
+			useNewSessionSend({
+				cwd: "C:/workspace",
+				executionMode: "sandbox",
+				openSession,
+				sendMessage,
+			}),
+		);
+
+		let created: { sessionId: string; cwd: string } | null = null;
+		await act(async () => {
+			created = await result.current.ensureSession();
+		});
+
+		expect(created).toEqual({ sessionId: "runtime-1", cwd: "C:/workspace" });
+		expect(sendMessage).not.toHaveBeenCalled();
+		expect(stagedSend.stage).not.toHaveBeenCalled();
+		expect(openSession).toHaveBeenCalledWith(
+			"C:/workspace",
+			undefined,
+			"sandbox",
+			expect.objectContaining({ navigateBeforeCreate: true }),
+		);
+		expect(openSession.mock.calls[0]?.[3]).not.toHaveProperty("preserveMessagesBeforeCreate");
+		store.set(activeSessionAtom, null);
 	});
 });

@@ -10,6 +10,7 @@ export interface ExternalInvocationProcess {
 	onData(listener: (chunk: string) => void): () => void;
 	onExit(listener: (event: { exitCode: number | null }) => void): () => void;
 	write(data: string): void;
+	resize(cols: number, rows: number): void;
 	kill(): void;
 }
 
@@ -121,6 +122,7 @@ export interface ExternalInvocationService {
 	subscribe(sessionId: string, listener: (event: ExternalInvocationEvent) => void): () => void;
 	subscribeRunning(listener: (sessionIds: readonly string[]) => void): () => void;
 	writeInput(invocationId: string, data: string): void;
+	resize(invocationId: string, cols: number, rows: number): void;
 	stop(invocationId: string): void;
 	deleteSession(sessionId: string): Promise<void>;
 	origins(): readonly ExternalInvocationOrigin[];
@@ -416,13 +418,7 @@ export function createExternalInvocationService(deps: {
 				endedAt,
 			};
 			open.set(invocationId, { sessionId: current.sessionId, data: finished });
-			void append({
-				sessionId: current.sessionId,
-				entryId: deps.ids.next(),
-				customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
-				timestamp: endedAt,
-				data: finished,
-			}).then(() => {
+			const publishExit = (): void => {
 				if (failed) {
 					emit({
 						type: "failed",
@@ -444,7 +440,14 @@ export function createExternalInvocationService(deps: {
 					});
 				}
 				release(invocationId, externalSessionId);
-			});
+			};
+			void append({
+				sessionId: current.sessionId,
+				entryId: deps.ids.next(),
+				customType: EXTERNAL_INVOCATION_CUSTOM_TYPE,
+				timestamp: endedAt,
+				data: finished,
+			}).then(publishExit, publishExit);
 		});
 	}
 
@@ -482,6 +485,10 @@ export function createExternalInvocationService(deps: {
 		},
 		writeInput(invocationId, data) {
 			processes.get(invocationId)?.write(data);
+		},
+		resize(invocationId, cols, rows) {
+			if (cols < 2 || rows < 2) return;
+			processes.get(invocationId)?.resize(cols, rows);
 		},
 		stop(invocationId) {
 			const current = open.get(invocationId);
@@ -528,6 +535,7 @@ export function createExternalInvocationService(deps: {
 			notifyRunning();
 			const endedAt = timestamp();
 			const message = INTERRUPT_MESSAGE.user;
+			const externalSessionId = locatedExternalSessionId(current.data);
 			void append({
 				sessionId: current.sessionId,
 				entryId: deps.ids.next(),
@@ -535,6 +543,7 @@ export function createExternalInvocationService(deps: {
 				timestamp: endedAt,
 				data: {
 					...current.data,
+					externalSessionId,
 					status: "interrupted",
 					exitCode: null,
 					failureReason: message,
@@ -551,19 +560,39 @@ export function createExternalInvocationService(deps: {
 				reason: "user",
 				message,
 			});
-			const released = lockOf.get(invocationId);
-			if (released) pump(released);
+			release(invocationId, externalSessionId);
 		},
 		async deleteSession(sessionId) {
-			for (const [invocationId, proc] of processes) {
-				if (open.get(invocationId)?.sessionId !== sessionId) continue;
-				settled.add(invocationId);
-				proc.kill();
-				processes.delete(invocationId);
+			const locks = new Set<string>();
+			const doomed: string[] = [];
+			for (const [id, live] of open) {
+				if (live.sessionId !== sessionId) continue;
+				doomed.push(id);
+				const lock = lockOf.get(id);
+				if (lock) locks.add(lock);
+			}
+			for (const id of doomed) {
+				settled.add(id);
+				const proc = processes.get(id);
+				if (proc) {
+					proc.kill();
+					processes.delete(id);
+				}
+				open.delete(id);
+				lockOf.delete(id);
+				referencedPathsOf.delete(id);
+				savedOutput.delete(id);
+				statusEvents.delete(id);
+			}
+			for (const [lock, waiting] of queues) {
+				const next = waiting.filter((id) => !doomed.includes(id));
+				if (next.length > 0) queues.set(lock, next);
+				else queues.delete(lock);
 			}
 			deps.entries.forget(sessionId);
 			rmSync(deps.artifactDirectory(sessionId), { recursive: true, force: true });
 			notifyRunning();
+			for (const lock of locks) pump(lock);
 		},
 		origins() {
 			return rebuildExternalInvocationOrigins(deps.entries.list());
@@ -582,6 +611,7 @@ export function createExternalInvocationService(deps: {
 			for (const entry of latest.values()) {
 				if (entry.data.status !== "running" && entry.data.status !== "queued") continue;
 				const endedAt = timestamp();
+				const externalSessionId = locatedExternalSessionId(entry.data);
 				await append({
 					sessionId: entry.sessionId,
 					entryId: deps.ids.next(),
@@ -589,6 +619,7 @@ export function createExternalInvocationService(deps: {
 					timestamp: endedAt,
 					data: {
 						...entry.data,
+						externalSessionId,
 						status: "interrupted",
 						interruptReason: "app-exit",
 						failureReason: INTERRUPT_MESSAGE["app-exit"],
@@ -632,6 +663,15 @@ export function createExternalInvocationService(deps: {
 			}
 			const adapter = findExternalAgentAdapter(request.agentId);
 			if (!adapter) throw new Error(`Unknown external agent: ${request.agentId}`);
+			if (adapter.processForm === "interactive" && !request.newSession) {
+				for (const [id, live] of open) {
+					if (settled.has(id)) continue;
+					if (live.sessionId !== request.sessionId || live.data.agentId !== adapter.id) continue;
+					if (live.data.status === "running" || live.data.status === "queued") {
+						return { invocationId: id };
+					}
+				}
+			}
 			const invocationId = deps.ids.next();
 			const startedAt = timestamp();
 			const directory = deps.artifactDirectory(request.sessionId);

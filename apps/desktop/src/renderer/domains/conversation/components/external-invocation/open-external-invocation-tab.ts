@@ -14,6 +14,8 @@ export const openExternalInvocationTabAtom = atom(
 			readonly sessionId: string;
 			readonly agentLabel?: string;
 			readonly externalSessionId?: string | null;
+			readonly agentId?: string;
+			readonly createIfMissing?: boolean;
 		},
 	) => {
 		set(dispatchBottomPanelAtom, {
@@ -27,7 +29,9 @@ export const openExternalInvocationTabAtom = atom(
 				projectLabel: pathBasename(input.cwd),
 				sessionId: input.sessionId,
 				externalSessionId: input.externalSessionId,
+				agentId: input.agentId,
 			},
+			createIfMissing: input.createIfMissing,
 		});
 	},
 );

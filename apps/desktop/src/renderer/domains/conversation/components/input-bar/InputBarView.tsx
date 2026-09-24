@@ -9,7 +9,7 @@ import {
 import { BottomPanelPillsView } from "@vetta-org/theme-ui/bottom-panel";
 import { useDelayedUnmount } from "@vetta-org/theme-ui/shared";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ActionButtonBar } from "../ActionButtonBar";
 import { AtPanel } from "../AtPanel";
@@ -62,6 +62,11 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 	const renderCapsules = useDelayedUnmount(model.hasCapsules, 220);
 	const [externalRecipientId, setExternalRecipientId] = useState("penguin");
 	const sendingExternally = externalRecipientId !== "penguin";
+	const [hideComposer, setHideComposer] = useState(false);
+	const externalSendRef = useRef<(() => void) | null>(null);
+	const bindExternalSend = useCallback((send: (() => void) | null) => {
+		externalSendRef.current = send;
+	}, []);
 
 	return (
 		<div
@@ -187,6 +192,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 									onRemoveImage={model.actions.removeImage}
 								/>
 
+								{hideComposer ? null : (
 								<div
 									className={["px-4 pb-1 pt-3", classNames?.editorWrap]
 										.filter(Boolean)
@@ -210,7 +216,13 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 												onValueChange={model.editor.onValueChange}
 												persistenceId={model.editor.persistenceId}
 												onContextMenu={model.actions.handleContextMenu}
-												onEnter={model.actions.handleEnter}
+												onEnter={(event) => {
+													if (sendingExternally) {
+														externalSendRef.current?.();
+														return true;
+													}
+													return model.actions.handleEnter(event);
+												}}
 												onFocusChange={model.actions.setFocused}
 												onTriggerChange={commands?.onTriggerChange}
 											/>
@@ -222,6 +234,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 										/>
 									</div>
 								</div>
+								)}
 
 								<PerfSendProfiler id="ib:Toolbar">
 									<MessageInput.Toolbar className={classNames?.toolbar}>
@@ -267,6 +280,9 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 									onRemoveImage={model.externalInvocation.onRemoveImage}
 									referencedPaths={model.externalInvocation.referencedPaths}
 									remote={model.externalInvocation.remote}
+									ensureSession={model.externalInvocation.ensureSession}
+									onBindSend={bindExternalSend}
+									onHideComposer={setHideComposer}
 									onRecipientChange={(recipientId) => {
 										setExternalRecipientId(recipientId);
 										model.externalInvocation?.onRecipientChange(recipientId);

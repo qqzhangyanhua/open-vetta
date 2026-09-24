@@ -3,9 +3,14 @@ import { pathBasename, toVettaFileUrl } from "@shared/lib/utils";
 import type { InputBarContextMenuViewProps } from "@vetta-org/theme-ui/chat";
 import { inputValueAtom, mentionedFilesAtom } from "@shared/store/atoms";
 import { activeInputDraftKeyAtom } from "@shared/store/session-input-draft";
+import {
+	externalRecipientFor,
+	externalRecipientVersion,
+	subscribeExternalRecipient,
+} from "@shared/store/external-recipient";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { useAtomValue, useSetAtom } from "jotai";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { externalAgentLabel } from "../external-invocation/external-agent-label";
 import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
 import { useTranslation } from "react-i18next";
@@ -39,7 +44,12 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const inputValue = useAtomValue(inputValueAtom);
 	const mentionedFiles = useAtomValue(mentionedFilesAtom);
 	const draftKey = useAtomValue(activeInputDraftKeyAtom);
-	const [externalRecipientId, setExternalRecipientId] = useState("penguin");
+	const recipientVersion = useSyncExternalStore(subscribeExternalRecipient, externalRecipientVersion, () => 0);
+	const storedRecipient = recipientVersion >= 0 ? externalRecipientFor(draftKey) : "penguin";
+	const [externalRecipientId, setExternalRecipientId] = useState(storedRecipient);
+	useEffect(() => {
+		setExternalRecipientId(storedRecipient);
+	}, [storedRecipient]);
 	useEffect(() => {
 		const blocked = externalRecipientId !== "penguin";
 		setExternalImagesBlocked(blocked);
@@ -47,7 +57,6 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	}, [externalRecipientId]);
 	const placeExternalInvocation = useSetAtom(openExternalInvocationTabAtom);
 	const invocationStatus = useRef<Record<string, "running" | "finished">>({});
-	const tabByExternalSession = useRef<Record<string, string>>({});
 	const runtimeId = session.activeSession?.runtimeId;
 	const interactions = useInputBarInteractionSource(runtimeId);
 	const firstSuggestion = useInputBarSuggestionSource(runtimeId);
@@ -61,7 +70,8 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const canSend =
 		session.hasSession &&
 		!session.isStreaming &&
-		(!session.isBlank || Boolean(draft.appshotAttachment));
+		(!session.isBlank || Boolean(draft.appshotAttachment)) &&
+		externalRecipientId === "penguin";
 	const dropZone = useSessionDropZoneModel(session.effectiveCwd || undefined);
 	const trigger = useInputBarTriggerModel({
 		activeSession: session.activeSession,
@@ -126,7 +136,11 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		if (!session.hasSession) return { placeholderTexts: [t("inputBar.placeholder.noSession")], placeholderRotating: false };
 		if (externalRecipientId !== "penguin") {
 			const agent = externalAgentLabel(externalRecipientId, t) || externalRecipientId;
-			return { placeholderTexts: [t("externalInvocation.placeholder", { agent })], placeholderRotating: false };
+			const key =
+				externalRecipientId === "grok"
+					? "externalInvocation.interactivePlaceholder"
+					: "externalInvocation.placeholder";
+			return { placeholderTexts: [t(key, { agent })], placeholderRotating: false };
 		}
 		if (session.isStreaming) return { placeholderTexts: [t("inputBar.placeholder.thinking")], placeholderRotating: false };
 		if (session.placeholderVisible && firstSuggestion) return { placeholderTexts: [t("inputBar.placeholder.suggestion", { suggestion: firstSuggestion })], placeholderRotating: false };
@@ -200,24 +214,22 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 			onRemoveImage: attachments.removeImage,
 			referencedPaths: mentionedFiles.map((file) => file.path),
 			remote: isSshProjectUri(session.effectiveCwd),
+			ensureSession: props.onEnsureSession,
 			onInvocationEvent: (event) => {
 				const active = session.activeSession;
 				if (!active) return;
 				if (event.type === "running" || event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
 					const status = event.type === "running" ? "running" : "finished";
-					const tabId =
-						(event.externalSessionId ? tabByExternalSession.current[event.externalSessionId] : undefined) ??
-						event.invocationId;
-					if (event.externalSessionId) tabByExternalSession.current[event.externalSessionId] = tabId;
 					invocationStatus.current[event.invocationId] = status;
-					invocationStatus.current[tabId] = status;
 					placeExternalInvocation({
-						invocationId: tabId,
+						invocationId: event.invocationId,
 						status,
 						cwd: session.effectiveCwd,
 						sessionId: active.runtimeId,
 						agentLabel: externalAgentLabel(event.agentId ?? externalRecipientId, t) || externalRecipientId,
 						externalSessionId: event.externalSessionId,
+						agentId: event.agentId,
+						createIfMissing: event.type === "running",
 					});
 				}
 			},

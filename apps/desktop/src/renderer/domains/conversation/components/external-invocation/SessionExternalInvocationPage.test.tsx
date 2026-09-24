@@ -61,7 +61,7 @@ describe("session page external invocation", () => {
 		render(<Harness client={client} />);
 		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
 		await user.selectOptions(screen.getByLabelText("发给"), "grok");
-		expect(screen.getByText("这条消息会交给 Grok 在终端里执行，输出保留在本会话")).toBeTruthy();
+		expect(screen.getByText("第一条交给 Grok 打开它的终端，之后直接在终端里接着聊")).toBeTruthy();
 		expect(screen.getByText("由 Grok 自己的权限设置决定，需要确认时会在终端里询问")).toBeTruthy();
 		expect(screen.getByRole("button", { name: "发给 Grok" })).toBeTruthy();
 		expect(screen.queryByText("模型")).toBeNull();
@@ -81,11 +81,16 @@ describe("session page external invocation", () => {
 			listener?.({ type: "running", invocationId: "inv-1", prompt: "fix the test", agentId: "grok" });
 		});
 		expect(screen.getByText("运行中")).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "发给 Grok" })).toBeNull();
+		expect(screen.getByText("在终端里继续对话")).toBeTruthy();
+		expect(screen.queryByLabelText("消息")).toBeNull();
 		await act(async () => {
 			listener?.({ type: "completed", invocationId: "inv-1", exitCode: 0 });
 		});
 		await waitFor(() => expect(screen.getByText("已完成")).toBeTruthy());
 		expect(screen.getByText("退出码 0")).toBeTruthy();
+		expect(screen.getByRole("button", { name: "发给 Grok" })).toBeTruthy();
+		expect(screen.getByLabelText("消息")).toBeTruthy();
 	});
 
 	it("keeps Grok for the same session and starts a new session on penguin", async () => {
@@ -220,6 +225,223 @@ describe("session page external invocation", () => {
 		render(<Harness client={client} />);
 		await waitFor(() => expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual(["penguin"]));
 	});
+
+	it("hides 开新会话 until a Grok session exists to continue", async () => {
+		const user = userEvent.setup();
+		let listener: ((event: ExternalInvocationClientEvent) => void) | undefined;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: vi.fn(async () => ({ invocationId: "inv-1" })),
+			subscribe: (_sessionId, next) => {
+				listener = next;
+				return () => {
+					listener = undefined;
+				};
+			},
+		};
+		render(<Harness client={client} />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		expect(screen.queryByRole("button", { name: "开新会话" })).toBeNull();
+		await user.type(screen.getByLabelText("消息"), "fix the test");
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		await act(async () => {
+			listener?.({
+				type: "running",
+				invocationId: "inv-1",
+				prompt: "fix the test",
+				agentId: "grok",
+				externalSessionId: "sess-9",
+			});
+		});
+		expect(screen.getByRole("button", { name: "开新会话" })).toBeTruthy();
+	});
+
+	it("creates a Vetta session then sends to Grok from the new session page", async () => {
+		const user = userEvent.setup();
+		const start = vi.fn(async () => ({ invocationId: "inv-1" }));
+		const ensureSession = vi.fn(async () => ({ sessionId: "session-new", cwd: "/work/app" }));
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start,
+			subscribe: () => () => undefined,
+		};
+		function NewSessionHarness(): JSX.Element {
+			const [prompt, setPrompt] = useState("");
+			return (
+				<SessionExternalInvocationPage
+					session={null}
+					client={client}
+					prompt={prompt}
+					onPromptChange={setPrompt}
+					showPrompt
+					penguinTools={null}
+					ensureSession={ensureSession}
+				/>
+			);
+		}
+		render(<NewSessionHarness />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		expect(screen.getByText("由 Grok 自己的权限设置决定，需要确认时会在终端里询问")).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "开新会话" })).toBeNull();
+		await user.type(screen.getByLabelText("消息"), "fix from new session");
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		await waitFor(() => expect(ensureSession).toHaveBeenCalledOnce());
+		expect(start).toHaveBeenCalledWith({
+			sessionId: "session-new",
+			cwd: "/work/app",
+			prompt: "fix from new session",
+			agentId: "grok",
+			referencedPaths: [],
+			externalSessionId: null,
+			newSession: false,
+		});
+	});
+
+	it("does not send to Grok on the new session page without a way to create a session", async () => {
+		const user = userEvent.setup();
+		const start = vi.fn();
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start,
+			subscribe: () => () => undefined,
+		};
+		function NewSessionHarness(): JSX.Element {
+			const [prompt, setPrompt] = useState("fix");
+			return (
+				<SessionExternalInvocationPage
+					session={null}
+					client={client}
+					prompt={prompt}
+					onPromptChange={setPrompt}
+					showPrompt
+					penguinTools={null}
+				/>
+			);
+		}
+		render(<NewSessionHarness />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		expect((screen.getByRole("button", { name: "发给 Grok" }) as HTMLButtonElement).disabled).toBe(true);
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		expect(start).not.toHaveBeenCalled();
+	});
+
+	it("keeps the input bar to the switcher without stacking cards or permission copy", async () => {
+		const user = userEvent.setup();
+		const start = vi.fn(async () => ({ invocationId: "inv-1" }));
+		let listener: ((event: ExternalInvocationClientEvent) => void) | undefined;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start,
+			subscribe: (_sessionId, next) => {
+				listener = next;
+				return () => {
+					listener = undefined;
+				};
+			},
+		};
+		function Compact(): JSX.Element {
+			const [prompt, setPrompt] = useState("hi");
+			return (
+				<SessionExternalInvocationPage
+					session={{ sessionId: "session-1", cwd: "/work/app" }}
+					client={client}
+					prompt={prompt}
+					onPromptChange={setPrompt}
+					showPrompt={false}
+					penguinTools={null}
+				/>
+			);
+		}
+		render(<Compact />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		expect(screen.queryByText("由 Grok 自己的权限设置决定，需要确认时会在终端里询问")).toBeNull();
+		expect((screen.getByLabelText("发给") as HTMLSelectElement).title).toBe(
+			"由 Grok 自己的权限设置决定，需要确认时会在终端里询问",
+		);
+		await user.click(screen.getByRole("button", { name: "发给 Grok" }));
+		expect(start).toHaveBeenCalledOnce();
+		await act(async () => {
+			listener?.({
+				type: "running",
+				invocationId: "inv-1",
+				prompt: "hi",
+				agentId: "grok",
+				ordinal: 1,
+				externalSessionId: "sess-9",
+			});
+		});
+		expect(screen.queryByText("第 1 次")).toBeNull();
+		expect(screen.queryByText("运行中")).toBeNull();
+		expect(screen.queryByRole("button", { name: "在终端查看" })).toBeNull();
+		expect(screen.queryByRole("button", { name: "发给 Grok" })).toBeNull();
+		expect(screen.getByText("在终端里继续对话")).toBeTruthy();
+		expect(screen.getByRole("button", { name: "开新会话" })).toBeTruthy();
+		await user.click(screen.getByRole("button", { name: "开新会话" }));
+		expect(screen.getByRole("button", { name: "发给 Grok" })).toBeTruthy();
+		expect(screen.queryByText("在终端里继续对话")).toBeNull();
+	});
+
+	it("header switcher only shows 发给, not send or 开新会话", async () => {
+		const user = userEvent.setup();
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok" }],
+			start: vi.fn(),
+			subscribe: () => () => undefined,
+		};
+		render(
+			<SessionExternalInvocationPage
+				session={{ sessionId: "session-1", cwd: "/work/app" }}
+				client={client}
+				prompt=""
+				onPromptChange={() => undefined}
+				showPrompt={false}
+				switcherOnly
+				penguinTools={null}
+			/>,
+		);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		expect(screen.queryByRole("button", { name: "发给 Grok" })).toBeNull();
+		expect(screen.queryByRole("button", { name: "开新会话" })).toBeNull();
+		expect(screen.queryByText("在终端里继续对话")).toBeNull();
+	});
+
+	it("does not hide the Grok composer because a different agent is running", async () => {
+		const user = userEvent.setup();
+		let listener: ((event: ExternalInvocationClientEvent) => void) | undefined;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [
+				{ id: "grok", label: "Grok", processForm: "interactive" },
+				{ id: "omp", label: "OMP", processForm: "one-shot" },
+			],
+			start: vi.fn(),
+			subscribe: (_sessionId, next) => {
+				listener = next;
+				return () => {
+					listener = undefined;
+				};
+			},
+		};
+		render(<Harness client={client} />);
+		await waitFor(() => expect(screen.getByRole("option", { name: "Grok" })).toBeTruthy());
+		await user.selectOptions(screen.getByLabelText("发给"), "grok");
+		await act(async () => {
+			listener?.({
+				type: "running",
+				invocationId: "inv-omp",
+				prompt: "from omp",
+				agentId: "omp",
+			});
+		});
+		expect(screen.getByRole("button", { name: "发给 Grok" })).toBeTruthy();
+		expect(screen.getByLabelText("消息")).toBeTruthy();
+		expect(screen.queryByText("在终端里继续对话")).toBeNull();
+	});
+
 });
 
 describe("external invocation terminal in the session", () => {

@@ -66,6 +66,7 @@ export type InputInsertionPart = { kind: "text"; text: string } | { kind: "image
 export function $insertInputParts(parts: readonly InputInsertionPart[]): void {
 	for (const part of parts) {
 		if (part.kind === "image") {
+			if (externalImagesBlocked) continue;
 			$insertTokenNodes([$createImageTokenNode(part.path)]);
 			continue;
 		}

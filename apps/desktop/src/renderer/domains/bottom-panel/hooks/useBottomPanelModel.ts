@@ -24,6 +24,7 @@ export interface BottomPanelModel {
 	readonly sizing: BottomPanelSizing;
 	readonly tabs: BottomPanelTabActions;
 	setCollapsed(collapsed: boolean): void;
+	setFilled(filled: boolean): void;
 	/** 点折叠态的 pill：展开面板并激活对应 tab。 */
 	expandAndActivate(tabId: string): void;
 }
@@ -50,6 +51,7 @@ export function useBottomPanelModel(): BottomPanelModel | null {
 	const tabs = useBottomPanelTabs(definitions);
 
 	const setCollapsed = useCallback((collapsed: boolean) => dispatch({ type: "set-collapsed", collapsed }), [dispatch]);
+	const setFilled = useCallback((filled: boolean) => dispatch({ type: "set-filled", filled }), [dispatch]);
 
 	const expandAndActivate = useCallback(
 		(tabId: string) => {
@@ -69,7 +71,8 @@ export function useBottomPanelModel(): BottomPanelModel | null {
 			sizing,
 			tabs,
 			setCollapsed,
+			setFilled,
 			expandAndActivate,
 		};
-	}, [scopeKey, state, cwd, definitions, sizing, tabs, setCollapsed, expandAndActivate]);
+	}, [scopeKey, state, cwd, definitions, sizing, tabs, setCollapsed, setFilled, expandAndActivate]);
 }

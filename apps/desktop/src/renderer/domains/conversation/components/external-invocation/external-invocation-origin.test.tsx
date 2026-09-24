@@ -23,6 +23,21 @@ vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
 
 vi.mock("@vetta-org/ui", () => ({
 	cn: (...classes: unknown[]) => classes.filter(Boolean).join(" "),
+	Button: ({
+		children,
+		disabled,
+		onClick,
+		type = "button",
+	}: {
+		children: ReactNode;
+		disabled?: boolean;
+		onClick?: () => void;
+		type?: "button" | "submit";
+	}) => (
+		<button type={type} disabled={disabled} onClick={onClick}>
+			{children}
+		</button>
+	),
 	DropdownMenu: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 	DropdownMenuTrigger: () => null,
 	DropdownMenuContent: ({ children }: { children: ReactNode }) => <div role="menu">{children}</div>,
@@ -206,14 +221,14 @@ describe("penguin-initiated external history", () => {
 				},
 			},
 		});
-		let emit: ((event: ExternalInvocationClientEvent) => void) | null = null;
+		const subscriber: { emit: ((event: ExternalInvocationClientEvent) => void) | null } = { emit: null };
 		const client: ExternalInvocationClient = {
 			listAgents: async () => [{ id: "grok", label: "Grok" }],
 			start: async () => ({ invocationId: "inv-1" }),
 			subscribe: (_sessionId, listener) => {
-				emit = listener;
+				subscriber.emit = listener;
 				return () => {
-					emit = null;
+					subscriber.emit = null;
 				};
 			},
 		};
@@ -248,7 +263,8 @@ describe("penguin-initiated external history", () => {
 		await waitFor(() => expect(screen.getByRole("button", { name: /Fix the login bug/ })).toBeTruthy());
 		expect(screen.getByRole("button", { name: /Fix the login bug/ }).textContent).not.toContain("由 penguin 发起");
 		located = true;
-		emit?.({ type: "completed", invocationId: "inv-1", agentId: "grok", externalSessionId: "sess-9" });
+		if (!subscriber.emit) throw new Error("missing subscriber");
+		subscriber.emit({ type: "completed", invocationId: "inv-1", agentId: "grok", externalSessionId: "sess-9" });
 		await waitFor(() =>
 			expect(screen.getByRole("button", { name: /Fix the login bug/ }).textContent).toContain("由 penguin 发起"),
 		);

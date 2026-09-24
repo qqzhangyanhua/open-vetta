@@ -35,6 +35,11 @@ export interface ConnectedInputBarProps {
 	 * 输入内容保持可编辑，发送按钮就地展开成带文案的胶囊并拒绝重复点击。
 	 */
 	sendPending?: { readonly label: string };
+	/**
+	 * 新会话页还没有 Vetta 会话时，发给外部智能体要先创建承载会话。
+	 * 不向 penguin 发消息。创建失败或放弃时返回 null，输入留在原地。
+	 */
+	onEnsureSession?: () => Promise<{ sessionId: string; cwd: string } | null>;
 }
 
 export interface ControlledInputBarProps {
@@ -237,7 +242,7 @@ export interface InputBarModel {
 	externalInvocation?: {
 		readonly session: { readonly sessionId: string; readonly cwd: string } | null;
 		readonly client: {
-			listAgents(): Promise<readonly { id: "grok" | "omp" | "cursor-agent"; label: string }[]>;
+			listAgents(): Promise<readonly { id: string; label: string }[]>;
 			start(request: {
 				sessionId: string;
 				cwd: string;
@@ -278,6 +283,7 @@ export interface InputBarModel {
 		readonly onRemoveImage: (path: string) => void;
 		readonly referencedPaths: readonly string[];
 		readonly remote: boolean;
+		readonly ensureSession?: () => Promise<{ sessionId: string; cwd: string } | null>;
 	};
 	/** 工具栏按真实组成项装配，避免用 showX/capability 布尔值扩展产品分支。 */
 	leadingTools: readonly InputBarLeadingTool[];

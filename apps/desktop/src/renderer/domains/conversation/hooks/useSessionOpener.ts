@@ -10,6 +10,7 @@ import {
 } from "@shared/lib/perf-session-switch";
 import {
 	type ActiveSession,
+	activeInputDraftKeyAtom,
 	activeSessionAtom,
 	activeSessionStreamingAtom,
 	activeToolNamesAtom,
@@ -31,6 +32,7 @@ import {
 	pendingSessionCreationAtom,
 	pendingSessionOpenAtom,
 	projectsAtom,
+	renameBottomPanelScopeAtom,
 	retryProgressAtom,
 	type SessionExecutionMode,
 	selectedModelAtom,
@@ -509,7 +511,11 @@ export function useSessionOpener(): SessionOpenerController {
 			// 新会话没有历史需要回放。草稿迁移后先建立事件订阅并立刻派发首条 Prompt；
 			// getState、上下文恢复和侧边栏对账都不再位于首条发送的关键路径。
 			if (sessionPath === undefined) {
+				const fromKey = getDefaultStore().get(activeInputDraftKeyAtom);
 				claimNewSessionInputDraft(cachedKey, newSessionInputDraftKey(cwd));
+				if (fromKey && fromKey !== cachedKey) {
+					getDefaultStore().set(renameBottomPanelScopeAtom, fromKey, cachedKey);
+				}
 				if (!(await subscribeForPrompt())) return;
 			}
 

@@ -1,6 +1,12 @@
 import { perfSendBegin, perfSendMark } from "@shared/lib/perf-send";
-import type { OpenSessionOptions, SendMessageOptions, SessionExecutionMode } from "@shared/store/atoms";
-import { chatMessagesAtom, pendingSessionSendAtom } from "@shared/store/atoms";
+import {
+	activeSessionAtom,
+	chatMessagesAtom,
+	type OpenSessionOptions,
+	pendingSessionSendAtom,
+	type SendMessageOptions,
+	type SessionExecutionMode,
+} from "@shared/store/atoms";
 import { getDefaultStore } from "jotai";
 import { useCallback, useRef } from "react";
 import { startAssistantTurn } from "../../services/chat-service";
@@ -32,6 +38,7 @@ interface NewSessionSendOptions {
 
 export function useNewSessionSend(options: NewSessionSendOptions): {
 	readonly send: (overrideText?: string, context?: SendInteractionContext) => Promise<void>;
+	readonly ensureSession: () => Promise<{ sessionId: string; cwd: string } | null>;
 } {
 	const sendingRef = useRef(false);
 	const { cwd, executionMode, prepareCwd, openSession, sendMessage, agentProfileId } = options;
@@ -77,5 +84,26 @@ export function useNewSessionSend(options: NewSessionSendOptions): {
 		[agentProfileId, cwd, executionMode, prepareCwd, openSession, sendMessage],
 	);
 
-	return { send };
+	const ensureSession = useCallback(async (): Promise<{ sessionId: string; cwd: string } | null> => {
+		if (sendingRef.current) return null;
+		sendingRef.current = true;
+		try {
+			const targetCwd = prepareCwd ? await prepareCwd() : cwd;
+			if (!targetCwd) return null;
+			let created: { sessionId: string; cwd: string } | null = null;
+			await openSession(targetCwd, undefined, executionMode, {
+				navigateBeforeCreate: true,
+				...(agentProfileId ? { agentProfileId } : {}),
+				onPromptReady: () => {
+					const active = getDefaultStore().get(activeSessionAtom);
+					created = active ? { sessionId: active.runtimeId, cwd: active.cwd } : null;
+				},
+			});
+			return created;
+		} finally {
+			sendingRef.current = false;
+		}
+	}, [agentProfileId, cwd, executionMode, openSession, prepareCwd]);
+
+	return { send, ensureSession };
 }

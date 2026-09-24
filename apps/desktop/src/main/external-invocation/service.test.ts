@@ -41,6 +41,12 @@ class FakeProcess implements ExternalInvocationProcess {
 		this.written.push(data);
 	}
 
+	readonly resizes: Array<[number, number]> = [];
+
+	resize(cols: number, rows: number): void {
+		this.resizes.push([cols, rows]);
+	}
+
 	killed = false;
 
 	kill(): void {
@@ -112,7 +118,7 @@ describe("external invocation service", () => {
 			agentId: "grok",
 		});
 		expect(h.events.map((event) => event.type)).toEqual(["running"]);
-		expect(h.started).toEqual([{ file: "grok", args: ["--single", "fix the test"], cwd: "/work/app" }]);
+		expect(h.started).toEqual([{ file: "grok", args: ["--", "fix the test"], cwd: "/work/app" }]);
 		expect(h.started[0]?.args).not.toContain("--always-approve");
 		h.advance(1000);
 		h.procs[0]?.emitData("hello grok");
@@ -224,7 +230,7 @@ describe("external invocation service", () => {
 			agentId: "grok",
 			referencedPaths: ["/work/app/src/a.ts", "/work/app/src"],
 		});
-		expect(h.started[0]?.args).toEqual(["--single", "@/work/app/src/a.ts\n@/work/app/src\nfix the test"]);
+		expect(h.started[0]?.args).toEqual(["--", "@/work/app/src/a.ts\n@/work/app/src\nfix the test"]);
 	});
 
 	it("rejects a remote project directory before starting a process", async () => {
@@ -359,7 +365,7 @@ describe("external invocation service", () => {
 		expect(h.events.some((event) => event.type === "completed" || event.type === "failed")).toBe(false);
 	});
 
-	it("queues a follow-up on the same external session, then resumes it after the first run locates that session", async () => {
+	it("does not start another Grok process while that session's interactive Grok is still running", async () => {
 		const h = harness();
 		const first = await h.service.start({
 			sessionId: "session-1",
@@ -373,19 +379,34 @@ describe("external invocation service", () => {
 			prompt: "and the lint",
 			agentId: "grok",
 		});
-		expect(h.started).toHaveLength(1);
-		expect(h.events.some((event) => event.type === "queued" && event.invocationId === second.invocationId)).toBe(
-			true,
-		);
+		expect(second.invocationId).toBe(first.invocationId);
+		expect(h.started).toEqual([{ file: "grok", args: ["--", "fix the test"], cwd: "/work/app" }]);
+		expect(h.events.some((event) => event.type === "queued")).toBe(false);
+	});
+
+	it("resumes Grok after the interactive process exits", async () => {
+		const h = harness();
+		const first = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "fix the test",
+			agentId: "grok",
+		});
 		writeGrokSummary(h.sessionsRoot, "sess-9", "/work/app", "2026-09-24T06:00:00.000Z");
 		h.procs[0]?.emitExit(0);
 		await viWait();
 		expect(
 			h.entries.filter((entry) => entry.data.invocationId === first.invocationId).at(-1)?.data.externalSessionId,
 		).toBe("sess-9");
+		const second = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "and the lint",
+			agentId: "grok",
+		});
 		expect(h.started).toEqual([
-			{ file: "grok", args: ["--single", "fix the test"], cwd: "/work/app" },
-			{ file: "grok", args: ["--single", "and the lint", "--resume", "sess-9"], cwd: "/work/app" },
+			{ file: "grok", args: ["--", "fix the test"], cwd: "/work/app" },
+			{ file: "grok", args: ["--resume", "sess-9", "--", "and the lint"], cwd: "/work/app" },
 		]);
 		expect(h.events.some((event) => event.type === "running" && event.invocationId === second.invocationId)).toBe(
 			true,
@@ -415,21 +436,27 @@ describe("external invocation service", () => {
 		expect(seen.map((event) => event.type)).toEqual(["queued"]);
 		h.procs[0]?.emitExit(0);
 		await viWait();
-		expect(h.started[1]?.args).toEqual(["--single", "second", "--resume", "sess-9"]);
+		expect(h.started[1]?.args).toEqual(["--resume", "sess-9", "--", "second"]);
 		expect(seen.some((event) => event.type === "running" && event.invocationId === queued.invocationId)).toBe(true);
 	});
 
 	it("never starts a follow-up that was cancelled while queued", async () => {
 		const h = harness();
-		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "first", agentId: "grok" });
+		await h.service.start({
+			sessionId: "session-a",
+			cwd: "/work/app",
+			prompt: "first",
+			agentId: "grok",
+			externalSessionId: "sess-9",
+		});
 		const queued = await h.service.start({
-			sessionId: "session-1",
+			sessionId: "session-b",
 			cwd: "/work/app",
 			prompt: "second",
 			agentId: "grok",
+			externalSessionId: "sess-9",
 		});
 		h.service.stop(queued.invocationId);
-		writeGrokSummary(h.sessionsRoot, "sess-9", "/work/app", "2026-09-24T06:00:00.000Z");
 		h.procs[0]?.emitExit(0);
 		await viWait();
 		expect(h.started).toHaveLength(1);
@@ -450,8 +477,8 @@ describe("external invocation service", () => {
 			newSession: true,
 		});
 		expect(h.started).toEqual([
-			{ file: "grok", args: ["--single", "first"], cwd: "/work/app" },
-			{ file: "grok", args: ["--single", "elsewhere"], cwd: "/work/app" },
+			{ file: "grok", args: ["--", "first"], cwd: "/work/app" },
+			{ file: "grok", args: ["--", "elsewhere"], cwd: "/work/app" },
 		]);
 		expect(h.events.some((event) => event.type === "queued")).toBe(false);
 	});
@@ -463,7 +490,7 @@ describe("external invocation service", () => {
 		expect(h.events.some((event) => event.type === "queued")).toBe(false);
 		expect(h.started).toEqual([
 			{ file: "omp", args: ["--print", "from omp"], cwd: "/work/app" },
-			{ file: "grok", args: ["--single", "from grok"], cwd: "/work/app" },
+			{ file: "grok", args: ["--", "from grok"], cwd: "/work/app" },
 		]);
 		expect(h.procs).toHaveLength(2);
 	});
@@ -490,14 +517,14 @@ describe("external invocation service", () => {
 				historyResume: { externalSessionId: "sess-9", cwd: recorded },
 			});
 			expect(h.started).toEqual([
-				{ file: "grok", args: ["--single", "from history", "--resume", "sess-9"], cwd: recorded },
+				{ file: "grok", args: ["--resume", "sess-9", "--", "from history"], cwd: recorded },
 			]);
 			expect(seen.some((event) => event.type === "queued" && event.invocationId === queued.invocationId)).toBe(true);
 			h.procs[0]?.emitExit(0);
 			await viWait();
 			expect(h.started[1]).toEqual({
 				file: "grok",
-				args: ["--single", "still that session", "--resume", "sess-9"],
+				args: ["--resume", "sess-9", "--", "still that session"],
 				cwd: recorded,
 			});
 			expect(
@@ -548,6 +575,95 @@ describe("external invocation service", () => {
 		});
 		h.service.writeInput(started.invocationId, "y\n");
 		expect(h.procs[0]?.written).toEqual(["y\n"]);
+	});
+
+	it("resizes the live PTY so the TUI can fill the panel", async () => {
+		const h = harness();
+		const started = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "hello",
+			agentId: "grok",
+		});
+		h.service.resize(started.invocationId, 160, 48);
+		h.service.resize(started.invocationId, 1, 1);
+		expect(h.procs[0]?.resizes).toEqual([[160, 48]]);
+	});
+
+	it("deleting a session starts the other session waiting on the same lock", async () => {
+		const h = harness();
+		h.unsubscribe();
+		const seen: ExternalInvocationEvent[] = [];
+		h.service.subscribe("session-b", (event) => seen.push(event));
+		await h.service.start({
+			sessionId: "session-a",
+			cwd: "/work/app",
+			prompt: "first",
+			agentId: "grok",
+			externalSessionId: "sess-9",
+		});
+		const queued = await h.service.start({
+			sessionId: "session-b",
+			cwd: "/work/app",
+			prompt: "second",
+			agentId: "grok",
+			externalSessionId: "sess-9",
+		});
+		expect(h.started).toHaveLength(1);
+		await h.service.deleteSession("session-a");
+		await viWait();
+		expect(h.started[1]?.args).toEqual(["--resume", "sess-9", "--", "second"]);
+		expect(seen.some((event) => event.type === "running" && event.invocationId === queued.invocationId)).toBe(true);
+	});
+
+	it("deleting a session does not launch that session's queued follow-up", async () => {
+		const h = harness();
+		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "first", agentId: "omp" });
+		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "second", agentId: "omp" });
+		expect(h.started).toHaveLength(1);
+		await h.service.deleteSession("session-1");
+		h.procs[0]?.emitExit(0);
+		await viWait();
+		expect(h.started).toHaveLength(1);
+	});
+
+	it("records the Grok session id when the user stops so the next send can resume", async () => {
+		const h = harness();
+		const started = await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "fix the test",
+			agentId: "grok",
+		});
+		writeGrokSummary(h.sessionsRoot, "sess-9", "/work/app", "2026-09-24T06:00:00.000Z");
+		h.service.stop(started.invocationId);
+		await viWait();
+		expect(h.entries.at(-1)?.data.externalSessionId).toBe("sess-9");
+		await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "and the lint",
+			agentId: "grok",
+		});
+		expect(h.started[1]?.args).toEqual(["--resume", "sess-9", "--", "and the lint"]);
+	});
+
+	it("records the Grok session id when recovering an interrupted run", async () => {
+		const h = harness();
+		await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "still going",
+			agentId: "grok",
+		});
+		writeGrokSummary(h.sessionsRoot, "sess-9", "/work/app", "2026-09-24T06:00:00.000Z");
+		h.service.shutdown();
+		await h.service.recover();
+		expect(h.entries.at(-1)?.data).toMatchObject({
+			status: "interrupted",
+			interruptReason: "app-exit",
+			externalSessionId: "sess-9",
+		});
 	});
 });
 

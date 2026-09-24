@@ -6,6 +6,7 @@ import { ipcMain } from "electron";
 import { detectExternalAgentsOnPath, readLoginShellPath } from "../external-invocation/detect-agents.js";
 import { createExternalInvocationEntryLedger } from "../external-invocation/entry-ledger.js";
 import { findExternalAgentAdapter } from "../external-invocation/grok-adapter.js";
+import { parseExternalInvocationStart } from "../external-invocation/parse-start.js";
 import { createExternalInvocationService, type ExternalInvocationService } from "../external-invocation/service.js";
 import { detectExternalSessionDirectory } from "../external-sessions/grok-session-locator.js";
 import { getSharedRuntime } from "../runtime.js";
@@ -16,6 +17,7 @@ export const EXTERNAL_INVOCATION_CHANNELS = {
 	start: "external-invocation:start",
 	event: "external-invocation:event",
 	writeInput: "external-invocation:write-input",
+	resize: "external-invocation:resize",
 	stop: "external-invocation:stop",
 	readOutput: "external-invocation:read-output",
 	recordedDirectory: "external-invocation:recorded-directory",
@@ -51,6 +53,7 @@ export function externalInvocationService(): ExternalInvocationService {
 						onData: (listener) => backend.onData(listener),
 						onExit: (listener) => backend.onExit((event) => listener({ exitCode: event.exitCode })),
 						write: (data) => backend.write(data),
+						resize: (cols, rows) => backend.resize(cols, rows),
 						kill: () => backend.kill(),
 					};
 				},
@@ -61,7 +64,8 @@ export function externalInvocationService(): ExternalInvocationService {
 			ids: { next: () => crypto.randomUUID() },
 			sessionsDirectory: (agentId) => {
 				const adapter = findExternalAgentAdapter(agentId);
-				return adapter ? (detectExternalSessionDirectory(adapter.id) ?? null) : null;
+				if (adapter?.id !== "grok" && adapter?.id !== "omp" && adapter?.id !== "cursor-agent") return null;
+				return detectExternalSessionDirectory(adapter.id) ?? null;
 			},
 		});
 	}
@@ -83,7 +87,7 @@ export function registerExternalInvocationIpc(): () => void {
 		});
 	});
 	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.start, async (_event, request: unknown) => {
-		return externalInvocationService().start(parseStart(request));
+		return externalInvocationService().start(parseExternalInvocationStart(request));
 	});
 	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.attach, async (event, sessionId: unknown) => {
 		if (typeof sessionId !== "string" || sessionId.length === 0) {
@@ -136,6 +140,18 @@ export function registerExternalInvocationIpc(): () => void {
 		if (typeof data !== "string") throw new Error("external invocation: data must be a string");
 		externalInvocationService().writeInput(invocationId, data);
 	});
+	ipcMain.handle(
+		EXTERNAL_INVOCATION_CHANNELS.resize,
+		(_event, invocationId: unknown, cols: unknown, rows: unknown) => {
+			if (typeof invocationId !== "string" || invocationId.length === 0) {
+				throw new Error("external invocation: invocationId must be a non-empty string");
+			}
+			if (typeof cols !== "number" || typeof rows !== "number") {
+				throw new Error("external invocation: cols and rows must be numbers");
+			}
+			externalInvocationService().resize(invocationId, cols, rows);
+		},
+	);
 	ipcMain.handle(EXTERNAL_INVOCATION_CHANNELS.stop, (_event, invocationId: unknown) => {
 		if (typeof invocationId !== "string" || invocationId.length === 0) {
 			throw new Error("external invocation: invocationId must be a non-empty string");
@@ -167,60 +183,10 @@ export function registerExternalInvocationIpc(): () => void {
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.detach);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.watchRunning);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.writeInput);
+		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.resize);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.stop);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.readOutput);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.recordedDirectory);
 		ipcMain.removeHandler(EXTERNAL_INVOCATION_CHANNELS.origins);
 	};
-}
-
-function parseStart(value: unknown): {
-	sessionId: string;
-	cwd: string;
-	prompt: string;
-	agentId: string;
-	referencedPaths: readonly string[];
-	externalSessionId: string | null;
-	newSession: boolean;
-	historyResume?: { externalSessionId: string; cwd: string };
-} {
-	if (typeof value !== "object" || value === null) throw new Error("external invocation: request must be an object");
-	const input = value as Record<string, unknown>;
-	const sessionId = requireString(input.sessionId, "sessionId");
-	const cwd = requireString(input.cwd, "cwd");
-	const prompt = requireString(input.prompt, "prompt");
-	const agentId = requireString(input.agentId, "agentId");
-	const referencedPaths = Array.isArray(input.referencedPaths)
-		? input.referencedPaths.filter((path): path is string => typeof path === "string" && path.length > 0)
-		: [];
-	const externalSessionId =
-		typeof input.externalSessionId === "string" && input.externalSessionId.length > 0
-			? input.externalSessionId
-			: null;
-	const historyResume = parseHistoryResume(input.historyResume);
-	return {
-		sessionId,
-		cwd,
-		prompt,
-		agentId,
-		referencedPaths,
-		externalSessionId: historyResume?.externalSessionId ?? externalSessionId,
-		newSession: input.newSession === true,
-		...(historyResume ? { historyResume } : {}),
-	};
-}
-
-function parseHistoryResume(value: unknown): { externalSessionId: string; cwd: string } | undefined {
-	if (typeof value !== "object" || value === null) return undefined;
-	const input = value as Record<string, unknown>;
-	if (typeof input.externalSessionId !== "string" || input.externalSessionId.length === 0) return undefined;
-	if (typeof input.cwd !== "string" || input.cwd.length === 0) return undefined;
-	return { externalSessionId: input.externalSessionId, cwd: input.cwd };
-}
-
-function requireString(value: unknown, field: string): string {
-	if (typeof value !== "string" || value.length === 0) {
-		throw new Error(`external invocation: ${field} must be a non-empty string`);
-	}
-	return value;
 }

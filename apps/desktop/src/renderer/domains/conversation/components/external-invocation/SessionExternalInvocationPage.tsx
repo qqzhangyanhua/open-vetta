@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, type JSX, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type JSX, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { reloadExternalInvocationOrigins } from "@shared/hooks/useExternalInvocationOrigins";
 import {
@@ -46,7 +46,7 @@ export interface ExternalInvocationClientEvent {
 }
 
 export interface ExternalInvocationClient {
-	listAgents(): Promise<readonly { id: "grok" | "omp" | "cursor-agent"; label: string }[]>;
+	listAgents(): Promise<readonly { id: string; label: string; processForm?: "one-shot" | "interactive" }[]>;
 	start(request: {
 		sessionId: string;
 		cwd: string;
@@ -61,6 +61,10 @@ export interface ExternalInvocationClient {
 	subscribeRunning?(listener: (sessionIds: readonly string[]) => void): () => void;
 	stop?(invocationId: string): void;
 	writeInput?(invocationId: string, data: string): void;
+}
+
+function previousAgentId(cards: readonly ExternalInvocationCardModel[], invocationId: string): string {
+	return cards.find((card) => card.invocationId === invocationId)?.agentId ?? "";
 }
 
 export function applyExternalInvocationEvent(
@@ -79,6 +83,7 @@ export function applyExternalInvocationEvent(
 					: "interruptedUser";
 		const next = {
 			invocationId: event.invocationId,
+			agentId: event.agentId ?? previousAgentId(cards, event.invocationId),
 			agentLabel,
 			prompt: event.prompt ?? "",
 			statusLabel: statusLabel(status),
@@ -86,6 +91,7 @@ export function applyExternalInvocationEvent(
 			failureReason: null,
 			ordinal: event.ordinal ?? 1,
 			queued: false,
+			live: false,
 		};
 		const previous = cards.find((card) => card.invocationId === event.invocationId);
 		const nextCard = { ...next, ordinal: event.ordinal ?? previous?.ordinal ?? 1 };
@@ -99,6 +105,7 @@ export function applyExternalInvocationEvent(
 			...cards.filter((card) => card.invocationId !== event.invocationId),
 			{
 				invocationId: event.invocationId,
+				agentId: event.agentId ?? "",
 				agentLabel,
 				prompt: event.prompt ?? "",
 				statusLabel: statusLabel(status),
@@ -106,6 +113,7 @@ export function applyExternalInvocationEvent(
 				failureReason: null,
 				ordinal: event.ordinal ?? 1,
 				queued: event.type === "queued",
+				live: event.type === "running",
 			},
 		];
 	}
@@ -118,6 +126,7 @@ export function applyExternalInvocationEvent(
 					exitCode: event.exitCode ?? null,
 					failureReason: event.reason ?? null,
 					queued: false,
+					live: false,
 				}
 			: card,
 	);
@@ -129,6 +138,7 @@ export function SessionExternalInvocationPage({
 	prompt,
 	onPromptChange,
 	showPrompt,
+	switcherOnly = false,
 	penguinTools,
 	draftKey = null,
 	images = [],
@@ -139,12 +149,16 @@ export function SessionExternalInvocationPage({
 	onRecipientChange,
 	onViewInTerminal,
 	onInvocationEvent,
+	ensureSession,
+	onBindSend,
+	onHideComposer,
 }: {
 	readonly session: { sessionId: string; cwd: string } | null;
 	readonly client: ExternalInvocationClient | null;
 	readonly prompt: string;
 	readonly onPromptChange: (value: string) => void;
 	readonly showPrompt: boolean;
+	readonly switcherOnly?: boolean;
 	readonly penguinTools: ReactNode;
 	readonly draftKey?: string | null;
 	readonly images?: readonly ExternalInvocationImage[];
@@ -155,9 +169,14 @@ export function SessionExternalInvocationPage({
 	readonly onRecipientChange?: (recipientId: string) => void;
 	readonly onViewInTerminal?: (invocationId: string) => void;
 	readonly onInvocationEvent?: (event: ExternalInvocationClientEvent) => void;
+	readonly ensureSession?: () => Promise<{ sessionId: string; cwd: string } | null>;
+	readonly onBindSend?: (send: (() => void) | null) => void;
+	readonly onHideComposer?: (hide: boolean) => void;
 }): JSX.Element {
 	const { t } = useTranslation("chat");
-	const [detected, setDetected] = useState<readonly { id: "grok" | "omp" | "cursor-agent"; label: string }[]>([]);
+	const [detected, setDetected] = useState<
+		readonly { id: string; label: string; processForm?: "one-shot" | "interactive" }[]
+	>([]);
 	const historyResume = useSyncExternalStore(
 		subscribeExternalHistoryResume,
 		() => externalHistoryResumeFor(draftKey),
@@ -196,8 +215,12 @@ export function SessionExternalInvocationPage({
 	];
 	const recipient = agents.find((agent) => agent.id === recipientId) ?? agents[0];
 	const external = recipientId !== "penguin";
-	const sendBlocked = images.length > 0 || remote;
-
+	const sendBlocked = images.length > 0 || remote || (!session && !ensureSession);
+	const canStartNewSession = Boolean(historyResume || resumeSessionId);
+	const hideComposer =
+		(detected.find((agent) => agent.id === recipientId)?.processForm === "interactive" || recipientId === "grok") &&
+		cards.some((card) => card.live && card.agentId === recipientId) &&
+		!newSession;
 	useEffect(() => {
 		if (!client) return;
 		let cancelled = false;
@@ -228,6 +251,51 @@ export function SessionExternalInvocationPage({
 			);
 		});
 	}, [client, cwd, recipient?.label, sessionId, t]);
+	const sendNowRef = useRef<() => void>(() => {});
+	sendNowRef.current = () => {
+		if (!external || sendBlocked || !client || prompt.trim().length === 0) return;
+		const text = prompt.trim();
+		const startNew = canStartNewSession && newSession;
+		const bound = startNew ? null : historyResume;
+		const resumeId = startNew ? null : resumeSessionId;
+		onPromptChange("");
+		setNewSession(false);
+		void (async () => {
+			try {
+				const target = session ?? (await ensureSession?.()) ?? null;
+				if (!target) {
+					onPromptChange(text);
+					return;
+				}
+				await client.start({
+					sessionId: target.sessionId,
+					cwd: bound?.cwd ?? target.cwd,
+					prompt: text,
+					agentId: recipientId,
+					referencedPaths,
+					externalSessionId: bound?.externalSessionId ?? resumeId,
+					newSession: startNew,
+					...(bound ? { historyResume: { externalSessionId: bound.externalSessionId, cwd: bound.cwd } } : {}),
+				});
+			} catch {
+				onPromptChange(text);
+			}
+		})();
+	};
+	useEffect(() => {
+		onHideComposer?.(hideComposer);
+		return () => onHideComposer?.(false);
+	}, [hideComposer, onHideComposer]);
+	useEffect(() => {
+		if (hideComposer) {
+			onBindSend?.(null);
+			return () => onBindSend?.(null);
+		}
+		onBindSend?.(() => {
+			sendNowRef.current();
+		});
+		return () => onBindSend?.(null);
+	}, [hideComposer, onBindSend]);
 
 	return (
 		<SessionExternalInvocationView
@@ -238,31 +306,26 @@ export function SessionExternalInvocationPage({
 					rememberExternalRecipient(draftKey, next);
 					setRecipientId(next);
 				},
-				placeholder: t("externalInvocation.placeholder", { agent: recipient?.label ?? "" }),
+				placeholder: t(
+					recipientId === "grok"
+						? "externalInvocation.interactivePlaceholder"
+						: "externalInvocation.placeholder",
+					{ agent: recipient?.label ?? "" },
+				),
 				permissionNote: t("externalInvocation.permission", { agent: recipient?.label ?? "" }),
 				sendLabel: t("externalInvocation.sendLabel", { agent: recipient?.label ?? "" }),
 				prompt,
 				onPromptChange,
 				showPrompt,
+				switcherOnly,
+				hideComposer,
 				onSend: () => {
-					if (!external || sendBlocked || !client || !session || prompt.trim().length === 0) return;
-					const bound = newSession ? null : historyResume;
-					void client.start({
-						sessionId: session.sessionId,
-						cwd: bound?.cwd ?? session.cwd,
-						prompt,
-						agentId: recipientId,
-						referencedPaths,
-						externalSessionId: bound?.externalSessionId ?? (newSession ? null : resumeSessionId),
-						newSession,
-						...(bound ? { historyResume: { externalSessionId: bound.externalSessionId, cwd: bound.cwd } } : {}),
-					});
-					setNewSession(false);
-					onPromptChange("");
+					sendNowRef.current();
 				},
 				cards,
 				onViewInTerminal,
 				newSession,
+				canStartNewSession,
 				onNewSession: () => setNewSession((current) => !current),
 				onCancel: (invocationId) => client?.stop?.(invocationId),
 				historyResume: historyResume

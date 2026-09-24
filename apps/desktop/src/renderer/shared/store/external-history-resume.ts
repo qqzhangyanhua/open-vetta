@@ -4,7 +4,7 @@ import { rememberExternalRecipient } from "./external-recipient";
 import { activeInputDraftKeyAtom } from "./session-input-draft";
 
 export interface ExternalHistoryResume {
-	readonly agentId: "grok" | "omp" | "cursor-agent";
+	readonly agentId: string;
 	readonly externalSessionId: string;
 	readonly title: string;
 	readonly cwd: string;

@@ -8,10 +8,14 @@ import {
 } from "@vetta-org/theme-ui/chat";
 import { forwardRef, memo } from "react";
 import { useTranslation } from "react-i18next";
+import { useAtomValue, useSetAtom } from "jotai";
 import type { Usage } from "@vetta/ai/protocol";
+import { Button } from "@shared/components/ui/button";
+import { activeSessionAtom, type ChatTimelineEventViewModel } from "@shared/store/atoms";
 import type { ChatConversationItem } from "./types";
 import type { ConversationParticipantViewModel } from "@shared/conversation";
 import { externalAgentLabel } from "../external-invocation/external-agent-label";
+import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
 import { AssistantMessage } from "./AssistantMessage";
 import { TeamMemberReplyCard } from "./TeamMemberReplyCard";
 import { ReadonlyUserMessage } from "./ReadonlyUserMessage";
@@ -63,17 +67,14 @@ const externalInvocationStatusKey = {
 
 const ExternalInvocationHistoryCard = memo(function ExternalInvocationHistoryCard({
 	event,
+	exportMode,
 }: {
-	event: {
-		readonly agentId: string;
-		readonly prompt: string;
-		readonly status: "queued" | "running" | "completed" | "failed" | "interrupted";
-		readonly exitCode: number | null;
-		readonly failureReason: string | null;
-		readonly interruptReason?: "user" | "app-exit" | "cancelled" | null;
-	};
+	event: Extract<ChatTimelineEventViewModel, { kind: "external_invocation" }>;
+	exportMode: boolean;
 }) {
 	const { t } = useTranslation("chat");
+	const session = useAtomValue(activeSessionAtom);
+	const openTab = useSetAtom(openExternalInvocationTabAtom);
 	const agent = externalAgentLabel(event.agentId, t) || event.agentId;
 	return (
 		<article aria-label={`${agent} ${event.prompt}`}>
@@ -91,6 +92,25 @@ const ExternalInvocationHistoryCard = memo(function ExternalInvocationHistoryCar
 			</p>
 			{event.exitCode !== null ? <p>{t("externalInvocation.exitCode", { code: event.exitCode })}</p> : null}
 			{event.status !== "interrupted" && event.failureReason ? <p>{event.failureReason}</p> : null}
+			{exportMode || !session ? null : (
+				<Button
+					type="button"
+					variant="ghost"
+					size="sm"
+					onClick={() =>
+						openTab({
+							invocationId: event.invocationId,
+							status: event.status === "running" || event.status === "queued" ? "running" : "finished",
+							cwd: session.cwd,
+							sessionId: session.runtimeId,
+							agentLabel: agent,
+							agentId: event.agentId,
+						})
+					}
+				>
+					{t("externalInvocation.viewInTerminal")}
+				</Button>
+			)}
 		</article>
 	);
 });
@@ -108,7 +128,7 @@ export const DefaultMessageItem = memo(function DefaultMessageItem({
 }: MessageItemProps) {
 	if (message.kind === "event") {
 		if (message.event.kind === "external_invocation") {
-			return <ExternalInvocationHistoryCard event={message.event} />;
+			return <ExternalInvocationHistoryCard event={message.event} exportMode={exportMode} />;
 		}
 		if (message.event.kind === "compaction") return <CompactionBoundary />;
 		if (message.event.kind === "omitted_reasoning") {

@@ -16,7 +16,7 @@ export interface DesktopExternalInvocationEvent {
 
 export interface DesktopExternalInvocationsApi {
 	listAgents(): Promise<
-		readonly { id: "grok" | "omp" | "cursor-agent"; label: string; executable: "grok" | "omp" | "cursor-agent" }[]
+		readonly { id: string; label: string; executable: string; processForm: "one-shot" | "interactive" }[]
 	>;
 	start(request: {
 		sessionId: string;
@@ -31,6 +31,7 @@ export interface DesktopExternalInvocationsApi {
 	subscribe(sessionId: string, listener: (event: DesktopExternalInvocationEvent) => void): () => void;
 	subscribeRunning(listener: (sessionIds: readonly string[]) => void): () => void;
 	writeInput(invocationId: string, data: string): Promise<void>;
+	resize(invocationId: string, cols: number, rows: number): Promise<void>;
 	stop(invocationId: string): Promise<void>;
 	readOutput(
 		sessionId: string,

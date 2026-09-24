@@ -1,3 +1,4 @@
+import { Button } from "@shared/components/ui/button";
 import type { JSX, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -14,6 +15,7 @@ export interface ExternalInvocationImage {
 
 export interface ExternalInvocationCardModel {
 	readonly invocationId: string;
+	readonly agentId: string;
 	readonly agentLabel: string;
 	readonly prompt: string;
 	readonly statusLabel: string;
@@ -21,6 +23,7 @@ export interface ExternalInvocationCardModel {
 	readonly failureReason: string | null;
 	readonly ordinal: number;
 	readonly queued: boolean;
+	readonly live: boolean;
 }
 
 export interface SessionExternalInvocationModel {
@@ -33,6 +36,8 @@ export interface SessionExternalInvocationModel {
 	readonly prompt: string;
 	readonly onPromptChange: (value: string) => void;
 	readonly showPrompt: boolean;
+	readonly switcherOnly: boolean;
+	readonly hideComposer: boolean;
 	readonly onSend: () => void;
 	readonly cards: readonly ExternalInvocationCardModel[];
 	readonly onViewInTerminal?: (invocationId: string) => void;
@@ -42,6 +47,7 @@ export interface SessionExternalInvocationModel {
 	readonly remoteNote: string | null;
 	readonly sendBlocked: boolean;
 	readonly newSession: boolean;
+	readonly canStartNewSession: boolean;
 	readonly onNewSession: () => void;
 	readonly onCancel: (invocationId: string) => void;
 	readonly historyResume: { readonly title: string; readonly directoryNote: string | null } | null;
@@ -59,82 +65,131 @@ export function SessionExternalInvocationView({
 }): JSX.Element {
 	const { t } = useTranslation("chat");
 	const external = model.recipientId !== "penguin";
-	return (
-		<section aria-label={model.sendLabel}>
-			<label>
+	const compact = !model.showPrompt || model.switcherOnly;
+	const switcher = (
+		<label className={compact ? "flex min-w-0 items-center gap-1.5" : undefined}>
+			<span className={compact ? "shrink-0 text-[12px] text-muted-foreground" : undefined}>
 				{t("externalInvocation.switcher")}
-				<select
-					aria-label={t("externalInvocation.switcher")}
-					value={model.recipientId}
-					onChange={(event) => model.onRecipientChange(event.target.value)}
-				>
-					{model.agents.map((agent) => (
-						<option key={agent.id} value={agent.id} disabled={agent.disabled}>
-							{agent.label}
-						</option>
-					))}
-				</select>
-			</label>
-			{model.remoteNote ? <p>{model.remoteNote}</p> : null}
+			</span>
+			<select
+				aria-label={t("externalInvocation.switcher")}
+				title={external ? model.permissionNote : undefined}
+				value={model.recipientId}
+				onChange={(event) => model.onRecipientChange(event.target.value)}
+				className={
+					compact
+						? "h-8 max-w-[9.5rem] shrink-0 rounded-lg border border-border/50 bg-transparent px-2 text-[12px] text-foreground outline-none hover:border-primary/40"
+						: undefined
+				}
+			>
+				{model.agents.map((agent) => (
+					<option key={agent.id} value={agent.id} disabled={agent.disabled}>
+						{agent.label}
+					</option>
+				))}
+			</select>
+		</label>
+	);
+
+	if (model.switcherOnly) {
+		return (
+			<section aria-label={model.sendLabel} className="flex min-w-0 items-center gap-1.5">
+				{switcher}
+				{model.remoteNote ? <p className="m-0 text-[11px] text-muted-foreground">{model.remoteNote}</p> : null}
+			</section>
+		);
+	}
+
+	return (
+		<section
+			aria-label={model.sendLabel}
+			className={compact ? "flex min-w-0 items-center gap-1.5" : undefined}
+		>
+			{switcher}
+			{model.remoteNote ? <p className={compact ? "m-0 text-[11px] text-muted-foreground" : undefined}>{model.remoteNote}</p> : null}
 			{external ? null : (skills ?? null)}
 			{external ? (
 				<>
-					{model.showPrompt ? <p>{model.placeholder}</p> : null}
-					<p>{model.permissionNote}</p>
+					{model.showPrompt && !model.hideComposer ? <p>{model.placeholder}</p> : null}
+					{model.showPrompt && !model.hideComposer ? <p>{model.permissionNote}</p> : null}
 					{model.historyResume ? (
-						<p>
+						<p className={compact ? "m-0 flex min-w-0 items-center gap-1 text-[11px] text-muted-foreground" : undefined}>
 							<span>{t("externalInvocation.resume.capsule", { title: model.historyResume.title })}</span>
 							{model.historyResume.directoryNote ? <span>{model.historyResume.directoryNote}</span> : null}
-							<button type="button" onClick={model.onDismissResume}>
+							<Button type="button" variant="ghost" size="sm" onClick={model.onDismissResume}>
 								{t("externalInvocation.resume.dismiss")}
-							</button>
+							</Button>
 						</p>
 					) : null}
 					{model.images.length > 0 ? (
-						<ul>
+						<ul className={compact ? "m-0 flex list-none items-center gap-1 p-0" : undefined}>
 							{model.images.map((image) => (
-								<li key={image.path}>
+								<li key={image.path} className={compact ? "flex items-center gap-1 text-[11px] text-muted-foreground" : undefined}>
 									<span>{image.name}</span>
 									<span>{model.imageRejectedLabel}</span>
-									<button type="button" onClick={() => model.onRemoveImage(image.path)}>
+									<Button type="button" variant="ghost" size="sm" onClick={() => model.onRemoveImage(image.path)}>
 										{t("inputBar.capsule.removeImage")}
-									</button>
+									</Button>
 								</li>
 							))}
 						</ul>
 					) : null}
-					{model.showPrompt ? (
+					{model.showPrompt && !model.hideComposer ? (
 						<textarea aria-label={t("externalInvocation.message")} value={model.prompt} onChange={(event) => model.onPromptChange(event.target.value)} />
 					) : null}
-					<button type="button" aria-pressed={model.newSession} onClick={model.onNewSession}>
-						{t("externalInvocation.newSession")}
-					</button>
-					<button type="button" disabled={model.sendBlocked} onClick={model.onSend}>
-						{model.sendLabel}
-					</button>
+					{model.canStartNewSession ? (
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							className="h-8 shrink-0 px-2.5 text-[12px]"
+							aria-pressed={model.newSession}
+							onClick={model.onNewSession}
+						>
+							{t("externalInvocation.newSession")}
+						</Button>
+					) : null}
+					{model.hideComposer ? (
+						<p className={compact ? "m-0 text-[11px] text-muted-foreground" : undefined}>
+							{t("externalInvocation.continueInTerminal")}
+						</p>
+					) : (
+						<Button
+							type="button"
+							variant="primary"
+							size="sm"
+							className="h-8 shrink-0 px-2.5 text-[12px]"
+							disabled={model.sendBlocked}
+							onClick={model.onSend}
+						>
+							{model.sendLabel}
+						</Button>
+					)}
 				</>
 			) : (
 				penguinTools
 			)}
-			{model.cards.map((card) => (
-				<article key={card.invocationId} aria-label={`${card.agentLabel} ${card.prompt}`}>
-					<p>{card.prompt}</p>
-					<p>{t("externalInvocation.ordinal", { n: card.ordinal })}</p>
-					<p>{card.statusLabel}</p>
-					{card.queued ? (
-						<button type="button" onClick={() => model.onCancel(card.invocationId)}>
-							{t("externalInvocation.cancel")}
-						</button>
-					) : null}
-					{card.exitCode !== null ? <p>{t("externalInvocation.exitCode", { code: card.exitCode })}</p> : null}
-					{card.failureReason ? <p>{card.failureReason}</p> : null}
-					{model.onViewInTerminal ? (
-						<button type="button" onClick={() => model.onViewInTerminal?.(card.invocationId)}>
-							{t("externalInvocation.viewInTerminal")}
-						</button>
-					) : null}
-				</article>
-			))}
+			{model.showPrompt
+				? model.cards.map((card) => (
+						<article key={card.invocationId} aria-label={`${card.agentLabel} ${card.prompt}`}>
+							<p>{card.prompt}</p>
+							<p>{t("externalInvocation.ordinal", { n: card.ordinal })}</p>
+							<p>{card.statusLabel}</p>
+							{card.queued ? (
+								<Button type="button" variant="ghost" size="sm" onClick={() => model.onCancel(card.invocationId)}>
+									{t("externalInvocation.cancel")}
+								</Button>
+							) : null}
+							{card.exitCode !== null ? <p>{t("externalInvocation.exitCode", { code: card.exitCode })}</p> : null}
+							{card.failureReason ? <p>{card.failureReason}</p> : null}
+							{model.onViewInTerminal ? (
+								<Button type="button" variant="ghost" size="sm" onClick={() => model.onViewInTerminal?.(card.invocationId)}>
+									{t("externalInvocation.viewInTerminal")}
+								</Button>
+							) : null}
+						</article>
+					))
+				: null}
 		</section>
 	);
 }

@@ -2,44 +2,76 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { cursorAgentAdapter, grokAdapter, ompAdapter } from "./grok-adapter.js";
+import {
+	agyAdapter,
+	codexAdapter,
+	cursorAgentAdapter,
+	droidAdapter,
+	grokAdapter,
+	ompAdapter,
+	opencodeAdapter,
+	piAdapter,
+} from "./grok-adapter.js";
 
 const SKIP_FLAGS = ["--always-approve", "--trust", "--yolo", "--dangerously-skip-permissions"];
 
-describe("grok single-instruction args", () => {
+describe("grok interactive args", () => {
 	it.each([
-		{ prompt: "fix the test", args: ["--single", "fix the test"] },
-		{ prompt: 'say "hi"', args: ["--single", 'say "hi"'] },
-		{ prompt: "line1\nline2", args: ["--single", "line1\nline2"] },
-		{ prompt: "", args: ["--single", ""] },
+		{ prompt: "fix the test", args: ["--", "fix the test"] },
+		{ prompt: 'say "hi"', args: ["--", 'say "hi"'] },
+		{ prompt: "line1\nline2", args: ["--", "line1\nline2"] },
+		{ prompt: "", args: [] },
 		{
 			prompt: "fix the test",
 			paths: ["/work/app/src/a.ts", "/work/app/src"],
-			args: ["--single", "@/work/app/src/a.ts\n@/work/app/src\nfix the test"],
+			args: ["--", "@/work/app/src/a.ts\n@/work/app/src\nfix the test"],
 		},
 		{
 			prompt: "看一下 @/work/app/src/a.ts 的测试",
 			paths: ["/work/app/src/a.ts"],
-			args: ["--single", "@/work/app/src/a.ts\n看一下 的测试"],
+			args: ["--", "@/work/app/src/a.ts\n看一下 的测试"],
 		},
 	])(
 		"builds argv for $prompt",
 		({ prompt, paths, args }: { prompt: string; paths?: readonly string[]; args: readonly string[] }) => {
 			expect(grokAdapter.executable).toBe("grok");
+			expect(grokAdapter.processForm).toBe("interactive");
 			expect(grokAdapter.singleInstructionArgs(prompt, paths)).toEqual(args);
 			expect(grokAdapter.singleInstructionArgs(prompt, paths).some((arg) => SKIP_FLAGS.includes(arg))).toBe(false);
 		},
 	);
 });
 
+describe("interactive TUI adapters", () => {
+	it.each([
+		{
+			name: "agy",
+			adapter: agyAdapter,
+			promptArgs: ["--prompt-interactive", "@/work/app/src/a.ts\nfix the test"],
+		},
+		{ name: "codex", adapter: codexAdapter, promptArgs: ["@/work/app/src/a.ts\nfix the test"] },
+		{ name: "pi", adapter: piAdapter, promptArgs: ["@/work/app/src/a.ts\nfix the test"] },
+		{ name: "droid", adapter: droidAdapter, promptArgs: ["@/work/app/src/a.ts\nfix the test"] },
+		{ name: "opencode", adapter: opencodeAdapter, promptArgs: ["--prompt", "@/work/app/src/a.ts\nfix the test"] },
+	])("$name starts empty from + and injects the prompt the way Orca does", ({ name, adapter, promptArgs }) => {
+		expect(adapter.id).toBe(name);
+		expect(adapter.executable).toBe(name);
+		expect(adapter.processForm).toBe("interactive");
+		expect(adapter.singleInstructionArgs("")).toEqual([]);
+		expect(adapter.singleInstructionArgs("fix the test", ["/work/app/src/a.ts"])).toEqual(promptArgs);
+		expect(adapter.locateSessionId({ sessionsRoot: "/tmp", cwd: "/work", startedAt: 1 })).toBeNull();
+	});
+});
+
 describe("grok resume args", () => {
-	it("appends --resume and still refuses confirmation-skipping flags", () => {
+	it("resumes the session then passes the prompt after --", () => {
 		expect(grokAdapter.resumeArgs("继续修", "sess-9", ["/work/app/src/a.ts"])).toEqual([
-			"--single",
-			"@/work/app/src/a.ts\n继续修",
 			"--resume",
 			"sess-9",
+			"--",
+			"@/work/app/src/a.ts\n继续修",
 		]);
+		expect(grokAdapter.resumeArgs("", "sess-9")).toEqual(["--resume", "sess-9"]);
 		expect(grokAdapter.resumeArgs("继续修", "sess-9").some((arg) => SKIP_FLAGS.includes(arg))).toBe(false);
 	});
 });
@@ -79,6 +111,7 @@ describe("omp and cursor-agent adapters", () => {
 		"$name builds a single instruction and a resume, and keeps confirmation flags out",
 		({ adapter, executable, single, resume, skip }) => {
 			expect(adapter.executable).toBe(executable);
+			expect(adapter.processForm).toBe("one-shot");
 			expect(adapter.singleInstructionArgs("fix the test", ["/work/app/src/a.ts"])).toEqual(single);
 			expect(
 				adapter.resumeArgs("继续修", executable === "omp" ? "omp-9" : "chat-9", ["/work/app/src/a.ts"]),
