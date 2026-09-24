@@ -1,12 +1,17 @@
 /**
  * Run all independent always-on quality guards in parallel (used by `bun run check`).
- * After those guards finish, compare the quality-gates reference with the guard
- * JSDoc and YAML rules. A mismatch fails this command. Rewrite the file with
- * `bun run scripts/quality/generate-docs.mjs`; this check does not write it.
+ * After those guards finish, rewrite the quality-gates reference from the guard
+ * JSDoc and YAML rules. CI only compares the committed file and fails when it is stale.
  */
 
 import { referenceStatus, syncQualityGatesReference } from "./generate-docs.mjs";
 import { isDirectRun, runBunParallel } from "./lib.mjs";
+
+/** GitHub Actions and most CI systems set `CI=true`. Local checks leave it unset. */
+export function referenceCheckOnly(env = process.env) {
+	const value = env.CI;
+	return value === "true" || value === "1";
+}
 
 export function createGuardCheckPlan() {
 	return [
@@ -39,12 +44,13 @@ export async function main({
 	sources,
 	log = console.log,
 	error = console.error,
+	check = referenceCheckOnly(),
 } = {}) {
 	const guardCode = await run(createGuardCheckPlan());
 	let docCode = 0;
 	try {
-		const result = (sync ?? (() => syncQualityGatesReference({ root, sources, check: true })))();
-		const status = referenceStatus(result, { check: true });
+		const result = (sync ?? (() => syncQualityGatesReference({ root, sources, check })))();
+		const status = referenceStatus(result, { check });
 		if (status.error) {
 			error(status.line);
 			docCode = 1;

@@ -55,7 +55,7 @@ export function renderQualityGatesReference(model) {
 		generatedWarning,
 		"",
 		"源头是 `scripts/quality/check-*.mjs` 的文件头 JSDoc，以及 `scripts/quality/rules/*.yml`。",
-		"重新生成：`bun run scripts/quality/generate-docs.mjs`。`bun run check:guards` 只核对这份文件，不改它；和源头不一致时该命令失败。",
+		"本地 `bun run check:guards` 在守卫结束后重写这份文件。CI 只核对、不改文件；和源头不一致时该命令失败。也可以单独运行 `bun run scripts/quality/generate-docs.mjs`。",
 		"",
 		"# 质量门禁参考",
 		"",

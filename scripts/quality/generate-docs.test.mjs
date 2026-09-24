@@ -1,8 +1,8 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { main as runGuards } from "./check-guards.mjs";
+import { createGuardCheckPlan, referenceCheckOnly, main as runGuards } from "./check-guards.mjs";
 import {
 	extractGuardDoc,
 	extractRuleDocument,
@@ -61,7 +61,7 @@ const fixture = {
 const fixtureReference = `> 此文件自动生成，请勿手工编辑。
 
 源头是 \`scripts/quality/check-*.mjs\` 的文件头 JSDoc，以及 \`scripts/quality/rules/*.yml\`。
-重新生成：\`bun run scripts/quality/generate-docs.mjs\`。\`bun run check:guards\` 只核对这份文件，不改它；和源头不一致时该命令失败。
+本地 \`bun run check:guards\` 在守卫结束后重写这份文件。CI 只核对、不改文件；和源头不一致时该命令失败。也可以单独运行 \`bun run scripts/quality/generate-docs.mjs\`。
 
 # 质量门禁参考
 
@@ -267,7 +267,7 @@ guards:
 		}
 	});
 
-	it("fails after the guards when the reference is stale and does not write it", async () => {
+	it("rewrites a stale reference after the guards pass", async () => {
 		const root = mkdtempSync(join(tmpdir(), "vetta-guard-docs-"));
 		const target = join(root, referenceRelativePath);
 		const lines = [];
@@ -275,6 +275,39 @@ guards:
 			const code = await runGuards({
 				root,
 				sources: fixture,
+				check: false,
+				run: async () => 0,
+				log: (line) => lines.push(line),
+				error: (line) => lines.push(line),
+			});
+			expect(code).toBe(0);
+			expect(readFileSync(target, "utf8")).toBe(fixtureReference);
+			expect(lines).toEqual(["[generate-docs] wrote docs/dev/quality-gates-reference.md"]);
+
+			const second = await runGuards({
+				root,
+				sources: fixture,
+				check: false,
+				run: async () => 0,
+				log: (line) => lines.push(line),
+				error: (line) => lines.push(line),
+			});
+			expect(second).toBe(0);
+			expect(lines.at(-1)).toBe("[generate-docs] docs/dev/quality-gates-reference.md is up to date");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("fails in check mode when the reference is stale and does not write it", async () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-guard-docs-"));
+		const target = join(root, referenceRelativePath);
+		const lines = [];
+		try {
+			const code = await runGuards({
+				root,
+				sources: fixture,
+				check: true,
 				run: async () => 0,
 				log: (line) => lines.push(line),
 				error: (line) => lines.push(line),
@@ -289,6 +322,7 @@ guards:
 			const second = await runGuards({
 				root,
 				sources: fixture,
+				check: true,
 				run: async () => 0,
 				log: (line) => lines.push(line),
 				error: (line) => lines.push(line),
@@ -300,28 +334,95 @@ guards:
 		}
 	});
 
-	it("checks the reference after a guard failure and does not write it", async () => {
+	it("rewrites the reference after a guard failure and still returns that failure", async () => {
 		const root = mkdtempSync(join(tmpdir(), "vetta-guard-docs-"));
 		const order = [];
 		try {
 			const code = await runGuards({
 				root,
 				sources: fixture,
+				check: false,
 				run: async () => {
 					order.push("guards");
 					return 1;
 				},
-				log: () => {},
-				error: () => {
-					order.push("docs");
-				},
+				log: (line) => order.push(line),
+				error: (line) => order.push(line),
 			});
-			expect(order).toEqual(["guards", "docs"]);
+			expect(order[0]).toBe("guards");
+			expect(code).toBe(1);
+			expect(readFileSync(join(root, referenceRelativePath), "utf8")).toBe(fixtureReference);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("keeps CI from writing a stale reference when a guard already failed", async () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-guard-docs-"));
+		try {
+			const code = await runGuards({
+				root,
+				sources: fixture,
+				check: true,
+				run: async () => 1,
+				log: () => {},
+				error: () => {},
+			});
 			expect(code).toBe(1);
 			expect(existsSync(join(root, referenceRelativePath))).toBe(false);
 		} finally {
 			rmSync(root, { recursive: true, force: true });
 		}
+	});
+});
+
+const liveRuleGuards = [
+	"check-agent-ai-maintainability.mjs",
+	"check-coding-agent-architecture.mjs",
+	"check-conflict-markers.mjs",
+	"check-conversation-message-architecture.mjs",
+	"check-package-boundaries.mjs",
+	"check-private-keys.mjs",
+	"check-runtime-boundaries.mjs",
+	"check-skill-frontmatter.mjs",
+	"check-source-path-maps.mjs",
+	"check-standalone-cli-build.mjs",
+	"check-turbo-config.mjs",
+	"check-vitest-runner.mjs",
+];
+
+describe("runtime boundary guard files", () => {
+	it("rewrites the reference locally and only compares it in CI", () => {
+		expect(referenceCheckOnly({})).toBe(false);
+		expect(referenceCheckOnly({ CI: "false" })).toBe(false);
+		expect(referenceCheckOnly({ CI: "true" })).toBe(true);
+		expect(referenceCheckOnly({ CI: "1" })).toBe(true);
+	});
+
+	it("replaces the three runtime scripts with one YAML checker and twelve live rule guards", () => {
+		const directory = join(repoRoot, "scripts/quality");
+		const names = readdirSync(directory).filter((name) => name.startsWith("check-") && name.endsWith(".mjs"));
+		const removed = [
+			"check-runtime-coding-agent-independence.mjs",
+			"check-runtime-failure-contract.mjs",
+			"check-runtime-subagents-boundary.mjs",
+		];
+		for (const name of removed) expect(names).not.toContain(name);
+
+		const excluded = new Set([
+			"check-architecture.mjs",
+			"check-fast.mjs",
+			"check-guards.mjs",
+			"check-lint.mjs",
+			"check-quick.mjs",
+			"check-coding-agent-architecture.legacy.mjs",
+			"check-package-boundaries.legacy.mjs",
+		]);
+		expect(names.filter((name) => !excluded.has(name)).sort()).toEqual(liveRuleGuards);
+		expect(createGuardCheckPlan().some((step) => step[1] === "scripts/quality/check-runtime-boundaries.mjs")).toBe(
+			true,
+		);
+		expect(createGuardCheckPlan().some((step) => removed.some((name) => step[1]?.endsWith(name)))).toBe(false);
 	});
 });
 

@@ -29,7 +29,7 @@ scripts/quality/
   lib.mjs                      共享工具
   precommit.mjs                快路径编排
   check-lint.mjs               显式源码根的全量 Biome 入口
-  check-guards.mjs             并行全量守卫；结束后核对质量门禁参考，过期则失败，不改文件
+  check-guards.mjs             并行全量守卫；结束后重写质量门禁参考。CI 只核对，过期则失败
   generate-docs.mjs            从守卫 JSDoc 和 rules/*.yml 生成质量门禁参考
   check-quick.mjs              按完整 Git 工作区差异做 Biome 和快速守卫
   check-fast.mjs               已暂存文件的私钥、冲突标记和只读 Biome
@@ -48,7 +48,7 @@ scripts/quality/
   test-impact.mjs              按任务文件选择直接测试与 Vitest 相关测试
   test-changed.mjs             按 git 变更和依赖图选包
   quality-gates.test.mjs       质量脚本定向测试
-  generate-docs.test.mjs       质量门禁参考的生成，以及 check:guards 对过期参考的核对
+  generate-docs.test.mjs       质量门禁参考的生成，以及 check:guards 在本地重写、在 CI 核对
   arch-engine/ast-walker.mjs   可序列化的 TypeScript 语法树
   arch-engine/cache.mjs        按 mtime 与内容 hash 缓存语法树
   arch-engine/rule-engine.mjs  从 YAML 加载并执行 forbidden-import
@@ -69,7 +69,7 @@ knip.config.ts                 Knip（可选）
 
 `scripts/quality/arch-engine/` 是架构守卫共用的解析、缓存和规则执行。`check-package-boundaries`、`check-coding-agent-architecture` 和 `check-runtime-boundaries` 已经改为读取 YAML；会话消息架构等其余守卫还没有迁过来。
 
-各条规则的名称、理由、示例和修复建议集中在自动生成的 [质量门禁参考](./quality-gates-reference.md)。改守卫文件头或 YAML 后运行 `bun run scripts/quality/generate-docs.mjs` 重写它。`bun run check` 只核对、不改文件；参考和源头不一致时这次检查失败。
+各条规则的名称、理由、示例和修复建议集中在自动生成的 [质量门禁参考](./quality-gates-reference.md)。本地 `bun run check` 在守卫结束后按守卫文件头和 YAML 重写它。CI 只核对、不改文件；参考和源头不一致时这次检查失败。也可以单独运行 `bun run scripts/quality/generate-docs.mjs`。
 
 `parseSource(filePath, text)` 按扩展名选择 script kind（`.tsx` / `.jsx` 才会解析 JSX），返回一棵可写成 JSON 的语法树。节点字段：
 
@@ -211,7 +211,7 @@ if (isDirectRun(import.meta.url)) process.exitCode = main();
 | `check:lint` / `check:lint:fix` | 对显式源码根执行 Biome 只读检查 / 写回，避免扫描无关目录 |
 | `check:types` | 并行执行根 `tsgo`、CLI 显式 `tsgo`、带持久增量缓存的 desktop `tsc`、docs check 与 Expo Mobile `tsc` |
 | `check:types:build-surfaces` | 使用 CLI build config 验证上游 workspace `dist/*.d.ts` 的真实消费面；要求先生成当前声明 |
-| `check:guards` | 并行执行私钥、冲突标记、包边界等全量守卫，并核对自动生成的质量门禁参考 |
+| `check:guards` | 并行执行私钥、冲突标记、包边界等全量守卫，并重写自动生成的质量门禁参考。CI 只核对 |
 | `check:staged` | 仅 staged Biome，会写回 |
 | `check:precommit` | husky 使用的快路径 |
 | `check:fast` | 已暂存文件的私钥、冲突标记和只读 Biome |
