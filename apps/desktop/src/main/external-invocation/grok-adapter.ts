@@ -55,7 +55,10 @@ export const ompAdapter: ExternalAgentAdapter = {
 	executable: "omp",
 	processForm: "one-shot",
 	singleInstructionArgs(prompt: string, referencedPaths: readonly string[] = []): readonly string[] {
-		return guardArgs(["--print", instructionText(prompt, referencedPaths)], OMP_SKIP_FLAGS, "OMP");
+		const instruction = instructionText(prompt, referencedPaths);
+		// 底部面板「+」不带提问，应直接打开 TUI。空的 --print 会卡在 Working。
+		if (instruction.length === 0) return [];
+		return guardArgs(["--print", instruction], OMP_SKIP_FLAGS, "OMP");
 	},
 	resumeArgs(prompt: string, externalSessionId: string, referencedPaths: readonly string[] = []): readonly string[] {
 		const instruction = ompAdapter.singleInstructionArgs(prompt, referencedPaths)[1] ?? "";
@@ -72,7 +75,9 @@ export const cursorAgentAdapter: ExternalAgentAdapter = {
 	executable: "cursor-agent",
 	processForm: "one-shot",
 	singleInstructionArgs(prompt: string, referencedPaths: readonly string[] = []): readonly string[] {
-		return guardArgs(["--print", instructionText(prompt, referencedPaths)], CURSOR_SKIP_FLAGS, "cursor-agent");
+		const instruction = instructionText(prompt, referencedPaths);
+		if (instruction.length === 0) return [];
+		return guardArgs(["--print", instruction], CURSOR_SKIP_FLAGS, "cursor-agent");
 	},
 	resumeArgs(prompt: string, externalSessionId: string, referencedPaths: readonly string[] = []): readonly string[] {
 		const instruction = cursorAgentAdapter.singleInstructionArgs(prompt, referencedPaths)[1] ?? "";

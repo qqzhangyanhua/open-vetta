@@ -112,6 +112,7 @@ describe("omp and cursor-agent adapters", () => {
 		({ adapter, executable, single, resume, skip }) => {
 			expect(adapter.executable).toBe(executable);
 			expect(adapter.processForm).toBe("one-shot");
+			expect(adapter.singleInstructionArgs("")).toEqual([]);
 			expect(adapter.singleInstructionArgs("fix the test", ["/work/app/src/a.ts"])).toEqual(single);
 			expect(
 				adapter.resumeArgs("继续修", executable === "omp" ? "omp-9" : "chat-9", ["/work/app/src/a.ts"]),

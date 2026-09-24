@@ -483,6 +483,18 @@ describe("external invocation service", () => {
 		expect(h.events.some((event) => event.type === "queued")).toBe(false);
 	});
 
+	it("opens OMP from the panel menu as its own terminal instead of a print turn", async () => {
+		const h = harness();
+		await h.service.start({
+			sessionId: "session-1",
+			cwd: "/work/app",
+			prompt: "",
+			agentId: "omp",
+			newSession: true,
+		});
+		expect(h.started).toEqual([{ file: "omp", args: [], cwd: "/work/app" }]);
+	});
+
 	it("runs OMP and Grok at the same time without queueing either one", async () => {
 		const h = harness();
 		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "from omp", agentId: "omp" });
