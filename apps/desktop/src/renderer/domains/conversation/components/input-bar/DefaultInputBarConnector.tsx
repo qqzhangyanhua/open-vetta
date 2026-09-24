@@ -1,7 +1,9 @@
 import { useBottomPanelPills } from "@domains/bottom-panel/hooks/useBottomPanelPills";
 import { pathBasename, toVettaFileUrl } from "@shared/lib/utils";
 import type { InputBarContextMenuViewProps } from "@vetta-org/theme-ui/chat";
-import { memo, useMemo } from "react";
+import { inputValueAtom } from "@shared/store/atoms";
+import { useAtomValue } from "jotai";
+import { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { InputBar } from "../InputBar";
 import type { ActiveActionCapsule } from "./ActiveActionCapsules";
@@ -29,6 +31,8 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const { t } = useTranslation("chat");
 	const session = useInputBarSessionSource(props.cwdOverride);
 	const draft = useInputBarDraftSource();
+	const inputValue = useAtomValue(inputValueAtom);
+	const [externalRecipientId, setExternalRecipientId] = useState("penguin");
 	const runtimeId = session.activeSession?.runtimeId;
 	const interactions = useInputBarInteractionSource(runtimeId);
 	const firstSuggestion = useInputBarSuggestionSource(runtimeId);
@@ -105,10 +109,14 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	}, [t]);
 	const placeholderModel = useMemo(() => {
 		if (!session.hasSession) return { placeholderTexts: [t("inputBar.placeholder.noSession")], placeholderRotating: false };
+		if (externalRecipientId !== "penguin") {
+			const agent = externalRecipientId === "grok" ? "Grok" : externalRecipientId;
+			return { placeholderTexts: [t("externalInvocation.placeholder", { agent })], placeholderRotating: false };
+		}
 		if (session.isStreaming) return { placeholderTexts: [t("inputBar.placeholder.thinking")], placeholderRotating: false };
 		if (session.placeholderVisible && firstSuggestion) return { placeholderTexts: [t("inputBar.placeholder.suggestion", { suggestion: firstSuggestion })], placeholderRotating: false };
 		return { placeholderTexts: defaultPlaceholders, placeholderRotating: defaultPlaceholders.length > 1 };
-	}, [defaultPlaceholders, firstSuggestion, session.hasSession, session.isStreaming, session.placeholderVisible, t]);
+	}, [defaultPlaceholders, externalRecipientId, firstSuggestion, session.hasSession, session.isStreaming, session.placeholderVisible, t]);
 	const labels = useMemo<InputBarModel["labels"]>(() => ({
 		capsule: { removeDefault: t("inputBar.capsule.removeDefault"), removeImage: t("inputBar.capsule.removeImage"), removeTooltip: (path) => t("inputBar.capsule.removeTooltip", { path }), activeGroup: (count) => t("inputBar.capsule.activeGroup", { count }) },
 		permission: { deny: t("inputBar.permission.deny"), allow: t("inputBar.permission.allow"), allowSession: t("inputBar.permission.allowSession") },
@@ -166,6 +174,13 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		contextMenu,
 		editor: { namespace: "chat-input" },
 		modelSelector: { updateActiveSession: true },
+		externalInvocation: {
+			session: session.activeSession ? { sessionId: session.activeSession.runtimeId, cwd: session.effectiveCwd } : null,
+			client: window.vetta?.externalInvocations ?? null,
+			prompt: inputValue,
+			onPromptChange: draft.setInputValue,
+			onRecipientChange: setExternalRecipientId,
+		},
 		leadingTools: [{ kind: "execution-mode", model: executionModeModel }],
 		trailingTools: contextUsageModel ? [{ kind: "context-usage", model: contextUsageModel }] : [],
 		sendBehavior: "queueable",

@@ -636,6 +636,24 @@ export function fullHistoryToChat(entries: HistoryEntry[]): ChatConversationItem
 			continue;
 		}
 
+		if (entry.type === "external_invocation") {
+			messages.push({
+				kind: "event",
+				id: `external-invocation-${entry.invocationId}`,
+				timestamp: new Date(entry.timestamp).getTime(),
+				event: {
+					kind: "external_invocation",
+					invocationId: entry.invocationId,
+					agentId: entry.agentId,
+					prompt: entry.prompt,
+					status: entry.status,
+					exitCode: entry.exitCode,
+					failureReason: entry.failureReason,
+				},
+			});
+			continue;
+		}
+
 		if (entry.type === "assistant_turn_timing") {
 			const { startedAt, endedAt, durationMs } = entry.timing;
 			let patchedAssistant = false;

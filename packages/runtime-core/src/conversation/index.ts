@@ -39,6 +39,12 @@ export {
 	nativeConversationEntryId,
 } from "./document.js";
 export {
+	EXTERNAL_INVOCATION_CUSTOM_TYPE,
+	type ExternalInvocationRecord,
+	type ExternalInvocationStatus,
+	parseExternalInvocationRecord,
+} from "./external-invocation.js";
+export {
 	projectConversationDocumentHistory,
 	selectConversationDocumentBranch,
 } from "./history-projection.js";

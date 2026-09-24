@@ -9,6 +9,7 @@ import {
 import { BottomPanelPillsView } from "@vetta-org/theme-ui/bottom-panel";
 import { useDelayedUnmount } from "@vetta-org/theme-ui/shared";
 import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import { ActionButtonBar } from "../ActionButtonBar";
 import { AtPanel } from "../AtPanel";
@@ -34,6 +35,7 @@ import {
 	InputBarSpeechAction,
 	InputBarToolbarDivider,
 } from "./InputBarToolbar";
+import { SessionExternalInvocationPage } from "../external-invocation/SessionExternalInvocationPage";
 import { InputEditor } from "./editor/InputEditor";
 import { PromptAttachmentLabels } from "./PromptAttachmentLabels";
 import type { InputBarViewProps } from "./types";
@@ -58,6 +60,8 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 	);
 	// 附件胶囊区折叠动画播完（200ms）后再卸载内容，动画本身是纯 CSS grid 过渡。
 	const renderCapsules = useDelayedUnmount(model.hasCapsules, 220);
+	const [externalRecipientId, setExternalRecipientId] = useState("penguin");
+	const sendingExternally = externalRecipientId !== "penguin";
 
 	return (
 		<div
@@ -249,8 +253,22 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 												onSelectFiles={() => void model.actions.handleSelectFiles()}
 												onSelectImages={() => void model.actions.handleSelectImages()}
 											/>
+							{model.externalInvocation ? (
+								<SessionExternalInvocationPage
+									session={model.externalInvocation.session}
+									client={model.externalInvocation.client}
+									prompt={model.externalInvocation.prompt}
+									onPromptChange={model.externalInvocation.onPromptChange}
+									showPrompt={false}
+									penguinTools={null}
+									onRecipientChange={(recipientId) => {
+										setExternalRecipientId(recipientId);
+										model.externalInvocation?.onRecipientChange(recipientId);
+									}}
+								/>
+							) : null}
 							{model.leadingTools.map((tool) => (
-								<InputBarExecutionModeAction key={tool.kind} visible={!slashOpen} model={tool.model} />
+								<InputBarExecutionModeAction key={tool.kind} visible={!slashOpen && !sendingExternally} model={tool.model} />
 							))}
 											<InputBarActiveActions
 												items={model.activeActions}
@@ -259,13 +277,14 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 											/>
 										</MessageInput.ToolbarLeading>
 										<MessageInput.ToolbarTrailing>
-											<InputBarModelAction visible={!slashOpen} updateActiveSession={model.modelSelector.updateActiveSession} scope={model.modelSelector.scope} />
+											<InputBarModelAction visible={!slashOpen && !sendingExternally} updateActiveSession={model.modelSelector.updateActiveSession} scope={model.modelSelector.scope} />
 							{model.trailingTools.map((tool) => (
 								<InputBarContextAction key={tool.kind} visible={!slashOpen} model={tool.model} render={tool.render} />
 							))}
 											{slashOpen ? null : (
 												<InputBarSpeechAction input={model.speechInput} />
 											)}
+											{sendingExternally ? null : (
 											<InputBarSendAction
 												canSend={model.canSend}
 												canQueue={model.sendBehavior === "queueable"}
@@ -276,6 +295,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 												onAbort={model.actions.handleAbort}
 												onSend={model.actions.handleSend}
 											/>
+											)}
 										</MessageInput.ToolbarTrailing>
 									</MessageInput.Toolbar>
 								</PerfSendProfiler>

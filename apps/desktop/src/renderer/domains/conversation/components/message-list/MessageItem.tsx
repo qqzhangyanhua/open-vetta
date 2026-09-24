@@ -53,6 +53,35 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
 	return <Renderer {...props} message={message} />;
 });
 
+const externalInvocationStatusKey = {
+	running: "externalInvocation.status.running",
+	completed: "externalInvocation.status.completed",
+	failed: "externalInvocation.status.failed",
+} as const;
+
+const ExternalInvocationHistoryCard = memo(function ExternalInvocationHistoryCard({
+	event,
+}: {
+	event: {
+		readonly agentId: string;
+		readonly prompt: string;
+		readonly status: "running" | "completed" | "failed";
+		readonly exitCode: number | null;
+		readonly failureReason: string | null;
+	};
+}) {
+	const { t } = useTranslation("chat");
+	const agent = event.agentId === "grok" ? "Grok" : event.agentId;
+	return (
+		<article aria-label={`${agent} ${event.prompt}`}>
+			<p>{event.prompt}</p>
+			<p>{t(externalInvocationStatusKey[event.status])}</p>
+			{event.exitCode !== null ? <p>{t("externalInvocation.exitCode", { code: event.exitCode })}</p> : null}
+			{event.failureReason ? <p>{event.failureReason}</p> : null}
+		</article>
+	);
+});
+
 export const DefaultMessageItem = memo(function DefaultMessageItem({
 	message,
 	isTailMessage,
@@ -65,6 +94,9 @@ export const DefaultMessageItem = memo(function DefaultMessageItem({
 	exportMode = false,
 }: MessageItemProps) {
 	if (message.kind === "event") {
+		if (message.event.kind === "external_invocation") {
+			return <ExternalInvocationHistoryCard event={message.event} />;
+		}
 		if (message.event.kind === "compaction") return <CompactionBoundary />;
 		if (message.event.kind === "omitted_reasoning") {
 			return <OmittedReasoningNote count={message.event.count} />;

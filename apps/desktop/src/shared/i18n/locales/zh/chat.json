@@ -511,6 +511,22 @@
 			"label": "计划模式"
 		}
 	},
+	"externalInvocation": {
+		"switcher": "发给",
+		"message": "消息",
+		"agent": {
+			"penguin": "penguin"
+		},
+		"placeholder": "这条消息会交给 {{agent}} 在终端里执行，输出保留在本会话",
+		"permission": "由 {{agent}} 自己的权限设置决定，需要确认时会在终端里询问",
+		"sendLabel": "发给 {{agent}}",
+		"exitCode": "退出码 {{code}}",
+		"status": {
+			"running": "运行中",
+			"completed": "已完成",
+			"failed": "失败"
+		}
+	},
 	"inputBar": {
 		"error": {
 			"multipleScenes": "一条消息只能选择一个场景，请移除多余的场景后重试"

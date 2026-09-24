@@ -511,6 +511,22 @@
 			"label": "Plan mode"
 		}
 	},
+	"externalInvocation": {
+		"switcher": "Send to",
+		"message": "Message",
+		"agent": {
+			"penguin": "penguin"
+		},
+		"placeholder": "This message runs in the terminal with {{agent}}. The output stays in this session",
+		"permission": "{{agent}} uses its own permission settings. Confirmations are asked in the terminal",
+		"sendLabel": "Send to {{agent}}",
+		"exitCode": "Exit code {{code}}",
+		"status": {
+			"running": "Running",
+			"completed": "Completed",
+			"failed": "Failed"
+		}
+	},
 	"inputBar": {
 		"error": {
 			"multipleScenes": "Only one Scene can be selected per message. Remove the extra Scene and try again"

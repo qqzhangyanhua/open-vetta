@@ -233,6 +233,33 @@ export interface InputBarModel {
 		readonly updateActiveSession: boolean;
 		readonly scope?: ModelSelectorScope;
 	};
+	/** 发给外部智能体。缺省时输入栏保持只发给 penguin 的样子。 */
+	externalInvocation?: {
+		readonly session: { readonly sessionId: string; readonly cwd: string } | null;
+		readonly client: {
+			listAgents(): Promise<readonly { id: "grok"; label: string }[]>;
+			start(request: {
+				sessionId: string;
+				cwd: string;
+				prompt: string;
+				agentId: string;
+			}): Promise<{ invocationId: string }>;
+			subscribe(
+				sessionId: string,
+				listener: (event: {
+					type: "running" | "completed" | "failed";
+					invocationId: string;
+					prompt?: string;
+					agentId?: string;
+					exitCode?: number | null;
+					reason?: string;
+				}) => void,
+			): () => void;
+		} | null;
+		readonly prompt: string;
+		readonly onPromptChange: (value: string) => void;
+		readonly onRecipientChange: (recipientId: string) => void;
+	};
 	/** 工具栏按真实组成项装配，避免用 showX/capability 布尔值扩展产品分支。 */
 	leadingTools: readonly InputBarLeadingTool[];
 	trailingTools: readonly InputBarTrailingTool[];

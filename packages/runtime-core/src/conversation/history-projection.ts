@@ -13,6 +13,7 @@ import type {
 	ConversationDocumentCustomMessageEntry,
 	ConversationDocumentEntry,
 } from "./document.js";
+import { EXTERNAL_INVOCATION_CUSTOM_TYPE, parseExternalInvocationRecord } from "./external-invocation.js";
 
 const ASSISTANT_TURN_TIMING_TYPE = "vetta.assistant_turn_timing";
 const PROMPT_RESOURCE_REFERENCE_TYPE = "prompt_resource_reference";
@@ -76,6 +77,7 @@ export function projectConversationDocumentHistory(document: ConversationDocumen
 				continue;
 			}
 			if (entry.customType === TURN_FAILED_TYPE) appendTurnFailedHistory(history, entry);
+			if (entry.customType === EXTERNAL_INVOCATION_CUSTOM_TYPE) appendExternalInvocationHistory(history, entry);
 			continue;
 		}
 		if (entry.type === "custom_message") appendCustomMessageHistory(history, entry);
@@ -247,6 +249,17 @@ function parseFailureDetails(value: unknown): RuntimeFailureDetails | undefined 
 	if (typeof value.retryAfterMs === "number" && Number.isFinite(value.retryAfterMs))
 		details.retryAfterMs = value.retryAfterMs;
 	return Object.keys(details).length > 0 ? details : undefined;
+}
+
+function appendExternalInvocationHistory(history: HistoryEntry[], entry: ConversationDocumentCustomEntry): void {
+	const record = parseExternalInvocationRecord(entry.data);
+	if (!record) return;
+	const next: HistoryEntry = { type: "external_invocation", ...record, timestamp: entry.timestamp };
+	const index = history.findIndex(
+		(item) => item.type === "external_invocation" && item.invocationId === record.invocationId,
+	);
+	if (index >= 0) history[index] = next;
+	else history.push(next);
 }
 
 function appendCustomMessageHistory(history: HistoryEntry[], entry: ConversationDocumentCustomMessageEntry): void {
