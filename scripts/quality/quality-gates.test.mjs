@@ -17,8 +17,10 @@ import { findVitestRunnerViolations } from "./check-vitest-runner.mjs";
 import {
 	buildableTestDependencies,
 	changedFiles,
+	discoverWorkspacePackages,
 	expandTestablePackages,
 	formatElapsedTime,
+	getWorkspacesBySpecificity,
 	normalizeRepoPath,
 	packagesFromPaths,
 	parseBaseArgs,
@@ -27,6 +29,7 @@ import {
 	stagedFiles,
 	TESTABLE_PACKAGES,
 	WORKSPACE_PACKAGES,
+	workspaceForFile,
 } from "./lib.mjs";
 import { createChangedTestPlan, parseArgs } from "./test-changed.mjs";
 import { createImpactTestPlan, parseImpactArgs, relatedResultAction, runCapturedBun } from "./test-impact.mjs";
@@ -486,6 +489,98 @@ describe("affected package selection", () => {
 		expect(dependencies).not.toEqual(
 			expect.arrayContaining(["@vetta/desktop", "@vetta/docs-site", "@vetta/remote-relay"]),
 		);
+	});
+});
+
+describe("workspace discovery cache", () => {
+	function createWorkspaceFixture(workspaces, packages) {
+		const root = mkdtempSync(join(tmpdir(), "vetta-workspace-"));
+		writeFileSync(join(root, "package.json"), JSON.stringify({ workspaces }));
+		for (const pkg of packages) {
+			mkdirSync(join(root, pkg.dir), { recursive: true });
+			writeFileSync(
+				join(root, pkg.dir, "package.json"),
+				JSON.stringify({ name: pkg.name, scripts: pkg.scripts ?? {} }),
+			);
+		}
+		return root;
+	}
+
+	function removeFixture(root) {
+		rmSync(root, { recursive: true, force: true });
+	}
+
+	it("reuses the first scan for the same repository root", () => {
+		expect(discoverWorkspacePackages()).toBe(WORKSPACE_PACKAGES);
+		expect(discoverWorkspacePackages(repoRoot)).toBe(WORKSPACE_PACKAGES);
+	});
+
+	it("does not rescan after the first visit to a root", () => {
+		const root = createWorkspaceFixture(["packages/*"], [{ dir: "packages/alpha", name: "alpha" }]);
+		try {
+			const first = discoverWorkspacePackages(root);
+			mkdirSync(join(root, "packages/beta"), { recursive: true });
+			writeFileSync(join(root, "packages/beta/package.json"), JSON.stringify({ name: "beta" }));
+			const second = discoverWorkspacePackages(root);
+			expect(second).toBe(first);
+			expect(second.map((pkg) => pkg.key)).toEqual(["alpha"]);
+		} finally {
+			removeFixture(root);
+		}
+	});
+
+	it("keeps discovery results isolated per root", () => {
+		const left = createWorkspaceFixture(["packages/*"], [{ dir: "packages/left", name: "left" }]);
+		const right = createWorkspaceFixture(["packages/*"], [{ dir: "packages/right", name: "right" }]);
+		try {
+			expect(discoverWorkspacePackages(left).map((pkg) => pkg.name)).toEqual(["left"]);
+			expect(discoverWorkspacePackages(right).map((pkg) => pkg.name)).toEqual(["right"]);
+		} finally {
+			removeFixture(left);
+			removeFixture(right);
+		}
+	});
+
+	it("returns a cached list ordered so nested workspaces win", () => {
+		const dirs = getWorkspacesBySpecificity().map((pkg) => pkg.dir);
+		const nested = "packages/coding-agent/examples/extensions/with-deps";
+		const parent = "packages/coding-agent";
+		expect(dirs.indexOf(nested)).toBeGreaterThanOrEqual(0);
+		expect(dirs.indexOf(nested)).toBeLessThan(dirs.indexOf(parent));
+		expect(getWorkspacesBySpecificity()).toBe(getWorkspacesBySpecificity());
+	});
+
+	it("maps a file to the most specific workspace", () => {
+		expect(workspaceForFile("packages/coding-agent/examples/extensions/with-deps/src/index.ts")?.key).toBe(
+			"coding-agent/examples/extensions/with-deps",
+		);
+		expect(workspaceForFile("packages/coding-agent/src/index.ts")?.key).toBe("coding-agent");
+		expect(workspaceForFile("packages\\ai\\src\\index.ts")?.key).toBe("ai");
+		expect(workspaceForFile("docs/dev/quality-gates.md")).toBeUndefined();
+		expect(packagesFromPaths(["packages/coding-agent/examples/extensions/with-deps/src/index.ts"])).toEqual([
+			"coding-agent/examples/extensions/with-deps",
+		]);
+	});
+
+	it("pre-sorts a custom root so the nested workspace owns nested files", () => {
+		const root = createWorkspaceFixture(
+			["packages/*", "packages/group/*"],
+			[
+				{ dir: "packages/group", name: "group" },
+				{ dir: "packages/group/child", name: "child" },
+			],
+		);
+		try {
+			expect(getWorkspacesBySpecificity(root).map((pkg) => pkg.dir)).toEqual([
+				"packages/group/child",
+				"packages/group",
+			]);
+			expect(workspaceForFile("packages/group/child/src/index.ts", root)?.name).toBe("child");
+			expect(workspaceForFile("packages/group/src/index.ts", root)?.name).toBe("group");
+			expect(getWorkspacesBySpecificity(root)).toBe(getWorkspacesBySpecificity(root));
+		} finally {
+			removeFixture(root);
+		}
 	});
 });
 

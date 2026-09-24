@@ -51,8 +51,14 @@ function expandWorkspacePattern(pattern, root = repoRoot) {
 	return directories;
 }
 
-/** Workspace manifests are the single source of truth for package discovery and dependency propagation. */
-export function discoverWorkspacePackages(root = repoRoot) {
+const workspacePackagesByRoot = new Map();
+const workspacesBySpecificityByRoot = new Map();
+
+function cacheKeyForRoot(root) {
+	return resolve(root);
+}
+
+function scanWorkspacePackages(root) {
 	const rootManifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 	const packages = [];
 	const keys = new Set();
@@ -79,6 +85,31 @@ export function discoverWorkspacePackages(root = repoRoot) {
 		}
 	}
 	return packages;
+}
+
+/** Workspace manifests are the single source of truth for package discovery and dependency propagation. Scans once per resolved root. */
+export function discoverWorkspacePackages(root = repoRoot) {
+	const cacheKey = cacheKeyForRoot(root);
+	const cached = workspacePackagesByRoot.get(cacheKey);
+	if (cached) return cached;
+	const packages = scanWorkspacePackages(root);
+	workspacePackagesByRoot.set(cacheKey, packages);
+	return packages;
+}
+
+/** Workspace list ordered so nested directories match before their parents. */
+export function getWorkspacesBySpecificity(root = repoRoot) {
+	const cacheKey = cacheKeyForRoot(root);
+	const cached = workspacesBySpecificityByRoot.get(cacheKey);
+	if (cached) return cached;
+	const sorted = [...discoverWorkspacePackages(root)].sort((left, right) => right.dir.length - left.dir.length);
+	workspacesBySpecificityByRoot.set(cacheKey, sorted);
+	return sorted;
+}
+
+export function workspaceForFile(file, root = repoRoot) {
+	const norm = toPosix(file);
+	return getWorkspacesBySpecificity(root).find((pkg) => norm === pkg.dir || norm.startsWith(`${pkg.dir}/`));
 }
 
 export const WORKSPACE_PACKAGES = discoverWorkspacePackages();
@@ -249,11 +280,10 @@ export function parseFileSelectionArgs(args, defaultBase = "origin/dev", root = 
 
 export function packagesFromPaths(paths) {
 	const found = new Set();
-	const workspacesBySpecificity = [...WORKSPACE_PACKAGES].sort((left, right) => right.dir.length - left.dir.length);
 	for (const file of paths) {
 		const norm = toPosix(file);
 		if (!norm.startsWith("packages/") && !norm.startsWith("apps/")) continue;
-		const workspace = workspacesBySpecificity.find(({ dir }) => norm === dir || norm.startsWith(`${dir}/`));
+		const workspace = workspaceForFile(norm);
 		if (workspace) found.add(workspace.key);
 	}
 	return [...found].sort();
