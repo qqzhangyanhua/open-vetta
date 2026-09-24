@@ -14,6 +14,7 @@ const steps = [
 	["scripts/quality/check-conflict-markers.mjs"],
 	// Rules: scripts/quality/rules/package-boundaries.yml
 	["scripts/quality/check-package-boundaries.mjs"],
+	// Rules: scripts/quality/rules/coding-agent-architecture.yml
 	["scripts/quality/check-coding-agent-architecture.mjs"],
 	["scripts/quality/check-runtime-coding-agent-independence.mjs"],
 	["scripts/quality/check-runtime-subagents-boundary.mjs"],

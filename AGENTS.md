@@ -93,7 +93,7 @@ Desktop 主进程部分目录还有更细规则；修改对应目录时必须继
 - 如果现有实现看起来不自然，先确认它是否在保护兼容性、生命周期或宿主边界，不要在未理解原因时改写。
 - 任务需要改变现有架构行为时，先向用户说明替代方案和迁移影响，再修改实现，并使用 ADR 记录这次架构变更；不得只改 ADR 来宣称行为已经改变。
 - 发生长期且跨模块的架构变更时，应使用仓库现有 ADR 格式记录背景、决策、备选方案和后果；局部实现细节不需要新增 ADR。
-- 包边界和 Coding Agent 依赖规则由 [`check-package-boundaries.mjs`](scripts/quality/check-package-boundaries.mjs) 与 [`check-coding-agent-architecture.mjs`](scripts/quality/check-coding-agent-architecture.mjs) 机械验证。不得通过删除检查、放宽基线或添加忽略项来掩盖违规，除非用户明确批准规则变更。
+- 包边界规则在 [`package-boundaries.yml`](scripts/quality/rules/package-boundaries.yml)，Coding Agent 架构规则在 [`coding-agent-architecture.yml`](scripts/quality/rules/coding-agent-architecture.yml)，分别由对应检查脚本执行。旧实现只给差分测试对照。不得通过删除检查、放宽基线或添加忽略项来掩盖违规，除非用户明确批准规则变更。
 
 ## 实施原则
 

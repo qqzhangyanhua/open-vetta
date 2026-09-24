@@ -32,7 +32,7 @@ scripts/quality/
   check-conflict-markers.mjs   未解决冲突标记
   check-package-boundaries.mjs 库/插件不得依赖 app 宿主
   check-coding-agent-architecture.mjs
-                               Coding Agent 当前架构依赖与公开面
+                               Coding Agent 当前架构依赖与公开面，读取 rules/coding-agent-architecture.yml
   run-vitest.mjs               用 Node 启动 Vitest（Windows 上禁止 Bun 拉起 worker）
   check-vitest-runner.mjs      package.json 测试脚本必须走 run-vitest.mjs
   check-turbo-config.mjs       Turbo 输入、环境、入口与 Remote Cache 安全合同
@@ -48,12 +48,16 @@ scripts/quality/
   check-package-boundaries.legacy.mjs 迁移前的包边界实现，只给差分测试对照
   package-boundaries-differential.test.mjs 新旧包边界结果对照
   rules/package-boundaries.yml 包边界规则，由 check-package-boundaries.mjs 读取
+  check-coding-agent-architecture.legacy.mjs 迁移前的 Coding Agent 架构实现，只给差分测试对照
+  coding-agent-architecture-differential.test.mjs 新旧 Coding Agent 架构结果对照
+  rules/coding-agent-architecture.yml Coding Agent 架构规则，由 check-coding-agent-architecture.mjs 读取
+  arch-engine/coding-agent-rules.mjs 加载并执行 Coding Agent 架构 YAML
 knip.config.ts                 Knip（可选）
 ```
 
 ## 架构引擎
 
-`scripts/quality/arch-engine/` 是架构守卫共用的解析、缓存和规则执行。`check-package-boundaries` 已经改为读取 YAML；其余架构守卫还没有迁过来。
+`scripts/quality/arch-engine/` 是架构守卫共用的解析、缓存和规则执行。`check-package-boundaries` 和 `check-coding-agent-architecture` 已经改为读取 YAML；其余架构守卫还没有迁过来。
 
 `parseSource(filePath, text)` 按扩展名选择 script kind（`.tsx` / `.jsx` 才会解析 JSX），返回一棵可写成 JSON 的语法树。节点字段：
 
@@ -162,7 +166,7 @@ const violations = checkDocument(document, [{ path, text: readFileSync(path, "ut
 
 它不调用 `process.exit()`，也不改 `process.exitCode`。测试可以传入 `{ log, error }` 把输出接走。脚本只有在被直接运行时才把返回码赋给 `process.exitCode`。
 
-包边界检查沿用扫描文件数作为成功输出，因为操作者要知道扫过多少文件。失败时仍是上面的 `[package-boundaries] 文件:行号: 说明 (规则)`，下一行再打出 YAML 里的 `fix`。规则文件读不出来时打印 `[package-boundaries] internal error: ...`。
+包边界检查沿用扫描文件数作为成功输出，因为操作者要知道扫过多少文件。失败时仍是上面的 `[package-boundaries] 文件:行号: 说明 (规则)`，下一行再打出 YAML 里的 `fix`。规则文件读不出来时打印 `[package-boundaries] internal error: ...`。Coding Agent 架构检查同样保留源文件数、模块边数和 manifest 导出数作为成功输出；失败时除了 `[coding-agent-architecture] 文件:行号: 说明 (规则)`，还会列出 YAML `docs` 里的 ADR 和设计文档。
 
 ```javascript
 import { CheckViolation, isDirectRun, lineNumberAt, runCheck } from "./lib.mjs";
@@ -258,9 +262,13 @@ bun run test:pkg <name>
 
 ## Coding Agent 架构规则（`check-coding-agent-architecture`）
 
+现行规则在 `scripts/quality/rules/coding-agent-architecture.yml`。`check-coding-agent-architecture.mjs` 读取这份文件。新增一条依赖方向、退役路径或宿主注入要求时改 YAML，不用改检查脚本。`scripts/quality/check-coding-agent-architecture.legacy.mjs` 是迁移前的实现，只给差分测试对照，不要在那里加规则。
+
 该守卫不生成全量 AST 模块图，也不启动 TypeScript TypeChecker。它只用 TypeScript AST 从
 `import`、`export ... from` 和动态 `import()` 中提取模块边，再执行声明式规则，因此不会把注释、
-字符串或同名变量误判为依赖。
+字符串或同名变量误判为依赖。直接跑检查时，失败行是 `[coding-agent-architecture] 文件:行号: 说明 (规则)`，最后再列出文档里的 ADR 和设计文档；没有违规时仍打印源文件数、模块边数和 manifest 导出数。开发者从 `findCodingAgentArchitectureViolations` 拿到的说明文字与迁移前一致。
+
+一条规则是一组按书写顺序执行的步骤。常用步骤：`eachFile` / `eachEdge` / `eachSourcePath` 遍历输入；`when` 用路径、说明符、文本或路径类别过滤；`unlessText` / `unlessAll` / `unlessAny` / `unlessImport` 表示文件在场但缺少要求的文本或导入；`ifSourceHas` / `ifExport` 表示退役路径或 package export 不得出现。路径类别写在 `classes`，重复的路径表写在 `lists` 或 `groups`。`findCodingAgentArchitectureViolations` 仍返回迁移前的整句说明。新的检查种类才需要改解释器；现有种类的路径、正则和说明只改这份 YAML。
 
 长期规则包括：
 

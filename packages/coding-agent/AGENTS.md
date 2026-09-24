@@ -166,4 +166,4 @@ bun run check
 - 测试是否覆盖本次决策和失败路径，而不只是覆盖代码行。
 - `bun run check:quick`、相关测试和代码变更后的 `bun run check` 是否全部通过。
 
-固定重写目标见 [`REWRITE-CHARTER.md`](../../docs/agent/coding-agent/05-greenfield-rewrite/08-implementation-log/REWRITE-CHARTER.md)，三层所有权以 ADR-0077 为准。架构守卫以 `scripts/quality/check-coding-agent-architecture.mjs` 和包边界守卫为准。
+固定重写目标见 [`REWRITE-CHARTER.md`](../../docs/agent/coding-agent/05-greenfield-rewrite/08-implementation-log/REWRITE-CHARTER.md)，三层所有权以 ADR-0077 为准。架构守卫以 `scripts/quality/rules/coding-agent-architecture.yml` 和包边界守卫为准；检查脚本只负责执行这些规则。
