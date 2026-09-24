@@ -209,10 +209,10 @@ Desktop 主进程部分目录还有更细规则；修改对应目录时必须继
 
 使用最小但充分的验证范围：
 
-1. 中间代码编辑轮次对本次任务文件运行 `bun run check:quick -- <file...>`；需要核对整个工作区时省略文件参数。如果当前轮已经完成且将立即运行完整 `bun run check`，无需先重复运行 `check:quick`，因为完整检查已经覆盖 Biome 和全部 guards。
+1. 中间代码编辑轮次对本次任务文件运行 `bun run check:quick -- <file...>`。它只检查这些文件的 Biome、私钥和冲突标记，不跑架构守卫，也不做类型检查。需要核对整个工作区的改动时省略文件参数。文件已经暂存、只要这三项反馈时用 `bun run check:fast`。改了包边界或 Coding Agent 架构时另跑 `bun run check:arch`。如果这一轮已经结束并且马上要跑 `bun run check`，不必再跑 `check:quick` 或 `check:arch`：`check` 已经覆盖 Biome 和全部守卫。
 2. 优先运行 `bun run test:impact -- <file...>`；它会选择直接测试和依赖相关测试。根配置、已删除的 workspace 文件、包公共入口（`src/index.*`、`src/public-api/`）和合同目录会回退 `test:changed`。
 3. 公共合同、删除文件、多个包或影响范围不明确时运行 `bun run test:changed -- <file...>`；提 PR 前仍可不带文件参数核对完整分支差异。
-4. 一轮代码任务完成后运行一次 `bun run check`，修复全部 error、warning 和 info；完整检查通过后，只有继续修改了受检查文件才需要重跑。
+4. 一轮代码任务完成后运行一次 `bun run check`，修复全部 error、warning 和 info。`bun run check:full` 只并行跑 lint、类型和架构引擎，不含其余守卫，不能代替 `check`。完整检查通过后，只有继续修改了受检查文件才需要重跑。
 
 `bun run check` 不运行测试，不能替代定向行为测试。
 

@@ -1,6 +1,8 @@
 /**
  * Fast local gate for every file changed from a base ref, including committed,
- * staged, unstaged, and untracked files. Type checking remains in `bun run check`.
+ * staged, unstaged, and untracked files. Biome, private keys, and conflict
+ * markers run on those files. Architecture guards stay in `bun run check:arch`
+ * and `bun run check`.
  *
  * Usage:
  *   bun run check:quick
@@ -10,7 +12,20 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { changedFiles, isDirectRun, ok, parseFileSelectionArgs, repoRoot, runBun, toPosix } from "./lib.mjs";
+import { checkConflictMarkers } from "./check-conflict-markers.mjs";
+import { checkPrivateKeys, selectPrivateKeyFiles } from "./check-private-keys.mjs";
+import {
+	changedFiles,
+	isBinaryLike,
+	isDirectRun,
+	ok,
+	parseFileSelectionArgs,
+	readText,
+	repoRoot,
+	runBun,
+	runCheck,
+	toPosix,
+} from "./lib.mjs";
 
 const MAX_BATCH_CHARS = 16_000;
 
@@ -46,6 +61,17 @@ export function createQuickCheckPlan(files, pathExists = (file) => existsSync(jo
 		existingFiles,
 		fullBiome,
 	};
+}
+
+export function runChangedFileGuards(files, readFile = (file) => readText(join(repoRoot, file)), reporters) {
+	const textFiles = files.filter((file) => !isBinaryLike(file));
+	const keyCode = runCheck(
+		"private-key",
+		() => checkPrivateKeys(selectPrivateKeyFiles(textFiles), readFile),
+		reporters,
+	);
+	const markerCode = runCheck("conflict-markers", () => checkConflictMarkers(textFiles, readFile), reporters);
+	return keyCode || markerCode;
 }
 
 function runBiome(plan) {
@@ -92,7 +118,7 @@ export function main(args = process.argv.slice(2)) {
 		}
 
 		const biomeCode = runBiome(plan);
-		const guardCode = runBun(["run", "check:guards"]);
+		const guardCode = runChangedFileGuards(plan.existingFiles);
 		return biomeCode || guardCode;
 	} catch (error) {
 		console.error(`[check:quick] ${error instanceof Error ? error.message : String(error)}`);

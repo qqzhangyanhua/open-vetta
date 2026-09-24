@@ -2,43 +2,29 @@
  * Run all independent always-on quality guards in parallel (used by `bun run check`).
  */
 
-import { spawn } from "node:child_process";
-import { repoRoot } from "./lib.mjs";
+import { runBunParallel } from "./lib.mjs";
 
 const steps = [
-	["packages/capability-sdk/scripts/generate-catalog.ts", "--check"],
-	["packages/coding-agent/scripts/generate-personas.mjs", "--check"],
-	["packages/coding-agent/scripts/generate-themes.mjs", "--check"],
-	["apps/desktop/scripts/build-agent-modes.mjs", "--check"],
-	["scripts/quality/check-private-keys.mjs"],
-	["scripts/quality/check-conflict-markers.mjs"],
+	["run", "packages/capability-sdk/scripts/generate-catalog.ts", "--check"],
+	["run", "packages/coding-agent/scripts/generate-personas.mjs", "--check"],
+	["run", "packages/coding-agent/scripts/generate-themes.mjs", "--check"],
+	["run", "apps/desktop/scripts/build-agent-modes.mjs", "--check"],
+	["run", "scripts/quality/check-private-keys.mjs"],
+	["run", "scripts/quality/check-conflict-markers.mjs"],
 	// Rules: scripts/quality/rules/package-boundaries.yml
-	["scripts/quality/check-package-boundaries.mjs"],
+	["run", "scripts/quality/check-package-boundaries.mjs"],
 	// Rules: scripts/quality/rules/coding-agent-architecture.yml
-	["scripts/quality/check-coding-agent-architecture.mjs"],
-	["scripts/quality/check-runtime-coding-agent-independence.mjs"],
-	["scripts/quality/check-runtime-subagents-boundary.mjs"],
-	["scripts/quality/check-conversation-message-architecture.mjs"],
-	["scripts/quality/check-runtime-failure-contract.mjs"],
-	["scripts/quality/check-agent-ai-maintainability.mjs"],
-	["scripts/quality/check-standalone-cli-build.mjs"],
-	["scripts/quality/check-skill-frontmatter.mjs"],
-	["scripts/quality/check-vitest-runner.mjs"],
-	["scripts/quality/check-source-path-maps.mjs"],
-	["scripts/quality/check-turbo-config.mjs"],
+	["run", "scripts/quality/check-coding-agent-architecture.mjs"],
+	["run", "scripts/quality/check-runtime-coding-agent-independence.mjs"],
+	["run", "scripts/quality/check-runtime-subagents-boundary.mjs"],
+	["run", "scripts/quality/check-conversation-message-architecture.mjs"],
+	["run", "scripts/quality/check-runtime-failure-contract.mjs"],
+	["run", "scripts/quality/check-agent-ai-maintainability.mjs"],
+	["run", "scripts/quality/check-standalone-cli-build.mjs"],
+	["run", "scripts/quality/check-skill-frontmatter.mjs"],
+	["run", "scripts/quality/check-vitest-runner.mjs"],
+	["run", "scripts/quality/check-source-path-maps.mjs"],
+	["run", "scripts/quality/check-turbo-config.mjs"],
 ];
 
-function runStep(args) {
-	return new Promise((resolve) => {
-		const child = spawn("bun", ["run", ...args], {
-			cwd: repoRoot,
-			stdio: "inherit",
-			shell: false,
-		});
-		child.once("error", () => resolve(1));
-		child.once("exit", (code) => resolve(code ?? 1));
-	});
-}
-
-const results = await Promise.all(steps.map(runStep));
-process.exit(results.find((code) => code !== 0) ?? 0);
+process.exit(await runBunParallel(steps));

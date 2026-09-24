@@ -1,11 +1,22 @@
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
+import { evaluateBoundaryFile, loadBoundaryDocument } from "./arch-engine/boundary-rules.mjs";
+import { mergeBoundaryItems, partitionBoundaryJobs } from "./arch-engine/boundary-scan.mjs";
+import { createArchitectureCheckPlan } from "./check-architecture.mjs";
 import { checkConflictMarkers, findConflictMarkerViolationsInText } from "./check-conflict-markers.mjs";
-import { findPackageBoundaryViolations, findPackageManifestBoundaryViolations } from "./check-package-boundaries.mjs";
-import { checkPrivateKeys, findPrivateKeyViolationsInText } from "./check-private-keys.mjs";
-import { batchPaths, createQuickCheckPlan, isBiomeGlobalTrigger } from "./check-quick.mjs";
+import { createFastCheckPlan } from "./check-fast.mjs";
+import {
+	boundaryWorkerCount,
+	collectBoundaryScan,
+	evaluateBoundaryFileJobs,
+	findPackageBoundaryViolations,
+	findPackageManifestBoundaryViolations,
+} from "./check-package-boundaries.mjs";
+import { checkPrivateKeys, findPrivateKeyViolationsInText, selectPrivateKeyFiles } from "./check-private-keys.mjs";
+import { batchPaths, createQuickCheckPlan, isBiomeGlobalTrigger, runChangedFileGuards } from "./check-quick.mjs";
 import {
 	checkSkillFrontmatter,
 	findSkillFrontmatterProblems,
@@ -2044,5 +2055,173 @@ describe("skill frontmatter guard", () => {
 				"missing or unterminated --- frontmatter block",
 			),
 		]);
+	});
+});
+
+describe("layered quality gates", () => {
+	it("plans the staged fast gate as private keys, conflict markers, and read-only Biome", () => {
+		expect(createFastCheckPlan()).toEqual([
+			["run", "scripts/quality/check-private-keys.mjs", "--staged"],
+			["run", "scripts/quality/check-conflict-markers.mjs", "--staged"],
+			["x", "@biomejs/biome", "check", "--error-on-warnings", "--staged", "--no-errors-on-unmatched"],
+		]);
+	});
+
+	it("plans the architecture gate as the YAML engine only", () => {
+		expect(createArchitectureCheckPlan()).toEqual([
+			["run", "scripts/quality/check-package-boundaries.mjs"],
+			["run", "scripts/quality/check-coding-agent-architecture.mjs"],
+		]);
+	});
+
+	it("keeps CI on the full check and adds fast, arch, and full beside it", () => {
+		const scripts = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")).scripts;
+		const workflow = readFileSync(join(repoRoot, ".github/workflows/quality.yml"), "utf8");
+
+		expect(scripts["check:fast"]).toBe("bun run scripts/quality/check-fast.mjs");
+		expect(scripts["check:arch"]).toBe("bun run scripts/quality/check-architecture.mjs");
+		expect(scripts["check:full"]).toBe(
+			'concurrently --names "lint,types,arch" --prefix-colors "cyan,yellow,magenta" "bun run check:lint" "bun run check:types" "bun run check:arch"',
+		);
+		expect(scripts.check).toContain("bun run check:guards");
+		expect(scripts.check).toContain("bun run --cwd apps/mobile lint");
+		expect(scripts.check).not.toContain("check:arch");
+		expect(scripts["check:full"]).not.toContain("check:guards");
+		expect(workflow).toContain("run: bun run check\n");
+		expect(workflow).not.toContain("check:full");
+	});
+
+	it("reports a conflict marker in a changed file and skips private-key exclusions", () => {
+		const begin = "-----BEGIN ";
+		const seen = [];
+		const lines = [];
+		const reporters = {
+			log: (line) => lines.push(line),
+			error: (line) => lines.push(line),
+		};
+		const code = runChangedFileGuards(
+			["packages/ai/src/index.ts", "docs/example.md", "apps/desktop/icon.png", "scripts/quality/lib.mjs"],
+			(file) => {
+				seen.push(file);
+				if (file.startsWith("docs/")) return `${begin}RSA PRIVATE KEY-----\n`;
+				if (file.startsWith("packages/")) return "<<<<<<< HEAD\n";
+				return "ok\n";
+			},
+			reporters,
+		);
+
+		expect(code).toBe(1);
+		expect(lines).toContain(
+			"[conflict-markers] packages/ai/src/index.ts:1: unresolved conflict marker (conflict-marker)",
+		);
+		expect(lines.some((line) => line.includes("private-key") && line.includes("docs/example.md"))).toBe(false);
+		expect(lines.some((line) => line.includes("icon.png"))).toBe(false);
+		expect(seen.filter((file) => file.startsWith("docs/"))).toEqual(["docs/example.md"]);
+		expect(seen.filter((file) => file.startsWith("scripts/quality/"))).toEqual(["scripts/quality/lib.mjs"]);
+		expect(seen.filter((file) => file.startsWith("packages/"))).toEqual([
+			"packages/ai/src/index.ts",
+			"packages/ai/src/index.ts",
+		]);
+		expect(selectPrivateKeyFiles(["docs/example.md", "packages/ai/src/index.ts", "apps/desktop/icon.png"])).toEqual([
+			"packages/ai/src/index.ts",
+		]);
+	});
+
+	it("passes fast guards when the changed files are clean", () => {
+		const lines = [];
+		const code = runChangedFileGuards(["packages/ai/src/index.ts"], () => "export const value = 1;\n", {
+			log: (line) => lines.push(line),
+			error: (line) => lines.push(line),
+		});
+
+		expect(code).toBe(0);
+		expect(lines).toEqual(["[private-key] passed", "[conflict-markers] passed"]);
+	});
+
+	it("runs check:quick on one file without the architecture engine", () => {
+		const result = spawnSync("bun", ["run", "scripts/quality/check-quick.mjs", "--", "scripts/quality/lib.mjs"], {
+			cwd: repoRoot,
+			encoding: "utf8",
+		});
+		const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+
+		expect(result.status).toBe(0);
+		expect(output).toContain("[private-key] passed");
+		expect(output).toContain("[conflict-markers] passed");
+		expect(output).not.toContain("[package-boundaries]");
+		expect(output).not.toContain("[coding-agent-architecture]");
+		expect(output).not.toContain("check:guards");
+	});
+});
+
+describe("package boundary parallel scan", () => {
+	it("keeps one worker below 64 files and caps a large scan at two", () => {
+		expect(boundaryWorkerCount(10, 8)).toBe(1);
+		expect(boundaryWorkerCount(100, 1)).toBe(1);
+		expect(boundaryWorkerCount(100, 8)).toBe(2);
+		expect(boundaryWorkerCount(3, 8)).toBe(1);
+	});
+
+	it("round-robins jobs and merges findings back into walk order", () => {
+		const jobs = [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }, { id: "e" }];
+		expect(partitionBoundaryJobs(jobs, 2)).toEqual([
+			[{ id: "a" }, { id: "c" }, { id: "e" }],
+			[{ id: "b" }, { id: "d" }],
+		]);
+		expect(() => partitionBoundaryJobs(jobs, 0)).toThrow("worker count must be a positive integer");
+		expect(
+			mergeBoundaryItems([
+				{ index: 2, scanned: 1, findings: [{ file: "c.ts", line: 1 }] },
+				{ index: 0, scanned: 0, findings: [{ file: "manifest", line: 1 }] },
+				{ index: 1, scanned: 1, findings: [] },
+			]),
+		).toEqual({
+			findings: [
+				{ file: "manifest", line: 1 },
+				{ file: "c.ts", line: 1 },
+			],
+			scanned: 2,
+		});
+	});
+
+	it("lists the tsconfig entry and drops skipped trees", () => {
+		const scan = collectBoundaryScan();
+		const indexes = [...scan.jobs, ...scan.inline].map((item) => item.index);
+
+		expect(scan.jobs.some((job) => job.entry && job.file === "tsconfig.json")).toBe(true);
+		expect(scan.jobs.some((job) => job.file.includes("/examples/"))).toBe(false);
+		expect(scan.jobs.some((job) => job.file.includes("/dist/"))).toBe(false);
+		expect(new Set(indexes).size).toBe(indexes.length);
+	});
+
+	it("reports the line of an app import and a raw capability id", () => {
+		const document = loadBoundaryDocument(join(repoRoot, "scripts/quality/rules/package-boundaries.yml"));
+		const file = "packages/ai/src/example.ts";
+
+		expect(
+			evaluateBoundaryFile(document, file, 'import "@vetta/desktop";\n').map((finding) => [
+				finding.line,
+				finding.rule,
+			]),
+		).toContainEqual([1, "libs-must-not-depend-on-apps"]);
+		expect(
+			evaluateBoundaryFile(document, file, 'const ok = "cap";\nconst id = "cap.domain.vetta.example.read";\n').map(
+				(finding) => [finding.line, finding.rule],
+			),
+		).toContainEqual([2, "no-raw-capability-ids"]);
+	});
+
+	it("returns the same findings from a worker shard as from the serial scan", async () => {
+		const texts = { "packages/ai/src/layered-gate-example.ts": 'import "@vetta/desktop";\n' };
+		const jobs = [
+			{ index: 1, file: "packages/ai/src/layered-gate-example.ts", manifest: null, entry: false },
+			{ index: 0, file: "scripts/quality/lib.mjs", manifest: null, entry: false },
+		];
+		const readFile = (file) => texts[file] ?? readFileSync(join(repoRoot, file), "utf8");
+		const serial = await evaluateBoundaryFileJobs(jobs, { workers: 1, readFile });
+		const parallel = await evaluateBoundaryFileJobs(jobs, { workers: 2, texts });
+
+		expect(mergeBoundaryItems(serial).findings.length).toBeGreaterThan(0);
+		expect(mergeBoundaryItems(parallel)).toEqual(mergeBoundaryItems(serial));
 	});
 });

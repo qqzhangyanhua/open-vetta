@@ -7,8 +7,11 @@
 | 层级 | 命令 | 何时跑 | 内容 |
 |------|------|--------|------|
 | 提交前（快） | `bun run check:precommit`（husky 自动） | 每次 commit | staged 私钥/冲突标记 + Biome `--staged --write`；格式化后重新暂存整文件 |
-| 开发中（快） | `bun run check:quick` | 一轮编辑后 | 准确合并分支已提交差异、暂存、未暂存和未跟踪文件；对变更文件运行 Biome，并运行架构守卫；不做类型检查 |
-| 完整本地/PR | `bun run check` | 一轮代码任务完成、交付或开 PR 前一次 | 对显式源码根运行 Biome，并行执行根 `tsgo`、CLI 显式 `tsgo`、增量 desktop `tsc`、docs check 与架构守卫 |
+| 编辑中（最快） | `bun run check:fast` | 文件已经暂存，想在 1 秒内看结果 | 已暂存文件的私钥、冲突标记和 Biome。只报告问题，不改文件 |
+| 开发中（快） | `bun run check:quick` | 一轮编辑后 | 准确合并分支已提交差异、暂存、未暂存和未跟踪文件；对变更文件运行 Biome、私钥和冲突标记。不跑架构守卫，不做类型检查 |
+| 架构引擎 | `bun run check:arch` | 改了包边界或 Coding Agent 架构 | 并行执行 YAML 架构引擎（包边界、Coding Agent 架构）。其余守卫仍由 `check:guards` 负责 |
+| lint + 类型 + 架构引擎 | `bun run check:full` | 完整 `check` 之前想先看这三项 | 并行 `check:lint`、`check:types`、`check:arch`。不含其余守卫和 Mobile lint，不能代替 `check` |
+| 完整本地/PR/CI | `bun run check` | 一轮代码任务完成、交付、开 PR，以及 CI | 对显式源码根运行 Biome，并行执行根 `tsgo`、CLI 显式 `tsgo`、增量 desktop `tsc`、docs check 与全部架构守卫 |
 | 构建声明消费 | `bun run check:types:build-surfaces` | workspace 前置声明生成后 | 按 `cli-host/tsconfig.build.json` 验证真实包声明消费；会拒绝陈旧 `dist/*.d.ts` |
 | 质量脚本测试 | `bun run test:quality` | 修改 `scripts/quality` | 变更选择、依赖传播与包边界规则 |
 | 单元测试 | `bun run test` / `bun run test:unit` | 逻辑变更 | 先由 Turbo 生成测试消费的 workspace 依赖产物，再顺序运行所有声明 `test` 的 TypeScript workspace |
@@ -27,7 +30,9 @@ scripts/quality/
   precommit.mjs                快路径编排
   check-lint.mjs               显式源码根的全量 Biome 入口
   check-guards.mjs             并行全量守卫入口
-  check-quick.mjs              按完整 Git 工作区差异做快速检查
+  check-quick.mjs              按完整 Git 工作区差异做 Biome 和快速守卫
+  check-fast.mjs               已暂存文件的私钥、冲突标记和只读 Biome
+  check-architecture.mjs       并行跑包边界和 Coding Agent 架构引擎
   check-private-keys.mjs       私钥形态检测
   check-conflict-markers.mjs   未解决冲突标记
   check-package-boundaries.mjs 库/插件不得依赖 app 宿主
@@ -198,10 +203,13 @@ if (isDirectRun(import.meta.url)) process.exitCode = main();
 | `check:types` | 并行执行根 `tsgo`、CLI 显式 `tsgo`、带持久增量缓存的 desktop `tsc`、docs check 与 Expo Mobile `tsc` |
 | `check:types:build-surfaces` | 使用 CLI build config 验证上游 workspace `dist/*.d.ts` 的真实消费面；要求先生成当前声明 |
 | `check:guards` | 并行执行私钥、冲突标记、包边界等全量守卫 |
-| `check:staged` | 仅 staged Biome |
+| `check:staged` | 仅 staged Biome，会写回 |
 | `check:precommit` | husky 使用的快路径 |
-| `check:quick` | 变更文件 Biome + 全量 guards；Biome 配置变化时自动回退全量 Biome |
-| `check` | 并行 lint + types + guards + Expo Mobile lint（只读） |
+| `check:fast` | 已暂存文件的私钥、冲突标记和只读 Biome |
+| `check:quick` | 变更文件 Biome + 私钥 + 冲突标记；不跑架构守卫。Biome 配置变化时自动回退全量 Biome |
+| `check:arch` | 包边界和 Coding Agent 架构这两项 YAML 引擎 |
+| `check:full` | 并行 lint + types + `check:arch`。不含其余守卫和 Mobile lint |
+| `check` | 并行 lint + types + guards + Expo Mobile lint（只读）。CI 用这条 |
 | `fix` | Biome 全量格式化与安全修复 |
 | `vitest` | 用 Node 启动仓库 Vitest；等价于 `bun scripts/quality/run-vitest.mjs` |
 | `test:quality` | 质量脚本定向测试 |
@@ -315,7 +323,13 @@ Desktop build task 显式依赖 `@vetta-org/plugin-vite`。开发前置构建读
 
 包内 `package.json` 和其它非源码文件只跑该包的完整测试，不再升级到 `test:changed`。`vitest.config.ts` 这类源码配置交给 Vitest 的 `related`；没有关联测试时再跑该包自己的测试。没有 `test` 脚本的 workspace 会被跳过，不因此回退；跨包影响仍由 `test:changed` 和 CI 覆盖。空文件列表不跑测试。不传文件时仍使用完整 Git 差异。CI 继续使用 `test:changed`，保证跨包、跨平台门禁不因本地加速而收窄。
 
-`check:quick` 复用同一套 Git 变更选择器，因此不带路径时不会漏掉未暂存或未跟踪文件；`check:quick -- <file...>` 可限制为本次任务实际修改的文件。删除文件会从 Biome 输入中排除；修改任意 `biome.json` / `biome.jsonc` 或根 `.editorconfig` 时，会自动回退为全仓 Biome，避免配置影响未被检查。它不做类型检查，不能替代任务结束时的完整 `check`。
+`check:quick` 复用同一套 Git 变更选择器，因此不带路径时不会漏掉未暂存或未跟踪文件；`check:quick -- <file...>` 可限制为本次任务实际修改的文件。删除文件会从 Biome 和快速守卫的输入中排除；二进制文件不参与私钥和冲突标记检查。私钥沿用全量扫描的跳过目录（含 `docs/` 和 `scripts/quality/`），冲突标记则检查这次列出的全部文本文件。修改任意 `biome.json` / `biome.jsonc` 或根 `.editorconfig` 时，会自动回退为全仓 Biome，避免配置影响未被检查。它不跑架构守卫，也不做类型检查。
+
+`check:fast` 只看已经暂存的文件，适合在 1 秒内确认私钥、冲突标记和 Biome。它不写回文件；需要格式化时仍用 `check:staged` 或提交时的 `check:precommit`。没有暂存文件时这三项都为空，命令成功返回。
+
+`check:arch` 只跑已经迁到 YAML 引擎的两项：包边界和 Coding Agent 架构。运行时边界、技能前言、生成物校验等其余守卫仍在 `check:guards` 里，随 `bun run check` 一起跑。包边界按文件分到两个工作线程，结果顺序与单线程扫描一致。它扫的是整库，不是这次改动的文件，所以仍然要数秒，不是 `check:fast` 那种亚秒命令。
+
+`check:full` 把 lint、类型和 `check:arch` 并行起来，方便在完整门禁之前看这三项。它不包含 `check:guards` 的其余守卫，也不包含 Mobile lint。CI 和质量阶段继续使用 `bun run check`。
 
 根 `tsconfig.json` 已包含 `apps/cli-host/src/**/*` 和 `apps/cli-host/test/**/*`。完整 `check`
 仍额外显式执行 `apps/cli-host` 的 `typecheck`，避免未来调整根 `include` 时静默漏掉 CLI，也让
@@ -386,7 +400,11 @@ Windows、macOS、Linux runner 上真实安装基线包，驱动现有 updater �
 bun scripts/quality/run-vitest.mjs --run packages/ai/test/provider-retry-policy.test.ts
 bun run check:quick -- packages/ai/src/providers/retry-policy.ts packages/ai/test/provider-retry-policy.test.ts
 
-# 任务完成：显式列出本次修改文件；完整 check 已覆盖 quick 的静态检查，无需紧邻重复执行
+# 已暂存、只要私钥 / 冲突标记 / Biome：bun run check:fast
+# 改了包边界或 Coding Agent 架构：bun run check:arch
+# 想先看 lint + 类型 + 架构引擎：bun run check:full（不能代替下面的 check）
+
+# 任务完成：显式列出本次修改文件；完整 check 已覆盖 quick 和 arch，无需紧邻重复执行
 bun run test:impact -- packages/ai/src/providers/retry-policy.ts packages/ai/test/provider-retry-policy.test.ts
 bun run check
 
@@ -417,7 +435,10 @@ bun run deadcode:report
 
 - [ ] `bun run check:guards` 通过  
 - [ ] `turbo.json` 的 `build` 保持 `dependsOn: ["^build"]`，目标包 dry-run 包含所需依赖闭包
-- [ ] `bun run check:quick` 覆盖已提交、暂存、未暂存和未跟踪文件  
+- [ ] `bun run check:quick` 覆盖已提交、暂存、未暂存和未跟踪文件，且不跑架构守卫
+- [ ] `bun run check:fast` 只检查已暂存文件，且不改写它们
+- [ ] `bun run check:arch` 只跑包边界和 Coding Agent 架构
+- [ ] CI 的 quality workflow 仍是 `bun run check`，不是 `check:full`
 - [ ] `bun run test:quality` 通过  
 - [ ] `bun run check:precommit` 在有 staged 文件时行为正确  
 - [ ] `bun run test:pkg --list` 列出当前所有可测包

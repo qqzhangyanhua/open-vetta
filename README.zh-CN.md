@@ -134,7 +134,7 @@ Vetta 提供不同重量的扩展入口，简单流程不必被做成完整插�
 统一使用 Bun 和仓库脚本；不要在这个 Monorepo 中运行裸 `bun test`。
 
 ```bash
-bun run check:quick              # 检查改动文件与架构边界
+bun run check:quick              # 检查改动文件的 Biome、私钥和冲突标记
 bun run check                    # 完整 lint、类型和架构守卫
 bun run test:pkg <package-name>  # 定向包测试
 bun run test:changed             # 运行当前 diff 影响的测试

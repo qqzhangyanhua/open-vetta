@@ -3,7 +3,7 @@
  * Keep these dependency-free (Node/Bun built-ins only).
  */
 
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -474,6 +474,30 @@ export function runCommand(command, args, { cwd = repoRoot, env } = {}) {
 
 export function runBun(args, options) {
 	return runCommand("bun", args, options);
+}
+
+/** Run bun argument lists together. The first non-zero status wins; spawn failures are 1. */
+export function runBunParallel(argLists) {
+	return Promise.all(
+		argLists.map(
+			(args) =>
+				new Promise((resolve) => {
+					let settled = false;
+					const finish = (code) => {
+						if (settled) return;
+						settled = true;
+						resolve(code);
+					};
+					const child = spawn("bun", args, {
+						cwd: repoRoot,
+						stdio: "inherit",
+						shell: false,
+					});
+					child.once("error", () => finish(1));
+					child.once("exit", (code) => finish(code ?? 1));
+				}),
+		),
+	).then((codes) => codes.find((code) => code !== 0) ?? 0);
 }
 
 export function packageHasTestScript(pkgDir) {

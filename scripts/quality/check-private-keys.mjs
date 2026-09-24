@@ -57,6 +57,11 @@ function shouldSkip(posixPath) {
 	return SKIP_DIR_PARTS.some((part) => path.includes(part));
 }
 
+/** Changed-file gates reuse the full scan's skip list, including docs and this directory. */
+export function selectPrivateKeyFiles(files) {
+	return files.filter((file) => !isBinaryLike(file) && !shouldSkip(file));
+}
+
 /** First matching key in one file. Text above the size cap is ignored. */
 export function findPrivateKeyViolationsInText(file, text) {
 	if (text.length > MAX_TEXT_LENGTH) return [];
@@ -70,9 +75,7 @@ export function findPrivateKeyViolationsInText(file, text) {
 
 function collectTargets(stagedOnly) {
 	if (stagedOnly) {
-		return stagedFiles().filter(
-			(file) => existsSync(join(repoRoot, file)) && !isBinaryLike(file) && !shouldSkip(file),
-		);
+		return selectPrivateKeyFiles(stagedFiles()).filter((file) => existsSync(join(repoRoot, file)));
 	}
 	const roots = ["packages", "apps", "scripts", "deploy"].map((dir) => join(repoRoot, dir));
 	const files = [];
@@ -98,7 +101,7 @@ function collectTargets(stagedOnly) {
 			}),
 		);
 	}
-	return files.map((file) => rel(file)).filter((file) => !shouldSkip(file) && !isBinaryLike(file));
+	return selectPrivateKeyFiles(files.map((file) => rel(file)));
 }
 
 /** Read each repo-relative path and return key violations. A file that cannot be read is skipped. */

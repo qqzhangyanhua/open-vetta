@@ -163,7 +163,7 @@ Architecture details and public integration contracts live in the [developer doc
 Use Bun and the repository scripts; do not run bare `bun test` in this monorepo.
 
 ```bash
-bun run check:quick              # changed-file lint and architecture guards
+bun run check:quick              # changed-file Biome and fast guards
 bun run check                    # full lint, types, and architecture guards
 bun run test:pkg <package-name>  # focused package tests
 bun run test:changed             # tests affected by the current diff
