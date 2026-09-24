@@ -20,7 +20,7 @@ import {
 	parseFileSelectionArgs,
 	repoRoot,
 	runBun,
-	WORKSPACE_PACKAGES,
+	workspaceForFile,
 } from "./lib.mjs";
 
 const ROOT_GLOBAL_TEST_FILES = new Set([
@@ -38,12 +38,6 @@ const PUBLIC_CONTRACT_PATTERN = /(?:^|\/)src\/(?:index\.[cm]?[jt]sx?|public-api\
 const CONTRACT_DIRECTORY_PATTERN = /(?:^|\/)(?:contracts?|runtime-contracts)(?:\/|$)/i;
 const PACKAGE_CONFIG_PATTERN =
 	/(?:^|\/)(?:package\.json|vitest\.config\.[cm]?[jt]s|vite\.config\.[cm]?[jt]s|tsconfig(?:\.[^.]+)?\.json)$/i;
-
-function workspaceForFile(file) {
-	return [...WORKSPACE_PACKAGES]
-		.sort((left, right) => right.dir.length - left.dir.length)
-		.find((pkg) => file === pkg.dir || file.startsWith(`${pkg.dir}/`));
-}
 
 function supportsTargetedVitest(testScript) {
 	return (
