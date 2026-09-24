@@ -269,6 +269,7 @@ Desktop 主进程部分目录还有更细规则；修改对应目录时必须继
 - 正文用 1–3 句说明改动动机、背景和影响，重点解释“为什么”，避免逐项复述 diff；长段落按约 72 个字符换行，使用Markdown列表来分别列出做了什么。
 - 不添加 `Co-Authored-By`、`Signed-off-by` 等作者信息。存在关联工单时，在正文后空一行添加独立尾注 `fixes #N` 或 `closes #N`。
 - 不 force push。Rebase 冲突若落在本次未修改的文件中，立即中止并请求用户处理。
+- 推送只发到 `origin`（`qqzhangyanhua/open-vetta`）。`upstream` 只用于 `git fetch` 同步代码，不向 `openvetta/open-vetta` 推送或开 Pull Request。工单边界见下方 Issue tracker。
 
 ## 交付要求
 
@@ -295,7 +296,7 @@ Desktop 主进程部分目录还有更细规则；修改对应目录时必须继
 
 ### Issue tracker
 
-Issue / PR / `gh` 默认打在本工作区的 **`origin`**：`qqzhangyanhua/open-vetta`。`openvetta/open-vetta` 是 **upstream**（公开上游，本仓库从那里 fork），两边的 `#N` 不是同一张工单。只有用户点名上游仓库时才操作 `openvetta/open-vetta`。操作前先 `git remote -v`。详见 [`docs/agents/issue-tracker.md`](docs/agents/issue-tracker.md)。
+本仓库是 `openvetta/open-vetta` 的二开 fork。Issue、PR、`gh` 与推送只作用在 **`origin`** `qqzhangyanhua/open-vetta`。每次 `gh issue`、`gh pr`、`gh api` 都带 `--repo qqzhangyanhua/open-vetta`（`gh api` 路径用 `repos/qqzhangyanhua/open-vetta/`）。本克隆用 `gh repo set-default origin` 钉住默认仓库（`remote.origin.gh-resolved=base`）；`git config --get remote.origin.gh-resolved` 不是 `base` 时，先重跑这条再调用。`upstream` 只用于 `git fetch` 同步代码。上游的 Issue 与 PR 不读取、不评论、不关闭、不创建；用户贴出 `openvetta/open-vetta` 链接时，只在本 fork 上查找，没有就说明不在本仓库并停止。裸 `#N` 指 `qqzhangyanhua/open-vetta#N`。操作前先 `git remote -v`。详见 [`docs/agents/issue-tracker.md`](docs/agents/issue-tracker.md)。
 
 ### Triage labels
 
