@@ -15,10 +15,9 @@ const steps = [
 	["run", "scripts/quality/check-package-boundaries.mjs"],
 	// Rules: scripts/quality/rules/coding-agent-architecture.yml
 	["run", "scripts/quality/check-coding-agent-architecture.mjs"],
-	["run", "scripts/quality/check-runtime-coding-agent-independence.mjs"],
-	["run", "scripts/quality/check-runtime-subagents-boundary.mjs"],
+	// Rules: scripts/quality/rules/runtime-boundaries.yml
+	["run", "scripts/quality/check-runtime-boundaries.mjs"],
 	["run", "scripts/quality/check-conversation-message-architecture.mjs"],
-	["run", "scripts/quality/check-runtime-failure-contract.mjs"],
 	["run", "scripts/quality/check-agent-ai-maintainability.mjs"],
 	["run", "scripts/quality/check-standalone-cli-build.mjs"],
 	["run", "scripts/quality/check-skill-frontmatter.mjs"],

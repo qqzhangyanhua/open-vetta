@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findRuntimeSubagentsBoundaryViolations } from "./check-runtime-subagents-boundary.mjs";
+import { findRuntimeSubagentsBoundaryViolations } from "./check-runtime-boundaries.mjs";
 
 describe("Runtime Subagents boundary guard", () => {
 	it("accepts a dependency-free scheduling kernel", () => {
@@ -39,6 +39,17 @@ describe("Runtime Subagents boundary guard", () => {
 			"packages/runtime-subagents/package.json: dependencies must not declare workspace dependency @vetta/runtime-tools",
 			"packages/runtime-subagents/src/notifications.ts:1: forbidden subagent kernel token followup_task",
 			"packages/runtime-subagents/src/notifications.ts:2: forbidden subagent kernel token todoProgress",
+		]);
+	});
+
+	it("rejects a missing owner file", () => {
+		expect(
+			findRuntimeSubagentsBoundaryViolations({
+				manifest: { path: "packages/runtime-subagents/package.json", content: {} },
+				files: ownerFiles().slice(1),
+			}),
+		).toEqual([
+			"packages/runtime-subagents/src/subagent-dispatcher.ts: required runtime-subagents owner file is missing",
 		]);
 	});
 

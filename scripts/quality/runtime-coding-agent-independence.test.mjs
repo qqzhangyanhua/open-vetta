@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findRuntimeCodingAgentIndependenceViolations } from "./check-runtime-coding-agent-independence.mjs";
+import { findRuntimeCodingAgentIndependenceViolations } from "./check-runtime-boundaries.mjs";
 
 describe("Runtime Coding Agent independence guard", () => {
 	it("accepts Runtime packages that depend only on lower-level contracts", () => {

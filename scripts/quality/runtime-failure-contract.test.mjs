@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	findRuntimeFailureContractViolations,
-	REQUIRED_RUNTIME_FAILURE_MARKERS,
-} from "./check-runtime-failure-contract.mjs";
+import { findRuntimeFailureContractViolations, REQUIRED_RUNTIME_FAILURE_MARKERS } from "./check-runtime-boundaries.mjs";
 
 function contractFixture() {
 	return Object.entries(REQUIRED_RUNTIME_FAILURE_MARKERS).map(([path, markers]) => ({
@@ -28,6 +25,12 @@ describe("runtime failure contract gate", () => {
 			'packages/coding-agent/src/rpc/rpc-failure.ts: missing contract marker ("retry_safe")',
 			"packages/coding-agent/src/rpc/example.ts: classifies recovery by JavaScript error message",
 			"packages/coding-agent/src/rpc/example.ts: reintroduces automatic Turn replay",
+		]);
+	});
+
+	it("rejects a missing contract file", () => {
+		expect(findRuntimeFailureContractViolations(contractFixture().slice(1))).toEqual([
+			"packages/coding-agent/src/rpc/rpc-failure.ts: required runtime failure contract file is missing",
 		]);
 	});
 

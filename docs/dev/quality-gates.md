@@ -38,6 +38,7 @@ scripts/quality/
   check-package-boundaries.mjs 库/插件不得依赖 app 宿主
   check-coding-agent-architecture.mjs
                                Coding Agent 当前架构依赖与公开面，读取 rules/coding-agent-architecture.yml
+  check-runtime-boundaries.mjs Runtime 不依赖产品层、subagent 内核边界、失败契约，读取 rules/runtime-boundaries.yml
   run-vitest.mjs               用 Node 启动 Vitest（Windows 上禁止 Bun 拉起 worker）
   check-vitest-runner.mjs      package.json 测试脚本必须走 run-vitest.mjs
   check-turbo-config.mjs       Turbo 输入、环境、入口与 Remote Cache 安全合同
@@ -57,12 +58,14 @@ scripts/quality/
   coding-agent-architecture-differential.test.mjs 新旧 Coding Agent 架构结果对照
   rules/coding-agent-architecture.yml Coding Agent 架构规则，由 check-coding-agent-architecture.mjs 读取
   arch-engine/coding-agent-rules.mjs 加载并执行 Coding Agent 架构 YAML
+  arch-engine/runtime-rules.mjs 加载并执行 Runtime 边界 YAML
+  rules/runtime-boundaries.yml Runtime 边界规则，由 check-runtime-boundaries.mjs 读取
 knip.config.ts                 Knip（可选）
 ```
 
 ## 架构引擎
 
-`scripts/quality/arch-engine/` 是架构守卫共用的解析、缓存和规则执行。`check-package-boundaries` 和 `check-coding-agent-architecture` 已经改为读取 YAML；其余架构守卫还没有迁过来。
+`scripts/quality/arch-engine/` 是架构守卫共用的解析、缓存和规则执行。`check-package-boundaries`、`check-coding-agent-architecture` 和 `check-runtime-boundaries` 已经改为读取 YAML；会话消息架构等其余守卫还没有迁过来。
 
 `parseSource(filePath, text)` 按扩展名选择 script kind（`.tsx` / `.jsx` 才会解析 JSX），返回一棵可写成 JSON 的语法树。节点字段：
 
@@ -292,6 +295,16 @@ bun run test:pkg <name>
 公开子路径以 manifest 为唯一事实来源，不在守卫中维护第二份符号或子路径快照。旧迁移进度基线、
 Greenfield/Legacy 名称墓碑、固定文件数量、行数阈值及实施日志格式不再进入构建门禁。
 架构规则测试位于 `scripts/quality/coding-agent-architecture.test.mjs`。
+
+## Runtime 边界规则（`check-runtime-boundaries`）
+
+现行规则在 `scripts/quality/rules/runtime-boundaries.yml`。`check-runtime-boundaries.mjs` 读取这份文件，在 `check:guards` 里一次跑完原先分开的三道检查：Runtime 不依赖 Coding Agent、`runtime-subagents` 的内核边界、生产失败契约。`check:arch` 不跑这一项。
+
+改禁用依赖、源码里的产品词、必须存在或已经退役的文件、失败契约标记、按正则禁止的恢复判断时，改 YAML，不用改检查脚本。直接跑检查时，三道检查仍各自打印原来的 `[runtime-independence]`、`[runtime-subagents-boundary]`、`[runtime-failure-contract]`。没有违规时仍打印原来的计数。`findRuntimeCodingAgentIndependenceViolations`、`findRuntimeSubagentsBoundaryViolations` 和 `findRuntimeFailureContractViolations` 返回的说明与合并前一致。
+
+`guards` 按书写顺序执行。`input` 决定输入形状：`manifests` 扫若干包的清单和源码，并用 `manifests.key` 禁止一个依赖名；`manifest` 扫一个包，`manifests.keyPrefix` 禁止该前缀的依赖，`lines` 按行禁止词，`requiredFiles` / `retiredFiles` 要求文件在或不在；`files` 扫边界文件，`markers` 要求原文包含标记，`patterns` 是整文件正则。调用 `findRuntimeFailureContractViolations` 时传 `requireBaseline: false` 就只跑正则。
+
+`lines` 里的 `path` 是整条路径相等才检查，`whenPathIncludes` 是路径包含该段才检查。说明里的 `{section}`、`{dependency}`、`{token}`、`{marker}` 会换成实际命中的值。
 
 ## Workspace 构建编排（Turborepo）
 
