@@ -1,25 +1,74 @@
 /**
- * Fail on unresolved git conflict markers in sources.
+ * Fail on unresolved git conflict markers in repository text.
+ * The full scan and `check:quick` use the same set: root files plus
+ * packages, apps, scripts, and docs, skipping generated trees and binaries.
  *
  * Usage:
  *   bun run scripts/quality/check-conflict-markers.mjs
  *   bun run scripts/quality/check-conflict-markers.mjs --staged
  */
 
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync } from "node:fs";
+import { join, relative } from "node:path";
 import {
 	CheckViolation,
 	collectFileViolations,
 	isBinaryLike,
 	isDirectRun,
 	readText,
-	rel,
 	repoRoot,
 	runCheck,
 	stagedFiles,
+	toPosix,
 	walkFiles,
 } from "./lib.mjs";
+
+const SCAN_ROOTS = ["packages", "apps", "scripts", "docs"];
+const SKIP_PARTS = [
+	"/node_modules/",
+	"/dist/",
+	"/.git/",
+	"/.next/",
+	"/coverage/",
+	"/out/",
+	"/build/",
+	"/.turbo/",
+	"/.cache/",
+	"/release/",
+	"/releases/",
+];
+
+/** Non-binary text outside generated trees. `check:quick` and the full guard both use this list. */
+export function selectConflictMarkerFiles(files) {
+	return files.filter((file) => {
+		if (isBinaryLike(file)) return false;
+		const path = `/${toPosix(file)}`;
+		return SKIP_PARTS.every((part) => !path.includes(part));
+	});
+}
+
+function repoRelative(root, file) {
+	return toPosix(relative(root, file));
+}
+
+/** Full-tree paths. Pass `root` only from tests; the guard itself uses the process cwd. */
+export function listConflictMarkerTargets(root = repoRoot) {
+	const files = [];
+	for (const dir of SCAN_ROOTS) {
+		files.push(...walkFiles(join(root, dir), { extensions: null }).map((file) => repoRelative(root, file)));
+	}
+	let entries = [];
+	try {
+		entries = readdirSync(root, { withFileTypes: true });
+	} catch {
+		entries = [];
+	}
+	for (const entry of entries) {
+		if (!entry.isFile()) continue;
+		files.push(entry.name);
+	}
+	return selectConflictMarkerFiles(files);
+}
 
 function isConflictMarkerLine(line) {
 	const text = line.endsWith("\r") ? line.slice(0, -1) : line;
@@ -39,20 +88,9 @@ export function findConflictMarkerViolationsInText(file, text) {
 
 function collectTargets(stagedOnly) {
 	if (stagedOnly) {
-		return stagedFiles().filter((file) => existsSync(join(repoRoot, file)) && !isBinaryLike(file));
+		return selectConflictMarkerFiles(stagedFiles()).filter((file) => existsSync(join(repoRoot, file)));
 	}
-	const roots = ["packages", "apps", "scripts"].map((dir) => join(repoRoot, dir));
-	const files = [];
-	for (const root of roots) files.push(...walkFiles(root));
-	return files
-		.map((file) => rel(file))
-		.filter(
-			(file) =>
-				!file.includes("/node_modules/") &&
-				!file.includes("/dist/") &&
-				!file.includes("/.next/") &&
-				!file.includes("/coverage/"),
-		);
+	return listConflictMarkerTargets();
 }
 
 /** Read each repo-relative path and return marker violations. A file that cannot be read is skipped. */

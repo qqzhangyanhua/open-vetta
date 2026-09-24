@@ -8,6 +8,7 @@ import { parentPort, workerData } from "node:worker_threads";
 import { readText } from "../lib.mjs";
 import { loadBoundaryDocument } from "./boundary-rules.mjs";
 import { evaluateBoundaryJob } from "./boundary-scan.mjs";
+import { createAstCache } from "./cache.mjs";
 
 if (!parentPort) {
 	throw new Error("boundary scan worker must be started with worker_threads");
@@ -21,6 +22,9 @@ function readFile(file) {
 try {
 	const document = loadBoundaryDocument(workerData.documentPath);
 	const manifests = workerData.manifests ?? [];
+	const cache = workerData.cacheDir
+		? createAstCache({ root: workerData.repoRoot, cacheDir: workerData.cacheDir })
+		: null;
 	const items = workerData.jobs.map((job) =>
 		evaluateBoundaryJob(
 			document,
@@ -31,6 +35,7 @@ try {
 				manifest: job.manifestId < 0 ? undefined : manifests[job.manifestId],
 			},
 			readFile,
+			cache,
 		),
 	);
 	parentPort.postMessage({ items });

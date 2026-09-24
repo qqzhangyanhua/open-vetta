@@ -352,7 +352,7 @@ describe("committed quality gate reference", () => {
 		expect(failure?.reports).not.toContain("runtime-failure-contract");
 		expect(model.guards.some((guard) => guard.file.endsWith(".legacy.mjs"))).toBe(false);
 		expect(model.guards.find((guard) => guard.file === "scripts/quality/check-private-keys.mjs")?.summary).toBe(
-			"Fail if committed/staged sources look like they contain private keys. Inspired by pre-commit detect-private-key; scoped to text-ish sources.",
+			"Fail if text outside docs and generated trees looks like a private key. The full scan and `check:quick` use the same set, including repo-root files and extensions such as `.pem`. Docs stay skipped so examples are not keys.",
 		);
 		expect(rendered.startsWith("> 此文件自动生成，请勿手工编辑")).toBe(true);
 		expect(rendered).toContain("[ADR-0077](../adr/0077-agent-runtime-product-ownership.md)");

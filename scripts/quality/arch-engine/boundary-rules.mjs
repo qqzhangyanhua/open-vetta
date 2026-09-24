@@ -676,9 +676,11 @@ function callSpecifier(node) {
 	const dynamic = callee?.kind === "ImportKeyword";
 	const required = callee?.kind === "Identifier" && callee.text === "require";
 	if (!dynamic && !required) return null;
-	const args = children.slice(1);
-	if (args.length !== 1) return null;
-	return asLiteral(args[0]);
+	for (const arg of children.slice(1)) {
+		const literal = directLiteral(arg);
+		if (literal) return literal;
+	}
+	return null;
 }
 
 function collectSpecifiers(ast, runtimeOnly) {
@@ -1017,7 +1019,7 @@ function applyRule(rule, ast, specifiers, runtimeSpecifiers, ctx) {
  */
 export function evaluateBoundaryFile(document, filePath, text, options = {}) {
 	const path = toPosix(filePath);
-	const ast = parseSource(path, text);
+	const ast = options.cache?.astFor(path, text) ?? parseSource(path, text);
 	const specifiers = collectSpecifiers(ast, false);
 	const runtimeSpecifiers = collectSpecifiers(ast, true);
 	const findings = [];

@@ -31,7 +31,7 @@ Usage:
 
 ### `scripts/quality/check-conflict-markers.mjs`
 
-Fail on unresolved git conflict markers in sources.
+Fail on unresolved git conflict markers in repository text. The full scan and `check:quick` use the same set: root files plus packages, apps, scripts, and docs, skipping generated trees and binaries.
 
 Usage:
   bun run scripts/quality/check-conflict-markers.mjs
@@ -76,7 +76,7 @@ Usage:
 
 ### `scripts/quality/check-private-keys.mjs`
 
-Fail if committed/staged sources look like they contain private keys. Inspired by pre-commit detect-private-key; scoped to text-ish sources.
+Fail if text outside docs and generated trees looks like a private key. The full scan and `check:quick` use the same set, including repo-root files and extensions such as `.pem`. Docs stay skipped so examples are not keys.
 
 Usage:
   bun run scripts/quality/check-private-keys.mjs

@@ -33,7 +33,7 @@ export function mergeBoundaryItems(items) {
 	return { findings, scanned };
 }
 
-export function evaluateBoundaryJob(document, job, readFile = (file) => readText(join(repoRoot, file))) {
+export function evaluateBoundaryJob(document, job, readFile = (file) => readText(join(repoRoot, file)), cache = null) {
 	let text;
 	try {
 		text = readFile(job.file);
@@ -44,6 +44,9 @@ export function evaluateBoundaryJob(document, job, readFile = (file) => readText
 	return {
 		index: job.index,
 		scanned: 1,
-		findings: evaluateBoundaryFile(document, job.file, text, { manifest: job.manifest ?? undefined }),
+		findings: evaluateBoundaryFile(document, job.file, text, {
+			manifest: job.manifest ?? undefined,
+			cache,
+		}),
 	};
 }

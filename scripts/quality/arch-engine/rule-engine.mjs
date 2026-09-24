@@ -18,6 +18,7 @@ import { join } from "node:path";
 import { parseDocument } from "yaml";
 import { CheckViolation, toPosix } from "../lib.mjs";
 import { parseSource, walkAst } from "./ast-walker.mjs";
+import { createAstCache } from "./cache.mjs";
 
 const DOCUMENT_FIELDS = new Set(["name", "description", "rationale", "examples", "rules"]);
 const EXAMPLE_FIELDS = new Set(["violation", "fix"]);
@@ -160,6 +161,13 @@ function moduleSpecifier(node) {
 	return firstModuleLiteral(node.children?.slice(1));
 }
 
+let sharedRuleAstCache;
+
+function ruleAstCache() {
+	if (!sharedRuleAstCache) sharedRuleAstCache = createAstCache();
+	return sharedRuleAstCache;
+}
+
 function collectModuleSpecifiers(ast) {
 	const specifiers = [];
 	walkAst(ast, (node) => {
@@ -284,7 +292,7 @@ export function checkRule(rule, files) {
 		}
 		const path = toPosix(file.path);
 		if (!matchesGlobs(path, checked.sources)) continue;
-		const ast = parseSource(path, file.text);
+		const ast = ruleAstCache().astFor(path, file.text) ?? parseSource(path, file.text);
 		for (const specifier of collectModuleSpecifiers(ast)) {
 			if (!matchesGlobs(specifier.text, checked.targets)) continue;
 			violations.push(new CheckViolation(path, specifier.line, checked.name, checked.message));

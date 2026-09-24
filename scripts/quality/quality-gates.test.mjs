@@ -5,8 +5,15 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { evaluateBoundaryFile, loadBoundaryDocument } from "./arch-engine/boundary-rules.mjs";
 import { mergeBoundaryItems, partitionBoundaryJobs } from "./arch-engine/boundary-scan.mjs";
+import { createAstCache } from "./arch-engine/cache.mjs";
+import { collectCodingAgentArchitectureState } from "./arch-engine/coding-agent-rules.mjs";
 import { createArchitectureCheckPlan } from "./check-architecture.mjs";
-import { checkConflictMarkers, findConflictMarkerViolationsInText } from "./check-conflict-markers.mjs";
+import {
+	checkConflictMarkers,
+	findConflictMarkerViolationsInText,
+	listConflictMarkerTargets,
+	selectConflictMarkerFiles,
+} from "./check-conflict-markers.mjs";
 import { createFastCheckPlan } from "./check-fast.mjs";
 import {
 	boundaryWorkerCount,
@@ -15,7 +22,12 @@ import {
 	findPackageBoundaryViolations,
 	findPackageManifestBoundaryViolations,
 } from "./check-package-boundaries.mjs";
-import { checkPrivateKeys, findPrivateKeyViolationsInText, selectPrivateKeyFiles } from "./check-private-keys.mjs";
+import {
+	checkPrivateKeys,
+	findPrivateKeyViolationsInText,
+	listPrivateKeyTargets,
+	selectPrivateKeyFiles,
+} from "./check-private-keys.mjs";
 import { batchPaths, createQuickCheckPlan, isBiomeGlobalTrigger, runChangedFileGuards } from "./check-quick.mjs";
 import {
 	checkSkillFrontmatter,
@@ -752,6 +764,14 @@ describe("package boundary analysis", () => {
 		expect(
 			findPackageBoundaryViolations(libFile, 'const app = await import("@vetta/cli-host/runtime");'),
 		).toHaveLength(1);
+	});
+
+	it("flags a dynamic import that also passes import attributes", () => {
+		const imported = 'const app = await import("@vetta/desktop", { with: { type: "json" } });';
+		const required = 'const app = require("@vetta/desktop", true);';
+		const expected = [`${libFile}: libs/plugins must not import app package (@vetta/desktop)`];
+		expect(findPackageBoundaryViolations(libFile, imported)).toEqual(expected);
+		expect(findPackageBoundaryViolations(libFile, required)).toEqual(expected);
 	});
 
 	it("ignores import-looking comments", () => {
@@ -1928,6 +1948,41 @@ describe("conflict marker guard", () => {
 	it("reads a repo-relative path with the default reader", () => {
 		expect(checkConflictMarkers(["scripts/quality/lib.mjs"])).toEqual([]);
 	});
+
+	it("checks README, docs, and package text for conflict markers in both quick and full scans", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-conflict-scope-"));
+		try {
+			mkdirSync(join(root, "docs"), { recursive: true });
+			mkdirSync(join(root, "packages", "demo", "src"), { recursive: true });
+			mkdirSync(join(root, "packages", "demo", "node_modules", "left"), { recursive: true });
+			writeFileSync(join(root, "README.md"), "# readme\n");
+			writeFileSync(join(root, "docs", "guide.md"), "# guide\n");
+			writeFileSync(join(root, "packages", "demo", "src", "index.ts"), "export {}\n");
+			writeFileSync(join(root, "packages", "demo", "README.md"), "# pkg\n");
+			writeFileSync(join(root, "packages", "demo", "node_modules", "left", "index.ts"), "export {}\n");
+			writeFileSync(join(root, "apps-icon.png"), "not-really-png");
+
+			const full = listConflictMarkerTargets(root).sort();
+			expect(full).toEqual(["README.md", "docs/guide.md", "packages/demo/README.md", "packages/demo/src/index.ts"]);
+			const changed = [
+				"README.md",
+				"docs/guide.md",
+				"packages/demo/src/index.ts",
+				"packages/demo/node_modules/left/index.ts",
+				"apps-icon.png",
+			];
+			expect(selectConflictMarkerFiles(changed)).toEqual([
+				"README.md",
+				"docs/guide.md",
+				"packages/demo/src/index.ts",
+			]);
+			expect(listConflictMarkerTargets()).toEqual(
+				expect.arrayContaining(["README.md", "docs/dev/quality-gates.md"]),
+			);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
 });
 
 describe("private key guard", () => {
@@ -1980,6 +2035,34 @@ describe("private key guard", () => {
 		expect(violations).toEqual([
 			new CheckViolation("secrets/id_rsa", 1, "openssh-private-key", "possible OPENSSH private key"),
 		]);
+	});
+
+	it("checks repo-root text and pem keys in the full scan, and still skips docs", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-private-key-scope-"));
+		try {
+			mkdirSync(join(root, "docs"), { recursive: true });
+			mkdirSync(join(root, "packages", "demo"), { recursive: true });
+			mkdirSync(join(root, "scripts", "quality"), { recursive: true });
+			writeFileSync(join(root, "README.md"), "# readme\n");
+			writeFileSync(join(root, "docs", "guide.md"), "# guide\n");
+			writeFileSync(join(root, "packages", "demo", "id_rsa.pem"), "pem\n");
+			writeFileSync(join(root, "packages", "demo", "note.txt"), "note\n");
+			writeFileSync(join(root, "scripts", "quality", "helper.mjs"), "export {}\n");
+
+			expect(listPrivateKeyTargets(root).sort()).toEqual([
+				"README.md",
+				"packages/demo/id_rsa.pem",
+				"packages/demo/note.txt",
+			]);
+			expect(selectPrivateKeyFiles(["README.md", "docs/guide.md", "packages/demo/id_rsa.pem"])).toEqual([
+				"README.md",
+				"packages/demo/id_rsa.pem",
+			]);
+			expect(listPrivateKeyTargets()).toContain("README.md");
+			expect(listPrivateKeyTargets()).not.toContain("docs/dev/quality-gates.md");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
 	});
 });
 
@@ -2209,6 +2292,75 @@ describe("package boundary parallel scan", () => {
 				(finding) => [finding.line, finding.rule],
 			),
 		).toContainEqual([2, "no-raw-capability-ids"]);
+	});
+
+	it("keeps coding-agent import edges and does not parse again when the AST cache is warm", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-coding-agent-cache-"));
+		const relativePath = "packages/coding-agent/src/example.ts";
+		const text =
+			'import { read as load } from "@vetta/runtime-storage/conversation";\nexport { value } from "./local.js";\n';
+		try {
+			mkdirSync(join(root, "packages", "coding-agent", "src"), { recursive: true });
+			writeFileSync(join(root, relativePath), text);
+			const cache = createAstCache({ root, cacheDir: join(root, "quality-cache") });
+			const input = {
+				files: [{ path: relativePath, text }],
+				packageJson: { exports: { ".": "./dist/index.js" } },
+			};
+			const first = collectCodingAgentArchitectureState(input, "packages/coding-agent/src", cache);
+			const second = collectCodingAgentArchitectureState(input, "packages/coding-agent/src", cache);
+			expect(first.edges).toEqual([
+				{
+					path: relativePath,
+					specifier: "@vetta/runtime-storage/conversation",
+					kind: "import",
+					names: ["read"],
+					line: 1,
+				},
+				{
+					path: relativePath,
+					specifier: "./local.js",
+					kind: "export",
+					names: ["value"],
+					line: 2,
+				},
+			]);
+			expect(second.edges).toEqual(first.edges);
+			expect(cache.stats().parses).toBe(1);
+			expect(cache.stats().hits).toBe(1);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("keeps boundary findings and does not parse again when the AST cache is warm", async () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-ast-cache-scan-"));
+		const relativePath = "packages/ai/src/example.ts";
+		const text = 'import "@vetta/desktop";\n';
+		try {
+			mkdirSync(join(root, "packages", "ai", "src"), { recursive: true });
+			writeFileSync(join(root, relativePath), text);
+			const cache = createAstCache({ root, cacheDir: join(root, "quality-cache") });
+			const document = loadBoundaryDocument(join(repoRoot, "scripts/quality/rules/package-boundaries.yml"));
+			const jobs = [{ index: 0, file: relativePath, manifest: null, entry: true }];
+			const readFile = () => text;
+			const first = await evaluateBoundaryFileJobs(jobs, { workers: 1, cache, readFile, document });
+			const second = await evaluateBoundaryFileJobs(jobs, { workers: 1, cache, readFile, document });
+			const overlaid = await evaluateBoundaryFileJobs(jobs, {
+				workers: 1,
+				cache,
+				readFile: () => "export {}\n",
+				document,
+			});
+
+			expect(first[0].findings.map((finding) => finding.rule)).toContain("libs-must-not-depend-on-apps");
+			expect(second).toEqual(first);
+			expect(overlaid[0].findings).toEqual([]);
+			expect(cache.stats().parses).toBe(1);
+			expect(cache.stats().hits).toBe(1);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
 	});
 
 	it("returns the same findings from a worker shard as from the serial scan", async () => {

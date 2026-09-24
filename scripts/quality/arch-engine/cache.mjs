@@ -43,7 +43,8 @@ function classify(cached, hash, mtimeMs) {
 
 export function createAstCache({ root = repoRoot, cacheDir } = {}) {
 	const resolvedRoot = resolve(root);
-	const astDirectory = join(resolve(cacheDir ?? join(resolvedRoot, ".cache", "quality")), "ast");
+	const directory = resolve(cacheDir ?? join(resolvedRoot, ".cache", "quality"));
+	const astDirectory = join(directory, "ast");
 	const memory = new Map();
 	const counts = {
 		hits: 0,
@@ -124,5 +125,24 @@ export function createAstCache({ root = repoRoot, cacheDir } = {}) {
 		};
 	}
 
-	return { load, stats };
+	/** AST for `text` when it is exactly the file on disk. Synthetic text returns null. */
+	function astFor(filePath, text) {
+		if (typeof text !== "string") return null;
+		let relativePath;
+		try {
+			relativePath = normalizeRepoPath(filePath, resolvedRoot);
+		} catch {
+			return null;
+		}
+		let disk;
+		try {
+			disk = readFileSync(join(resolvedRoot, relativePath), "utf8");
+		} catch {
+			return null;
+		}
+		if (disk !== text) return null;
+		return load(relativePath);
+	}
+
+	return { load, stats, astFor, root: resolvedRoot, cacheDir: directory };
 }

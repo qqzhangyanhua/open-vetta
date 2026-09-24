@@ -1,14 +1,15 @@
 /**
- * Fail if committed/staged sources look like they contain private keys.
- * Inspired by pre-commit detect-private-key; scoped to text-ish sources.
+ * Fail if text outside docs and generated trees looks like a private key.
+ * The full scan and `check:quick` use the same set, including repo-root
+ * files and extensions such as `.pem`. Docs stay skipped so examples are not keys.
  *
  * Usage:
  *   bun run scripts/quality/check-private-keys.mjs
  *   bun run scripts/quality/check-private-keys.mjs --staged
  */
 
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readdirSync } from "node:fs";
+import { join, relative } from "node:path";
 import {
 	CheckViolation,
 	collectFileViolations,
@@ -16,7 +17,6 @@ import {
 	isDirectRun,
 	lineNumberAt,
 	readText,
-	rel,
 	repoRoot,
 	runCheck,
 	stagedFiles,
@@ -62,6 +62,31 @@ export function selectPrivateKeyFiles(files) {
 	return files.filter((file) => !isBinaryLike(file) && !shouldSkip(file));
 }
 
+const SCAN_ROOTS = ["packages", "apps", "scripts", "deploy"];
+
+function repoRelative(root, file) {
+	return toPosix(relative(root, file));
+}
+
+/** Full-tree paths, including repo-root text and extensions such as `.pem`. */
+export function listPrivateKeyTargets(root = repoRoot) {
+	const files = [];
+	for (const dir of SCAN_ROOTS) {
+		files.push(...walkFiles(join(root, dir), { extensions: null }).map((file) => repoRelative(root, file)));
+	}
+	let entries = [];
+	try {
+		entries = readdirSync(root, { withFileTypes: true });
+	} catch {
+		entries = [];
+	}
+	for (const entry of entries) {
+		if (!entry.isFile()) continue;
+		files.push(entry.name);
+	}
+	return selectPrivateKeyFiles(files);
+}
+
 /** First matching key in one file. Text above the size cap is ignored. */
 export function findPrivateKeyViolationsInText(file, text) {
 	if (text.length > MAX_TEXT_LENGTH) return [];
@@ -77,31 +102,7 @@ function collectTargets(stagedOnly) {
 	if (stagedOnly) {
 		return selectPrivateKeyFiles(stagedFiles()).filter((file) => existsSync(join(repoRoot, file)));
 	}
-	const roots = ["packages", "apps", "scripts", "deploy"].map((dir) => join(repoRoot, dir));
-	const files = [];
-	for (const root of roots) {
-		files.push(
-			...walkFiles(root, {
-				extensions: [
-					".ts",
-					".tsx",
-					".js",
-					".mjs",
-					".cjs",
-					".json",
-					".yml",
-					".yaml",
-					".env",
-					".toml",
-					".md",
-					".sh",
-					".ps1",
-					".go",
-				],
-			}),
-		);
-	}
-	return selectPrivateKeyFiles(files.map((file) => rel(file)));
+	return listPrivateKeyTargets();
 }
 
 /** Read each repo-relative path and return key violations. A file that cannot be read is skipped. */

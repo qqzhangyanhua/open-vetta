@@ -89,7 +89,7 @@ export function createImpactTestPlan(files, pathExists = (file) => existsSync(jo
 			fallbackReasons.push(`${file} may affect package consumers`);
 			continue;
 		}
-		// No local suite to scope with Vitest related. Callers stay on test:changed / CI.
+		// No local suite to scope. This command skips the file instead of falling back to test:changed.
 		if (!workspace.scripts.test) continue;
 		let target = grouped.get(workspace.key);
 		if (!target) {

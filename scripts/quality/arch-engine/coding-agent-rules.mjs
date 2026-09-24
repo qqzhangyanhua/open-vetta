@@ -9,9 +9,10 @@
 
 import { readFileSync } from "node:fs";
 import { posix } from "node:path";
-import ts from "typescript";
 import { parseDocument } from "yaml";
 import { toPosix } from "../lib.mjs";
+import { parseSource, walkAst } from "./ast-walker.mjs";
+import { createAstCache } from "./cache.mjs";
 
 const DOCUMENT_FIELDS = new Set([
 	"name",
@@ -646,65 +647,88 @@ export function loadCodingAgentDocument(filePath) {
 	return parseCodingAgentDocument(text, filePath);
 }
 
-function scriptKind(path) {
-	if (path.endsWith(".tsx")) return ts.ScriptKind.TSX;
-	if (path.endsWith(".jsx")) return ts.ScriptKind.JSX;
-	if (path.endsWith(".js") || path.endsWith(".mjs") || path.endsWith(".cjs")) return ts.ScriptKind.JS;
-	return ts.ScriptKind.TS;
+let sharedCodingAgentAstCache;
+
+function codingAgentAstCache() {
+	if (!sharedCodingAgentAstCache) sharedCodingAgentAstCache = createAstCache();
+	return sharedCodingAgentAstCache;
 }
 
-function collectImportNames(clause) {
+function childKind(node, kind) {
+	return (node?.children ?? []).find((child) => child.kind === kind);
+}
+
+function identifiers(node) {
+	return (node?.children ?? []).filter((child) => child.kind === "Identifier");
+}
+
+function moduleLiteral(node) {
+	if (node?.kind === "StringLiteral" || node?.kind === "NoSubstitutionTemplateLiteral") return node;
+	return null;
+}
+
+function collectImportNames(node) {
+	const clause = childKind(node, "ImportClause");
 	if (!clause) return ["<side-effect>"];
 	const names = [];
-	if (clause.name) names.push("default");
-	if (clause.namedBindings && ts.isNamedImports(clause.namedBindings)) {
-		for (const element of clause.namedBindings.elements) names.push(element.propertyName?.text ?? element.name.text);
+	if (identifiers(clause).length > 0) names.push("default");
+	for (const element of childKind(clause, "NamedImports")?.children ?? []) {
+		const exported = identifiers(element)[0];
+		if (exported?.text) names.push(exported.text);
 	}
-	if (clause.namedBindings && ts.isNamespaceImport(clause.namedBindings)) names.push("*");
+	if (childKind(clause, "NamespaceImport")) names.push("*");
 	return names;
 }
 
-function collectExportNames(clause) {
-	if (!clause || !ts.isNamedExports(clause)) return ["*"];
-	return clause.elements.map((element) => element.name.text);
+function collectExportNames(node) {
+	const named = childKind(node, "NamedExports");
+	if (!named) return ["*"];
+	return (named.children ?? []).map((element) => identifiers(element).at(-1)?.text ?? "");
 }
 
-function collectModuleEdges(file) {
+function collectModuleEdges(file, cache) {
 	if (!/\.[cm]?[jt]sx?$/.test(file.path)) return [];
-	const source = ts.createSourceFile(file.path, file.text, ts.ScriptTarget.Latest, true, scriptKind(file.path));
+	const ast = cache.astFor(file.path, file.text) ?? parseSource(file.path, file.text);
 	const edges = [];
-	const addEdge = (node, moduleSpecifier, kind, names) => {
-		if (!moduleSpecifier || !ts.isStringLiteralLike(moduleSpecifier)) return;
+	walkAst(ast, (node) => {
+		if (node.kind === "ImportDeclaration" || node.kind === "ExportDeclaration") {
+			const specifier = (node.children ?? []).map(moduleLiteral).find(Boolean);
+			if (!specifier) return;
+			edges.push({
+				path: file.path,
+				specifier: specifier.text,
+				kind: node.kind === "ImportDeclaration" ? "import" : "export",
+				names: node.kind === "ImportDeclaration" ? collectImportNames(node) : collectExportNames(node),
+				line: node.line,
+			});
+			return;
+		}
+		if (node.kind !== "CallExpression") return;
+		const children = node.children ?? [];
+		if (children[0]?.kind !== "ImportKeyword") return;
+		const args = children.slice(1).filter((child) => !child.kind.endsWith("Keyword") && !child.kind.includes("Type"));
+		if (args.length !== 1) return;
+		const specifier = moduleLiteral(args[0]);
+		if (!specifier) return;
 		edges.push({
 			path: file.path,
-			specifier: moduleSpecifier.text,
-			kind,
-			names,
-			line: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
+			specifier: specifier.text,
+			kind: "dynamic-import",
+			names: ["<dynamic>"],
+			line: node.line,
 		});
-	};
-	const visit = (node) => {
-		if (ts.isImportDeclaration(node)) {
-			addEdge(node, node.moduleSpecifier, "import", collectImportNames(node.importClause));
-		} else if (ts.isExportDeclaration(node)) {
-			addEdge(node, node.moduleSpecifier, "export", collectExportNames(node.exportClause));
-		} else if (
-			ts.isCallExpression(node) &&
-			node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-			node.arguments.length === 1
-		) {
-			addEdge(node, node.arguments[0], "dynamic-import", ["<dynamic>"]);
-		}
-		ts.forEachChild(node, visit);
-	};
-	visit(source);
+	});
 	return edges;
 }
 
 /** Build the same state object the legacy checker evaluates. `sourceRoot` selects Coding Agent sources. */
-export function collectCodingAgentArchitectureState({ files, packageJson }, sourceRoot = "packages/coding-agent/src") {
+export function collectCodingAgentArchitectureState(
+	{ files, packageJson },
+	sourceRoot = "packages/coding-agent/src",
+	cache = codingAgentAstCache(),
+) {
 	const normalizedFiles = files.map((file) => ({ ...file, path: toPosix(file.path) }));
-	const edges = normalizedFiles.flatMap(collectModuleEdges);
+	const edges = normalizedFiles.flatMap((file) => collectModuleEdges(file, cache));
 	const sourcePrefix = sourceRoot.endsWith("/") ? sourceRoot : `${sourceRoot}/`;
 	const sourcePaths = normalizedFiles
 		.filter((file) => file.path.startsWith(sourcePrefix))

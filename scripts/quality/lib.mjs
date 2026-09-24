@@ -446,7 +446,8 @@ export function walkFiles(dir, { extensions = [".ts", ".tsx", ".js", ".mjs", ".c
 				stack.push(full);
 				continue;
 			}
-			if (extensions.some((ext) => entry.name.endsWith(ext))) {
+			// `extensions: null` keeps every file. Callers that only want text still filter afterwards.
+			if (extensions == null || extensions.some((ext) => entry.name.endsWith(ext))) {
 				results.push(full);
 			}
 		}

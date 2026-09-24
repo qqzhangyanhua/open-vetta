@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 import { evaluateBoundaryFile, evaluateBoundaryManifest, loadBoundaryDocument } from "./arch-engine/boundary-rules.mjs";
 import { evaluateBoundaryJob, mergeBoundaryItems, partitionBoundaryJobs } from "./arch-engine/boundary-scan.mjs";
+import { createAstCache } from "./arch-engine/cache.mjs";
 import { CheckViolation, fail, isDirectRun, ok, readText, rel, repoRoot, walkFiles } from "./lib.mjs";
 
 const documentPath = join(repoRoot, "scripts/quality/rules/package-boundaries.yml");
@@ -152,7 +153,7 @@ export async function evaluateBoundaryFileJobs(jobs, options = {}) {
 	if (workers <= 1) {
 		const document = options.document ?? rules();
 		const readFile = options.readFile ?? ((file) => readText(join(repoRoot, file)));
-		return jobs.map((job) => evaluateBoundaryJob(document, job, readFile));
+		return jobs.map((job) => evaluateBoundaryJob(document, job, readFile, options.cache ?? null));
 	}
 	const packed = packBoundaryJobs(jobs);
 	const shards = partitionBoundaryJobs(packed.jobs, workers);
@@ -161,7 +162,8 @@ export async function evaluateBoundaryFileJobs(jobs, options = {}) {
 		shards.map((shard) =>
 			runBoundaryShard(workerPath, {
 				documentPath,
-				repoRoot,
+				repoRoot: options.cache?.root ?? repoRoot,
+				cacheDir: options.cache?.cacheDir ?? null,
 				manifests: packed.manifests,
 				jobs: shard,
 				texts: options.texts ?? null,
@@ -174,7 +176,7 @@ export async function evaluateBoundaryFileJobs(jobs, options = {}) {
 async function scanBoundaries() {
 	const spec = rules();
 	const { jobs, inline } = collectBoundaryScan(spec);
-	const fileItems = await evaluateBoundaryFileJobs(jobs, { document: spec });
+	const fileItems = await evaluateBoundaryFileJobs(jobs, { document: spec, cache: createAstCache() });
 	const { findings, scanned } = mergeBoundaryItems([...inline, ...fileItems]);
 	if (findings.length === 0) {
 		ok(`[package-boundaries] ok (${scanned} file(s) scanned)`);

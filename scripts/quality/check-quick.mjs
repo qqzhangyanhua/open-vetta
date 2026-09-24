@@ -12,7 +12,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { checkConflictMarkers } from "./check-conflict-markers.mjs";
+import { checkConflictMarkers, selectConflictMarkerFiles } from "./check-conflict-markers.mjs";
 import { checkPrivateKeys, selectPrivateKeyFiles } from "./check-private-keys.mjs";
 import {
 	changedFiles,
@@ -70,7 +70,11 @@ export function runChangedFileGuards(files, readFile = (file) => readText(join(r
 		() => checkPrivateKeys(selectPrivateKeyFiles(textFiles), readFile),
 		reporters,
 	);
-	const markerCode = runCheck("conflict-markers", () => checkConflictMarkers(textFiles, readFile), reporters);
+	const markerCode = runCheck(
+		"conflict-markers",
+		() => checkConflictMarkers(selectConflictMarkerFiles(textFiles), readFile),
+		reporters,
+	);
 	return keyCode || markerCode;
 }
 
