@@ -1,0 +1,228 @@
+packages/theme-ui/src/shared/provider-icon/brand-mark.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-35
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelTabs.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 8-10,86,88-91,97
+apps/desktop/src/renderer/domains/project/hooks/useDefaultSessionListModel.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 2,8,94,99,185-187,204-211,249,259
+apps/desktop/src/main/main.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 42,929
+apps/desktop/src/renderer/shared/components/external-agent-mark/ExternalAgentMark.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-52
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelAddMenu.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1,4,7,21,23,62,68-84
+.github/release-notes/v0.5.59.md
+  s_e396678e6ff83a::t_67ce7efaba32e0 5-20,79-80,139-152,165-166,274
+apps/desktop/src/main/ipc/external-invocation.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-192
+apps/desktop/src/preload/api-types/external-invocation.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-42
+apps/desktop/src/renderer/shared/store/running-sessions-atoms.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 9-11
+apps/desktop/src/renderer/shared/store/session-input-draft.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 27,185,209
+apps/desktop/src/renderer/domains/bottom-panel/builtins/types.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 19
+packages/theme-ui/src/shared/provider-icon/index.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 2,5,21
+apps/desktop/src/renderer/shared/store/bottom-panel-layout.test.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 5,28-36,358-366,460-559
+  s_e396678e6ff83a::t_0b27690687e215 560
+apps/desktop/src/renderer/shared/store/bottom-panel-layout.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 46-47,74-91,96,113,159,161-169,404-501,504-506,534,636-640,668
+apps/desktop/src/renderer/domains/conversation/components/input-bar/types.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 38-42,241-286
+  s_e396678e6ff83a::t_ec3d6dcd5a1697 287
+apps/desktop/src/shared/i18n/locales/zh/project.json
+  s_e396678e6ff83a::t_67ce7efaba32e0 66-67
+apps/desktop/src/main/external-invocation/output-capture.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-65
+apps/desktop/src/renderer/domains/conversation/components/ChatView.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-15,26,55-60,84-105,107-114,122,124-139
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionOpener.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 13,35,514,516-518
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarToolbar.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 51,61,74
+apps/desktop/src/main/external-invocation/detect-agents.test.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-33
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.external-invocation.test.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-61
+packages/runtime-core/test/conversation/external-invocation-history-projection.test.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-74
+packages/theme-ui/src/shared/provider-icon/agent-brand-icons.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-31
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelModel.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 27,54,74,77
+apps/desktop/src/renderer/domains/bottom-panel/builtins/index.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1,6-9
+apps/desktop/src/renderer/shared/store/external-invocation-origins.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-43
+packages/runtime-core/src/conversation/external-invocation.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-57
+apps/desktop/src/renderer/domains/bottom-panel/registry/types.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 26-27
+apps/desktop/src/preload/index.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 13,62
+packages/runtime-core/src/conversation/history-projection.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 16,80,254-262
+  s_e396678e6ff83a::t_68742cf884bc07 263-264
+apps/desktop/src/main/ipc/session.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 397-402,1238,1254
+apps/desktop/src/renderer/shared/components/external-agent-mark/marks/droid.svg
+  s_e396678e6ff83a::t_67ce7efaba32e0 1
+packages/runtime-core/src/contracts.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 496-506
+  s_e396678e6ff83a::t_035dd2ad3a77dc 495
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_e396678e6ff83a::t_67ce7efaba32e0 326-327,516-571
+  s_e396678e6ff83a::t_310a89a05223c5 572-573
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useExternalAgentMenuItems.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-98
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationPage.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-351
+apps/desktop/src/renderer/domains/conversation/components/new-session/NewSessionPageView.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 51,80,195
+apps/desktop/src/main/terminal/local-pty-backend.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1,3,14-45,171-222,236-245
+  s_e396678e6ff83a::t_de3a59fe9467ec 246-249
+apps/desktop/src/renderer/domains/bottom-panel/registry/instance-context.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 8-16
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/external-invocation-origin.test.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-272
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionSend.test.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 5-6,283-321
+  s_e396678e6ff83a::t_f9f8673a128713 322
+apps/desktop/src/preload/api.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 15,64,134
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 14-18,84,100,102-104,106-107,109-111
+apps/desktop/src/main/terminal/local-pty-backend.test.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-3,5-6,58-190
+  s_e396678e6ff83a::t_f313147a1c1856 191
+apps/desktop/src/main/external-invocation/parse-start.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-51
+apps/desktop/src/renderer/domains/project/hooks/external-session-caption.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 20,24-31
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelAddMenu.test.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-94
+apps/desktop/src/main/external-invocation/entry-ledger.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-57
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelHost.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 2,11,13,24,27,43,49,55,57,61-67,69,71,73-81,86,94-136,160-162,170
+apps/desktop/src/renderer/domains/conversation/components/input-bar/editor/inputEditorHandle.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 28-34,69,114
+apps/desktop/src/renderer/domains/project/hooks/useSessionContextMenuModel.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-3,10,14,17,36-38,47-49,152-187,189-201,222-231
+  s_e396678e6ff83a::t_4a0135f80b417c 232
+apps/desktop/src/main/external-invocation/parse-start.test.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-22
+apps/desktop/src/renderer/shared/hooks/useExternalInvocationOrigins.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-46
+apps/desktop/src/renderer/shared/store/external-recipient.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-46
+packages/theme-ui/src/shared/index.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 29
+apps/desktop/src/renderer/shared/store/bottom-panel-persistence.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 113
+apps/desktop/src/main/external-sessions/external-agent-session-id.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-170
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionSend.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 2-9,41,87-108
+CONTEXT.md
+  s_e396678e6ff83a::t_67ce7efaba32e0 745-769
+packages/coding-agent/src/sessions/projection/session-history.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 9,253-261
+  s_e396678e6ff83a::t_9098a7b640f300 262
+apps/desktop/src/renderer/domains/bottom-panel/registry/useBottomPanelDefinitions.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 102
+apps/desktop/src/main/external-invocation/service.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-750
+apps/desktop/src/renderer/shared/hooks/useRunningSessionsSync.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1,38-48
+  s_e396678e6ff83a::t_ad32d4ac67f00f 49
+packages/runtime-core/src/conversation/index.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 42-46
+  s_e396678e6ff83a::t_36c3c9f02cf050 41
+docs/adr/0128-external-agent-invocations.md
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-46
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationPage.test.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-868
+packages/coding-agent/src/public-api/external-sessions.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 26-27
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationView.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-221
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/ExternalInvocationTerminalSession.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-238
+apps/desktop/src/main/external-invocation/origins.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-42
+apps/desktop/src/main/external-sessions/grok-session-locator.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1,6-7,84-134
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.test.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 62-72
+apps/desktop/src/main/external-invocation/service.test.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-729
+apps/desktop/src/renderer/domains/bottom-panel/builtins/external-invocation-panel.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-197
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useTerminalCapabilities.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 18-19,21
+apps/desktop/src/renderer/domains/conversation/services/chat-service.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 639-657
+apps/desktop/src/main/external-invocation/grok-adapter.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-200
+apps/desktop/src/renderer/domains/project/hooks/useProjectGroupModel.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 6,88,164-166,201
+apps/desktop/src/renderer/shared/store/chat-atoms.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 33-42
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelLeaf.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 26-28,51-53,79-96,117
+apps/desktop/src/shared/i18n/locales/en/project.json
+  s_e396678e6ff83a::t_67ce7efaba32e0 66-67
+apps/desktop/src/renderer/shared/hooks/useExternalHistoryResumeOffer.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-75
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarView.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 12,38,63-69,164,195,219-225,237,246,265,270-293,295,304,311,322
+apps/desktop/src/preload/apis/external-invocation.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-73
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.surface.test.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-47
+apps/desktop/src/main/external-invocation/grok-adapter.test.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-180
+apps/desktop/src/main/external-invocation/detect-agents.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-60
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/external-agent-label.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-18
+apps/desktop/src/renderer/domains/conversation/components/input-bar/DefaultInputBarConnector.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 4-15,20,44-59,73-74,137-144,148,206-247
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_e396678e6ff83a::t_67ce7efaba32e0 326-327,516-571
+  s_e396678e6ff83a::t_1a8978aea99a13 572-573
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 11,13-14,17-18,61-117,130-132
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/open-external-invocation-tab.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-37
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionPageModel.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 79,326
+apps/desktop/src/main/ipc/index.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 16,77,127,170
+apps/desktop/src/renderer/root-layout/useRootLayoutModel.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 19,115
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.tsx
+  s_e396678e6ff83a::t_67ce7efaba32e0 4,10,12,36-44,68-77,139-142
+apps/desktop/src/renderer/shared/store/external-history-resume.ts
+  s_e396678e6ff83a::t_67ce7efaba32e0 1-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "cb09517c9cc5ce61bbe1554317aef41123fae725",
+  "prompts": {},
+  "sessions": {
+    "s_e396678e6ff83a": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0d64d-6252-73f3-b83d-61a014413562",
+        "model": "grok-4.7"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
