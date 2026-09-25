@@ -5,6 +5,9 @@ import {
 	collectBottomPanelLeaves,
 	confirmDialogAtom,
 	dispatchBottomPanelAtom,
+	EXTERNAL_INVOCATION_COMPONENT_ID,
+	type ExternalInvocationPanelPayload,
+	findBottomPanelTab,
 } from "@shared/store/atoms";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback } from "react";
@@ -80,13 +83,18 @@ export function useBottomPanelTabs(definitions: readonly BottomPanelComponentDef
 					variant: outcome.confirm.destructive ? "danger" : "default",
 					onConfirm: () => {
 						setConfirmDialog(null);
+						const tab = findBottomPanelTab(state.root, tabId);
 						dispatch({ type: "close-tab", tabId });
+						if (tab?.tab.componentId === EXTERNAL_INVOCATION_COMPONENT_ID) {
+							const payload = tab.tab.payload as ExternalInvocationPanelPayload | undefined;
+							void window.vetta?.externalInvocations?.stop(payload?.invocationId ?? tabId);
+						}
 					},
 					onCancel: () => setConfirmDialog(null),
 				});
 			})();
 		},
-		[guards, dispatch, setConfirmDialog, t],
+		[guards, dispatch, setConfirmDialog, state.root, t],
 	);
 
 	/**

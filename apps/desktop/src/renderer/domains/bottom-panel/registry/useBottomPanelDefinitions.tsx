@@ -99,6 +99,7 @@ export function useBottomPanelDefinitions({
 				order: builtin.order,
 				source: "builtin",
 				maxInstances: builtin.maxInstances,
+				omitFromAddMenu: builtin.omitFromAddMenu,
 				defaultMeta: { label: t(builtin.labelKey), icon: builtin.icon },
 				component: builtin.component,
 			};

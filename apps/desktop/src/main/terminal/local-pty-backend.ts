@@ -1,4 +1,6 @@
+import { accessSync, constants, statSync } from "node:fs";
 import { createRequire } from "node:module";
+import { delimiter, join } from "node:path";
 import type * as NodePty from "@lydell/node-pty";
 import { getAppLogger } from "../logger.js";
 import { createTerminalEnvironment, resolveTerminalShell } from "./resolve-terminal-shell.js";
@@ -8,6 +10,38 @@ import type {
 	TerminalBackendFactory,
 	TerminalExitEvent,
 } from "./terminal-backend.js";
+
+/**
+ * 指定命令启动失败：可执行文件找不到。
+ * 和「进程已经起来、随后以非 0 退出」分开——后者走 {@link TerminalBackend.onExit}。
+ * 文件在、但没有执行权限，是另一种错误，不用这个类型。
+ */
+export class LocalPtyCommandError extends Error {
+	readonly code = "ENOENT" as const;
+	readonly file: string;
+
+	constructor(file: string) {
+		super(`Executable not found: ${file}`);
+		this.name = "LocalPtyCommandError";
+		this.file = file;
+	}
+}
+
+export interface OpenLocalPtyCommandOptions {
+	/** 绝对路径，或可在本次环境变量 PATH 里解析到的可执行文件名。 */
+	readonly file: string;
+	/** 原样作为 argv，不经过 shell。 */
+	readonly args?: readonly string[];
+	readonly cwd: string;
+	readonly cols: number;
+	readonly rows: number;
+	/** 覆盖在终端环境之上；调用方显式给出的键优先。 */
+	readonly env?: Readonly<Record<string, string>>;
+}
+
+export interface LocalPtyBackendFactory extends TerminalBackendFactory {
+	openCommand(options: OpenLocalPtyCommandOptions): Promise<TerminalBackend>;
+}
 
 const log = getAppLogger("terminal");
 
@@ -134,7 +168,58 @@ export function hangUpPty(target: HangUpTarget): void {
 	}
 }
 
-export function createLocalPtyBackendFactory(): TerminalBackendFactory {
+function isRegularFile(candidate: string): boolean {
+	try {
+		return statSync(candidate).isFile();
+	} catch {
+		return false;
+	}
+}
+
+function canExecute(candidate: string): boolean {
+	if (process.platform === "win32") return true;
+	try {
+		accessSync(candidate, constants.X_OK);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+function isExecutableFile(candidate: string): boolean {
+	return isRegularFile(candidate) && canExecute(candidate);
+}
+
+function commandCandidates(file: string, dir: string, env: Record<string, string>): readonly string[] {
+	const bare = join(dir, file);
+	if (process.platform !== "win32") return [bare];
+	const extensions = (env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD").split(";").filter((ext) => ext !== "");
+	if (extensions.some((ext) => file.toLowerCase().endsWith(ext.toLowerCase()))) return [bare];
+	return [bare, ...extensions.map((ext) => join(dir, `${file}${ext}`))];
+}
+
+/** 路径形式必须本身可执行；纯文件名只在本次环境的 PATH 里找，找不到就拒绝启动。 */
+function resolveCommandFile(file: string, env: Record<string, string>): string {
+	if (file.includes("/") || file.includes("\\")) {
+		if (!isRegularFile(file)) throw new LocalPtyCommandError(file);
+		if (!canExecute(file)) throw new Error(`Not executable: ${file}`);
+		return file;
+	}
+	const pathValue = env.PATH ?? env.Path ?? "";
+	for (const dir of pathValue.split(delimiter)) {
+		if (dir === "") continue;
+		for (const candidate of commandCandidates(file, dir, env)) {
+			if (isExecutableFile(candidate)) return candidate;
+		}
+	}
+	throw new LocalPtyCommandError(file);
+}
+
+function commandEnvironment(overrides: Readonly<Record<string, string>> | undefined): Record<string, string> {
+	return { ...createTerminalEnvironment(), ...overrides };
+}
+
+export function createLocalPtyBackendFactory(): LocalPtyBackendFactory {
 	return {
 		async open(options: OpenTerminalBackendOptions): Promise<TerminalBackend> {
 			const pty = loadNodePty();
@@ -144,6 +229,20 @@ export function createLocalPtyBackendFactory(): TerminalBackendFactory {
 				cols: options.cols,
 				rows: options.rows,
 				env: createTerminalEnvironment(),
+				name: "xterm-256color",
+			});
+			return new LocalPtyBackend(spawned, spawned.process);
+		},
+
+		async openCommand(options: OpenLocalPtyCommandOptions): Promise<TerminalBackend> {
+			const pty = loadNodePty();
+			const env = commandEnvironment(options.env);
+			const file = resolveCommandFile(options.file, env);
+			const spawned = pty.spawn(file, [...(options.args ?? [])], {
+				cwd: options.cwd,
+				cols: options.cols,
+				rows: options.rows,
+				env,
 				name: "xterm-256color",
 			});
 			return new LocalPtyBackend(spawned, spawned.process);

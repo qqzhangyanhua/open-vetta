@@ -48,6 +48,7 @@ export interface InputBarAttachmentActionsProps {
 	readonly disabled: boolean;
 	readonly visible: boolean;
 	readonly addImageTitle: string;
+	readonly addImageDisabled?: boolean;
 	readonly attachFileTitle: string;
 	readonly onSelectFiles: () => void;
 	readonly onSelectImages: () => void;
@@ -57,6 +58,7 @@ export function InputBarAttachmentActions({
 	disabled,
 	visible,
 	addImageTitle,
+	addImageDisabled = false,
 	attachFileTitle,
 	onSelectFiles,
 	onSelectImages,
@@ -69,7 +71,7 @@ export function InputBarAttachmentActions({
 			<InputBarToolbarButton
 				icon="icon-[solar--gallery-linear]"
 				title={addImageTitle}
-				disabled={disabled}
+				disabled={disabled || addImageDisabled}
 				onClick={onSelectImages}
 			/>
 			<InputBarToolbarButton

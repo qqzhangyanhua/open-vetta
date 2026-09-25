@@ -110,6 +110,7 @@ export function sanitizeBottomPanelState(value: unknown): BottomPanelSessionStat
 	const state: BottomPanelSessionState = {
 		schemaVersion: BOTTOM_PANEL_SCHEMA_VERSION,
 		collapsed: value.collapsed !== false,
+		filled: value.filled === true,
 		heightRatio: clampBottomPanelHeightRatio(typeof value.heightRatio === "number" ? value.heightRatio : Number.NaN),
 		root,
 		activeLeafId: leaves.some((leaf) => leaf.id === activeLeafId) ? activeLeafId : (leaves[0]?.id ?? null),

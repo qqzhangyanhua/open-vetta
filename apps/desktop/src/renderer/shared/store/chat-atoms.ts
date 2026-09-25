@@ -30,6 +30,16 @@ export type TeamMemberSummaryEventViewModel = {
 };
 
 export type ChatTimelineEventViewModel =
+	| {
+			readonly kind: "external_invocation";
+			readonly invocationId: string;
+			readonly agentId: string;
+			readonly prompt: string;
+			readonly status: "queued" | "running" | "completed" | "failed" | "interrupted";
+			readonly exitCode: number | null;
+			readonly failureReason: string | null;
+			readonly interruptReason?: "user" | "app-exit" | "cancelled" | null;
+	  }
 	| { readonly kind: "compaction"; readonly summary: string }
 	| { readonly kind: "delegation"; readonly label: string; readonly requestId: string; readonly timestamp: number }
 	| { readonly kind: "omitted_reasoning"; readonly count: number }

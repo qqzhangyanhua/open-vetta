@@ -43,6 +43,8 @@ export type BottomPanelNode = BottomPanelGroup | BottomPanelLeaf;
 export interface BottomPanelSessionState {
 	readonly schemaVersion: number;
 	readonly collapsed: boolean;
+	/** 面板铺满会话主区（终端全屏）。收起后回到底部横条。 */
+	readonly filled: boolean;
 	/** 面板高度占会话页可用高度的比例。 */
 	readonly heightRatio: number;
 	readonly root: BottomPanelNode | null;
@@ -69,10 +71,29 @@ export const BOTTOM_PANEL_MIN_SPLIT_RATIO = 0.12;
  */
 export const BOTTOM_PANEL_MAX_LEAVES = 8;
 
+/**
+ * 面板里的实例总数上限。外部调用再开一个时，先回收已结束的外部调用实例；
+ * shell 和仍在运行的外部调用不回收。没有可回收实例时拒绝新建。
+ */
+export const BOTTOM_PANEL_MAX_INSTANCES = BOTTOM_PANEL_MAX_LEAVES;
+
+export const EXTERNAL_INVOCATION_COMPONENT_ID = "external-invocation";
+
+export interface ExternalInvocationPanelPayload {
+	readonly invocationId: string;
+	readonly status: "running" | "finished";
+	readonly agentLabel?: string;
+	readonly projectLabel?: string;
+	readonly sessionId?: string;
+	readonly externalSessionId?: string | null;
+	readonly agentId?: string;
+}
+
 export function emptyBottomPanelState(): BottomPanelSessionState {
 	return {
 		schemaVersion: BOTTOM_PANEL_SCHEMA_VERSION,
 		collapsed: true,
+		filled: false,
 		heightRatio: BOTTOM_PANEL_DEFAULT_HEIGHT_RATIO,
 		root: null,
 		activeLeafId: null,
@@ -89,6 +110,7 @@ export function isDefaultBottomPanelState(state: BottomPanelSessionState): boole
 	return (
 		state.root === null &&
 		state.collapsed &&
+		!state.filled &&
 		state.heightRatio === BOTTOM_PANEL_DEFAULT_HEIGHT_RATIO &&
 		state.activeLeafId === null &&
 		state.lastActiveTabIds === undefined
@@ -134,8 +156,17 @@ export type BottomPanelAction =
 	  }
 	| { readonly type: "set-height-ratio"; readonly ratio: number }
 	| { readonly type: "set-collapsed"; readonly collapsed: boolean }
+	| { readonly type: "set-filled"; readonly filled: boolean }
 	| { readonly type: "set-payload"; readonly tabId: string; readonly payload: unknown }
-	| { readonly type: "prune"; readonly knownComponentIds: readonly BottomPanelComponentId[] };
+	| { readonly type: "prune"; readonly knownComponentIds: readonly BottomPanelComponentId[] }
+	| {
+			readonly type: "open-external-invocation";
+			readonly tabId: string;
+			readonly newLeafId: string;
+			readonly payload: ExternalInvocationPanelPayload;
+			/** false：标签已关掉时不要再开一个（停止后的 interrupted 会走到这里）。 */
+			readonly createIfMissing?: boolean;
+	  };
 
 // ─── 树操作 ────────────────────────────────────────────────────────
 
@@ -370,8 +401,109 @@ export function reduceBottomPanel(state: BottomPanelSessionState, action: Bottom
 	return next === state ? state : trackLastActiveTab(next);
 }
 
+function tabCount(node: BottomPanelNode | null): number {
+	return collectBottomPanelLeaves(node).reduce((sum, leaf) => sum + leaf.tabs.length, 0);
+}
+
+function isFinishedExternalInvocation(tab: BottomPanelTabState): boolean {
+	if (tab.componentId !== EXTERNAL_INVOCATION_COMPONENT_ID) return false;
+	const payload = tab.payload;
+	return (
+		typeof payload === "object" &&
+		payload !== null &&
+		"status" in payload &&
+		(payload as ExternalInvocationPanelPayload).status === "finished"
+	);
+}
+
+function externalInvocationPayload(tab: BottomPanelTabState): ExternalInvocationPanelPayload | null {
+	if (tab.componentId !== EXTERNAL_INVOCATION_COMPONENT_ID) return null;
+	const payload = tab.payload;
+	if (typeof payload !== "object" || payload === null || !("invocationId" in payload)) return null;
+	return payload as ExternalInvocationPanelPayload;
+}
+
+function findReusableExternalInvocationTab(
+	root: BottomPanelNode | null,
+	action: Extract<BottomPanelAction, { type: "open-external-invocation" }>,
+): { leaf: BottomPanelLeaf; tab: BottomPanelTabState } | null {
+	const byId = findBottomPanelTab(root, action.tabId);
+	if (byId && byId.tab.componentId === EXTERNAL_INVOCATION_COMPONENT_ID) return byId;
+	if (!root) return null;
+	const ext = action.payload.externalSessionId;
+	const invocationId = action.payload.invocationId;
+	for (const leaf of collectBottomPanelLeaves(root)) {
+		const tab = leaf.tabs.find((entry) => {
+			const payload = externalInvocationPayload(entry);
+			if (!payload) return false;
+			if (ext && payload.externalSessionId === ext) return true;
+			return payload.invocationId === invocationId;
+		});
+		if (tab) return { leaf, tab };
+	}
+	return null;
+}
+
+function openExternalInvocationTab(
+	state: BottomPanelSessionState,
+	action: Extract<BottomPanelAction, { type: "open-external-invocation" }>,
+): BottomPanelSessionState {
+	const existing = findReusableExternalInvocationTab(state.root, action);
+	if (existing && state.root) {
+		const tabId = existing.tab.tabId;
+		const root = mapTabs(state.root, (tabs) => {
+			const index = tabs.findIndex((tab) => tab.tabId === tabId);
+			if (index === -1) return tabs;
+			const current = tabs[index];
+			if (!current) return tabs;
+			const nextTabs = [...tabs];
+			nextTabs[index] = { ...current, payload: action.payload };
+			return nextTabs;
+		});
+		const activated = root
+			? mapLeaf(root, existing.leaf.id, (leaf) => ({ ...leaf, activeTabId: tabId }))
+			: state.root;
+		return { ...state, collapsed: false, root: activated, activeLeafId: existing.leaf.id };
+	}
+
+	if (action.createIfMissing === false) return state;
+
+	let next = state;
+	while (tabCount(next.root) >= BOTTOM_PANEL_MAX_INSTANCES) {
+		const victim = collectBottomPanelLeaves(next.root)
+			.flatMap((leaf) => leaf.tabs)
+			.find(isFinishedExternalInvocation);
+		if (!victim) return next;
+		const closed = reduceBottomPanelLayout(next, { type: "close-tab", tabId: victim.tabId });
+		if (closed === next) return next;
+		next = closed;
+	}
+
+	const tab: BottomPanelTabState = {
+		tabId: action.tabId,
+		componentId: EXTERNAL_INVOCATION_COMPONENT_ID,
+		payload: action.payload,
+	};
+	if (!next.root) {
+		const leaf: BottomPanelLeaf = {
+			kind: "leaf",
+			id: action.newLeafId,
+			tabs: [tab],
+			activeTabId: tab.tabId,
+		};
+		return { ...next, collapsed: false, root: leaf, activeLeafId: leaf.id };
+	}
+	const targetLeafId = resolveActiveLeafId(next.root, next.activeLeafId);
+	if (!targetLeafId) return next;
+	const root = insertTabIntoLeaf(next.root, targetLeafId, tab, Number.MAX_SAFE_INTEGER);
+	return { ...next, collapsed: false, root, activeLeafId: targetLeafId };
+}
+
 function reduceBottomPanelLayout(state: BottomPanelSessionState, action: BottomPanelAction): BottomPanelSessionState {
 	switch (action.type) {
+		case "open-external-invocation":
+			return openExternalInvocationTab(state, action);
+
 		case "open-tab": {
 			const tab: BottomPanelTabState = { tabId: action.tabId, componentId: action.componentId };
 			if (!state.root) {
@@ -399,6 +531,7 @@ function reduceBottomPanelLayout(state: BottomPanelSessionState, action: BottomP
 				...state,
 				root: node,
 				collapsed: node === null ? true : state.collapsed,
+				filled: node === null ? false : state.filled,
 				activeLeafId: resolveActiveLeafId(node, state.activeLeafId),
 			};
 		}
@@ -500,6 +633,11 @@ function reduceBottomPanelLayout(state: BottomPanelSessionState, action: BottomP
 		case "set-collapsed":
 			return action.collapsed === state.collapsed ? state : { ...state, collapsed: action.collapsed };
 
+		case "set-filled": {
+			if (action.filled === state.filled && (!action.filled || !state.collapsed)) return state;
+			return { ...state, filled: action.filled, collapsed: action.filled ? false : state.collapsed };
+		}
+
 		case "set-payload": {
 			if (!state.root) return state;
 			const root = mapTabs(state.root, (tabs) => {
@@ -527,6 +665,7 @@ function reduceBottomPanelLayout(state: BottomPanelSessionState, action: BottomP
 				...state,
 				root,
 				collapsed: root === null ? true : state.collapsed,
+				filled: root === null ? false : state.filled,
 				activeLeafId: resolveActiveLeafId(root, state.activeLeafId),
 			};
 		}

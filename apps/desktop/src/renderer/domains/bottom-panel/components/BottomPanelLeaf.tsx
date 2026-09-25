@@ -23,6 +23,9 @@ export interface BottomPanelLeafProps {
 	readonly onOpenComponent: (definition: BottomPanelComponentDefinition, leafId: string) => void;
 	readonly onSplit: (leafId: string, direction: "row" | "column") => void;
 	readonly onCollapse: () => void;
+	readonly hideCollapse?: boolean;
+	readonly filled?: boolean;
+	readonly onToggleFill?: () => void;
 	readonly onFocus: (leafId: string) => void;
 }
 
@@ -45,6 +48,9 @@ export function BottomPanelLeaf({
 	onOpenComponent,
 	onSplit,
 	onCollapse,
+	hideCollapse = false,
+	filled = false,
+	onToggleFill,
 	onFocus,
 }: BottomPanelLeafProps): JSX.Element {
 	const { t } = useTranslation("chat");
@@ -70,6 +76,24 @@ export function BottomPanelLeaf({
 							state={state}
 							onPick={(definition) => onOpenComponent(definition, leaf.id)}
 						/>
+						{onToggleFill ? (
+							<Button
+								variant="ghost"
+								size="icon-xs"
+								aria-label={filled ? t("bottomPanel.actions.exitFill") : t("bottomPanel.actions.fill")}
+								title={filled ? t("bottomPanel.actions.exitFill") : t("bottomPanel.actions.fill")}
+								onClick={onToggleFill}
+							>
+								<span
+									aria-hidden
+									className={
+										filled
+											? "icon-[solar--minimize-square-linear] h-3.5 w-3.5"
+											: "icon-[solar--maximize-square-linear] h-3.5 w-3.5"
+									}
+								/>
+							</Button>
+						) : null}
 						<Button
 							variant="ghost"
 							size="icon-xs"
@@ -90,7 +114,7 @@ export function BottomPanelLeaf({
 						>
 							<span aria-hidden className="icon-[solar--layers-minimalistic-linear] h-3.5 w-3.5" />
 						</Button>
-						{focused ? (
+						{focused && !hideCollapse ? (
 							<Button
 								variant="ghost"
 								size="icon-xs"

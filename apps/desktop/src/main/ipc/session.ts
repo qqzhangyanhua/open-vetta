@@ -394,6 +394,12 @@ function notifyAutomationSessionsDeleted(isDeleted: (sessionPath: string) => boo
 		.catch((error) => sessionLog.error("failed to update automations after session deletion", error));
 }
 
+async function deleteExternalInvocationsForSession(sessionPath: string): Promise<void> {
+	// Lazy: session ipc is registered before the invocation service is constructed.
+	const { externalInvocationService } = await import("./external-invocation.js");
+	await externalInvocationService().deleteSession(basename(sessionPath).replace(/\.jsonl$/i, ""));
+}
+
 export function registerSessionIpc(webContents: WebContents): () => void {
 	const resolveDefaultExecutionMode = async (): Promise<SessionExecutionMode> => {
 		const config = await readDesktopConfig();
@@ -1229,6 +1235,7 @@ export function registerSessionIpc(webContents: WebContents): () => void {
 		// ADR-0007: 「对话」项目下的 session cwd 是独立子目录；删除 session 时
 		// 连带回收子目录里的产物。读 header 先取 cwd，再 delete，最后 rm 子目录。
 		const cwdFromHeader = await readSessionCwdFromHeader(sessionPath);
+		await deleteExternalInvocationsForSession(sessionPath);
 		await runtime.deleteSession(sessionPath);
 		notifyAutomationSessionsDeleted((path) => path === sessionPath);
 		if (cwdFromHeader && isConversationSubCwd(cwdFromHeader)) {
@@ -1244,6 +1251,7 @@ export function registerSessionIpc(webContents: WebContents): () => void {
 		const result = await purgeProjectSessions(cwd, {
 			listSessions: (target) => listSessionHistory(target),
 			deleteSession: async (sessionPath) => {
+				await deleteExternalInvocationsForSession(sessionPath);
 				await runtime.deleteSession(sessionPath);
 				purged.add(sessionPath);
 			},

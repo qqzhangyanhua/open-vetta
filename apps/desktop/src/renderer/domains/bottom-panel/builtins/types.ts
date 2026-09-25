@@ -16,5 +16,6 @@ export interface BottomPanelBuiltin {
 	readonly maxInstances?: number;
 	/** 本地会话下需要本机 PTY；缺预编译二进制时不出现在「+」菜单里。 */
 	readonly requiresLocalPty?: boolean;
+	readonly omitFromAddMenu?: boolean;
 	readonly component: ComponentType;
 }

@@ -1,4 +1,4 @@
-import { runningSessionPathsAtom } from "@shared/store/running-sessions-atoms";
+import { externalInvocationRunningSessionIdsAtom, runningSessionPathsAtom } from "@shared/store/running-sessions-atoms";
 import { useSetAtom } from "jotai";
 import { useEffect } from "react";
 
@@ -34,4 +34,16 @@ export function useRunningSessionsSync(): void {
 			unsubscribe();
 		};
 	}, [setRunningSessionPaths]);
+}
+
+/** 外部调用的运行中会话。挂在 App 根上，切走会话后侧栏指示不会丢。 */
+export function useExternalInvocationRunningSync(): void {
+	const setRunning = useSetAtom(externalInvocationRunningSessionIdsAtom);
+	useEffect(() => {
+		const api = window.vetta?.externalInvocations;
+		if (!api) return;
+		return api.subscribeRunning((sessionIds) => {
+			setRunning(new Set(sessionIds));
+		});
+	}, [setRunning]);
 }

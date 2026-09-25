@@ -1,11 +1,23 @@
 import { useBottomPanelPills } from "@domains/bottom-panel/hooks/useBottomPanelPills";
 import { pathBasename, toVettaFileUrl } from "@shared/lib/utils";
 import type { InputBarContextMenuViewProps } from "@vetta-org/theme-ui/chat";
-import { memo, useMemo } from "react";
+import { inputValueAtom, mentionedFilesAtom } from "@shared/store/atoms";
+import { activeInputDraftKeyAtom } from "@shared/store/session-input-draft";
+import {
+	externalRecipientFor,
+	externalRecipientVersion,
+	subscribeExternalRecipient,
+} from "@shared/store/external-recipient";
+import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
+import { useAtomValue, useSetAtom } from "jotai";
+import { memo, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { externalAgentLabel } from "../external-invocation/external-agent-label";
+import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
 import { useTranslation } from "react-i18next";
 import { InputBar } from "../InputBar";
 import type { ActiveActionCapsule } from "./ActiveActionCapsules";
 import type { ConnectedInputBarProps, InputBarDrawerItem, InputBarModel, InputBarTodoModel } from "./types";
+import { setExternalImagesBlocked } from "./editor/inputEditorHandle";
 import { useInputBarAttachmentModel } from "./useInputBarAttachmentModel";
 import { useInputBarContextMenuModel } from "./useInputBarContextMenuModel";
 import {
@@ -29,6 +41,22 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const { t } = useTranslation("chat");
 	const session = useInputBarSessionSource(props.cwdOverride);
 	const draft = useInputBarDraftSource();
+	const inputValue = useAtomValue(inputValueAtom);
+	const mentionedFiles = useAtomValue(mentionedFilesAtom);
+	const draftKey = useAtomValue(activeInputDraftKeyAtom);
+	const recipientVersion = useSyncExternalStore(subscribeExternalRecipient, externalRecipientVersion, () => 0);
+	const storedRecipient = recipientVersion >= 0 ? externalRecipientFor(draftKey) : "penguin";
+	const [externalRecipientId, setExternalRecipientId] = useState(storedRecipient);
+	useEffect(() => {
+		setExternalRecipientId(storedRecipient);
+	}, [storedRecipient]);
+	useEffect(() => {
+		const blocked = externalRecipientId !== "penguin";
+		setExternalImagesBlocked(blocked);
+		return () => setExternalImagesBlocked(false);
+	}, [externalRecipientId]);
+	const placeExternalInvocation = useSetAtom(openExternalInvocationTabAtom);
+	const invocationStatus = useRef<Record<string, "running" | "finished">>({});
 	const runtimeId = session.activeSession?.runtimeId;
 	const interactions = useInputBarInteractionSource(runtimeId);
 	const firstSuggestion = useInputBarSuggestionSource(runtimeId);
@@ -42,7 +70,8 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const canSend =
 		session.hasSession &&
 		!session.isStreaming &&
-		(!session.isBlank || Boolean(draft.appshotAttachment));
+		(!session.isBlank || Boolean(draft.appshotAttachment)) &&
+		externalRecipientId === "penguin";
 	const dropZone = useSessionDropZoneModel(session.effectiveCwd || undefined);
 	const trigger = useInputBarTriggerModel({
 		activeSession: session.activeSession,
@@ -105,10 +134,18 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	}, [t]);
 	const placeholderModel = useMemo(() => {
 		if (!session.hasSession) return { placeholderTexts: [t("inputBar.placeholder.noSession")], placeholderRotating: false };
+		if (externalRecipientId !== "penguin") {
+			const agent = externalAgentLabel(externalRecipientId, t) || externalRecipientId;
+			const key =
+				externalRecipientId === "grok"
+					? "externalInvocation.interactivePlaceholder"
+					: "externalInvocation.placeholder";
+			return { placeholderTexts: [t(key, { agent })], placeholderRotating: false };
+		}
 		if (session.isStreaming) return { placeholderTexts: [t("inputBar.placeholder.thinking")], placeholderRotating: false };
 		if (session.placeholderVisible && firstSuggestion) return { placeholderTexts: [t("inputBar.placeholder.suggestion", { suggestion: firstSuggestion })], placeholderRotating: false };
 		return { placeholderTexts: defaultPlaceholders, placeholderRotating: defaultPlaceholders.length > 1 };
-	}, [defaultPlaceholders, firstSuggestion, session.hasSession, session.isStreaming, session.placeholderVisible, t]);
+	}, [defaultPlaceholders, externalRecipientId, firstSuggestion, session.hasSession, session.isStreaming, session.placeholderVisible, t]);
 	const labels = useMemo<InputBarModel["labels"]>(() => ({
 		capsule: { removeDefault: t("inputBar.capsule.removeDefault"), removeImage: t("inputBar.capsule.removeImage"), removeTooltip: (path) => t("inputBar.capsule.removeTooltip", { path }), activeGroup: (count) => t("inputBar.capsule.activeGroup", { count }) },
 		permission: { deny: t("inputBar.permission.deny"), allow: t("inputBar.permission.allow"), allowSession: t("inputBar.permission.allowSession") },
@@ -166,6 +203,48 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		contextMenu,
 		editor: { namespace: "chat-input" },
 		modelSelector: { updateActiveSession: true },
+		externalInvocation: {
+			session: session.activeSession ? { sessionId: session.activeSession.runtimeId, cwd: session.effectiveCwd } : null,
+			client: window.vetta?.externalInvocations ?? null,
+			prompt: inputValue,
+			onPromptChange: draft.setInputValue,
+			onRecipientChange: setExternalRecipientId,
+			draftKey,
+			images: imageAttachments.map((image) => ({ path: image.path, name: image.name })),
+			onRemoveImage: attachments.removeImage,
+			referencedPaths: mentionedFiles.map((file) => file.path),
+			remote: isSshProjectUri(session.effectiveCwd),
+			ensureSession: props.onEnsureSession,
+			onInvocationEvent: (event) => {
+				const active = session.activeSession;
+				if (!active) return;
+				if (event.type === "running" || event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
+					const status = event.type === "running" ? "running" : "finished";
+					invocationStatus.current[event.invocationId] = status;
+					placeExternalInvocation({
+						invocationId: event.invocationId,
+						status,
+						cwd: session.effectiveCwd,
+						sessionId: active.runtimeId,
+						agentLabel: externalAgentLabel(event.agentId ?? externalRecipientId, t) || externalRecipientId,
+						externalSessionId: event.externalSessionId,
+						agentId: event.agentId,
+						createIfMissing: event.type === "running",
+					});
+				}
+			},
+			onViewInTerminal: (invocationId) => {
+				const active = session.activeSession;
+				if (!active) return;
+				placeExternalInvocation({
+					invocationId,
+					status: invocationStatus.current[invocationId] ?? "finished",
+					cwd: session.effectiveCwd,
+					sessionId: active.runtimeId,
+					agentLabel: externalAgentLabel(externalRecipientId, t) || externalRecipientId,
+				});
+			},
+		},
 		leadingTools: [{ kind: "execution-mode", model: executionModeModel }],
 		trailingTools: contextUsageModel ? [{ kind: "context-usage", model: contextUsageModel }] : [],
 		sendBehavior: "queueable",

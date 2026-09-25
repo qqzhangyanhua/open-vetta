@@ -3,6 +3,7 @@ import { pathBasename } from "@shared/lib/utils";
 import type { Project, ProjectType } from "@shared/store/atoms";
 import {
 	automationSessionLinksAtom,
+	externalInvocationRunningSessionIdsAtom,
 	pinnedSessionPathsAtom,
 	projectContextMenuAtom,
 	renamingSessionPathAtom,
@@ -84,6 +85,7 @@ export function useProjectGroupModel({
 	const [showAllSessions, setShowAllSessions] = useState(false);
 	const revealedActiveSessionRef = useRef<string | null>(null);
 	const runningSessionPaths = useAtomValue(runningSessionPathsAtom);
+	const externalInvocationRunningSessionIds = useAtomValue(externalInvocationRunningSessionIdsAtom);
 	const pinnedSessionPaths = useAtomValue(pinnedSessionPathsAtom);
 	const scheduledSessionPaths = useAtomValue(scheduledSessionPathsAtom);
 	const scheduledBasenames = useMemo(() => {
@@ -159,7 +161,9 @@ export function useProjectGroupModel({
 				untitledTeamLabel: t("sidebar.session.untitledTeam"),
 			});
 			const isSessionActive = isSidebarConversationActive(session, activeSessionPath, activeTeamSessionId);
-			const isRunning = runningSessionPaths.has(session.path);
+			const isRunning =
+				runningSessionPaths.has(session.path) ||
+				(session.kind === "conversation" && externalInvocationRunningSessionIds.has(session.id));
 			const isSchedule =
 				identity.mutable &&
 				(scheduledSessionPaths.has(session.path) ||
@@ -194,6 +198,7 @@ export function useProjectGroupModel({
 		expandedTaskIds,
 		i18n.language,
 		renamingSessionPath,
+		externalInvocationRunningSessionIds,
 		runningSessionPaths,
 		pinnedSessionPaths,
 		scheduledBasenames,

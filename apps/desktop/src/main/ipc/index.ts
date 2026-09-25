@@ -13,6 +13,7 @@ import { registerDebugIpc } from "./debug.js";
 import { registerDiagnosticsIpc } from "./diagnostics.js";
 import { registerDialogIpc } from "./dialog.js";
 import { registerDownloadsIpc } from "./downloads.js";
+import { registerExternalInvocationIpc } from "./external-invocation.js";
 import { registerFileTransferIpc } from "./file-transfer.js";
 import { registerFsIpc } from "./fs.js";
 import { registerImIpc } from "./im.js";
@@ -73,6 +74,7 @@ interface IpcTeardown {
 	teardownNotifications: () => void;
 	teardownPet: () => void;
 	teardownTerminal: () => void;
+	teardownExternalInvocation: () => void;
 	teardownConversationTags: () => void;
 	teardownQuickPanel: () => void;
 	teardownAppshot: () => void;
@@ -122,6 +124,7 @@ export function registerAllIpc(
 		teardownNotifications: registerNotificationIpc(webContents),
 		teardownPet: registerPetIpc(),
 		teardownTerminal: registerTerminalIpc(),
+		teardownExternalInvocation: registerExternalInvocationIpc(),
 		teardownConversationTags: registerConversationTagsIpc(webContents),
 		teardownQuickPanel: registerQuickPanelIpc(),
 		teardownAppshot: registerAppshotIpc(),
@@ -164,6 +167,7 @@ export function teardownAllIpc(teardown: IpcTeardown): void {
 	teardown.teardownNotifications();
 	teardown.teardownPet();
 	teardown.teardownTerminal();
+	teardown.teardownExternalInvocation();
 	teardown.teardownConversationTags();
 	teardown.teardownQuickPanel();
 	teardown.teardownAppshot();

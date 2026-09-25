@@ -35,6 +35,11 @@ export interface ConnectedInputBarProps {
 	 * 输入内容保持可编辑，发送按钮就地展开成带文案的胶囊并拒绝重复点击。
 	 */
 	sendPending?: { readonly label: string };
+	/**
+	 * 新会话页还没有 Vetta 会话时，发给外部智能体要先创建承载会话。
+	 * 不向 penguin 发消息。创建失败或放弃时返回 null，输入留在原地。
+	 */
+	onEnsureSession?: () => Promise<{ sessionId: string; cwd: string } | null>;
 }
 
 export interface ControlledInputBarProps {
@@ -232,6 +237,53 @@ export interface InputBarModel {
 	modelSelector: {
 		readonly updateActiveSession: boolean;
 		readonly scope?: ModelSelectorScope;
+	};
+	/** 发给外部智能体。缺省时输入栏保持只发给 penguin 的样子。 */
+	externalInvocation?: {
+		readonly session: { readonly sessionId: string; readonly cwd: string } | null;
+		readonly client: {
+			listAgents(): Promise<readonly { id: string; label: string }[]>;
+			start(request: {
+				sessionId: string;
+				cwd: string;
+				prompt: string;
+				agentId: string;
+				referencedPaths?: readonly string[];
+				externalSessionId?: string | null;
+				newSession?: boolean;
+			}): Promise<{ invocationId: string }>;
+			subscribe(
+				sessionId: string,
+				listener: (event: {
+					type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
+					chunk?: string;
+					discardedBytes?: number;
+					invocationId: string;
+					prompt?: string;
+					agentId?: string;
+					exitCode?: number | null;
+					reason?: string;
+				}) => void,
+			): () => void;
+		} | null;
+		readonly onInvocationEvent?: (event: {
+			readonly type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
+			readonly invocationId: string;
+			readonly agentId?: string;
+			readonly externalSessionId?: string | null;
+			readonly ordinal?: number;
+			readonly startedAt?: string;
+		}) => void;
+		readonly onViewInTerminal?: (invocationId: string) => void;
+		readonly prompt: string;
+		readonly onPromptChange: (value: string) => void;
+		readonly onRecipientChange: (recipientId: string) => void;
+		readonly draftKey: string | null;
+		readonly images: readonly { path: string; name: string }[];
+		readonly onRemoveImage: (path: string) => void;
+		readonly referencedPaths: readonly string[];
+		readonly remote: boolean;
+		readonly ensureSession?: () => Promise<{ sessionId: string; cwd: string } | null>;
 	};
 	/** 工具栏按真实组成项装配，避免用 showX/capability 布尔值扩展产品分支。 */
 	leadingTools: readonly InputBarLeadingTool[];

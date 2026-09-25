@@ -59,6 +59,17 @@ describe("DefaultChatView layout", () => {
 		expect(bottomPanel).toBeGreaterThan(inputBar);
 		expect(bottomPanel).toBeLessThan(activityPanel);
 	});
+	it("发给外部智能体时终端铺满主区，不挂底部输入栏", () => {
+		const html = renderToStaticMarkup(
+			<DefaultChatView surface="external-terminal" messages={[]} workspace={workspace}>
+				{null}
+			</DefaultChatView>,
+		);
+
+		expect(html.indexOf('data-testid="bottom-panel"')).toBeGreaterThan(-1);
+		expect(html).not.toContain('data-testid="input-bar"');
+		expect(html).not.toContain('data-testid="activity-panel"');
+	});
 
 	it("can compose a read-only feed without mounting a composer", () => {
 		const html = renderToStaticMarkup(

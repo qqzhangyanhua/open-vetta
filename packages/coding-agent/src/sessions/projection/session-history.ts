@@ -6,6 +6,7 @@ import type {
 	PromptAttachmentRef,
 	PromptResourceRef,
 } from "@vetta/runtime-core";
+import { EXTERNAL_INVOCATION_CUSTOM_TYPE, parseExternalInvocationRecord } from "@vetta/runtime-core/conversation";
 import {
 	PROMPT_ATTACHMENT_CONTEXT_TYPE,
 	PROMPT_ATTACHMENT_REFERENCE_TYPE,
@@ -248,6 +249,16 @@ export function entriesToHistory(branch: CodingSessionEntry[], options?: Entries
 					timing,
 					timestamp: entry.timestamp,
 				});
+			}
+		} else if (entry.type === "custom" && entry.customType === EXTERNAL_INVOCATION_CUSTOM_TYPE) {
+			const record = parseExternalInvocationRecord(entry.data);
+			if (record) {
+				const next: HistoryEntry = { type: "external_invocation", ...record, timestamp: entry.timestamp };
+				const index = entries.findIndex(
+					(item) => item.type === "external_invocation" && item.invocationId === record.invocationId,
+				);
+				if (index >= 0) entries[index] = next;
+				else entries.push(next);
 			}
 		} else if (entry.type === "custom_message" && entry.customType === PROMPT_RESOURCE_REFERENCE_TYPE) {
 			const promptRef = parsePromptResourceRef(entry);

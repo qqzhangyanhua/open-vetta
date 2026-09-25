@@ -48,6 +48,7 @@ interface NewSessionPageViewProps {
 	onSelectPendingProject: (name: string) => void;
 	onSelectProject: (cwd: string | null) => void;
 	onSend: (overrideText?: string, context?: SendInteractionContext) => Promise<void>;
+	onEnsureSession?: () => Promise<{ sessionId: string; cwd: string } | null>;
 	preparingProject: boolean;
 	projectOptions: readonly ProjectOption[];
 	projectSelection: ProjectSelection;
@@ -76,6 +77,7 @@ export function NewSessionPageView({
 	onSelectPendingProject,
 	onSelectProject,
 	onSend,
+	onEnsureSession,
 	preparingProject,
 	projectOptions,
 	projectSelection,
@@ -190,6 +192,7 @@ export function NewSessionPageView({
 							<DefaultInputBarConnector
 								onSend={onSend}
 								onAbort={onAbort}
+								onEnsureSession={onEnsureSession}
 								cwdOverride={cwd}
 								onExpandedChange={onCommandPanelExpandedChange}
 								sendPending={preparingProject ? { label: preparingLabel } : undefined}

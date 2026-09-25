@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	activeBottomPanelTab,
 	BOTTOM_PANEL_MAX_HEIGHT_RATIO,
+	BOTTOM_PANEL_MAX_INSTANCES,
 	BOTTOM_PANEL_MAX_LEAVES,
 	BOTTOM_PANEL_MIN_HEIGHT_RATIO,
 	type BottomPanelAction,
@@ -22,6 +23,15 @@ function run(state: BottomPanelSessionState, ...actions: BottomPanelAction[]): B
 
 function openTerminal(id: string, leafId?: string): BottomPanelAction {
 	return { type: "open-tab", tabId: id, componentId: "terminal", newLeafId: `leaf-${id}`, leafId };
+}
+
+function openExternal(invocationId: string, status: "running" | "finished"): BottomPanelAction {
+	return {
+		type: "open-external-invocation",
+		tabId: invocationId,
+		newLeafId: `leaf-${invocationId}`,
+		payload: { invocationId, status },
+	};
 }
 
 /** 两个 tab 的单格子面板：几乎所有分屏/关闭场景都从这里开始。 */
@@ -345,6 +355,15 @@ describe("height / collapsed / payload", () => {
 		expect(state.collapsed).toBe(true);
 		expect(findBottomPanelTab(state.root, "a")?.tab.payload).toEqual({ cwd: "/tmp" });
 	});
+
+	it("全屏展示铺满主区，收起后回到底部横条", () => {
+		const filled = run(withTwoTabs(), { type: "set-filled", filled: true });
+		expect(filled.filled).toBe(true);
+		expect(filled.collapsed).toBe(false);
+		const restored = run(filled, { type: "set-filled", filled: false });
+		expect(restored.filled).toBe(false);
+		expect(restored.collapsed).toBe(false);
+	});
 });
 
 describe("prune", () => {
@@ -436,5 +455,106 @@ describe("最近激活的 tab", () => {
 		expect(reduceBottomPanel(state, { type: "set-height-ratio", ratio: 0.5 }).lastActiveTabIds).toBe(
 			state.lastActiveTabIds,
 		);
+	});
+});
+
+describe("外部调用实例", () => {
+	it("新建外部调用实例并成为当前标签", () => {
+		const state = run(emptyBottomPanelState(), openExternal("inv-1", "running"));
+
+		expect(state.collapsed).toBe(false);
+		expect(activeBottomPanelTab(state)?.tabId).toBe("inv-1");
+		expect(activeBottomPanelTab(state)?.componentId).toBe("external-invocation");
+		expect(findBottomPanelTab(state.root, "inv-1")?.tab.payload).toMatchObject({
+			invocationId: "inv-1",
+			status: "running",
+		});
+	});
+
+	it("分栏时另一栏保持不变", () => {
+		const split = run(withTwoTabs(), {
+			type: "split-leaf",
+			leafId: "leaf-a",
+			direction: "row",
+			newLeafId: "right",
+			newGroupId: "g1",
+			content: { kind: "move-tab", tabId: "b" },
+		});
+		const other = collectBottomPanelLeaves(split.root).find((leaf) => leaf.id !== split.activeLeafId);
+
+		const state = run(split, openExternal("inv-1", "running"));
+
+		const untouched = collectBottomPanelLeaves(state.root).find((leaf) => leaf.id === other?.id);
+		expect(untouched).toEqual(other);
+		expect(activeBottomPanelTab(state)?.tabId).toBe("inv-1");
+		expect(findBottomPanelTab(state.root, "inv-1")?.leaf.id).toBe(split.activeLeafId);
+	});
+
+	it("到上限时回收已结束的外部调用，不回收 shell 或运行中的实例", () => {
+		let state = emptyBottomPanelState();
+		for (let index = 0; index < BOTTOM_PANEL_MAX_INSTANCES - 2; index += 1) {
+			state = run(state, openTerminal(`shell-${index}`));
+		}
+		state = run(state, openExternal("finished-1", "finished"), openExternal("running-1", "running"));
+
+		state = run(state, openExternal("inv-new", "running"));
+
+		const tabs = collectBottomPanelLeaves(state.root).flatMap((leaf) => leaf.tabs);
+		expect(tabs.map((tab) => tab.tabId)).not.toContain("finished-1");
+		expect(tabs.map((tab) => tab.tabId)).toContain("running-1");
+		expect(tabs.filter((tab) => tab.componentId === "terminal").map((tab) => tab.tabId)).toEqual(
+			Array.from({ length: BOTTOM_PANEL_MAX_INSTANCES - 2 }, (_, index) => `shell-${index}`),
+		);
+		expect(activeBottomPanelTab(state)?.tabId).toBe("inv-new");
+		expect(tabs).toHaveLength(BOTTOM_PANEL_MAX_INSTANCES);
+	});
+
+	it("关掉全部标签后面板收起", () => {
+		const state = run(emptyBottomPanelState(), openExternal("inv-1", "finished"), {
+			type: "close-tab",
+			tabId: "inv-1",
+		});
+
+		expect(state.root).toBeNull();
+		expect(state.collapsed).toBe(true);
+	});
+
+	it("续跑同一外部会话时复用标签并换成当前 invocationId", () => {
+		const state = run(
+			emptyBottomPanelState(),
+			{
+				type: "open-external-invocation",
+				tabId: "inv-1",
+				newLeafId: "leaf-inv-1",
+				payload: { invocationId: "inv-1", status: "finished", externalSessionId: "sess-9" },
+			},
+			{
+				type: "open-external-invocation",
+				tabId: "inv-2",
+				newLeafId: "leaf-inv-2",
+				payload: { invocationId: "inv-2", status: "running", externalSessionId: "sess-9" },
+			},
+		);
+		const tabs = collectBottomPanelLeaves(state.root).flatMap((leaf) => leaf.tabs);
+		expect(tabs).toHaveLength(1);
+		expect(tabs[0]?.tabId).toBe("inv-1");
+		expect(tabs[0]?.payload).toMatchObject({
+			invocationId: "inv-2",
+			status: "running",
+			externalSessionId: "sess-9",
+		});
+	});
+
+	it("停止后的结束事件不再把已关掉的标签打开", () => {
+		const opened = run(emptyBottomPanelState(), openExternal("inv-1", "running"));
+		const closed = run(opened, { type: "close-tab", tabId: "inv-1" });
+		const afterStop = run(closed, {
+			type: "open-external-invocation",
+			tabId: "inv-1",
+			newLeafId: "leaf-inv-1",
+			payload: { invocationId: "inv-1", status: "finished" },
+			createIfMissing: false,
+		});
+		expect(afterStop.root).toBeNull();
 	});
 });

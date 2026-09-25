@@ -1,8 +1,10 @@
-import { statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import {
 	type ExternalSessionToolId,
+	findGrokSummaryHeader,
+	GROK_SUMMARY_SIDECAR_NAME,
 	resolveExternalSessionDirectory,
 	resolveGrokSessionsDirectory,
 } from "@vetta/coding-agent/external-sessions";
@@ -78,4 +80,55 @@ export function detectExternalSessionDirectory(
 	const path = resolveToolSessionDirectory(tool, options.homeDirectory ?? homedir());
 	const exists = options.exists ?? isExistingDirectory;
 	return exists(path) ? path : undefined;
+}
+
+/** 在 Grok 会话根下找出这次运行写过的会话：目录匹配，且最后活跃时间不早于启动时刻。多个时取最近的一条。 */
+export function locateGrokSessionId(input: { sessionsRoot: string; cwd: string; startedAt: number }): string | null {
+	const want = normalizePath(input.cwd);
+	let best: { id: string; at: number } | null = null;
+	for (const header of readGrokSummaries(input.sessionsRoot)) {
+		if (header.kind !== "ok") continue;
+		if (normalizePath(header.summary.cwd) !== want) continue;
+		if (header.summary.lastActiveAt < input.startedAt) continue;
+		if (!best || header.summary.lastActiveAt >= best.at) {
+			best = { id: header.summary.id, at: header.summary.lastActiveAt };
+		}
+	}
+	return best?.id ?? null;
+}
+
+function readGrokSummaries(root: string): ReturnType<typeof findGrokSummaryHeader>[] {
+	let workspaces: string[] = [];
+	try {
+		workspaces = readdirSync(root, { withFileTypes: true })
+			.filter((entry) => entry.isDirectory())
+			.map((entry) => entry.name);
+	} catch {
+		return [];
+	}
+	const headers: ReturnType<typeof findGrokSummaryHeader>[] = [];
+	for (const workspace of workspaces) {
+		let sessions: string[] = [];
+		try {
+			sessions = readdirSync(join(root, workspace), { withFileTypes: true })
+				.filter((entry) => entry.isDirectory())
+				.map((entry) => entry.name);
+		} catch {
+			continue;
+		}
+		for (const session of sessions) {
+			try {
+				const text = readFileSync(join(root, workspace, session, GROK_SUMMARY_SIDECAR_NAME), "utf8");
+				headers.push(findGrokSummaryHeader(text));
+			} catch {
+				// 缺 sidecar 或读失败的目录不是这次要定位的会话。
+			}
+		}
+	}
+	return headers;
+}
+
+function normalizePath(path: string): string {
+	const slash = path.replace(/\\/g, "/").replace(/\/+$/, "");
+	return slash.length === 0 ? "/" : slash;
 }

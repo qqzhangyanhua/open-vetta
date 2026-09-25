@@ -63,7 +63,8 @@
 			"sourcePi": "Pi",
 			"sourceOmp": "omp",
 			"unsupportedVersion": "Unsupported format version",
-			"corruptedHeader": "Session header is damaged"
+			"corruptedHeader": "Session header is damaged",
+			"initiatedByPenguin": "Started by penguin"
 		},
 		"dialogs": {
 			"deleteSessionTitle": "Delete session",

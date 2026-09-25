@@ -1,9 +1,11 @@
 import { notifyTeamSessionsChanged } from "@shared/agent-teams/team-session-events";
+import { useExternalInvocationOrigins } from "@shared/hooks/useExternalInvocationOrigins";
 import type { DefaultConversationFilter } from "@shared/store/atoms";
 import {
 	automationSessionLinksAtom,
 	conversationFilterTagId,
 	conversationTagsAtom,
+	externalInvocationRunningSessionIdsAtom,
 	pinnedSessionPathsAtom,
 	renamingSessionPathAtom,
 	runningSessionPathsAtom,
@@ -89,10 +91,12 @@ export function useDefaultSessionListModel({
 	sessions,
 }: UseDefaultSessionListModelArgs) {
 	const { t, i18n } = useTranslation("project");
+	const invocationOrigins = useExternalInvocationOrigins();
 	const setContextMenu = useSetAtom(sessionContextMenuAtom);
 	const viewCacheRef = useRef(new Map<string, DefaultSessionListItemView>());
 	const [renamingSessionPath, setRenamingSessionPath] = useAtom(renamingSessionPathAtom);
 	const runningSessionPaths = useAtomValue(runningSessionPathsAtom);
+	const externalInvocationRunningSessionIds = useAtomValue(externalInvocationRunningSessionIdsAtom);
 	const pinnedSessionPaths = useAtomValue(pinnedSessionPathsAtom);
 	const scheduledSessionPaths = useAtomValue(scheduledSessionPathsAtom);
 	const scheduledBasenames = useMemo(() => {
@@ -178,7 +182,9 @@ export function useDefaultSessionListModel({
 			});
 			const isActive = isSidebarConversationActive(session, activeSessionPath, activeTeamSessionId);
 			const isRenaming = identity.mutable && renamingSessionPath === session.path;
-			const isRunning = runningSessionPaths.has(session.path);
+			const isRunning =
+				runningSessionPaths.has(session.path) ||
+				(session.kind === "conversation" && externalInvocationRunningSessionIds.has(session.id));
 			const isSchedule =
 				identity.mutable &&
 				(scheduledSessionPaths.has(session.path) ||
@@ -195,7 +201,14 @@ export function useDefaultSessionListModel({
 				iconClassName: identity.iconClassName,
 				trailingAvatarUrls: identity.trailingAvatarUrls,
 				titleExtra: identity.titleExtra,
-				caption: isExternal ? externalSessionCaption(session, t) : undefined,
+				caption: isExternal
+					? externalSessionCaption(
+							session,
+							t,
+							Date.now(),
+							invocationOrigins.some((origin) => origin.externalSessionId === session.id),
+						)
+					: undefined,
 				tagColors: tagFilterId === null ? sessionTagColors(tags, tagColorById, session.path) : undefined,
 				session,
 			};
@@ -233,6 +246,7 @@ export function useDefaultSessionListModel({
 		ordering.visible,
 		i18n.language,
 		renamingSessionPath,
+		externalInvocationRunningSessionIds,
 		runningSessionPaths,
 		pinnedSessionPaths,
 		scheduledBasenames,
@@ -242,6 +256,7 @@ export function useDefaultSessionListModel({
 		tagFilterId,
 		tags,
 		isExternal,
+		invocationOrigins,
 		t,
 	]);
 

@@ -9,6 +9,7 @@ import {
 import { BottomPanelPillsView } from "@vetta-org/theme-ui/bottom-panel";
 import { useDelayedUnmount } from "@vetta-org/theme-ui/shared";
 import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ActionButtonBar } from "../ActionButtonBar";
 import { AtPanel } from "../AtPanel";
@@ -34,6 +35,7 @@ import {
 	InputBarSpeechAction,
 	InputBarToolbarDivider,
 } from "./InputBarToolbar";
+import { SessionExternalInvocationPage } from "../external-invocation/SessionExternalInvocationPage";
 import { InputEditor } from "./editor/InputEditor";
 import { PromptAttachmentLabels } from "./PromptAttachmentLabels";
 import type { InputBarViewProps } from "./types";
@@ -58,6 +60,13 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 	);
 	// 附件胶囊区折叠动画播完（200ms）后再卸载内容，动画本身是纯 CSS grid 过渡。
 	const renderCapsules = useDelayedUnmount(model.hasCapsules, 220);
+	const [externalRecipientId, setExternalRecipientId] = useState("penguin");
+	const sendingExternally = externalRecipientId !== "penguin";
+	const [hideComposer, setHideComposer] = useState(false);
+	const externalSendRef = useRef<(() => void) | null>(null);
+	const bindExternalSend = useCallback((send: (() => void) | null) => {
+		externalSendRef.current = send;
+	}, []);
 
 	return (
 		<div
@@ -152,7 +161,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 							<MessageInput.Content className={classNames?.cardContent}>
 								{commands ? <PerfSendProfiler id="ib:CommandPanel">
 									<CommandPanel
-										open={commands.slashOpen}
+										open={commands.slashOpen && !sendingExternally}
 										onClose={commands.onSlashClose}
 										onSelect={commands.onSlashSelect}
 										onSelectConnector={commands.onConnectorSelect}
@@ -183,6 +192,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 									onRemoveImage={model.actions.removeImage}
 								/>
 
+								{hideComposer ? null : (
 								<div
 									className={["px-4 pb-1 pt-3", classNames?.editorWrap]
 										.filter(Boolean)
@@ -206,7 +216,13 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 												onValueChange={model.editor.onValueChange}
 												persistenceId={model.editor.persistenceId}
 												onContextMenu={model.actions.handleContextMenu}
-												onEnter={model.actions.handleEnter}
+												onEnter={(event) => {
+													if (sendingExternally) {
+														externalSendRef.current?.();
+														return true;
+													}
+													return model.actions.handleEnter(event);
+												}}
 												onFocusChange={model.actions.setFocused}
 												onTriggerChange={commands?.onTriggerChange}
 											/>
@@ -218,6 +234,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 										/>
 									</div>
 								</div>
+								)}
 
 								<PerfSendProfiler id="ib:Toolbar">
 									<MessageInput.Toolbar className={classNames?.toolbar}>
@@ -226,7 +243,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 											 * 标记给命令区的 click-outside 判定用：否则 mousedown 先收起、
 											 * 随后的 click 又打开，按钮无法关闭面板。
 											 */}
-											{commands ? <InputBarSkillsAction
+											{commands && !sendingExternally ? <InputBarSkillsAction
 												active={commands.slashOpen}
 												disabled={!model.hasSession}
 												title={model.labels.toolbar.skills}
@@ -245,12 +262,37 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 												disabled={!model.hasSession}
 												visible={!commands || commands.slashOpen}
 												addImageTitle={model.labels.toolbar.addImage}
+												addImageDisabled={sendingExternally}
 												attachFileTitle={model.labels.toolbar.attachFile}
 												onSelectFiles={() => void model.actions.handleSelectFiles()}
 												onSelectImages={() => void model.actions.handleSelectImages()}
 											/>
+							{model.externalInvocation ? (
+								<SessionExternalInvocationPage
+									session={model.externalInvocation.session}
+									client={model.externalInvocation.client}
+									prompt={model.externalInvocation.prompt}
+									onPromptChange={model.externalInvocation.onPromptChange}
+									showPrompt={false}
+									penguinTools={null}
+									draftKey={model.externalInvocation.draftKey}
+									images={model.externalInvocation.images}
+									onRemoveImage={model.externalInvocation.onRemoveImage}
+									referencedPaths={model.externalInvocation.referencedPaths}
+									remote={model.externalInvocation.remote}
+									ensureSession={model.externalInvocation.ensureSession}
+									onBindSend={bindExternalSend}
+									onHideComposer={setHideComposer}
+									onRecipientChange={(recipientId) => {
+										setExternalRecipientId(recipientId);
+										model.externalInvocation?.onRecipientChange(recipientId);
+									}}
+									onInvocationEvent={model.externalInvocation.onInvocationEvent}
+									onViewInTerminal={model.externalInvocation.onViewInTerminal}
+								/>
+							) : null}
 							{model.leadingTools.map((tool) => (
-								<InputBarExecutionModeAction key={tool.kind} visible={!slashOpen} model={tool.model} />
+								<InputBarExecutionModeAction key={tool.kind} visible={!slashOpen && !sendingExternally} model={tool.model} />
 							))}
 											<InputBarActiveActions
 												items={model.activeActions}
@@ -259,13 +301,14 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 											/>
 										</MessageInput.ToolbarLeading>
 										<MessageInput.ToolbarTrailing>
-											<InputBarModelAction visible={!slashOpen} updateActiveSession={model.modelSelector.updateActiveSession} scope={model.modelSelector.scope} />
+											<InputBarModelAction visible={!slashOpen && !sendingExternally} updateActiveSession={model.modelSelector.updateActiveSession} scope={model.modelSelector.scope} />
 							{model.trailingTools.map((tool) => (
 								<InputBarContextAction key={tool.kind} visible={!slashOpen} model={tool.model} render={tool.render} />
 							))}
 											{slashOpen ? null : (
 												<InputBarSpeechAction input={model.speechInput} />
 											)}
+											{sendingExternally ? null : (
 											<InputBarSendAction
 												canSend={model.canSend}
 												canQueue={model.sendBehavior === "queueable"}
@@ -276,6 +319,7 @@ export function InputBarView({ model, className, classNames }: InputBarViewProps
 												onAbort={model.actions.handleAbort}
 												onSend={model.actions.handleSend}
 											/>
+											)}
 										</MessageInput.ToolbarTrailing>
 									</MessageInput.Toolbar>
 								</PerfSendProfiler>

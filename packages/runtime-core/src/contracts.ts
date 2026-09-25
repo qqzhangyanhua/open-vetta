@@ -493,6 +493,18 @@ export type HistoryEntry =
 	  }
 	| { type: "assistant_turn_timing"; timing: AssistantTurnTiming; timestamp: string }
 	| {
+			type: "external_invocation";
+			invocationId: string;
+			agentId: string;
+			prompt: string;
+			status: "queued" | "running" | "completed" | "failed" | "interrupted";
+			exitCode: number | null;
+			failureReason: string | null;
+			interruptReason?: "user" | "app-exit" | "cancelled" | null;
+			discardedBytes: number;
+			timestamp: string;
+	  }
+	| {
 			type: "error";
 			/** Stable conversation entry id when the failure was persisted as a document fact. */
 			entryId?: string;

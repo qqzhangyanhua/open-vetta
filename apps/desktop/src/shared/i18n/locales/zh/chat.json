@@ -323,6 +323,8 @@
 		},
 		"actions": {
 			"add": "新建面板",
+			"fill": "全屏展示",
+			"exitFill": "收起",
 			"splitRight": "向右分屏",
 			"splitDown": "向下分屏",
 			"splitLimit": "分屏数量已达上限",
@@ -509,6 +511,64 @@
 		},
 		"planMode": {
 			"label": "计划模式"
+		}
+	},
+	"externalInvocation": {
+		"switcher": "发给",
+		"message": "消息",
+		"agent": {
+			"penguin": "penguin",
+			"grok": "Grok",
+			"omp": "OMP",
+			"cursorAgent": "cursor-agent",
+			"agy": "agy",
+			"codex": "codex",
+			"pi": "pi",
+			"droid": "droid",
+			"opencode": "opencode"
+		},
+		"placeholder": "这条消息会交给 {{agent}} 在终端里执行，输出保留在本会话",
+		"interactivePlaceholder": "第一条交给 {{agent}} 打开它的终端，之后直接在终端里接着聊",
+		"continueInTerminal": "在终端里继续对话",
+		"permission": "由 {{agent}} 自己的权限设置决定，需要确认时会在终端里询问",
+		"fullPageEmpty": "从 + 打开 Grok、OMP 或 cursor-agent",
+		"sendLabel": "发给 {{agent}}",
+		"imageRejected": "{{agent}} 不接收图片",
+		"remoteUnsupported": "远程项目暂不支持",
+		"exitCode": "退出码 {{code}}",
+		"status": {
+			"queued": "排队中",
+			"running": "运行中",
+			"completed": "已完成",
+			"failed": "失败",
+			"interruptedUser": "已中断（你停止了它）",
+			"interruptedAppExit": "已中断（应用退出）",
+			"interruptedCancelled": "已中断（已取消）"
+		},
+		"viewInTerminal": "在终端查看",
+		"ordinal": "第 {{n}} 次",
+		"separator": "第 {{n}} 次 · {{time}} · {{status}}",
+		"newSession": "开新会话",
+		"origin": {
+			"openSession": "打开发起它的会话"
+		},
+		"resume": {
+			"action": "在当前会话里用 {{agent}} 续跑",
+			"unavailable": "在当前会话里用 {{agent}} 续跑不可用：目录已不存在",
+			"capsule": "续跑：{{title}}",
+			"directory": "将在 {{directory}} 中续跑",
+			"dismiss": "关闭续跑"
+		},
+		"cancel": "取消",
+		"panel": "外部调用",
+		"clear": "清屏",
+		"closeTab": "关闭标签",
+		"truncated": "中间省略了 {{bytes}} 字节",
+		"headerProject": "项目 {{project}}",
+		"closeConfirm": {
+			"title": "停止这次调用？",
+			"message": "这个外部调用还在运行，关闭会停止它。",
+			"confirm": "停止"
 		}
 	},
 	"inputBar": {

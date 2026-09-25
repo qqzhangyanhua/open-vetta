@@ -1,10 +1,12 @@
+import { ExternalAgentMark } from "@shared/components/external-agent-mark/ExternalAgentMark";
 import { Button } from "@shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@shared/components/ui/popover";
+import type { BottomPanelSessionState } from "@shared/store/atoms";
 import { type JSX, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useExternalAgentMenuItems } from "../hooks/useExternalAgentMenuItems";
 import { canOpenBottomPanelComponent } from "../registry/resolve-bottom-panel-tabs";
 import type { BottomPanelComponentDefinition } from "../registry/types";
-import type { BottomPanelSessionState } from "@shared/store/atoms";
 
 export interface BottomPanelAddMenuProps {
 	readonly definitions: readonly BottomPanelComponentDefinition[];
@@ -16,8 +18,9 @@ export interface BottomPanelAddMenuProps {
 export function BottomPanelAddMenu({ definitions, state, onPick }: BottomPanelAddMenuProps): JSX.Element {
 	const { t } = useTranslation("chat");
 	const [open, setOpen] = useState(false);
-	const builtins = definitions.filter((definition) => definition.source === "builtin");
+	const builtins = definitions.filter((definition) => definition.source === "builtin" && !definition.omitFromAddMenu);
 	const plugins = definitions.filter((definition) => definition.source === "plugin");
+	const agents = useExternalAgentMenuItems();
 
 	const renderRow = (definition: BottomPanelComponentDefinition): JSX.Element => {
 		const allowed = canOpenBottomPanelComponent(state, definition);
@@ -56,12 +59,29 @@ export function BottomPanelAddMenu({ definitions, state, onPick }: BottomPanelAd
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent align="end" className="w-56 p-1">
-				{builtins.length > 0 ? (
+				{builtins.length > 0 || agents.length > 0 ? (
 					<div className="px-2.5 pt-1 pb-0.5 text-[10px] text-muted-foreground">
 						{t("bottomPanel.addMenu.builtinGroup")}
 					</div>
 				) : null}
 				{builtins.map(renderRow)}
+				{agents.map((item) => (
+					<button
+						key={item.id}
+						type="button"
+						disabled={item.disabled}
+						title={item.disabled ? item.disabledReason : undefined}
+						onClick={() => {
+							if (item.disabled) return;
+							setOpen(false);
+							item.pick();
+						}}
+						className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-[12px] transition-colors hover:bg-accent/60 disabled:opacity-40 disabled:hover:bg-transparent"
+					>
+						<ExternalAgentMark agentId={item.agentId} />
+						<span className="min-w-0 flex-1 truncate">{item.label}</span>
+					</button>
+				))}
 				{plugins.length > 0 ? (
 					<div className="px-2.5 pt-1.5 pb-0.5 text-[10px] text-muted-foreground">
 						{t("bottomPanel.addMenu.pluginGroup")}

@@ -23,6 +23,8 @@ export interface BottomPanelComponentDefinition {
 	readonly scope_use?: readonly ConversationScenario[];
 	/** 同一会话里最多能开几个实例；缺省不限。 */
 	readonly maxInstances?: number;
+	/** 为 true 时不出现在「+」菜单，只能由业务自己打开。 */
+	readonly omitFromAddMenu?: boolean;
 	/**
 	 * 「+」菜单与新实例的初始 meta，已解析成最终文案（内置在定义 hook 里过 i18n，
 	 * 插件由 `usePluginTextResolver` 解析）。实例上报 meta 后以实例的为准。
