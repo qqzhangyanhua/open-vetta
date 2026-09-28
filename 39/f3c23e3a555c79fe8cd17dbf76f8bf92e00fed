@@ -1,0 +1,1965 @@
+apps/desktop/src/main/markdown/html-preview-service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-33
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.duration.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-61
+apps/mobile/client-apple/project.yml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-89
+packages/remote-control/test/connection.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2-10,13-16,18,25-48,52-269,271-289,295,298-299,305-308,312,314-316,320-328,330-335,337-347,350-355,357-437,439-445
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/HoldToTalkTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-62
+apps/mobile/client-android/androidApp/src/main/kotlin/org/vetta/android/MainActivity.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-92
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/TaskBoard.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-107
+apps/desktop/src/main/remote-control/remote-error-mapping.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-76
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/core/Time.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-3
+apps/mobile/client-apple/scripts/interop-desktop.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-521
+apps/mobile/client-apple/scripts/ui-test.sh
+  s_baa4f0b24ddecf::t_e56312c07de559 1-75
+apps/desktop/src/preload/api-types/agent-teams.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 33
+apps/desktop/src/renderer/domains/conversation/components/ChatView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 19,22-27,43-44,52,59,63-65,84-129,176
+  s_baa4f0b24ddecf::t_c7d12555409403 3,6-7,68-70,178-182,192,199
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/SkillReference.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-100
+apps/desktop/src/renderer/domains/conversation/components/InputBar.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 4-5
+.github/workflows/kotlin.yml
+  s_baa4f0b24ddecf::t_e56312c07de559 8,12,22,34-36,46-117
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/ChatBlocks.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-446
+docs/desktop/preformance/README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 3-4
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/chat/MarkdownContent.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-185
+apps/desktop/src/renderer/domains/conversation/hooks/useAssistantMessageModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 124-128
+apps/desktop/src/main/mcp-config-validation.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 9,73-79
+README.zh-CN.md
+  s_baa4f0b24ddecf::t_e56312c07de559 123-124,179-188
+docs/desktop/preformance/team-session-startup-optimization-2026-09-23.samples.json
+  s_baa4f0b24ddecf::t_e56312c07de559 1-50
+apps/remote-relay/README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 3,7-11,15-18,20,23,25,28-30,32-35,37-39,49
+apps/mobile/client-apple/Vetta/Resources/Assets.xcassets/Contents.json
+  s_baa4f0b24ddecf::t_e56312c07de559 1
+apps/desktop/src/renderer/shared/agent-teams/useTeamMemberModels.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-30
+apps/mobile/client-apple/Vetta/Platform/DictationHaptics.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-73
+apps/desktop/src/main/runtimes/manager.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 7-8,28,50,195,551-555,607-608,636,664,667-676
+apps/mobile/client-android/gradlew
+  s_baa4f0b24ddecf::t_e56312c07de559 1-248
+packages/remote-control/test/invite-code.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-99
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-permissions.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3,27-34
+packages/remote-control/test/protocol.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2-13,17,23-24,27,32-33,39-92,103-135
+apps/desktop/src/renderer/domains/conversation/components/message-list/turnDuration.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6,19-20
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/RootApp.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-416
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/pairing/PairingStoreTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-63
+scripts/quality/runtime-tools-protocol-boundary.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 2-4
+apps/desktop/src/renderer/domains/conversation/services/live-history-patch.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 102
+CLAUDE.md
+  s_baa4f0b24ddecf::t_e56312c07de559 98-105
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/JSONValue.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-192
+packages/plugins/presets/git/src/components/GitPanel.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 6-7,13,21,43-46,123
+.agents/skills/mobile-android-design/references/material3-theming.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-604
+apps/mobile/client-apple/Vetta/Views/SettingsView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-119
+apps/desktop/src/main/capabilities/capability-host.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 56-73,76-83
+apps/desktop/src/main/config/desktop-config-store.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 58-62,75-98,387,390-417,420-422
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/core/net/PlatformHttpClientEngine.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-6
+apps/desktop/src/main/remote-control/remote-device-store.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-150
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/StateTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-706
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/ui/work/WorkViewModelTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-218
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/SessionFilter.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-131
+docs/adr/0139-mobile-file-viewing.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-62
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatView.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 58,118-119,136-138,152,163,186,215
+apps/desktop/src/main/ipc/remote-pairing.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,4-37,39-40,42-46,49-50
+apps/desktop/src/renderer/domains/file-preview/hooks/usePreviewBodyModel.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 124
+apps/desktop/src/main/scheduler/session-deletion.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-11
+apps/mobile/client-android/shared/src/androidMain/res/drawable/widget_background.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5
+scripts/quality/ci-dependency-install.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 14-29
+apps/desktop/src/main/filesystem/preview-file-source.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 11-12
+apps/desktop/src/renderer/domains/pet/components/PetApp.widget-layout.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 21,25,80-96
+  s_baa4f0b24ddecf::t_0998c3684334b7 97
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelHost.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 9,33,49,157
+  s_baa4f0b24ddecf::t_8010fcefa9c801 34
+  s_baa4f0b24ddecf::t_f5b7592360e5bf 14,25-31,60,181
+apps/mobile/client-apple/Vetta/Components/AttachmentSheet.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-345
+packages/remote-desktop/src/peer.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 14-27,33,45,75-78,107,122-141
+  s_baa4f0b24ddecf::t_e9a19dacca999f 142
+apps/desktop/src/main/ipc/session-pins.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-56
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/InteropTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-161
+apps/mobile/client-apple/Vetta/Views/HomeView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-196
+apps/desktop/src/renderer/domains/conversation/hooks/useSandboxGrantsBadgeModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 48-53,55,61,66-78,82,106-109,112,116,118,124-126,146
+packages/ssh-transport/src/testing.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,7-8,11-106,143-151
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/PromptDraft.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-105
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/ChatTurns.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-143
+packages/coding-agent/test/knowledge-processing-session.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 10,17,28,99,149,200,261
+.agents/skills/mobile-android-design/SKILL.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-101
+apps/docs-site/content/docs/core/workspaces-and-sessions.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 20,26-35,54-60
+  s_baa4f0b24ddecf::t_8aecb9ed845cba 61
+packages/theme-ui/src/file-preview/FilePreviewDialogView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 39
+apps/mobile/client-android/shared/src/androidHostTest/kotlin/org/vetta/android/LocalizationTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-65
+apps/mobile/client-android/settings.gradle.kts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-37
+apps/desktop/src/shared/message-annotations.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-47
+apps/desktop/src/main/ipc/index.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3,21,23,38,49,51,85,98,102,104,138,143,148,150,184
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/ConnectionTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-374
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelLeaf.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 17,43,144
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/AppModel.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-828
+apps/mobile/client-android/shared/src/androidMain/res/drawable/ic_stat_vetta.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-12
+packages/remote-control/src/index.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-47,49-66,70-111,122,125,128-129,131-132,134,138-139,144-149,151-154,156-158
+packages/theme-ui/src/chat/AnnotationViews.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-107
+packages/remote-desktop/test/peer.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 38-66,72-73,76-89,95,104
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 34,36,168-175,177,187-188
+  s_baa4f0b24ddecf::t_8cff6bb3af23ba 101
+apps/docs-site/content/docs/en/reference/security-and-data.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 30
+apps/desktop/src/preload/api-types/notification.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3-9
+apps/desktop/src/preload/api-types/remote-pairing.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-36,38-43,45-47,51-53,56-67
+apps/desktop/src/preload/apis/system.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 242
+apps/desktop/src/main/ipc/markdown.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-37
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useOpenTerminal.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 8,10,28,36-38,41-42,57,75,87,100,110,117,122
+apps/desktop/src/renderer/shared/lib/markdown-images.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-27
+scripts/quality/coding-agent-tool-public-surface.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 2-4
+packages/theme-ui/src/markdown/WebsiteIcon.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-77
+packages/remote-control/src/fake-transport.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 42,45-46
+packages/theme-ui/src/chat/InlineModelPicker.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-199
+packages/remote-control/schemas/remote-frame.schema.json
+  s_baa4f0b24ddecf::t_e56312c07de559 3-5,7-9,13,26,32,34,36-37,41-64,70,82
+packages/theme-ui/src/shared/SyntaxHighlightedCode.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,25-28,32-37,39-41,44-57,83-84,91,116,119,126,136,138
+packages/toolkit/test/atomic-write.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-100
+apps/desktop/src/main/remote-control/desktop-remote-relay-link.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-140
+apps/desktop/src/renderer/root-layout/useRootLayoutModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 20,117-118,213-216,219
+packages/ssh-transport/src/node-process-runner.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4-5,10-12,21,30-33,41-42,46,50-84
+  s_baa4f0b24ddecf::t_41b52ce3e82bb5 85
+apps/desktop/scripts/markdown-isolation.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 1-36
+scripts/quality/check-agent-ai-maintainability.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 1,8-9,11,32,34
+packages/coding-agent/test/fixtures/prompt-runtime-sources.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-20
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/data/remote/SessionCache.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-191
+apps/desktop/src/main/remote-control/desktop-remote-device-hub.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-245
+apps/desktop/src/renderer/shared/lib/markdown-images.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-60
+apps/desktop/src/renderer/domains/pet/components/PetApp.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 9,47,62,84-94,152,155,158,167-180,252,266
+docs/adr/0134-git-detection-over-bundling.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+scripts/quality/quality-gates.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 4-8,271-288,333-341,376-409,491-494,497-498,523-536,538,543-548,552,558-559,561-565,568,570-571,574-575,578,581-585,588-589,591-593,598-602,605-608,611-612,614,618-620,624-626,630,632-634,636,638-640,642,645,647-649
+apps/desktop/src/main/remote-control/remote-transcript.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-202
+packages/runtime-core/src/kernel/stateless-agent-core-turn-engine.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 212-221
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/StreamRevealTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-63
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageSelectionContextMenu.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 8,12-13,43-44,69-77,113-114
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/ui/chat/ToolPresentationTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-42
+apps/desktop/src/renderer/domains/settings/registry.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 96-98,129
+apps/desktop/src/renderer/shared/store/chat-atoms.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 29
+apps/mobile/client-apple/Config/Local.xcconfig.example
+  s_baa4f0b24ddecf::t_e56312c07de559 1-3
+apps/desktop/src/main/conversations/user-question-broker.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-65
+.agents/skills/compose-component-design/SKILL.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-48
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/navigation/PlatformBackHandler.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-16
+apps/desktop/src/main/remote-control/remote-file-paths.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-201
+apps/desktop/src/renderer/domains/conversation/components/message-list/SessionUserMessage.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 20,94,109,114
+apps/mobile/client-android/androidApp/src/main/res/xml/shortcuts.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-34
+apps/mobile/client-apple/Vetta/Components/SessionCards.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-417
+docs/dev/quality-gates.md
+  s_baa4f0b24ddecf::t_e56312c07de559 9-11,54,59-60,129-131,149,153,155,157,159-160,174,176,178,204
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/connection/RemoteConnection.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-424
+packages/runtime-core/test/kernel/stateless-agent-core-turn-engine.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 25-107
+apps/mobile/client-apple/Vetta/Components/ProjectSheet.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-98
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/QuickReply.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-34
+apps/desktop/src/renderer/domains/settings/components/RemotePairingSettings.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-294
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/domain/work/HomeDigest.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-8
+packages/plugins/presets/git/locales/en.json
+  s_baa4f0b24ddecf::t_e56312c07de559 26,129-133,141-156
+apps/mobile/client-apple/README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-55
+packages/plugins/presets/git/vitest.config.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4-8,10-26
+packages/theme-ui/src/markdown/MarkdownImage.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-51
+apps/desktop/src/main/conversations/resolve-session-config.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 87
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/PairingURI.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-150
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageListView.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 5,100,291-296,326-334
+  s_baa4f0b24ddecf::t_decd86c17741c6 335-336
+apps/desktop/src/main/message-annotations/store.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-51
+apps/desktop/src/main/runtimes/download.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-16
+apps/desktop/src/main/remote-control/system-input.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 12-18
+.agents/skills/compose-component-design/references/slot-apis.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-49
+docs/adr/0130-model-request-boundary-is-a-runtime-observation.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-32
+apps/desktop/src/shared/i18n/locales/en/main.json
+  s_baa4f0b24ddecf::t_e56312c07de559 52-59,105-107
+apps/mobile/client-android/shared/src/androidMain/res/values-night/widget_colors.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-6
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/QuickReplyTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-45
+apps/mobile/client-android/androidApp/src/main/AndroidManifest.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-122
+apps/mobile/client-apple/Vetta.xcodeproj/xcshareddata/xcschemes/Vetta.xcscheme
+  s_baa4f0b24ddecf::t_e56312c07de559 1-116
+apps/desktop/src/preload/api.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,33,99-100,147
+packages/theme-ui/src/settings/index.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 57-62
+  s_baa4f0b24ddecf::t_dd18b8671a5860 56
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.memo.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 26,34,42,50,58
+apps/desktop/src/renderer/shared/hooks/useMarkdownHost.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-47
+apps/desktop/src/main/runtimes/git-tool.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-210
+packages/theme-ui/src/markdown/host.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-18
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/IncomingShare.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-40
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-api.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,25,49
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/QuestionDraft.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-76
+packages/remote-control/AGENTS.md
+  s_baa4f0b24ddecf::t_e56312c07de559 10-11
+apps/desktop/src/shared/i18n/locales/zh/pet.json
+  s_baa4f0b24ddecf::t_e56312c07de559 96,100-104
+  s_baa4f0b24ddecf::t_41460722c98b0d 105
+apps/mobile/client-apple/Vetta/App/Theme.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-66
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionTeamDraft.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 5,43-44,52-64
+  s_baa4f0b24ddecf::t_be04ce3758137b 65
+apps/desktop/src/renderer/shared/store/bottom-panel-atoms.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-23
+apps/mobile/client-android/androidApp/build.gradle.kts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-54
+apps/mobile/client-android/README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-35
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-file-explorer-context.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 189,195
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/Dictation.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-41
+apps/desktop/src/shared/session-pins.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-93
+apps/desktop/src/main/ipc/markdown.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-34
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelTabs.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4,39-42,44,46
+  s_baa4f0b24ddecf::t_6609d224cf0bef 7
+packages/theme-ui/src/chat/index.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 33,130,304-305
+docs/desktop/windows-auto-update.md
+  s_baa4f0b24ddecf::t_e56312c07de559 698
+apps/desktop/src/main/runtimes/git-detection.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-117
+apps/desktop/src/renderer/domains/settings/components/EnvironmentSettingsView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 15-21,28
+apps/mobile/client-android/shared/src/androidHostTest/kotlin/org/vetta/android/data/remote/SqliteSessionCacheTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-42
+apps/mobile/client-android/shared/src/commonMain/composeResources/values-zh-rCN/strings.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-274
+apps/desktop/src/main/agent-teams/team-session-event-hub.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 12,16,19-20,44,55-56,144-159,177-185,188-199,220-223,454-455
+  s_baa4f0b24ddecf::t_c50b765774a32c 456-457
+apps/desktop/src/renderer/domains/conversation/components/blocks/MarkdownMedia.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-113
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/LaunchTarget.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-16
+docs/desktop/preformance/session-startup-optimization-2026-09-23.samples.json
+  s_baa4f0b24ddecf::t_e56312c07de559 1-187
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/shell/HomeDrawer.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-204
+packages/ai/test/amazon-bedrock-messages.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 60,86
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/ChatTurns.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-154
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/Helpers.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-127
+apps/desktop/src/main/remote-control/remote-files.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-297
+docs/adr/0131-markdown-rich-content-rendering.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-39
+apps/desktop/src/preload/api-types/config.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 144,147-158
+apps/desktop/src/preload/apis/agent-teams.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6-20
+apps/desktop/src/main/notifications/notification-service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 31-41,45-51,94-97,120-133
+apps/desktop/src/main/message-annotations/host.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-88
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/FileViewing.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-253
+apps/desktop/src/main/remote-control/remote-relay-probe.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-32
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/ChatTurnsTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-102
+apps/mobile/client-apple/Config/Signing.xcconfig
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5
+apps/docs-site/content/docs/en/product/agent-teams.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 92,110-124,247
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-list-derived.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 20,31-50
+apps/mobile/client-android/androidApp/src/main/res/drawable/ic_shortcut_task_board.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-9
+packages/coding-agent/src/model-context/prompt-snapshot.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 13-18,22
+apps/desktop/src/main/config/desktop-config-store.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 46,105
+packages/remote-control/README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 7-11,13-17,24,26
+scripts/quality/runtime-mcp-protocol-boundary.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 2-4
+apps/desktop/src/main/agent-teams/team-session-service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 113-114,159,202-203,479,491,517,519,521-527,538,554,562-619,677,691,711-716,954,960-964,1050-1062
+  s_baa4f0b24ddecf::t_0b02f8da1c78a0 1063
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/data/secure/KeystoreSecretStoreTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-40
+packages/remote-control/src/websocket-transport.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 11,16-17,19-46,52-53,57-67,71,74-84,92-94,96-98,107,116-135,138-171
+apps/mobile/client-apple/Vetta/Views/TaskBoardView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-230
+apps/desktop/src/renderer/domains/conversation/connectors/team/teamChatModel.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 710-715,811,845,1936-1987
+  s_baa4f0b24ddecf::t_66439c90c70d4e 1988-1989
+apps/mobile/client-android/androidApp/src/main/res/drawable/ic_shortcut_remote_control.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-9
+apps/mobile/client-apple/Vetta/Resources/Assets.xcassets/LaunchBackground.colorset/Contents.json
+  s_baa4f0b24ddecf::t_e56312c07de559 1-7
+packages/toolkit/src/atomic-write.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,5-60,67-69,77,85,102,110
+apps/desktop/src/renderer/domains/file-preview/components/TextPreviewRenderer.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 7,13,17,26
+apps/mobile/client-apple/Vetta/App/VettaApp.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-50
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageRendering.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 27
+packages/runtime-core/src/runtime-host/runtime-host-session-event-relay.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 65-83,96-103
+apps/desktop/src/main/plugins/command-spawner.remote.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4,24-25,36,96,113-115
+apps/desktop/src/main/runtimes/git-tool.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-158
+apps/desktop/src/main/remote-control/desktop-remote-access-manager.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-726
+apps/desktop/src/main/agent-runtime/function-extension-source.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 26-33,36-37,58,60-64
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/data/remote/MemorySessionCacheTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-10
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamComposerConnector.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,11-12,74,79,226,350,425-431
+apps/mobile/client-apple/Vetta/Views/NewSessionView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-260
+apps/desktop/src/preload/apis/markdown.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-15
+apps/desktop/src/renderer/domains/abilities/hooks/useAbilitiesModel.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 336-395
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/app/SessionsWidget.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-74
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/core/DeviceName.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-19
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/FileViewingTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-251
+apps/desktop/src/renderer/domains/settings/components/RemoteRelayDialog.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-125
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 7-8,25,30,85,95-100
+  s_baa4f0b24ddecf::t_8ef1ac1914132d 116
+.github/workflows/docs-site.yml
+  s_baa4f0b24ddecf::t_e56312c07de559 3-4,43
+apps/desktop/src/main/capabilities/integrations/plugin/adapter.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 31,37,40-41,71,87,104-110,114,118-125,128,138,142,186-193,209-216
+  s_baa4f0b24ddecf::t_5582ca60839ce4 217
+packages/theme-ui/src/markdown/MermaidBlock.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-43
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/NotificationRulesTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-45
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/AppViewModel.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-269
+docs/adr/0138-code-only-pairing-qr.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-30
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/QuestionDraft.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-77
+packages/theme-ui/src/markdown/use-render-snapshot.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-24
+apps/mobile/client-apple/Vetta/Views/InvitePairView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-392
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteFileAPI.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-102
+apps/docs-site/content/docs/en/product/application-environment.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,6,8,10,28-42
+apps/docs-site/content/docs/en/getting-started/index.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 7,9,12,19,25-26,39
+apps/desktop/src/renderer/domains/abilities/components/AbilityFilterPopover.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-118
+apps/remote-relay/test/room-authorization.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 17,19-22,26,28-35
+apps/desktop/src/main/media-protocol.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4,48,67-68,71
+apps/mobile/client-apple/Vetta/Components/ProjectRow.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-35
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Testing/FakeTransport.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-204
+apps/desktop/src/main/agent-runtime/composition.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 54,80-81,155-188,246-247,253-254,272-274,289-295
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/StreamingMarkdown.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-52
+packages/ai/test/google-shared-gemini3-unsigned-tool-call.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6,32,35,66-69,71
+packages/runtime-core/src/kernel/contracts.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 931-932
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/ProjectScreen.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-152
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/app/AppInfo.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-4
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteConnection.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-506
+packages/runtime-core/src/observation/session-observation-bridge.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 49,82-83
+apps/mobile/client-apple/Vetta.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+  s_baa4f0b24ddecf::t_e56312c07de559 1-7
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/InviteCodeLookup.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-62
+apps/desktop/src/renderer/domains/conversation/components/blocks/MarkdownRichContent.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-219
+apps/desktop/src/renderer/shared/conversation/message-stream.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 36
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useOpenTerminal.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4-5,8,10,49-57,60-87,93-97,99-103
+packages/plugins/presets/git/src/components/PatchContent.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-66
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/PairingStore.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-93
+apps/desktop/src/shared/session-pins.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-91
+apps/desktop/src/main/message-annotations/context.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-42
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/link/DesktopLink.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-616
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-events.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 28,62,73-77
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/HomeDigest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-81
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/connection/KtorWebSocketRemoteTransport.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-110
+apps/desktop/src/main/remote-control/desktop-remote-lan-server.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-272
+apps/desktop/src/main/conversations/desktop-session-commands.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-75
+apps/desktop/src/shared/skill-ranking.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-56
+apps/desktop/src/main/runtimes/paths.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 13-18,22,131-149
+packages/theme-ui/src/markdown/math-syntax.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-80
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/data/secure/KeystoreSecretStore.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-67
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-agent-context.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 29,63-64,96-100,172-176,230-234
+apps/desktop/src/renderer/domains/conversation/hooks/useChatViewModel.header.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 26,53-66
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-host-apis.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 33,63-81,139-149,566-572,574,581-582,584,588-598,664-671,674-676
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/settings/NotificationAccess.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-30
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/theme/SystemBars.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-43
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/app/AppContainerTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-45
+scripts/quality/check-runtime-failure-contract.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 50
+apps/mobile/client-apple/Vetta/Views/PairView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-344
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/Motion.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-104
+packages/theme-ui/src/markdown/rich-labels.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-49
+apps/desktop/src/renderer/domains/settings/components/EnvironmentSettings.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-137
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_baa4f0b24ddecf::t_e56312c07de559 2-49,758-760,763,831
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteCrypto.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-229
+apps/desktop/src/shared/i18n/locales/en/pet.json
+  s_baa4f0b24ddecf::t_e56312c07de559 96,100-104
+  s_baa4f0b24ddecf::t_19f95086990a3f 105
+apps/desktop/src/shared/i18n/locales/en/agent-teams.json
+  s_baa4f0b24ddecf::t_e56312c07de559 126,224-245
+docs/release/desktop-release-runbook.md
+  s_baa4f0b24ddecf::t_e56312c07de559 40,70,157,182,221,232-236
+packages/coding-agent/src/composition/knowledge-processing-session.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 29,63
+apps/docs-site/content/docs/product/mcp.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 10-11
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/remote/RemoteDesktopSurface.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-337
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/WorkComponents.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-45
+apps/desktop/src/shared/i18n/locales/zh/agent-teams.json
+  s_baa4f0b24ddecf::t_e56312c07de559 126,224-245
+apps/desktop/src/shared/i18n/locales/zh/automation.json
+  s_baa4f0b24ddecf::t_e56312c07de559 33
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarPresentation.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,5,7
+apps/mobile/client-apple/scripts/interop.sh
+  s_baa4f0b24ddecf::t_e56312c07de559 1-19
+apps/mobile/client-apple/Vetta/Components/QuestionPanel.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-183
+packages/ssh-transport/src/node-process-runner.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,50,60,63-65,67,134,154,160-174
+  s_baa4f0b24ddecf::t_72b1ab0c849d14 175
+packages/theme-ui/src/markdown/MathFormula.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-46
+scripts/quality/precommit.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 4,6-7,10,31
+packages/theme-ui/src/markdown/streaming-reveal.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 126-127,133-136,140,144-154,158-167,170-180,183-184,195,198,207-208,214-217,219,278-285
+packages/plugins/presets/git/test/commitActions.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-142
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/core/DeviceNameTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-24
+packages/runtime-node/src/mcp/config/file-config-source.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 13-17,29,33,80-88
+  s_baa4f0b24ddecf::t_834b2d06013c0c 89-90
+apps/mobile/client-android/gradle/wrapper/gradle-wrapper.properties
+  s_baa4f0b24ddecf::t_e56312c07de559 1-8
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/work/DictationTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-164
+packages/coding-agent/test/knowledge-processing-batches.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 25,57
+packages/remote-desktop/README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 5
+scripts/quality/check-guards.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 1,4-148,160-175
+docs/adr/0128-mobile-dual-channel-e2e-and-session-mirror.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-60
+apps/desktop/src/main/ipc/message-annotations.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-84
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/TaskBoard.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-95
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/App.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-39
+scripts/quality/runtime-platform-boundary.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 2-4
+apps/desktop/package.json
+  s_baa4f0b24ddecf::t_e56312c07de559 194,200,205
+apps/desktop/src/renderer/domains/file-explorer/services/rasterize-app-file-icon.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 16-26
+docs/adr/0132-message-annotation-questions.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-30
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/work/Attachments.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-216
+packages/plugins/presets/git/src/components/GitSettingsView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 4,6-7,33-62,76-84,133
+  s_baa4f0b24ddecf::t_5848feb03db4dd 134
+packages/runtime-core/test/observation/session-observation-bridge.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 13,37
+apps/mobile/client-android/.gitignore
+  s_baa4f0b24ddecf::t_e56312c07de559 1-12
+docs/adr/0130-mobile-attachments-and-model-switching.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+packages/theme-ui/src/markdown/preview-policy.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-43
+apps/mobile/client-android/gradle.properties
+  s_baa4f0b24ddecf::t_e56312c07de559 1-17
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-sessions.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,14,26-29,88-97
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/WorkText.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-66
+apps/mobile/client-android/gradlew.bat
+  s_baa4f0b24ddecf::t_e56312c07de559 1-93
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-disposal.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-62
+apps/docs-site/content/docs/reference/security-and-data.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 30
+apps/desktop/src/renderer/domains/pet/components/PetSpeechBubble.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1,5-13,30-33
+packages/coding-agent/src/sessions/timing/assistant-turn-timing-participant.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-56
+docs/adr/0131-mobile-session-rename-pin-delete.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-37
+packages/runtime-core/src/session-observation.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 30
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteAPI.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-466
+apps/desktop/src/main/remote-control/desktop-remote-mirror.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-1081
+apps/desktop/src/renderer/domains/bottom-panel/builtins/external-invocation-panel.tsx
+  s_baa4f0b24ddecf::t_974a4b03e63e37 6,14
+  s_baa4f0b24ddecf::t_2e34f214949af6 30-31
+packages/theme-ui/src/markdown/SvgPreview.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-45
+apps/mobile/client-android/shared/src/androidMain/res/layout/widget_sessions.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-55
+apps/desktop/src/renderer/domains/conversation/hooks/useChatViewModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 10,19,50-51,178,190,192-196,207,212
+apps/desktop/src/renderer/domains/conversation/hooks/useModelSelectorModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 29
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelSizing.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4,6-7,35-38
+apps/desktop/src/renderer/domains/file-explorer/services/rasterize-app-file-icon.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6,38-40,45-78,80,90-91,95-98,100-101,104
+.coderabbit.yaml
+  s_baa4f0b24ddecf::t_e56312c07de559 41
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/remote/PairingScanner.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-177
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/HoldToTalk.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-104
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/SessionAlerts.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-72
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/TaskBoardTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-125
+scripts/quality/runtime-storage-protocol-boundary.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 2-4
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/components/Dialogs.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-81
+apps/mobile/client-apple/Vetta/Views/SessionView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-303
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/ChatTurnsTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-131
+apps/mobile/client-apple/Vetta/Platform/QRScannerView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-84
+packages/ai/src/providers/transform-messages.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3-4,20-22,24-35,39,42-56
+packages/theme-ui/src/chat/streaming-reveal.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 95-114,147-164,207-217
+  s_baa4f0b24ddecf::t_3bacc03a44fb3b 218
+apps/desktop/src/main/remote-control/desktop-remote-access-instance.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-112
+packages/ai/test/openai-responses-tool-result-images.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 19,36,41,62-63
+AGENTS.md
+  s_baa4f0b24ddecf::t_e56312c07de559 9,15,29,147,228
+apps/desktop/src/renderer/domains/settings/components/useMcpSettingsModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 54,124,688,727,747,776
+apps/desktop/src/main/agent-teams/team-member-model-preferences.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6
+apps/remote-relay/src/remote-desktop-room.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,29-32,41-42,73
+apps/desktop/src/main/plugins/remote-command-runner.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 5,25,37,45,56,64-69,80
+apps/desktop/scripts/markdown-render.bench.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-79
+packages/remote-control/src/connection.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-14,23,26,28-29,32-33,46-55,61,63-64,67-68,70-72,78-85,94,96-98,112-116,127,129-131,137,142,145,153,175,188,191-194,196,199,205-206,210-234,236-240,243-290,293-310,313-314,317-327,330-347,350-369,371,376,386-429,431-450,452-456,459,462-504,529-537,549-551,557-562,566-586,590,598,602,624-627
+  s_baa4f0b24ddecf::t_2373d81de18233 628
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/InviteCodeTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-130
+apps/desktop/src/main/mcp-config-validation.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 5-23
+apps/desktop/src/main/remote-control/renderer-data-channel-transport.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-42
+packages/remote-desktop/src/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 67-71
+  s_baa4f0b24ddecf::t_5c2bc8de230a3e 66
+apps/desktop/src/shared/i18n/locales/en/abilities.json
+  s_baa4f0b24ddecf::t_e56312c07de559 30-40,106-107
+apps/mobile/client-android/androidApp/src/main/res/xml/attachment_paths.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useExternalAgentMenuItems.ts
+  s_baa4f0b24ddecf::t_484f01fa8992b0 41,45
+  s_baa4f0b24ddecf::t_e8dd3c96414611 38,42-44
+  s_baa4f0b24ddecf::t_f1299f88040382 2,7
+scripts/quality/check-private-keys.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 12,45,51-55,57,59,80,83-87,89-102,106-110,112-116
+apps/desktop/src/renderer/domains/bottom-panel/components/BottomPanelHost.flow.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 6,9,69-70,77,93-94,107,158,196,202,213,223,231
+packages/runtime-mcp/src/config/schemas.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 16,114-118
+  s_baa4f0b24ddecf::t_800b89fe59b7f0 119
+apps/desktop/src/main/remote-control/remote-lan-endpoints.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-42
+.github/workflows/desktop-release.yml
+  s_baa4f0b24ddecf::t_e1848fb262396b 405-410
+  s_baa4f0b24ddecf::t_e56312c07de559 231
+  s_baa4f0b24ddecf::t_821bdfd83e4887 429-447
+apps/desktop/src/main/knowledge/processing-session-factory.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 16,33
+apps/desktop/src/main/runtimes/git-detection.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-148
+.github/workflows/quality.yml
+  s_baa4f0b24ddecf::t_e56312c07de559 51-55
+apps/desktop/src/main/capabilities/integrations/plugin/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 30,34-53
+  s_baa4f0b24ddecf::t_18c41b1fa3611e 54
+apps/desktop/src/main/agent-teams/team-conversation-display.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 5,43,55-60,75,106-122
+  s_baa4f0b24ddecf::t_47d93bfb45b78c 123-124
+apps/docs-site/content/docs/product/remote-control.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,7-9,12,14-16,20-25,27,31,33,36-42,44,47,49-51,54,56,60-91,93-96,98,100,102-103,105,107-111,114-116
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/domain/conversation/RemoteLiveConversationE2ETest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-91
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/ModelSheet.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-211
+apps/mobile/client-apple/Vetta/Resources/Info.plist
+  s_baa4f0b24ddecf::t_e56312c07de559 1-72
+packages/runtime-core/src/runtime-host/session-events.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 42-44
+apps/desktop/src/main/remote-control/remote-relay-probe.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-39
+apps/desktop/src/main/agent-runtime/mcp-resource-scope.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-32
+scripts/quality/runtime-product-semantic-boundary.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 2-4
+apps/desktop/src/main/agent-teams/team-conversation-display.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 184-234
+apps/desktop/src/renderer/domains/settings/components/RemotePairingSettingsView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-343
+packages/plugins/presets/git/src/components/graph/GraphView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 5,9-10,37-39,56,61-62,66,80-83,88,93,100,144-146,153-162,164-166,175,179-182,189-195
+  s_baa4f0b24ddecf::t_5da87f94f375ac 196
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/LinkIndicator.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-23
+apps/desktop/src/renderer/shared/workspace/work-surface.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-12
+apps/desktop/scripts/markdown-preview.node-test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 1-155
+apps/desktop/src/renderer/domains/conversation/hooks/useSkillList.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 10
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  s_baa4f0b24ddecf::t_8308e5fb5a0049 193
+  s_baa4f0b24ddecf::t_e56312c07de559 125-192,402-406,434-457,459-482,485-509,511-520,536-554,1012-1022,1270,1326,1995,2308-2310
+apps/mobile/client-apple/Vetta/App/RootView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-168
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/PromptDraft.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-96
+packages/remote-control/test/crypto.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-101
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/pairing/SecretStore.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-29
+apps/mobile/client-android/androidApp/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5
+apps/desktop/src/main/remote-control/remote-skills.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-49
+apps/desktop/src/main/remote-control/remote-invite-mailbox.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-34
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionEventController.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 239-255
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/PairingInviteTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-42
+apps/docs-site/content/docs/product/settings.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,6,12-18,22,24,28,30,32,34-38,42-45,51,53,56
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamComposerConnector.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 70,111,171,182,214,225-230,250
+packages/theme-ui/src/markdown/rich-syntax.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-93
+apps/desktop/src/renderer/shared/conversation/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 51-52
+apps/desktop/src/main/markdown/favicon-service.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-41
+apps/desktop/src/main/agent-teams/team-session-service.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 265,308-315,340,381,385-564
+  s_baa4f0b24ddecf::t_82e22fdce6169a 565
+packages/ai/test/transform-messages-copilot-openai-to-anthropic.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 30-94
+apps/remote-relay/src/index.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,3-10,13,19,22-24,30,36,38-39,53,59-63,68,71-75,84-85,95-122
+  s_baa4f0b24ddecf::t_4d2081e342487c 123
+apps/mobile/client-apple/Vetta/Resources/InfoPlist.xcstrings
+  s_baa4f0b24ddecf::t_e56312c07de559 1-115
+apps/desktop/src/renderer/shared/hooks/useRendererMarkdownModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 18-19,30,41,80,85
+apps/remote-relay/wrangler.jsonc
+  s_baa4f0b24ddecf::t_e56312c07de559 18-19,24-25
+apps/docs-site/content/docs/en/product/mcp.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 17-18
+apps/desktop/src/main/knowledge/processing-session-factory.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3,19,86
+apps/mobile/client-android/build.gradle.kts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-10
+apps/desktop/src/main/file-protocol.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4,26-27,29
+apps/desktop/src/renderer/domains/conversation/components/SessionMessageList.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 5-6,21,31-38,62,66,80-90
+  s_baa4f0b24ddecf::t_74d8ef0d4e4c51 91
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageListModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3,22
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/RemoteTypes.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-124
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/LaunchTargetTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-19
+apps/desktop/src/main/agent-teams/team-session-event-hub.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 9-131,170-222
+  s_baa4f0b24ddecf::t_b95d1e9adefaec 223
+apps/desktop/src/renderer/domains/abilities/lib/ability-catalog-query.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4,289-339
+apps/docs-site/content/docs/product/desktop-pet.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 21-25
+  s_baa4f0b24ddecf::t_193a081cf0addb 26
+apps/desktop/src/renderer/domains/conversation/components/chat-view/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,25,29
+apps/mobile/client-android/shared/src/androidMain/res/values-zh-rCN/widget_strings.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-14
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/chat/ToolPresentation.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-96
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/data/remote/SessionCacheContract.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-36
+apps/mobile/client-apple/Vetta/Components/BoardSummary.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-169
+packages/coding-agent/src/sessions/projection/session-history.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 20,25
+scripts/quality/test-changed.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 21,27
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/WidgetSummary.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-41
+apps/desktop/src/renderer/remote-desktop-host.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6-12,48-52,54-61
+apps/desktop/src/main/pet/pet-session-presentation-controller.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-267
+apps/mobile/client-apple/Vetta/Platform/KeychainStore.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-48
+packages/remote-control/src/pairing-uri.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-116
+packages/plugins/presets/git/src/components/NoGitCta.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-31
+apps/docs-site/content/docs/en/troubleshooting.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 90-91,93-98
+.github/release-notes/v0.5.59.md
+  s_baa4f0b24ddecf::t_1e63f37e2727de 104
+  s_baa4f0b24ddecf::t_e56312c07de559 3-4,23-25,105-129,191-196,269-270,293
+  s_baa4f0b24ddecf::t_4547761b0f1268 26
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/pairing/PairingFlowTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-120
+packages/remote-control/src/fake-relay.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,17-22,48,50-53,63,73,76-77,81,84-85,93-94,119-123,125-132
+scripts/quality/check-quick.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 13,73,96-98,107
+apps/desktop/src/renderer/domains/conversation/components/input-bar/types.ts
+  s_baa4f0b24ddecf::t_77cfc870868f62 240-241,288-292
+  s_baa4f0b24ddecf::t_e56312c07de559 5,28-29,49,331-332
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/DraftsTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-163
+packages/theme-ui/src/markdown/stable-blocks.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 67,96-112
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/RemoteApi.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-415
+apps/desktop/src/renderer/domains/conversation/components/ChatExportHost.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 2,9,14,18
+apps/desktop/src/main/agent-teams/team-member-attempt-runner.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 48-52,78
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/PairingDialogs.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-184
+packages/runtime-mcp/src/server/supervisor.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 303-306,323,328,334-335,339,345-346,357-359
+scripts/quality/conversation-message-architecture.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 20,25,28,60
+apps/mobile/client-apple/Vetta/Views/FilesPanel.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-178
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/SessionCache.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-167
+apps/desktop/src/main/filesystem/filesystem-service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 204-205,214
+apps/desktop/src/renderer/domains/conversation/components/annotations/useAnnotationModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-125
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-official-sessions.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2-5,14,46-49,55,63,99,105
+  s_baa4f0b24ddecf::t_65f4ef9c13a522 144,151,173,196
+  s_baa4f0b24ddecf::t_1fa4fe4777a719 186-188
+packages/plugins/presets/git/src/git/parseLog.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 68,70,72-81
+apps/desktop/src/shared/i18n/locales/zh/abilities.json
+  s_baa4f0b24ddecf::t_e56312c07de559 30-40,106-107
+apps/desktop/src/renderer/domains/conversation/components/blocks/MarkdownWebsiteIcon.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-131
+apps/desktop/src/renderer/domains/conversation/components/message-list/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6,29
+packages/remote-control/src/protocol.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 9-10,14-15,20,22,24,26-32,37-39,43-45,50,53-73,91-92,110-120,136-137,139,148-233,235-256
+apps/desktop/src/main/conversations/session-agent-mode.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 72-86
+packages/theme-ui/src/chat/ModelSelectorView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 19,202-209
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/protocol/RemoteProtocolTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-73
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/HomeDigestTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-56
+apps/desktop/src/renderer/domains/conversation/components/annotations/AnnotationMenus.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-70
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/SessionAlertsTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-66
+apps/desktop/src/preload/api-types/team-conversation-display.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 29-36,44-45,76-85,146-147
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/app/AppPreferences.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-80
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/PairingInvite.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-93
+packages/coding-agent/src/composition/turn/admitted-prompt-resources.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-42
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/protocol/InviteCode.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-114
+apps/desktop/src/main/plugins/plugin-command-permissions.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4,11,42-44,53-54,63-64,81-96
+apps/remote-relay/src/room-authorization.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5,12-18,22-25,29-31,36-37,40,42
+apps/desktop/src/main/message-annotations/service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-146
+apps/desktop/src/main/agent-teams/team-turn-coordinator.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 22
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/protocol/RemoteProtocol.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-124
+apps/docs-site/content/docs/getting-started/index.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 7,9,12,28,50,58
+apps/docs-site/content/docs/en/product/settings.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,6-49,51-60
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/TaskBoardTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-106
+packages/remote-desktop/src/index.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-6
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/RemoteApiTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-116
+packages/theme-ui/src/markdown/RichCodeBlock.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-121
+apps/mobile/client-android/gradle/libs.versions.toml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-84
+apps/desktop/src/main/pet/session-event-action-policy.ts
+  s_baa4f0b24ddecf::t_dc996c91157bde 48-51,273
+  s_baa4f0b24ddecf::t_e56312c07de559 5,18,24,44-47,52-53,56,67,77,85,96,167,175,189,219,256,293,307-313,333-346
+apps/desktop/src/renderer/domains/activity-panel/hooks/useFileTabContentModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,16-18,57-63,77-88
+scripts/quality/check-conflict-markers.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 11,15,21-23,25,27,29,37-41,43-53,55-59,61-62,65-66
+apps/desktop/src/renderer/domains/conversation/components/blocks/MarkdownContent.stable-blocks.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 69,75-76
+apps/mobile/client-apple/Vetta/Components/MarkdownView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-488
+packages/remote-control/src/crypto.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-182
+apps/desktop/src/renderer/domains/conversation/services/chat-service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 907
+apps/desktop/src/main/markdown/public-resource.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-75
+apps/desktop/src/shared/pet-ipc.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 23,76-81
+apps/mobile/client-android/gradle/gradle-daemon-jvm.properties
+  s_baa4f0b24ddecf::t_e56312c07de559 1-13
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/Attachments.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-179
+packages/runtime-node/test/mcp/file-config-source.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 54-88,126-130
+  s_baa4f0b24ddecf::t_c68cf5ef6b8a23 131
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/remote/RemoteDesktopSurface.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-18
+apps/desktop/src/main/agent-runtime/session-startup-performance.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-271
+packages/remote-control/test/websocket-transport.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3,5-7,14,18-20,26,30,37,40-42,47,49-50,52-85
+apps/desktop/src/shared/i18n/locales/zh/main.json
+  s_baa4f0b24ddecf::t_e56312c07de559 52-59,105-107
+apps/remote-relay/test/remote-invite-box.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-75
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 5,9-14,22-26,91,95,97,106-107,116,140,164,170,172,193
+apps/desktop/src/renderer/domains/abilities/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 32-42,209-213,215
+.agents/skills/compose-state-and-effects/references/local-state.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+packages/remote-control/test/pairing-uri.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-57
+packages/theme-ui/src/chat/MessageSelectionContextMenuView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 2,10,23,66
+apps/mobile/client-apple/.gitignore
+  s_baa4f0b24ddecf::t_e56312c07de559 1-8
+apps/desktop/src/main/ipc/agent-teams.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 11,21-27,98,398-400,402-404,408
+apps/desktop/src/renderer/domains/pet/components/PetSpeechBubble.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 5,8-10,29-57
+apps/desktop/src/shared/session-event-codec.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6-23
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/settings/SettingsScreen.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-231
+package.json
+  s_baa4f0b24ddecf::t_e56312c07de559 88,94
+apps/desktop/src/shared/markdown-ipc.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-15
+packages/ui/src/slider.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 13,15,28,30,36,39-40,71,73,80,88,95,108-113,120-124,129,137-154,157
+apps/desktop/src/renderer/shared/hooks/useMarkdownHost.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-37
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/remote/RemoteDesktopScreenTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+packages/plugins/presets/git/test/tabVisibility.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,3,40-93
+apps/desktop/src/main/ipc/session.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 51,77,79,92,403-407,416,451,461,494,530,534,546,579-583,591,601,605,615,632,636,646,1230,1241,1257,1850
+apps/desktop/src/renderer/domains/conversation/components/blocks/markdown-math-client.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-89
+apps/desktop/src/renderer/domains/plugins/components/PluginGlobalSlotHost.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 37,42,126-136,139-140,145-147,159,164-166,170,182,185
+packages/theme-ui/src/markdown/streaming.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 46
+apps/desktop/src/main/agent-runtime/mcp-supervisor.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 24-32
+apps/desktop/src/shared/i18n/locales/en/automation.json
+  s_baa4f0b24ddecf::t_e56312c07de559 33
+apps/mobile/client-android/androidApp/src/main/res/values-zh-rCN/strings.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-6
+README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 145,152-153,208-217
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/app/AppContainer.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-96
+apps/desktop/src/main/markdown/mermaid-service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-78
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/IncomingShareTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-34
+docs/apps/kotlin/remote-desktop-operation-log.md
+  s_baa4f0b24ddecf::t_e56312c07de559 13
+apps/desktop/src/main/conversations/session-pins-store.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-88
+apps/desktop/src/main/ipc/agent-teams.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 173,177-178,183-184,230-236,251,259,264,272-288,398-405
+apps/mobile/client-android/shared/src/androidMain/res/values/widget_strings.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-17
+apps/desktop/src/main/agent-runtime/resource-runtime.remote.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,3-9,17-29,31-38,46,49,59,64-66
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/shell/HomeBeside.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-17
+packages/ai/test/openai-completions-tool-result-images.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 53,79,129,156-162
+apps/desktop/src/main/remote-control/remote-file-paths.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-118
+scripts/quality/agent-ai-maintainability.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 4-13,16-21
+apps/desktop/src/renderer/domains/conversation/hooks/useWindowPinAction.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-21
+apps/desktop/src/renderer/shared/components/ModelSelect/ModelSelect.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 39-40,69-70,210,218,322
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/ui/TestContainers.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-24
+apps/desktop/docs/markdown-rich-content.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-62
+apps/desktop/src/main/remote-control/desktop-remote-access-manager.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-951
+apps/desktop/src/main/agent-runtime/mcp-resource-scope.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-36
+apps/mobile/client-android/androidApp/src/main/res/values/strings.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-6
+packages/remote-control/src/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,7,24-29,38-39,47-48,51-96,100,113-125,150,155-161,166-172,201-202,210-233,239-253,258,263-267,274
+apps/remote-relay/src/remote-pair-room.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2-10,20,28-29,34,36-41,45-51,54,57-62,71-72,74,76,80,94,117-120,137-138,141,147,149,182-183,189,196,200,203-204,210,213-214,220,223,227,231-233,248-252
+  s_baa4f0b24ddecf::t_a635bfff710e80 253-254
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/remote/RemoteDesktopScreen.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-183
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/SessionFilterTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-90
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.external-invocation.test.tsx
+  s_baa4f0b24ddecf::t_c9cabaf8af83fd 7,54
+docs/apps/kotlin/device-detail-telemetry-debugging.md
+  s_baa4f0b24ddecf::t_e56312c07de559 22-23,27-31,37-40,42,50,63,127,149,169,236
+packages/plugins/presets/git/test/noGit.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-61
+apps/desktop/src/renderer/domains/conversation/hooks/header-capability-scopes.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-103
+apps/desktop/src/preload/index.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,17,27,45,47,64
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/ProjectSheet.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-194
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/HoldToTalkTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-72
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/ModelChoice.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-58
+apps/desktop/src/renderer/domains/agent-teams/components/TeamSettingsSheet.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 4,78-80,203-209,378-380,384
+apps/desktop/src/renderer/domains/abilities/hooks/useAbilitiesModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 9-14,26-34,51,118-119,126-138,145-146,150,194-196
+apps/mobile/client-android/shared/build.gradle.kts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-99
+apps/mobile/client-apple/Vetta/Components/SkillSheet.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-181
+docs/adr/0129-native-ios-client-replaces-expo.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-28
+apps/desktop/src/renderer/domains/conversation/components/BackgroundTasksBadge.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 8-15
+apps/desktop/src/renderer/domains/conversation/components/message-list/turnDuration.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 19-21
+apps/desktop/src/main/filesystem/filesystem-service.remote-flow.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 13,38,57,86-87
+.agents/skills/compose-component-design/references/modifier-layout.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-59
+apps/desktop/src/main/remote-control/desktop-remote-mirror.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-659
+apps/desktop/docs/file-panel-performance.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-50
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/theme/SystemBars.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-14
+.agents/skills/mobile-android-design/references/compose-components.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-796
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-ui-context.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 68,147-153,157-164,666-673,677-687,695-702,726-733,804,977-986
+apps/desktop/src/renderer/shared/store/atoms.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 29
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/ProtocolTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-244
+apps/desktop/src/main/runtimes/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 27-50,54
+apps/desktop/src/main/remote-control/remote-lan-endpoints.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-32
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-loader.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 13-14,38-41,113-122
+apps/mobile/client-android/androidApp/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5
+apps/mobile/client-apple/Vetta/Platform/SpeechDictation.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-172
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionTeamDraft.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 75-85,233,274-278,326,329,335,340
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/work/ShareReader.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-62
+packages/remote-desktop/src/protocol.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 55-57,104-109,155
+apps/remote-relay/src/auth.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,3-5,7,17,27-49,52-53,56-59,64-67,70-71,73,76
+packages/remote-control/test/api.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-216
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/board/TaskBoardSheet.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-355
+apps/desktop/src/main/remote-control/desktop-host-info.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-35
+apps/desktop/src/renderer/domains/settings/registry.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 16,18-19
+apps/mobile/client-android/shared/src/commonMain/composeResources/values/strings.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-285
+apps/desktop/scripts/file-drag-icons.node-test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 1-105
+apps/desktop/src/main/remote-control/remote-upload-store.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-107
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/link/LinkSnapshot.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-65
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/pairing/InviteCodeLookup.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-79
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionEventController.request-state.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-88
+apps/desktop/src/preload/api-types/mcp.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6-7
+apps/remote-relay/scripts/create-pairing.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,4-8,12-13,15-19
+docs/adr/0078-remote-control-transport.md
+  s_baa4f0b24ddecf::t_e56312c07de559 5-6
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/StreamRevealTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-54
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultSessionRowView.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 153-170
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/app/AndroidAppContainer.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-114
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/HomeDigestTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-82
+packages/theme-ui/src/markdown/use-rich-visibility.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-24
+apps/desktop/src/main/markdown/public-resource.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-89
+apps/desktop/src/renderer/domains/settings/components/remote-pairing-qr.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-75
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteFrame.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-466
+CONTEXT.md
+  s_baa4f0b24ddecf::t_e56312c07de559 231-239,309-316,789-793
+apps/desktop/src/main/markdown/isolated-window.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-55
+packages/plugins/presets/git/src/components/ConfirmDialog.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 2-10,29,41,63-69
+packages/theme-ui/src/settings/EnvironmentSettingsView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 2-7,23,36,44-45,54,59,131,139,180-182
+  s_baa4f0b24ddecf::t_9e88090d9d7860 183-187
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/protocol/RemoteFrames.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-164
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/WorkViewModel.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-208
+apps/desktop/src/shared/agent-team-member-model.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 9-23
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-disposal.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-23
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteTransport.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-58
+packages/remote-desktop/test/protocol.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 33-49
+scripts/quality/desktop-release-workflow.test.mjs
+  s_baa4f0b24ddecf::t_53e32b6c625dc8 57,66,69-70,76
+  s_baa4f0b24ddecf::t_e56312c07de559 1,64-65,67-68,71,131,153,176-178
+packages/ssh-transport/src/ssh-connection.loopback.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 40-49,53,56-58,60-72,135-145,147-163
+packages/coding-agent/test/runtime-core/admitted-prompt-resources.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-98
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/remote/ScreenOrientation.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-7
+apps/desktop/scripts/markdown-render.bench.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 1-63
+.agents/skills/mobile-android-design/references/details.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-337
+packages/remote-control/test/schema.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 23,29-30,35-66
+  s_baa4f0b24ddecf::t_3d030ae1421984 67
+packages/remote-control/src/invite-code.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-158
+apps/desktop/src/main/agent-runtime/mcp-resource-manager.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-103
+apps/desktop/src/main/filesystem/remote-directory-watch.helper.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4-8,21
+apps/desktop/src/preload/apis/remote-pairing.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,4-6,9-24
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/DesktopMirror.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-983
+apps/desktop/src/renderer/domains/conversation/components/blocks/markdown-host.fixture.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-16
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/protocol/InviteCodeTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-66
+docs/desktop/preformance/session-startup-optimization-2026-09-23.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-87
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatPage.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 3-4,12-17,20-24,49-69,72-78,83-84,108-109,124-129,141-145,172-198
+  s_baa4f0b24ddecf::t_071c57f8ee625f 199
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/StreamReveal.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-73
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/settings/NotificationAccess.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-9
+docs/apps/kotlin/remote-desktop-real-device-testing.md
+  s_baa4f0b24ddecf::t_e56312c07de559 59,67,90,105,123,142,231
+apps/mobile/client-android/shared/src/androidDeviceTest/AndroidManifest.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5
+.agents/skills/compose-state-and-effects/references/state-hoisting.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-51
+apps/docs-site/content/docs/reference/compatibility.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,6,10-22,31,37,44,49
+apps/mobile/client-apple/Vetta/Components/ChatViews.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-443
+apps/desktop/src/renderer/domains/conversation/components/input-bar/DefaultInputBarConnector.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,140,291-293,316-318
+  s_baa4f0b24ddecf::t_68722c921b8969 15,18,53-57,61-63,216,229-233,236-237,242,256-257,259,290,294-315
+apps/mobile/client-apple/Vetta/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json
+  s_baa4f0b24ddecf::t_e56312c07de559 1-6
+apps/desktop/src/shared/session-event-codec.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 5,105-109
+apps/desktop/src/renderer/shared/hooks/useSessionPinsSync.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-40
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamModelSelector.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-499
+apps/desktop/src/main/capabilities/integrations/plugin/test/session.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 48,52,57-73,76-113
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/QuestionPanel.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-277
+scripts/quality/check-runtime-subagents-boundary.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 1,13,42
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/board/BoardSummary.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-187
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/SessionFilterTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-122
+packages/remote-control/scripts/fake-relay-server.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,21,39-43,56,58-61,69,90,93-94,100,103-104
+apps/mobile/client-android/shared/src/commonMain/composeResources/drawable/compose-multiplatform.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-44
+apps/desktop/src/renderer/domains/settings/components/RemotePairingSettings.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,5
+docs/desktop/release-ci.md
+  s_baa4f0b24ddecf::t_e56312c07de559 16,19-20,22-28,59
+apps/docs-site/content/docs/product/application-environment.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 28-41
+packages/remote-control/test/fake-relay.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,12,18,33,41,45-50
+  s_baa4f0b24ddecf::t_7abfa52be4766a 51
+packages/ai/test/anthropic-messages.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 21,39,75,100-101
+packages/theme-ui/src/activity/MarkdownPreviewView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5,18-24,27,32,89-90,105-106,140,143-145,150,152,178-182,188-192,196,199,202,209
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-ability-detail-permissions.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 84-86
+apps/desktop/src/main/plugins/plugin-dev-watch.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 69-79,116-121,126-132,173-179,263-268,308-312
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/Composer.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-434
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-file-explorer-host.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2-5,52-53,67-90
+  s_baa4f0b24ddecf::t_5f03c648f3e878 91
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-context.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 110
+packages/ai/src/providers/anthropic/adapter.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 130
+apps/desktop/src/renderer/domains/conversation/components/new-session/NewSessionAgentSelector.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 61,69
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/work/Dictation.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-199
+apps/docs-site/content/docs/en/product/desktop-pet.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 19-24
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/open-external-invocation-tab.ts
+  s_baa4f0b24ddecf::t_d287e52d605129 2,11,22
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/Strings.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-353
+apps/desktop/src/renderer/shared/store/bottom-panel-atoms.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,5,11,28-30,32,34-40,54-67,70-84
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/ChannelManager.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-454
+packages/plugins/presets/git/src/components/graph/CommitDetailPane.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 10,15,32,38,42-43,45-48,60,67-75,85-91,145-148,156-160,163-167
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/work/SessionScreenTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-276
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/protocol/RemoteCryptoTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-95
+apps/desktop/src/preload/apis/message-annotations.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-20
+apps/mobile/client-android/androidApp/proguard-rules.pro
+  s_baa4f0b24ddecf::t_e56312c07de559 1-21
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/NewSessionScreen.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-324
+apps/docs-site/content/docs/product/overview.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 54-55,107
+apps/desktop/src/main/conversations/desktop-session-commands.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-78
+packages/plugins/presets/git/test/setup.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-12
+apps/desktop/src/renderer/domains/conversation/connectors/team/teamChatModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 41,85,124-129,296,326,346-352,360,376-388,877,920,923-929,985-990,1005-1007,1063-1068,1075-1077
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/Transcript.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-292
+packages/runtime-core/src/runtime-host/runtime-host-session-event-relay.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 99-100
+apps/desktop/src/renderer/domains/file-preview/hooks/useFilePreviewDialogModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 11
+apps/desktop/src/renderer/domains/abilities/components/AbilitiesPageView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 13,20,41-42,104-109,167,169,174-178,181-185
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/LinkIndicatorTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-27
+apps/docs-site/content/docs/en/product/remote-control.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 2-3,6-10,12,14,16-117
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.waiting.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 54,71,78-95
+  s_baa4f0b24ddecf::t_eba0d15178628b 96-98
+apps/mobile/client-apple/VettaKit/Package.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-17
+docs/apps/kotlin/README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 16
+packages/coding-agent/src/composition/session-lifecycle/runtime-resources.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 25,103-107
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.surface.test.tsx
+  s_baa4f0b24ddecf::t_f17bbde7350e54 30,38
+apps/desktop/vitest.config.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 201-204
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/app/AppPreferencesTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-37
+apps/desktop/src/renderer/domains/conversation/components/SandboxGrantsBadge.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 4-5
+apps/desktop/src/renderer/domains/scheduler/automation-draft.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 78-95,97,107
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelToggle.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-22
+packages/plugins/presets/git/test/commitDetail.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-128
+packages/runtime-mcp/src/protocol/types.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 43-44
+apps/desktop/src/main/remote-control/remote-transcript.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-92
+apps/docs-site/docs-coverage.json
+  s_baa4f0b24ddecf::t_e56312c07de559 142-145,149-153
+apps/desktop/src/renderer/domains/conversation/components/blocks/SyntaxHighlightedCode.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 2-3,18,21,36,41-98
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/shell/DrawerButton.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-27
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_baa4f0b24ddecf::t_e56312c07de559 2-49,758-760,763,831
+apps/desktop/src/main/agent-runtime/runtime-host-contract.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 141-151,177-179,232-233,247
+  s_baa4f0b24ddecf::t_eaedf8c24d36ea 250
+apps/docs-site/content/docs/en/reference/compatibility.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,6,8,10-20,22-49
+apps/desktop/src/renderer/domains/conversation/components/InputBar.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 2,4,13,15,27-30
+scripts/quality/runtime-subagents-boundary.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 5,12,17,24
+apps/mobile/client-apple/Vetta.xcodeproj/project.pbxproj
+  s_baa4f0b24ddecf::t_e56312c07de559 1-641
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/WidgetSummaryTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-43
+apps/remote-relay/test/remote-relay.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3-13,21-24,26-27,31,33,36-37,39-43,45-46,50-54,56-59,61-66,69-70,72,74,77-78,80,82,85-86,89-94,96-98,102-105,107-129,131,134-137,140-141,144-156,158-169,174-176,178,194,197-202,206,209,215-216,220-224,232
+  s_baa4f0b24ddecf::t_a54d28e567fd4c 2
+packages/runtime-core/src/kernel/turn-pipeline.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 526
+packages/theme-ui/src/markdown/math-render.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-23
+packages/plugins/presets/git/src/git/commitActions.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-54
+apps/desktop/src/main/remote-control/desktop-capabilities.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-8
+apps/desktop/src/main/markdown/favicon-service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-110
+apps/desktop/src/renderer/shared/agent-teams/useTeamMemberModels.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-107
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/app/SessionNotifier.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-281
+apps/docs-site/content/docs/en/core/workspaces-and-sessions.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 8-16,24-30
+  s_baa4f0b24ddecf::t_d99b806847934a 31
+apps/desktop/src/renderer/domains/bottom-panel/registry/instance-context.ts
+  s_baa4f0b24ddecf::t_2aceba23557dee 12-20
+apps/desktop/src/renderer/domains/conversation/components/message-list/TeamMemberReplyCard.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 5,74,113-117
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/pairing/PairingFlow.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-306
+apps/desktop/src/renderer/domains/conversation/components/new-session/NewSessionPageView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 180
+.github/workflows/mobile-apple.yml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-50
+packages/plugins/presets/git/locales/zh.json
+  s_baa4f0b24ddecf::t_e56312c07de559 26,129-133,141-156
+apps/mobile/client-apple/Vetta/Platform/KeyboardWarmup.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-25
+packages/theme-ui/src/markdown/builtin-renderers.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+apps/desktop/src/main/agent-teams/team-runtime-manager.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 126-132
+packages/ai/src/providers/openai-responses/request.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 25
+apps/desktop/src/renderer/domains/conversation/components/message-list/SessionSelection.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 5-6,11-12,21-40
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteEventJournal.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-65
+apps/desktop/src/main/pet-window.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 58-59,285,287,522,568,570,590
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-list-derived.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 17-18,24-27,34-36
+  s_baa4f0b24ddecf::t_60e20168890652 37-38
+apps/docs-site/content/docs/product/agent-teams.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 92,110-124,249
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/app/LinkService.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-60
+apps/desktop/src/main/main.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 76-78,200-201,468-469,731-748,754,762-764,903
+  s_baa4f0b24ddecf::t_e00b6a045684fd 75
+apps/desktop/src/renderer/domains/bottom-panel/registry/BottomPanelInstanceHost.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1,44,53,61
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/work/AttachmentsTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-100
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/TranscriptReducerTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-228
+apps/desktop/src/main/remote-control/renderer-data-channel-transport.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-73
+apps/desktop/src/main/pet/pet-session-presentation-controller.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-117
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/connection/EncryptedDesktopTransport.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-84
+apps/desktop/src/renderer/domains/agent-teams/components/TeamSettingsSheet.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 26,102
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/RemoteInput.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-133
+docs/adr/0137-mobile-skill-list.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-36
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/remote/ScreenOrientation.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-22
+apps/mobile/client-apple/Vetta/Components/Common.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-241
+packages/theme-ui/src/chat/ReasoningStepSlider.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-89
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/navigation/PlatformBackHandler.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-28
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/protocol/RemoteCrypto.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-265
+packages/coding-agent/test/runtime-core/turn-admission-preparation.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 10,87-105
+  s_baa4f0b24ddecf::t_33b25b2878e243 106
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/connection/RemoteTransport.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-39
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/LinkPill.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-185
+apps/mobile/client-apple/Vetta/Views/ProjectView.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-62
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/core/net/PlatformHttpClientEngine.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/HoldToTalk.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-98
+apps/desktop/src/renderer/domains/abilities/components/detail/AbilityMarkdownBody.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,11-12,21
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/SessionRows.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-397
+.github/release-notes/v0.5.60.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-192
+packages/plugins/presets/git/src/components/graph/CommitActions.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-185
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-loader.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4,10,17,19-20,22-23,41-42,47-51,55,58,60,74,77,79,81-85,88-92,95-102,104-115,128,131-135,138-142,145-153,157-161,164-172,176-184
+apps/desktop/src/renderer/domains/conversation/components/chat-view/DefaultChatView.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 24,45,76
+  s_baa4f0b24ddecf::t_7d8682bdaff75d 64
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Resources/Localizable.xcstrings
+  s_baa4f0b24ddecf::t_e56312c07de559 1-3893
+docs/adr/0135-webrtc-control-data-channel-with-bootstrap-fallback.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-31
+apps/mobile/client-apple/Vetta/Resources/Assets.xcassets/AccentColor.colorset/Contents.json
+  s_baa4f0b24ddecf::t_e56312c07de559 1-7
+packages/theme-ui/src/markdown/index.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4-5,9
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatPage.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 9,11-16,19,22,41-58,81-125,127-139,158-166
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/pairing/PairingSheetTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-145
+apps/mobile/client-apple/VettaUITests/VettaUITests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-313
+apps/mobile/client-android/shared/src/androidMain/res/xml/widget_sessions_info.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-12
+apps/desktop/src/renderer/shared/store/team-member-model-atoms.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-82
+apps/desktop/src/main/remote-control/remote-upload-store.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-67
+apps/desktop/src/main/ipc/message-annotations.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-26
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3,5,7,31,33-36,38-41,43,47-48,61-62,64,72,74
+  s_baa4f0b24ddecf::t_397ab2691b0d05 73
+apps/desktop/src/renderer/domains/settings/components/useEnvironmentSettingsModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 10-12,15-18,23-28,34-53,66,73-76,81-83,90,107,115-155,162-181,197,205,208
+apps/desktop/src/main/plugins/command-runner.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 9,100-102
+  s_baa4f0b24ddecf::t_c754a153bf9580 103-104
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/remote/NativeRemoteDesktopSession.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-458
+apps/desktop/src/renderer/domains/conversation/components/annotations/AnnotationScope.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-330
+apps/desktop/src/main/message-annotations/service.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-196
+packages/ai/src/providers/openai-completions/request.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 28
+apps/desktop/src/renderer/shared/hooks/useMarkdownLabels.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-35
+packages/coding-agent/src/resources/runtime/skill-resource-state.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,6-12,28-29,31-37,39-45,48-49,57-81
+docs/adr/0125-session-bottom-panel-and-interactive-terminal.md
+  s_baa4f0b24ddecf::t_e56312c07de559 3-7
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/board/TaskBoardSheetTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-115
+apps/desktop/src/renderer/domains/conversation/connectors/team/useTeamChatModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 98,259-263,267-271,335,352,365-374,554,687-692,716,724,752-758,774-778,851-856,969,1007
+packages/plugins/presets/git/test/commitHistory.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-101
+apps/desktop/docs/message-feed-extensions.md
+  s_baa4f0b24ddecf::t_e56312c07de559 56-57
+apps/desktop/src/preload/remote-desktop.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 7-20
+packages/remote-control/src/event-journal.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-73
+apps/desktop/scripts/markdown-isolation.fixture.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-53
+apps/remote-relay/src/remote-invite-box.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-101
+packages/runtime-core/src/contracts.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 251-255
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-runtime-log.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-45
+apps/desktop/src/preload/api-types/system.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,105-106
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/SessionFilter.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-98
+docs/desktop/preformance/team-session-startup-optimization-2026-09-23.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-155
+apps/mobile/client-android/androidApp/src/main/res/drawable/ic_shortcut_new_session.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-9
+apps/desktop/src/main/agent-runtime/mcp-supervisor.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,12,17,24,30,40-42,76-77,81-93,101-102
+apps/mobile/client-android/androidApp/src/main/kotlin/org/vetta/android/NewSessionTileService.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/Sheet.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-94
+apps/desktop/src/main/filesystem/remote-filesystem.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 162-164
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/i18n/UiText.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-32
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/ui/AppViewModelWorkTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-215
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/Glass.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-131
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/StatusGlyph.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-78
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/settings/SettingsScreenTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-105
+packages/theme-ui/src/chat/ModelConfiguration.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-282
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-file-explorer-host.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 8,18-26,60-61,64-66,70-71,74-76,80,82,84-92,99,101,103-111
+apps/desktop/src/preload/apis/agent-teams.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 7,20-27
+  s_baa4f0b24ddecf::t_c897915ec94055 28
+scripts/quality/runtime-failure-contract.test.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 2,5-10,13-19,39
+packages/theme-ui/src/markdown/math.worker.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-16
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/core/Time.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-4
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatDelegationFlow.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 224
+apps/docs-site/content/docs/troubleshooting.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 90-91,93-98
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/WorkStyle.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-83
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/FakeDesktop.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-309
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  s_baa4f0b24ddecf::t_8308e5fb5a0049 193
+  s_baa4f0b24ddecf::t_e56312c07de559 125-192,330,402-406,434-457,459-482,485-509,511-520,536-554,1012-1022,1270,1326,1995,2308-2310
+apps/mobile/client-apple/Vetta/Views/FilePreviewScreen.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-237
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/ModelChoice.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-49
+packages/theme-ui/src/settings/EnvironmentGitRowView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-156
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/HomeDigest.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-63
+.agents/skills/mobile-android-design/references/android-navigation.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-698
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-events.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,14-15,19,26,47,61-65,67,75,89-93,95
+docs/adr/0119-subagent-transcript-links-and-team-member-model-preferences.md
+  s_baa4f0b24ddecf::t_e56312c07de559 20-21
+docs/adr/0133-desktop-mcp-resource-ownership.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-33
+apps/desktop/src/renderer/domains/scheduler/automation-draft.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-30
+apps/mobile/client-apple/Vetta/Components/ModelSheet.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-156
+apps/desktop/src/main/remote-control/system-input.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 60-74,105-106,108-109,131,145,149-161,170,177,192-223,259-272,339-341
+  s_baa4f0b24ddecf::t_d72e95b68f3651 342
+packages/remote-control/src/api.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-602
+apps/mobile/client-apple/scripts/crypto-vectors.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-28
+packages/plugins/presets/git/src/git/log.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3,66-67,75,77,86,88,90
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/DesktopMirrorTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-812
+packages/theme-ui/src/markdown/math-client.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-116
+apps/desktop/src/renderer/domains/activity-panel/hooks/useFileTabContentModel.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-102
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/EdgeFade.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/settings/NotificationSettingsScreen.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-174
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/StreamReveal.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-78
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/LocalizationTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-97
+packages/plugins/presets/git/src/components/graph/CommitRow.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1,26,34,39-42,45,54-57,61,66
+docs/adr/0138-desktop-capabilities-use-explicit-work-surface-scopes.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-64
+apps/desktop/src/main/remote-control/desktop-remote-device-hub.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-231
+packages/ai/CHANGELOG.md
+  s_baa4f0b24ddecf::t_e56312c07de559 48
+packages/plugins/presets/git/src/components/graph/GitGraphCanvas.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1,91,97,120-121,191
+apps/mobile/client-android/shared/src/androidMain/res/values/widget_colors.xml
+  s_baa4f0b24ddecf::t_e56312c07de559 1-6
+packages/plugins/presets/git/src/components/DiffPane.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,8,77-80,97-101,114
+apps/desktop/src/renderer/domains/conversation/components/blocks/MarkdownRenderBudget.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-75
+docs/desktop/preformance/session-first-response-2026-09-23.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-43
+packages/theme-ui/src/shared/AvatarStackView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 25,28,32-40,42
+packages/theme-ui/src/chat/ModelSelectorTrigger.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/media/ImageSupport.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-10
+apps/desktop/src/main/conversations/user-question-broker.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 17,21-26,31,33,44-52,54,56-57,60-63,65,67,75-88,94
+apps/desktop/src/preload/api-types/session-pins.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-10
+apps/desktop/src/renderer/shared/store/project-atoms.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 5-11,124,126-153,155-156,158,160-161,167,169,171
+apps/desktop/src/renderer/domains/settings/components/remote-pairing-qr.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-132
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/pairing/PairingStore.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-139
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/work/NewSessionScreenTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-96
+apps/desktop/src/main/runtimes/manifest.json
+  s_baa4f0b24ddecf::t_e56312c07de559 31-43
+packages/remote-control/package.json
+  s_baa4f0b24ddecf::t_e56312c07de559 25-29
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/NotificationRules.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-56
+packages/theme-ui/src/markdown/MarkdownContent.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-3,9-14,25-26,45,54,160,167-183,218,222-224,229,278,292-296,381-384,386,390,412
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/navigation/AppRoute.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-20
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/QuestionDraftTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-52
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/media/ImageSupport.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-5
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/SessionScreen.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-425
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/pairing/PairingSheet.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-373
+apps/desktop/src/renderer/shared/models/renderer-markdown-model.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 5
+.agents/skills/compose-state-and-effects/SKILL.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-62
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/domain/remote/connection/PlatformRemoteLogger.android.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-22
+apps/desktop/src/main/conversations/session-pins-store.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-82
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/app/QuestionReplyReceiver.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-46
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.tsx
+  s_baa4f0b24ddecf::t_35bb89af306ffd 191
+  s_baa4f0b24ddecf::t_e56312c07de559 95,136,141
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/Transcript.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-336
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/i18n/Formatting.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-27
+apps/desktop/src/renderer/domains/activity-panel/components/previews/MarkdownPreview.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,5,10,13,15-16,19
+apps/desktop/src/renderer/domains/conversation/components/message-list/ModelSwitchBoundary.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-32
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useBottomPanelPills.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,17,19,23,25,27
+apps/desktop/src/renderer/domains/file-preview/components/MarkdownImageLightbox.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-18
+.agents/skills/compose-state-and-effects/references/side-effects.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-46
+apps/desktop/src/renderer/domains/settings/components/useRemotePairingSettingsModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-343
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/theme/VettaTheme.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-222
+packages/runtime-core/src/runtime-host/session-events.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 6-15
+apps/mobile/client-apple/Vetta/Components/HomeDrawer.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-140
+apps/docs-site/content/docs/en/product/overview.mdx
+  s_baa4f0b24ddecf::t_e56312c07de559 18
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/ModelChoiceTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-42
+packages/ai/test/github-copilot-anthropic.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 117-148
+apps/desktop/src/main/remote-control/desktop-remote-desktop-host.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 2,8,24,55-62,77-95,146,156,168-169,184
+apps/desktop/src/main/markdown/favicon-cache.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-52
+packages/coding-agent/test/skill-fingerprint.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-113
+apps/desktop/src/main/markdown/image-resource.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-16
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-host-apis-logging.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-137
+scripts/quality/test-impact.mjs
+  s_baa4f0b24ddecf::t_e56312c07de559 42-64,90-105,142-156,158,173-179
+apps/desktop/src/shared/skill-ranking.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-81
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/BotAvatar.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-76
+packages/coding-agent/src/composition/turn/capability-session-assembly.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 72,494,512-513,551-553,557,570
+apps/desktop/src/main/remote-control/desktop-remote-lan-server.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-170
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/PromptDraftTests.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-95
+apps/desktop/src/main/agent-runtime/mcp-resource-manager.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-118
+apps/desktop/src/renderer/domains/conversation/components/message-list/TeamMemberReplyCard.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 22,46,59
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-runtime-log.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-63
+apps/desktop/src/main/remote-control/remote-image-scale.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-24
+apps/desktop/src/renderer/domains/bottom-panel/hooks/useTerminalCapabilities.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 41,45,54
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/home/HomeScreenTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-208
+docs/adr/0136-invite-code-pairing-mailbox.md
+  s_baa4f0b24ddecf::t_e56312c07de559 1-34
+packages/coding-agent/test/sessions/assistant-turn-timing-participant.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-87
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/settings/SettingsRows.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-125
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamModelSelector.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-334
+packages/theme-ui/src/markdown/definition.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 4,12
+apps/desktop/src/renderer/domains/pet/hooks/usePetPresentationThrottle.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 4
+apps/mobile/client-apple/Vetta/Components/ChatInputBar.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-373
+apps/desktop/src/preload/apis/session-pins.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-26
+packages/theme-ui/package.json
+  s_baa4f0b24ddecf::t_e56312c07de559 133,154-160
+apps/desktop/src/main/conversations/desktop-conversation-service.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 280-284,287
+docs/apps/kotlin/remote-desktop-debugging.md
+  s_baa4f0b24ddecf::t_e56312c07de559 6-8,11,15,18,35,179
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarToolbarActions.tsx
+  s_baa4f0b24ddecf::t_6d2417a1a8edc5 25,42,48-52,71
+  s_baa4f0b24ddecf::t_ed220d982b2677 72-82
+  s_baa4f0b24ddecf::t_e56312c07de559 1-24,26-41,43-47,53-70,83-106
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/RemoteInputTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-90
+apps/desktop/src/renderer/domains/conversation/components/mcp-app/McpAppSurface.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 3,41,59
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/InviteCode.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-171
+apps/desktop/src/renderer/domains/file-preview/components/EditableTextFileView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 99
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarView.tsx
+  s_baa4f0b24ddecf::t_5ed603f872375b 48-49
+  s_baa4f0b24ddecf::t_9531870d310e0b 201
+  s_baa4f0b24ddecf::t_e56312c07de559 31,220
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/TestStrings.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-13
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/HomeScreen.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-454
+apps/desktop/src/renderer/domains/conversation/components/annotations/AnnotationScope.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 1-233
+packages/plugins/presets/git/src/index.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 20,62,67-68
+packages/plugins/presets/git/README.md
+  s_baa4f0b24ddecf::t_e56312c07de559 3,5,16-20,28-34,36,38,40-52,54-55
+packages/theme-ui/src/markdown/stable-blocks.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 5-12
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageListView.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 158,161,169-175
+apps/desktop/src/renderer/domains/abilities/lib/ability-catalog-query.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-2,11-12,17-18,73-80,83,86,88-100
+apps/desktop/src/renderer/domains/conversation/connectors/team/useTeamChatModel.test.tsx
+  s_baa4f0b24ddecf::t_e56312c07de559 164,206-217,915-942
+  s_baa4f0b24ddecf::t_fd387745aea611 943-944
+apps/desktop/src/renderer/shared/store/project-session-pins.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 3-4,6,10,13-23,25-26,28-31,34-48,50-57
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/link/DesktopLinkTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-339
+apps/desktop/src/main/remote-control/remote-skills.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-38
+apps/desktop/src/renderer/domains/conversation/hooks/useBackgroundTasksBadgeModel.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 23-26,34-35,39-43,52,55,60
+packages/plugins/presets/git/src/git/tab-visibility.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1,23-49
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/PairingFlow.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-316
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/connection/RemoteConnectionTest.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-164
+apps/desktop/src/main/ipc/runtimes.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 9,28-31,36
+apps/desktop/src/main/remote-control/remote-files.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-179
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/remote/PairingScanner.kt
+  s_baa4f0b24ddecf::t_e56312c07de559 1-10
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/WebSocketTransport.swift
+  s_baa4f0b24ddecf::t_e56312c07de559 1-165
+packages/remote-control/test/event-journal.test.ts
+  s_baa4f0b24ddecf::t_e56312c07de559 1-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "39f3c23e3a555c79fe8cd17dbf76f8bf92e00fed",
+  "prompts": {},
+  "sessions": {
+    "s_baa4f0b24ddecf": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0e737-1880-7e21-a222-f0c568d70ad2",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
