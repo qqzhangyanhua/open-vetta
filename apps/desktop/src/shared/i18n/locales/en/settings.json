@@ -122,7 +122,75 @@
   "title": "Settings",
   "remote": {
     "title": "Remote access",
-    "description": "Securely connect your phone to this computer. Screen and input use peer-to-peer WebRTC; the relay only handles pairing and signaling.",
+    "description": "Follow and continue this computer’s sessions on your phone, end-to-end encrypted.",
+    "actionFailed": "That action failed. Try again.",
+    "loadFailed": "Remote access status is temporarily unavailable. Try again shortly.",
+    "connectionFailed": "Phone connections are temporarily unavailable. Try again shortly.",
+    "approvals": {
+      "title": "Phones waiting for approval",
+      "description": "Allow it only if the phone shows the same code.",
+      "hint": "The phone should show the same code",
+      "allow": "Allow this phone",
+      "deny": "Deny"
+    },
+    "devices": {
+      "title": "Paired phones",
+      "empty": "No phone paired yet.",
+      "unnamed": "Phone",
+      "online": "Online",
+      "onlineVia": "Online · {{channel}}",
+      "channel": {
+        "p2p": "direct (P2P)",
+        "lan": "same Wi-Fi",
+        "relay": "via cloud relay"
+      },
+      "lastSeen": "Last connected {{time}}",
+      "neverSeen": "Never connected",
+      "revoke": "Remove",
+      "control": "Allow desktop control"
+    },
+    "pairing": {
+      "create": "Generate QR code",
+      "cancel": "Refresh",
+      "qrAlt": "Vetta phone pairing QR code",
+      "generating": "Preparing QR code…",
+      "empty": "QR code unavailable",
+      "createFailed": "Could not generate a QR code. Try again.",
+      "vaultUnavailable": "Secure credential storage is unavailable, so pairing is not possible.",
+      "manualHint": "On the phone, choose “Enter address manually” and use any of these:",
+      "code": "Connection code",
+      "password": "Password",
+      "codeHint": "Can’t scan? Choose “Connect with a Code” on the phone:",
+      "codePreparing": "Preparing a connection code…",
+      "codeFailed": "Connection code unavailable. Please scan instead.",
+      "manualTitle": "Enter an address on the same Wi-Fi"
+    },
+    "cloud": {
+      "title": "Allow access away from home",
+      "description": "When off, phones can only connect on the same Wi-Fi.",
+      "unavailable": "Access away from this Wi-Fi is unavailable right now."
+    },
+    "relay": {
+      "title": "Away-from-home settings",
+      "note": "Phones reach this computer through this relay when not on the same Wi-Fi. After a change, connected phones switch to the new address and the QR code is renewed.",
+      "label": "Relay server",
+      "defaultHint": "Leave empty for the default: {{url}}",
+      "test": "Test connection",
+      "testing": "Testing…",
+      "restore": "Restore default",
+      "cancel": "Cancel",
+      "save": "Save",
+      "result": {
+        "ok": "Works",
+        "noInviteCodes": "Reachable, but too old for connection codes",
+        "incompatible": "Not a compatible Vetta relay",
+        "unreachable": "Can’t reach this address",
+        "invalid": "Enter an address starting with wss:// or https://"
+      },
+      "change": "Change",
+      "defaultTag": "Default",
+      "unset": "Not set"
+    },
     "pairingTitle": "Pair a phone",
     "pairingDescription": "Generating a new code revokes the previous pairing. The QR code is only used for the first device binding.",
     "relayConfigured": "Secure relay configured",
@@ -259,7 +327,7 @@
     "usernamePlaceholder": "Optional",
     "passwordTitle": "Password",
     "passwordPlaceholder": "Optional",
-    "passwordStoredPlaceholder": "Saved \u2014 leave blank to keep it",
+    "passwordStoredPlaceholder": "Saved — leave blank to keep it",
     "providersTitle": "Per provider",
     "providersDescription": "Every provider uses the proxy by default. Turn it off for providers you can reach faster directly.",
     "noProviders": "No providers configured yet.",
@@ -331,7 +399,11 @@
   },
   "runtimeConfiguration": {
     "applyLabel": "Applies",
-	"provider": { "local": "Local", "remote": "Remote", "unavailable": "Unavailable" },
+    "provider": {
+      "local": "Local",
+      "remote": "Remote",
+      "unavailable": "Unavailable"
+    },
     "secretConfigured": "Saved securely; enter a new value to replace it",
     "secretPlaceholder": "Press Enter or leave the field to save",
     "apply": {
@@ -359,28 +431,93 @@
       }
     },
     "fields": {
-      "enabled": { "title": "Automatic compaction", "description": "Compact long conversations as they approach the model limit. Manual compaction remains available when this is off." },
-      "reserveTokens": { "title": "Remaining-space threshold (tokens)", "description": "Compact automatically when less than this much context remains and context usage has reached the percentage threshold." },
-      "contextThresholdPercent": { "title": "Context compaction threshold (%)", "description": "Compact automatically when context usage reaches this percentage and the remaining space is also below the token threshold above." },
-      "keepRecentTokens": { "title": "Recent conversation kept after compaction (tokens)", "description": "Keep approximately this much of the most recent conversation unchanged and summarize older content. Higher values preserve more recent detail." },
-      "autoResize": { "title": "Automatic resize", "description": "Resize and compress images when they exceed configured limits." },
-      "blockImages": { "title": "Block images", "description": "Prevent images from entering model context." },
+      "enabled": {
+        "title": "Automatic compaction",
+        "description": "Compact long conversations as they approach the model limit. Manual compaction remains available when this is off."
+      },
+      "reserveTokens": {
+        "title": "Remaining-space threshold (tokens)",
+        "description": "Compact automatically when less than this much context remains and context usage has reached the percentage threshold."
+      },
+      "contextThresholdPercent": {
+        "title": "Context compaction threshold (%)",
+        "description": "Compact automatically when context usage reaches this percentage and the remaining space is also below the token threshold above."
+      },
+      "keepRecentTokens": {
+        "title": "Recent conversation kept after compaction (tokens)",
+        "description": "Keep approximately this much of the most recent conversation unchanged and summarize older content. Higher values preserve more recent detail."
+      },
+      "autoResize": {
+        "title": "Automatic resize",
+        "description": "Resize and compress images when they exceed configured limits."
+      },
+      "blockImages": {
+        "title": "Block images",
+        "description": "Prevent images from entering model context."
+      },
       "resize": {
-        "maxWidth": { "title": "Maximum width", "description": "Maximum image width after resizing, in pixels." },
-        "maxHeight": { "title": "Maximum height", "description": "Maximum image height after resizing, in pixels." },
-        "maxInputPixels": { "title": "Maximum input pixels", "description": "Maximum total pixel count accepted before decoding." },
-        "maxInputEdge": { "title": "Maximum input edge", "description": "Maximum single-edge length accepted before decoding, in pixels." },
-        "maxBytes": { "title": "Maximum image bytes", "description": "Maximum size of one normalized image." },
-        "jpegQuality": { "title": "JPEG quality", "description": "Compression quality used when transcoding to JPEG (1–100)." }
+        "maxWidth": {
+          "title": "Maximum width",
+          "description": "Maximum image width after resizing, in pixels."
+        },
+        "maxHeight": {
+          "title": "Maximum height",
+          "description": "Maximum image height after resizing, in pixels."
+        },
+        "maxInputPixels": {
+          "title": "Maximum input pixels",
+          "description": "Maximum total pixel count accepted before decoding."
+        },
+        "maxInputEdge": {
+          "title": "Maximum input edge",
+          "description": "Maximum single-edge length accepted before decoding, in pixels."
+        },
+        "maxBytes": {
+          "title": "Maximum image bytes",
+          "description": "Maximum size of one normalized image."
+        },
+        "jpegQuality": {
+          "title": "JPEG quality",
+          "description": "Compression quality used when transcoding to JPEG (1–100)."
+        }
       },
       "requestBudget": {
-        "highWatermarkBytes": { "title": "Request high watermark", "description": "Start budget compression when total image data exceeds this value." },
-        "lowWatermarkBytes": { "title": "Request low watermark", "description": "Target total image data after budget compression." }
+        "highWatermarkBytes": {
+          "title": "Request high watermark",
+          "description": "Start budget compression when total image data exceeds this value."
+        },
+        "lowWatermarkBytes": {
+          "title": "Request low watermark",
+          "description": "Target total image data after budget compression."
+        }
       },
-      "defaultProviderId": { "title": "Default provider", "description": "The OCR provider used by the next recognition request; remote providers follow the remote-use policy." },
-      "remoteProviderPolicy": { "title": "Remote recognition policy", "description": "Control whether a remote provider may process images.", "options": { "never": "Block remote", "ask": "Ask on first use", "allowed": "Allow selected remote provider" } },
-      "cacheResults": { "title": "Cache recognition results", "description": "Cache newly created OCR results; disabling this does not delete existing records." },
-      "defaultOutput": { "title": "Default output detail", "description": "Choose text, lines, words, or a document tree; unsupported detail falls back safely.", "options": { "text": "Plain text", "line": "Lines", "word": "Words", "document-tree": "Document tree" } }
+      "defaultProviderId": {
+        "title": "Default provider",
+        "description": "The OCR provider used by the next recognition request; remote providers follow the remote-use policy."
+      },
+      "remoteProviderPolicy": {
+        "title": "Remote recognition policy",
+        "description": "Control whether a remote provider may process images.",
+        "options": {
+          "never": "Block remote",
+          "ask": "Ask on first use",
+          "allowed": "Allow selected remote provider"
+        }
+      },
+      "cacheResults": {
+        "title": "Cache recognition results",
+        "description": "Cache newly created OCR results; disabling this does not delete existing records."
+      },
+      "defaultOutput": {
+        "title": "Default output detail",
+        "description": "Choose text, lines, words, or a document tree; unsupported detail falls back safely.",
+        "options": {
+          "text": "Plain text",
+          "line": "Lines",
+          "word": "Words",
+          "document-tree": "Document tree"
+        }
+      }
     }
   },
   "environmentSettings": {
@@ -396,6 +533,25 @@
   },
   "environmentNodeDesc": "Run JavaScript / TypeScript tools and npm packages",
   "environmentPythonDesc": "Run Python scripts and pip packages",
+  "environmentGit": {
+    "description": "Required by the Git panel and by git commands the agent runs",
+    "missing": "Not installed",
+    "installing": "Installing…",
+    "managedSuffix": "Vetta only",
+    "installXcode": "Install",
+    "installManaged": "Install for Vetta",
+    "redetect": "Check again",
+    "detecting": "Checking…",
+    "xcodeHint": "Install opens the macOS Command Line Developer Tools installer. Come back and click Check again when it finishes.",
+    "xcodeLaunched": "The system installer is open. Click Check again when it finishes.",
+    "managedHint": "Install for Vetta only works inside Vetta and leaves your system untouched. To use Git in a terminal or other apps,",
+    "download": "download the Git installer",
+    "packageManagerHint": "Run this command in a terminal, then click Check again.",
+    "packageManagerFallback": "Install git with your system package manager, then click Check again. Or",
+    "manualHint": "Install Git, then click Check again.",
+    "copy": "Copy",
+    "copied": "Copied"
+  },
   "platformNotSupported": "Not supported on this platform",
   "ready": "Ready",
   "fetching": "Fetching…",
@@ -853,7 +1009,17 @@
   "accountType": "Account type",
   "premium": "Premium",
   "free": "Free",
-  "usageStats": "Usage statistics",
+  "usageStats": {
+    "streak": "Streak",
+    "days": "{{count}} d",
+    "unitTokens": "tokens",
+    "unitRequests": "reqs",
+    "range": {
+      "7d": "7d",
+      "30d": "30d",
+      "all": "All"
+    }
+  },
   "messagesThisMonth": "Messages this month",
   "storageUsed": "Storage used",
   "addKnowledgeBase": "Add knowledge base",
@@ -1036,17 +1202,6 @@
   },
   "saveFailed": "Save failed",
   "pleaseLogin": "Please log in first",
-  "usageStats": {
-    "streak": "Streak",
-    "days": "{{count}} d",
-    "unitTokens": "tokens",
-    "unitRequests": "reqs",
-    "range": {
-      "7d": "7d",
-      "30d": "30d",
-      "all": "All"
-    }
-  },
   "tokenActivity": {
     "title": "Token activity",
     "daily": "Daily",
@@ -1112,8 +1267,7 @@
   "tabPet": "penguin Vivi",
   "tabPermissions": "Permissions",
   "tabRemote": "Remote access",
-  "section_remote-pairing": "Phone pairing",
-  "section_remote-permissions": "Control permissions",
+  "section_remote-pairing": "Add a phone",
   "section_general-basics": "Basics",
   "section_general-network": "Network proxy",
   "section_general-app": "App",
@@ -1169,6 +1323,7 @@
   "section_mcp-server-list-builtin": "Added MCP",
   "section_mcp-json": "Edit JSON",
   "section_environment-runtime": "Runtime",
+  "section_environment-tools": "Developer tools",
   "section_environment-mirrors": "Mirrors",
   "section_permissions-system": "System Permissions",
   "section_imbridge-basics": "Basics",
@@ -1837,7 +1992,7 @@
   "unbindError": "Unbind failed",
   "bindDone": "Done",
   "bindGenerating": "Generating QR code…",
-  "bindFailed": "Bind failed",
+  "bindFailed": "Failed to start pairing",
   "retry": "Retry",
   "bindSuccessTitle": "Bind successful",
   "bindSuccessDesc": "Closing automatically…",
@@ -1920,7 +2075,6 @@
   "imWhatsappBind": "Start binding",
   "imWhatsappLogout": "Unbind",
   "bindStarted": "QR pairing started",
-  "bindFailed": "Failed to start pairing",
   "saveModelFailed": "Failed to save model",
   "setModelOk": "Set to {{provider}} / {{model}}",
   "clearedModel": "Model setting cleared",
@@ -2151,5 +2305,7 @@
   "sshPromptRemember": "Remember it (encrypted on this machine, filled in next time)",
   "sshPromptSubmit": "Continue connecting",
   "sshPromptAccept": "Confirm and connect",
-  "sshPromptReject": "Cancel connection"
+  "sshPromptReject": "Cancel connection",
+  "section_remote-devices": "Paired phones",
+  "section_remote-cloud": "Away from home"
 }

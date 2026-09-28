@@ -57,8 +57,21 @@ function unsupportedInputAdapter(reason: string): SystemInputAdapter {
 	};
 }
 
-function createWindowsInputAdapter(): SystemInputAdapter {
-	// Loaded lazily so Linux/macOS builds do not resolve the native DLL binding.
+/**
+ * koffi registers named types process-wide, so defining `INPUT` or `CGPoint` a second
+ * time throws. The host builds a new adapter each time it restarts; the bindings are
+ * loaded once and shared.
+ */
+function once<T>(load: () => T): () => T {
+	let loaded: { readonly value: T } | undefined;
+	return () => {
+		loaded ??= { value: load() };
+		return loaded.value;
+	};
+}
+
+// Loaded lazily so Linux/macOS builds do not resolve the native DLL binding.
+const windowsInput = once(() => {
 	const koffi = createRequire(import.meta.url)("koffi") as typeof Koffi;
 	const user32 = koffi.load("user32.dll");
 	const MOUSEINPUT = koffi.struct({
@@ -89,7 +102,11 @@ function createWindowsInputAdapter(): SystemInputAdapter {
 	const SetCursorPos = user32.func("int __stdcall SetCursorPos(int, int)");
 	const GetSystemMetrics = user32.func("int __stdcall GetSystemMetrics(int)");
 	const MapVirtualKey = user32.func("uint32 __stdcall MapVirtualKeyW(uint32, uint32)");
+	return { SendInput, SetCursorPos, GetSystemMetrics, MapVirtualKey, inputSize: koffi.sizeof(INPUT) };
+});
 
+function createWindowsInputAdapter(): SystemInputAdapter {
+	const { SendInput, SetCursorPos, GetSystemMetrics, MapVirtualKey, inputSize } = windowsInput();
 	let enabled = true;
 	return {
 		supported: true,
@@ -111,7 +128,7 @@ function createWindowsInputAdapter(): SystemInputAdapter {
 					SendInput(
 						1,
 						{ type: 0, u: { mi: { dx: 0, dy: 0, mouseData: 0, dwFlags: flags, time: 0, dwExtraInfo: 0 } } },
-						koffi.sizeof(INPUT),
+						inputSize,
 					);
 				}
 				return;
@@ -125,8 +142,21 @@ function createWindowsInputAdapter(): SystemInputAdapter {
 							mi: { dx: 0, dy: 0, mouseData: message.deltaY >>> 0, dwFlags: 0x0800, time: 0, dwExtraInfo: 0 },
 						},
 					},
-					koffi.sizeof(INPUT),
+					inputSize,
 				);
+				return;
+			}
+			if (message.type === "text") {
+				// KEYEVENTF_UNICODE types each UTF-16 unit whatever the keyboard layout or input method.
+				for (const unit of utf16Units(message.text)) {
+					for (const flags of [0x0004, 0x0004 | 0x0002]) {
+						SendInput(
+							1,
+							{ type: 1, u: { ki: { wVk: 0, wScan: unit, dwFlags: flags, time: 0, dwExtraInfo: 0 } } },
+							inputSize,
+						);
+					}
+				}
 				return;
 			}
 			if (message.type === "key") {
@@ -137,18 +167,14 @@ function createWindowsInputAdapter(): SystemInputAdapter {
 				SendInput(
 					1,
 					{ type: 1, u: { ki: { wVk: 0, wScan: scan, dwFlags: flags, time: 0, dwExtraInfo: 0 } } },
-					koffi.sizeof(INPUT),
+					inputSize,
 				);
 			}
 		},
 	};
 }
 
-function createMacInputAdapter(): SystemInputAdapter {
-	if (!systemPreferences.isTrustedAccessibilityClient(false)) {
-		log.warn("macOS accessibility permission is required for remote input");
-		return unsupportedInputAdapter("accessibility_permission_required");
-	}
+const macInput = once(() => {
 	const koffi = createRequire(import.meta.url)("koffi") as typeof Koffi;
 	const coreGraphics = koffi.load("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics");
 	const coreFoundation = koffi.load("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation");
@@ -163,6 +189,38 @@ function createMacInputAdapter(): SystemInputAdapter {
 	const CGDisplayPixelsWide = coreGraphics.func("size_t CGDisplayPixelsWide(uint32)");
 	const CGDisplayPixelsHigh = coreGraphics.func("size_t CGDisplayPixelsHigh(uint32)");
 	const CFRelease = coreFoundation.func("void CFRelease(void *)");
+	const CGEventKeyboardSetUnicodeString = coreGraphics.func(
+		"void CGEventKeyboardSetUnicodeString(void *, unsigned long, const uint16_t *)",
+	);
+	return {
+		CGEventKeyboardSetUnicodeString,
+		CGEventCreateMouseEvent,
+		CGEventCreateKeyboardEvent,
+		CGEventCreateScrollWheelEvent,
+		CGEventPost,
+		CGMainDisplayID,
+		CGDisplayPixelsWide,
+		CGDisplayPixelsHigh,
+		CFRelease,
+	};
+});
+
+function createMacInputAdapter(): SystemInputAdapter {
+	if (!systemPreferences.isTrustedAccessibilityClient(false)) {
+		log.warn("macOS accessibility permission is required for remote input");
+		return unsupportedInputAdapter("accessibility_permission_required");
+	}
+	const {
+		CGEventKeyboardSetUnicodeString,
+		CGEventCreateMouseEvent,
+		CGEventCreateKeyboardEvent,
+		CGEventCreateScrollWheelEvent,
+		CGEventPost,
+		CGMainDisplayID,
+		CGDisplayPixelsWide,
+		CGDisplayPixelsHigh,
+		CFRelease,
+	} = macInput();
 	let enabled = true;
 	const post = (event: unknown): void => {
 		if (!event) return;
@@ -196,6 +254,20 @@ function createMacInputAdapter(): SystemInputAdapter {
 			}
 			if (message.type === "pointer.scroll") {
 				post(CGEventCreateScrollWheelEvent(null, 0, 2, Math.round(-message.deltaY), Math.round(-message.deltaX)));
+				return;
+			}
+			if (message.type === "text") {
+				// A key event carries at most 20 UTF-16 units of text; longer text goes in pieces.
+				const units = utf16Units(message.text);
+				for (let start = 0; start < units.length; start += 20) {
+					const piece = Uint16Array.from(units.slice(start, start + 20));
+					for (const down of [true, false]) {
+						const event = CGEventCreateKeyboardEvent(null, 0, down);
+						if (!event) continue;
+						CGEventKeyboardSetUnicodeString(event, piece.length, piece);
+						post(event);
+					}
+				}
 				return;
 			}
 			if (message.type === "key") {
@@ -262,6 +334,10 @@ function createLinuxX11InputAdapter(): SystemInputAdapter {
 			XFlush(display);
 		},
 	};
+}
+
+function utf16Units(text: string): number[] {
+	return Array.from({ length: text.length }, (_, index) => text.charCodeAt(index));
 }
 
 function macMouseButton(button: "left" | "middle" | "right"): number {

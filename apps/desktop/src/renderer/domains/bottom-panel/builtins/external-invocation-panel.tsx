@@ -3,7 +3,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
 import {
-	bottomPanelStateAtom,
+	bottomPanelStateAtomFamily,
 	EXTERNAL_INVOCATION_COMPONENT_ID,
 	type ExternalInvocationPanelPayload,
 	findBottomPanelTab,
@@ -11,7 +11,7 @@ import {
 import { useAtomValue } from "jotai";
 import { type JSX, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useBottomPanelFill, useBottomPanelInstance } from "../registry/instance-context";
+import { useBottomPanelFill, useBottomPanelInstance, useBottomPanelScopeKey } from "../registry/instance-context";
 import type { BottomPanelBuiltin } from "./types";
 
 export const EXTERNAL_INVOCATION_PANEL_ID = EXTERNAL_INVOCATION_COMPONENT_ID;
@@ -27,7 +27,8 @@ export function ExternalInvocationSurface(): JSX.Element {
 	const { t } = useTranslation("chat");
 	const handle = useBottomPanelInstance();
 	const fill = useBottomPanelFill();
-	const layout = useAtomValue(bottomPanelStateAtom);
+	const scopeKey = useBottomPanelScopeKey();
+	const layout = useAtomValue(bottomPanelStateAtomFamily(scopeKey));
 	const payload = readPayload(findBottomPanelTab(layout.root, handle.tabId)?.tab.payload);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const terminalRef = useRef<Terminal | null>(null);

@@ -31,10 +31,9 @@ const OmittedReasoningNote = memo(function OmittedReasoningNote({ count }: { cou
 	return <CompactionBoundaryView label={t("sessionViewer.omittedReasoning", { count })} />;
 });
 
-export const ModelSwitchBoundary = memo(function ModelSwitchBoundary({ label }: { label: string }) {
+export const ModelSwitchBoundary = memo(function ModelSwitchBoundary({ from, to }: { from: string; to: string }) {
 	const { t } = useTranslation("chat");
-	// t includes name interpolation — pass preformatted label from host
-	return <ModelSwitchBoundaryView prefix="" label={t("messageList.modelSwitched", { name: label })} />;
+	return <ModelSwitchBoundaryView prefix="" label={t("messageList.modelSwitched", { from, to })} />;
 });
 
 export interface MessageItemProps {
@@ -99,6 +98,7 @@ const ExternalInvocationHistoryCard = memo(function ExternalInvocationHistoryCar
 					size="sm"
 					onClick={() =>
 						openTab({
+							scopeKey: session.sessionPath,
 							invocationId: event.invocationId,
 							status: event.status === "running" || event.status === "queued" ? "running" : "finished",
 							cwd: session.cwd,
@@ -165,9 +165,16 @@ export const DefaultMessageItem = memo(function DefaultMessageItem({
 	);
 });
 
-export const ExportMessageList = forwardRef<HTMLDivElement, { messages: readonly ChatConversationItem[] }>(
-	function ExportMessageList({ messages }, ref) {
+export const ExportMessageList = forwardRef<
+	HTMLDivElement,
+	{
+		messages: readonly ChatConversationItem[];
+		participants?: readonly ConversationParticipantViewModel[];
+	}
+>(
+	function ExportMessageList({ messages, participants = [] }, ref) {
 		const tailMessageId = messages.at(-1)?.id ?? null;
+		const participantsById = new Map(participants.map((participant) => [participant.id, participant]));
 		return (
 			<ExportMessageListView listRef={ref}>
 				{messages.map((message) => (
@@ -177,6 +184,8 @@ export const ExportMessageList = forwardRef<HTMLDivElement, { messages: readonly
 							isTailMessage={message.id === tailMessageId}
 							isStreaming={false}
 							exportMode
+							participant={message.kind === "agent" ? participantsById.get(message.authorId) : undefined}
+							participants={participants}
 						/>
 					</div>
 				))}

@@ -6,11 +6,12 @@ import { activityPanelOpenAtom, collectBottomPanelLeaves } from "@shared/store/a
 import { BottomPanelEmptyPicker, BottomPanelEmptyState, BottomPanelFrame } from "@vetta-org/theme-ui/bottom-panel";
 import { useAtomValue } from "jotai";
 import { type JSX, useCallback, useRef } from "react";
+import type { WorkSurfaceScope } from "@shared/workspace/work-surface";
 import { useTranslation } from "react-i18next";
 import { useBottomPanelModel } from "../hooks/useBottomPanelModel";
 import { useExternalAgentMenuItems } from "../hooks/useExternalAgentMenuItems";
 import { canOpenBottomPanelComponent } from "../registry/resolve-bottom-panel-tabs";
-import { BottomPanelFillProvider } from "../registry/instance-context";
+import { BottomPanelFillProvider, BottomPanelScopeKeyProvider } from "../registry/instance-context";
 import { BottomPanelLeaf } from "./BottomPanelLeaf";
 import { BottomPanelSplitView } from "./BottomPanelSplitView";
 
@@ -21,10 +22,16 @@ import { BottomPanelSplitView } from "./BottomPanelSplitView";
  * 并列的独立一列，被底部面板截断会让两者看起来是同一块区域。
  * 折叠或没有任何 tab 时整块不渲染——此时 tab 以 pill 的形式出现在输入框下方。
  */
-export function BottomPanelHost({ fill = false }: { readonly fill?: boolean }): JSX.Element | null {
+export function BottomPanelHost({
+	fill = false,
+	scope,
+}: {
+	readonly fill?: boolean;
+	readonly scope: WorkSurfaceScope | null;
+}): JSX.Element | null {
 	const { t } = useTranslation("chat");
-	const model = useBottomPanelModel();
-	const agentItems = useExternalAgentMenuItems();
+	const model = useBottomPanelModel(scope ?? { key: "bottom-panel:unbound", cwd: null }, Boolean(scope));
+	const agentItems = useExternalAgentMenuItems(scope?.key);
 	const activityPanelOpen = useAtomValue(activityPanelOpenAtom);
 	// 左缘是否已经被侧边栏占住，决定那 8px 是要补还是要抵消。读 useSidebarState 而不是
 	// sidebarCollapsedAtom：窄屏时侧边栏改走悬浮层、同样不占左栏，两个来源合成才是真相。
@@ -39,7 +46,7 @@ export function BottomPanelHost({ fill = false }: { readonly fill?: boolean }): 
 		[model],
 	);
 
-	if (!model) return null;
+	if (!scope) return null;
 	const { state, definitions, cwd, canSplit, sizing, tabs, setCollapsed, setFilled } = model;
 	const root = state.root;
 	const collapsed = state.collapsed;
@@ -50,6 +57,7 @@ export function BottomPanelHost({ fill = false }: { readonly fill?: boolean }): 
 	const leaves = root ? collectBottomPanelLeaves(root) : [];
 
 	return (
+		<BottomPanelScopeKeyProvider value={scope.key}>
 		<div
 			ref={containerRef}
 			hidden={collapsed && !fill}
@@ -146,6 +154,7 @@ export function BottomPanelHost({ fill = false }: { readonly fill?: boolean }): 
 						return (
 							<BottomPanelLeaf
 								leaf={leaf}
+								scopeKey={scope.key}
 								state={state}
 								definitions={definitions}
 								cwd={cwd}
@@ -169,5 +178,6 @@ export function BottomPanelHost({ fill = false }: { readonly fill?: boolean }): 
 			</BottomPanelFrame>
 			</BottomPanelFillProvider>
 		</div>
+		</BottomPanelScopeKeyProvider>
 	);
 }

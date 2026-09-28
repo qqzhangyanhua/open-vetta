@@ -27,7 +27,7 @@ vi.mock("../ChatExportHost", () => ({
 describe("DefaultChatView external terminal surface", () => {
 	it("keeps the same bottom panel instance when Grok fills the main area", () => {
 		const { rerender } = render(
-			<DefaultChatView messages={[]} workspace={workspace}>
+			<DefaultChatView messages={[]} workspace={workspace} workSurface={null}>
 				<div data-testid="message-list" />
 			</DefaultChatView>,
 		);
@@ -35,7 +35,7 @@ describe("DefaultChatView external terminal surface", () => {
 		expect(panel.getAttribute("data-fill")).toBe("false");
 
 		rerender(
-			<DefaultChatView surface="external-terminal" messages={[]} workspace={workspace}>
+			<DefaultChatView surface="external-terminal" messages={[]} workspace={workspace} workSurface={null}>
 				{null}
 			</DefaultChatView>,
 		);

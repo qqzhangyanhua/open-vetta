@@ -1,10 +1,10 @@
 import {
 	type BottomPanelSplitContent,
 	type BottomPanelSplitDirection,
-	bottomPanelStateAtom,
+	bottomPanelStateAtomFamily,
 	collectBottomPanelLeaves,
 	confirmDialogAtom,
-	dispatchBottomPanelAtom,
+	dispatchBottomPanelAtomFamily,
 	EXTERNAL_INVOCATION_COMPONENT_ID,
 	type ExternalInvocationPanelPayload,
 	findBottomPanelTab,
@@ -36,11 +36,14 @@ export interface BottomPanelTabActions {
  * 新 id 都在这里生成，reducer 只做状态转换——这样 reducer 保持纯函数、可精确断言，
  * 随机源只有这一个入口。
  */
-export function useBottomPanelTabs(definitions: readonly BottomPanelComponentDefinition[]): BottomPanelTabActions {
+export function useBottomPanelTabs(
+	scopeKey: string,
+	definitions: readonly BottomPanelComponentDefinition[],
+): BottomPanelTabActions {
 	const { t } = useTranslation("chat");
-	const state = useAtomValue(bottomPanelStateAtom);
+	const state = useAtomValue(bottomPanelStateAtomFamily(scopeKey));
 	const guards = useAtomValue(bottomPanelCloseGuardsAtom);
-	const dispatch = useSetAtom(dispatchBottomPanelAtom);
+	const dispatch = useSetAtom(dispatchBottomPanelAtomFamily(scopeKey));
 	const setConfirmDialog = useSetAtom(confirmDialogAtom);
 
 	const openComponent = useCallback(

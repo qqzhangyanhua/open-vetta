@@ -38,10 +38,11 @@ export function resetTerminalCapabilitiesCacheForTests(): void {
 	inFlight = undefined;
 }
 
-export function useTerminalCapabilities(): TerminalCapabilities {
+export function useTerminalCapabilities(enabled = true): TerminalCapabilities {
 	const [capabilities, setCapabilities] = useState<TerminalCapabilities>(cached ?? OPTIMISTIC);
 
 	useEffect(() => {
+		if (!enabled) return;
 		if (cached) return;
 		let active = true;
 		void loadCapabilities().then((result) => {
@@ -50,7 +51,7 @@ export function useTerminalCapabilities(): TerminalCapabilities {
 		return () => {
 			active = false;
 		};
-	}, []);
+	}, [enabled]);
 
 	return capabilities;
 }

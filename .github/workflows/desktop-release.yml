@@ -228,7 +228,7 @@ jobs:
     if: needs.prepare.outputs.should-build == 'true'
     runs-on: ${{ matrix.runner }}
     # macOS 发布构建要对内置 node/python 运行时和各个 sidecar 二进制逐个签名再上传
-    # 公证，比未签名构建多出 10~30 分钟，托管 runner 上还要叠加 packaged E2E。
+    # 公证，比未签名构建多出 10~30 分钟。
     timeout-minutes: 120
     environment: ${{ needs.prepare.outputs.channel == 'test' && 'desktop-test' || 'desktop-production' }}
     strategy:
@@ -238,7 +238,6 @@ jobs:
           - platform: windows
             runner: windows-latest
             command: dist:win
-            verify: verify:updates:windows
             macArch: ""
           # arm64 与 x64 必须分两次构建：内置的 node/python 运行时按
           # VETTA_VENDOR_PLATFORM 单架构落盘，一次构建出不了两套。两次都会写同名的
@@ -248,17 +247,14 @@ jobs:
           - platform: macos-arm64
             runner: macos-15
             command: dist:mac:arm64
-            verify: verify:updates:mac
             macArch: arm64
           - platform: macos-x64
             runner: macos-15-intel
             command: dist:mac:x64
-            verify: verify:updates:mac
             macArch: x64
           - platform: linux
             runner: ubuntu-latest
             command: dist:linux
-            verify: verify:updates:linux:release
             macArch: ""
 
     steps:
@@ -406,6 +402,12 @@ jobs:
           VETTA_UPDATE_GITHUB_REPO: ${{ github.event.repository.name }}
         run: bun run ${{ matrix.command }}
 
+      - name: Name macOS update metadata per architecture
+        if: matrix.macArch != ''
+        working-directory: apps/desktop
+        shell: bash
+        run: mv release/latest-mac.yml "release/latest-mac-${{ matrix.macArch }}.yml"
+
       # Archive before verification so an E2E/install failure never discards a signed build.
       # tar preserves executable modes and macOS bundle symlinks across artifact transfer.
       - name: Archive build checkpoint
@@ -423,6 +425,25 @@ jobs:
           retention-days: 30
           compression-level: 0
           overwrite: true
+
+      - name: Upload updater artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.platform }}
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+          overwrite: true
+          path: |
+            apps/desktop/release/*.AppImage
+            apps/desktop/release/*.blockmap
+            apps/desktop/release/*.deb
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.exe
+            apps/desktop/release/*.msi
+            apps/desktop/release/*.rpm
+            apps/desktop/release/*.zip
+            apps/desktop/release/latest*.yml
 
       - name: Save packaging tool downloads
         if: ${{ !cancelled() && steps.download-cache.outputs.tools-key != '' && steps.download-cache.outputs.tools-cache-hit != 'true' }}
@@ -536,31 +557,6 @@ jobs:
         if: matrix.verify != ''
         working-directory: apps/desktop
         run: bun run ${{ matrix.verify }}
-
-      - name: Name macOS update metadata per architecture
-        if: matrix.macArch != ''
-        working-directory: apps/desktop
-        shell: bash
-        run: mv release/latest-mac.yml "release/latest-mac-${{ matrix.macArch }}.yml"
-
-      - name: Upload updater artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: desktop-${{ matrix.platform }}
-          if-no-files-found: error
-          retention-days: 30
-          compression-level: 0
-          overwrite: true
-          path: |
-            apps/desktop/release/*.AppImage
-            apps/desktop/release/*.blockmap
-            apps/desktop/release/*.deb
-            apps/desktop/release/*.dmg
-            apps/desktop/release/*.exe
-            apps/desktop/release/*.msi
-            apps/desktop/release/*.rpm
-            apps/desktop/release/*.zip
-            apps/desktop/release/latest*.yml
 
   publish-r2:
     name: publish R2

@@ -1,5 +1,5 @@
 import { pathBasename } from "@shared/lib/utils";
-import { dispatchBottomPanelAtom, type ExternalInvocationPanelPayload } from "@shared/store/atoms";
+import { dispatchBottomPanelAtomFamily, type ExternalInvocationPanelPayload } from "@shared/store/atoms";
 import { atom } from "jotai";
 
 export const openExternalInvocationTabAtom = atom(
@@ -8,6 +8,7 @@ export const openExternalInvocationTabAtom = atom(
 		_get,
 		set,
 		input: {
+			readonly scopeKey: string;
 			readonly invocationId: string;
 			readonly status: ExternalInvocationPanelPayload["status"];
 			readonly cwd: string;
@@ -18,7 +19,7 @@ export const openExternalInvocationTabAtom = atom(
 			readonly createIfMissing?: boolean;
 		},
 	) => {
-		set(dispatchBottomPanelAtom, {
+		set(dispatchBottomPanelAtomFamily(input.scopeKey), {
 			type: "open-external-invocation",
 			tabId: input.invocationId,
 			newLeafId: `leaf-${input.invocationId}`,

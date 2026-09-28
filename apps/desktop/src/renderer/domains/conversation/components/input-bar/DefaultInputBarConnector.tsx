@@ -1,3 +1,5 @@
+import { InputBarToolbar } from "./InputBarToolbarActions";
+import { InputBarModelAction } from "./InputBarToolbar";
 import { useBottomPanelPills } from "@domains/bottom-panel/hooks/useBottomPanelPills";
 import { pathBasename, toVettaFileUrl } from "@shared/lib/utils";
 import type { InputBarContextMenuViewProps } from "@vetta-org/theme-ui/chat";
@@ -10,9 +12,10 @@ import {
 } from "@shared/store/external-recipient";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { useAtomValue, useSetAtom } from "jotai";
-import { memo, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { externalAgentLabel } from "../external-invocation/external-agent-label";
 import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
+import { SessionExternalInvocationPage } from "../external-invocation/SessionExternalInvocationPage";
 import { useTranslation } from "react-i18next";
 import { InputBar } from "../InputBar";
 import type { ActiveActionCapsule } from "./ActiveActionCapsules";
@@ -47,9 +50,17 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const recipientVersion = useSyncExternalStore(subscribeExternalRecipient, externalRecipientVersion, () => 0);
 	const storedRecipient = recipientVersion >= 0 ? externalRecipientFor(draftKey) : "penguin";
 	const [externalRecipientId, setExternalRecipientId] = useState(storedRecipient);
+	const [hideComposer, setHideComposer] = useState(false);
+	const externalSendRef = useRef<(() => void) | null>(null);
+	const bindExternalSend = useCallback((send: (() => void) | null) => {
+		externalSendRef.current = send;
+	}, []);
 	useEffect(() => {
 		setExternalRecipientId(storedRecipient);
 	}, [storedRecipient]);
+	useEffect(() => {
+		if (externalRecipientId === "penguin") setHideComposer(false);
+	}, [externalRecipientId]);
 	useEffect(() => {
 		const blocked = externalRecipientId !== "penguin";
 		setExternalImagesBlocked(blocked);
@@ -126,7 +137,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		}
 		return items;
 	}, [props.onSendQueued, session.activeSession, queue.items.length, queue.paused, interactions.sandboxPermission, t]);
-	const bottomPanelPills = useBottomPanelPills();
+	const bottomPanelPills = useBottomPanelPills(props.workSurface ?? null);
 	const todo = useMemo<InputBarTodoModel | null>(() => todoItems.length > 0 ? { items: todoItems, onOpenPanel: trigger.openTodoPanel } : null, [todoItems, trigger.openTodoPanel]);
 	const defaultPlaceholders = useMemo(() => {
 		const raw = t("inputBar.placeholder.defaults", { returnObjects: true });
@@ -202,7 +213,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		cancelPendingEditLabel: t("messageList.interrupt.cancel"),
 		contextMenu,
 		editor: { namespace: "chat-input" },
-		modelSelector: { updateActiveSession: true },
+		sendingExternally: externalRecipientId !== "penguin",
 		externalInvocation: {
 			session: session.activeSession ? { sessionId: session.activeSession.runtimeId, cwd: session.effectiveCwd } : null,
 			client: window.vetta?.externalInvocations ?? null,
@@ -215,13 +226,20 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 			referencedPaths: mentionedFiles.map((file) => file.path),
 			remote: isSshProjectUri(session.effectiveCwd),
 			ensureSession: props.onEnsureSession,
+			recipientId: externalRecipientId,
+			hideComposer,
+			onHideComposer: setHideComposer,
+			onBindSend: bindExternalSend,
+			onEditorSend: () => externalSendRef.current?.(),
 			onInvocationEvent: (event) => {
 				const active = session.activeSession;
-				if (!active) return;
+				const scopeKey = props.workSurface?.key ?? draftKey;
+				if (!active || !scopeKey) return;
 				if (event.type === "running" || event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
 					const status = event.type === "running" ? "running" : "finished";
 					invocationStatus.current[event.invocationId] = status;
 					placeExternalInvocation({
+						scopeKey,
 						invocationId: event.invocationId,
 						status,
 						cwd: session.effectiveCwd,
@@ -235,8 +253,10 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 			},
 			onViewInTerminal: (invocationId) => {
 				const active = session.activeSession;
-				if (!active) return;
+				const scopeKey = props.workSurface?.key ?? draftKey;
+				if (!active || !scopeKey) return;
 				placeExternalInvocation({
+					scopeKey,
 					invocationId,
 					status: invocationStatus.current[invocationId] ?? "finished",
 					cwd: session.effectiveCwd,
@@ -267,5 +287,33 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		},
 	};
 
-	return <InputBar model={model} />;
+	const external = model.externalInvocation;
+	return (
+		<InputBar model={model}>
+			<InputBarToolbar model={model}>
+				{external ? (
+					<SessionExternalInvocationPage
+						session={external.session}
+						client={external.client}
+						prompt={external.prompt}
+						onPromptChange={external.onPromptChange}
+						showPrompt={false}
+						penguinTools={null}
+						draftKey={external.draftKey}
+						images={external.images}
+						onRemoveImage={external.onRemoveImage}
+						referencedPaths={external.referencedPaths}
+						remote={external.remote}
+						ensureSession={external.ensureSession}
+						onBindSend={external.onBindSend}
+						onHideComposer={external.onHideComposer}
+						onRecipientChange={external.onRecipientChange}
+						onInvocationEvent={external.onInvocationEvent}
+						onViewInTerminal={external.onViewInTerminal}
+					/>
+				) : null}
+				<InputBarModelAction visible={!model.commands?.slashOpen && !model.sendingExternally} />
+			</InputBarToolbar>
+		</InputBar>
+	);
 });

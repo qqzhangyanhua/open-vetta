@@ -4,7 +4,7 @@ import { i18n, initI18n } from "@shared/i18n";
 import {
 	activeInputDraftKeyAtom,
 	activeSessionAtom,
-	bottomPanelStateAtom,
+	bottomPanelStateAtomFamily,
 	findBottomPanelTab,
 } from "@shared/store/atoms";
 import { cleanup, render, screen } from "@testing-library/react";
@@ -51,7 +51,7 @@ describe("external invocation history card", () => {
 			</Provider>,
 		);
 		await user.click(screen.getByRole("button", { name: "在终端查看" }));
-		const panel = store.get(bottomPanelStateAtom);
+		const panel = store.get(bottomPanelStateAtomFamily("/sessions/s.jsonl"));
 		expect(findBottomPanelTab(panel.root, "inv-1")?.tab.payload).toMatchObject({
 			invocationId: "inv-1",
 			status: "finished",

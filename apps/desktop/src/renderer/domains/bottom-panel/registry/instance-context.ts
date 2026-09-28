@@ -9,6 +9,15 @@ const BottomPanelFillContext = createContext(false);
 
 export const BottomPanelFillProvider = BottomPanelFillContext.Provider;
 
+const BottomPanelScopeKeyContext = createContext("bottom-panel:unbound");
+
+export const BottomPanelScopeKeyProvider = BottomPanelScopeKeyContext.Provider;
+
+/** 当前底部面板的工作表面 key。加号菜单等面板外控件用来把操作写进同一份状态。 */
+export function useBottomPanelScopeKey(): string {
+	return useContext(BottomPanelScopeKeyContext);
+}
+
 /** 外部智能体铺满主区时为 true：内容组件据此去掉状态行和内边距。 */
 export function useBottomPanelFill(): boolean {
 	return useContext(BottomPanelFillContext);

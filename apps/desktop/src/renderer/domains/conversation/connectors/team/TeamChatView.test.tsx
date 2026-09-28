@@ -55,6 +55,7 @@ function actions(): TeamChatActions {
 
 function model(): TeamChatViewModel {
 	return {
+		teamId: "team-1",
 		feedKey: "team-session",
 		title: "Team",
 		status: "streaming",
@@ -114,6 +115,8 @@ describe("TeamChatView shared conversation UI", () => {
 			<TeamChatView
 				model={viewModel}
 				actions={actions()}
+				workSurface={null}
+				exportState={{ title: "Team export", onFinished: vi.fn() }}
 				onOpenMember={onOpenMember}
 				onBackToTeam={vi.fn()}
 				onOpenSettings={vi.fn()}
@@ -130,6 +133,9 @@ describe("TeamChatView shared conversation UI", () => {
 			}),
 		);
 		expect(captured.view.mock.calls[0]?.[0].messages).toBe(viewModel.feedItems);
+		expect(captured.view.mock.calls[0]?.[0].exportState).toEqual(
+			expect.objectContaining({ title: "Team export", participants: viewModel.members }),
+		);
 		expect(captured.feed.mock.calls[0]?.[0].messages).toBe(viewModel.feedItems);
 	});
 
@@ -143,6 +149,7 @@ describe("TeamChatView shared conversation UI", () => {
 			<TeamChatView
 				model={viewModel}
 				actions={viewActions}
+				workSurface={null}
 				onOpenMember={onOpenMember}
 				onBackToTeam={onBackToTeam}
 				onOpenSettings={onOpenSettings}
@@ -153,6 +160,7 @@ describe("TeamChatView shared conversation UI", () => {
 			<TeamChatView
 				model={{ ...viewModel, draft: "next question" }}
 				actions={viewActions}
+				workSurface={null}
 				onOpenMember={onOpenMember}
 				onBackToTeam={onBackToTeam}
 				onOpenSettings={onOpenSettings}
@@ -175,6 +183,7 @@ describe("TeamChatView shared conversation UI", () => {
 			<TeamChatView
 				model={viewModel}
 				actions={actions()}
+				workSurface={null}
 				onOpenMember={vi.fn()}
 				onBackToTeam={vi.fn()}
 				onOpenSettings={vi.fn()}
@@ -203,6 +212,7 @@ describe("TeamChatView shared conversation UI", () => {
 			<TeamChatView
 				model={viewModel}
 				actions={actions()}
+				workSurface={null}
 				onOpenMember={vi.fn()}
 				onBackToTeam={vi.fn()}
 				onOpenSettings={vi.fn()}

@@ -4,6 +4,8 @@ import { cn } from "@shared/lib/utils";
 import { PerfSendProfiler } from "@shared/lib/perf-send";
 import type { ChatConversationItem } from "@shared/store/atoms";
 import type { ActivityWorkspace } from "@shared/workspace/activity-workspace";
+import type { WorkSurfaceScope } from "@shared/workspace/work-surface";
+import type { ConversationParticipantViewModel } from "@shared/conversation";
 import type { ActivityTabId } from "@domains/activity-panel/registry/types";
 import type { ConversationScenario } from "@vetta-org/plugin-sdk";
 import { memo, type ReactNode } from "react";
@@ -20,10 +22,12 @@ export interface DefaultChatViewProps {
 	readonly subHeader?: ReactNode;
 	readonly messages: readonly ChatConversationItem[];
 	readonly workspace: ActivityWorkspace;
+	readonly workSurface: WorkSurfaceScope | null;
 	readonly rootClassName?: string;
 	readonly exportState?: {
 		readonly title: string;
 		readonly onFinished: () => void;
+		readonly participants?: readonly ConversationParticipantViewModel[];
 	};
 	readonly activity?: {
 		readonly enablePluginTabs?: boolean;
@@ -78,6 +82,7 @@ export function DefaultChatView({
 	subHeader,
 	messages,
 	workspace,
+	workSurface,
 	rootClassName,
 	exportState,
 	activity,
@@ -87,7 +92,12 @@ export function DefaultChatView({
 		<PerfSendProfiler id="ChatView(total)">
 			<div className={cn("flex h-full min-w-0 flex-1 flex-col bg-background", rootClassName)}>
 				{exportState ? (
-					<ChatExportHost messages={messages} title={exportState.title} onFinished={exportState.onFinished} />
+					<ChatExportHost
+						messages={messages}
+						title={exportState.title}
+						participants={exportState.participants}
+						onFinished={exportState.onFinished}
+					/>
 				) : null}
 				<div className="flex min-h-0 flex-1 gap-2 overflow-visible">
 					{/*
@@ -103,7 +113,7 @@ export function DefaultChatView({
 						 * 切走会卸掉 xterm，readOutput 回来时 _renderService 已空，报 dimensions。
 						 * 宽度跟着消息列走，不伸到活动面板下方。
 						 */}
-						<BottomPanelHost fill={surface === "external-terminal"} />
+						<BottomPanelHost scope={workSurface} fill={surface === "external-terminal"} />
 						{surface === "external-terminal" ? children : null}
 					</div>
 					{surface === "external-terminal" ? null : (

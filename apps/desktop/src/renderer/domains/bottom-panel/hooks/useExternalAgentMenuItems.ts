@@ -1,9 +1,10 @@
 import { pathBasename } from "@shared/lib/utils";
-import { activeSessionAtom, dispatchBottomPanelAtom } from "@shared/store/atoms";
+import { activeSessionAtom, dispatchBottomPanelAtomFamily } from "@shared/store/atoms";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useBottomPanelScopeKey } from "../registry/instance-context";
 
 const AGENT_LABEL_KEY = {
 	grok: "externalInvocation.agent.grok",
@@ -34,10 +35,14 @@ export interface ExternalAgentMenuItem {
 	pick(): void;
 }
 
-export function useExternalAgentMenuItems(): readonly ExternalAgentMenuItem[] {
+export function useExternalAgentMenuItems(explicitScopeKey?: string): readonly ExternalAgentMenuItem[] {
 	const { t } = useTranslation("chat");
 	const session = useAtomValue(activeSessionAtom);
-	const dispatch = useSetAtom(dispatchBottomPanelAtom);
+	const panelScopeKey = useBottomPanelScopeKey();
+	const scopeKey =
+		explicitScopeKey ??
+		(panelScopeKey === "bottom-panel:unbound" ? (session?.sessionPath ?? panelScopeKey) : panelScopeKey);
+	const dispatch = useSetAtom(dispatchBottomPanelAtomFamily(scopeKey));
 	const [agents, setAgents] = useState<readonly { id: string; label: string }[]>([]);
 
 	useEffect(() => {
