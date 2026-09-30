@@ -37,6 +37,7 @@ const requestMethods = new Set([
 	"file.list",
 	"file.stat",
 	"file.read",
+	"screen.subscribe",
 ]);
 const eventNames = new Set([
 	"device.status",
@@ -49,6 +50,8 @@ const eventNames = new Set([
 	"session.input",
 	"session.resync",
 	"diagnostics.updated",
+	"screen.status",
+	"screen.cursor",
 ]);
 const errorCodes = new Set([
 	"invalid_frame",

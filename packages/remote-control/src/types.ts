@@ -92,7 +92,8 @@ export type RemoteRequestMethod =
 	| "diagnostics.snapshot"
 	| "file.list"
 	| "file.stat"
-	| "file.read";
+	| "file.read"
+	| "screen.subscribe";
 
 export interface RemoteRequest {
 	readonly type: "request";
@@ -121,7 +122,11 @@ export type RemoteEventName =
 	| "session.tool"
 	| "session.input"
 	| "session.resync"
-	| "diagnostics.updated";
+	| "diagnostics.updated"
+	/** Sent only to a phone subscribed to the screen, which declared `screen` in its hello (ADR-0140). */
+	| "screen.status"
+	/** Sent only to a phone that subscribed with `cursor: true` and draws the pointer itself. */
+	| "screen.cursor";
 
 export interface RemoteEvent {
 	readonly type: "event";
@@ -262,6 +267,8 @@ export interface RemoteConnectionSnapshot extends RemoteDiagnostics {
 	readonly peerDeviceId?: string;
 	/** The name the peer gave in its hello; only the accepting end hears one. */
 	readonly peerDeviceName?: string;
+	/** What the peer declared in its hello; only the accepting end hears one. */
+	readonly peerCapabilities?: RemoteCapabilities;
 	readonly peerIdentityKey?: string;
 	/** Six-digit code both ends can display to confirm a manual pairing. */
 	readonly verificationCode?: string;

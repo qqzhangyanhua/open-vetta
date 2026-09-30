@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.FilterAltOff
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.Settings
@@ -73,6 +75,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -87,6 +90,7 @@ import org.vetta.android.resources.Res
 import org.vetta.android.resources.app_name
 import org.vetta.android.resources.cancel
 import org.vetta.android.resources.close
+import org.vetta.android.resources.home_connect_computer
 import org.vetta.android.resources.home_no_results
 import org.vetta.android.resources.home_no_results_hint
 import org.vetta.android.resources.home_search
@@ -113,7 +117,8 @@ import org.vetta.android.ui.work.WorkActions
 import org.vetta.android.ui.work.workColors
 
 /** One of Home's ways in, above the sessions. */
-data class HomeEntry(val icon: ImageVector, val title: String, val tag: String, val onClick: () -> Unit)
+/** One of Home's ways in; `detail` says where it leads, on the right, such as the project a new session starts in. */
+data class HomeEntry(val icon: ImageVector, val title: String, val tag: String, val onClick: () -> Unit, val detail: String? = null)
 
 /**
  * The drawer over the slot (the iPhone's `HomeView`): the Vetta title stays at the top,
@@ -305,7 +310,17 @@ private fun EntryRow(entry: HomeEntry, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Icon(entry.icon, contentDescription = null, modifier = Modifier.size(24.dp))
-        Text(entry.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+        Text(entry.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+        entry.detail?.let {
+            Text(
+                it,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.widthIn(max = 160.dp).testTag("${entry.tag}.detail"),
+            )
+        }
     }
 }
 
@@ -445,10 +460,43 @@ private fun SearchField(query: String, onQueryChange: (String) -> Unit, onCancel
 @Composable
 fun remoteEntry(onClick: () -> Unit) = HomeEntry(Icons.Outlined.DesktopWindows, stringResource(Res.string.remote_control), "home.remote", onClick)
 
+/** Home's way to pair. [computerName] is the paired computer, shown on the right. */
+@Composable
+fun connectComputerEntry(computerName: String? = null, onClick: () -> Unit) =
+    HomeEntry(Icons.Outlined.QrCodeScanner, stringResource(Res.string.home_connect_computer), "home.connect", onClick, detail = computerName)
+
+/**
+ * The name beside [connectComputerEntry]: the paired computer's, and nothing while unpaired
+ * or when the record has no name. An earlier computer can still be remembered after unpairing.
+ */
+fun connectComputerDetail(paired: Boolean, desktopName: String?): String? =
+    desktopName?.takeIf { paired && it.isNotBlank() }
+
+/**
+ * Home's menu, in the order it is shown: a new session, the task board, connecting a computer,
+ * then the computer's screen once it can be reached.
+ */
+@Composable
+fun homeEntries(
+    projectName: String?,
+    computerName: String?,
+    onNewSession: () -> Unit,
+    onOpenBoard: () -> Unit,
+    onConnect: () -> Unit,
+    onRemote: (() -> Unit)?,
+): List<HomeEntry> =
+    listOfNotNull(
+        newSessionEntry(projectName, onNewSession),
+        taskBoardEntry(onOpenBoard),
+        connectComputerEntry(computerName, onConnect),
+        onRemote?.let { remoteEntry(it) },
+    )
+
 /** Home's way to the task board. */
 @Composable
 fun taskBoardEntry(onClick: () -> Unit) = HomeEntry(Icons.Outlined.Dashboard, stringResource(Res.string.home_task_board), "home.taskBoard", onClick)
 
 /** Home's standard way in: a blank New Session. */
 @Composable
-fun newSessionEntry(onClick: () -> Unit) = HomeEntry(Icons.Outlined.EditNote, stringResource(Res.string.new_session_title), "home.newSession", onClick)
+fun newSessionEntry(project: String? = null, onClick: () -> Unit) =
+    HomeEntry(Icons.Outlined.EditNote, stringResource(Res.string.new_session_title), "home.newSession", onClick, detail = project)

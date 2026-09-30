@@ -29,10 +29,14 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.vetta.android.data.remote.SessionCache
 import org.vetta.android.domain.remote.RemoteApi
+import org.vetta.android.domain.remote.RemoteFileEntry
+import org.vetta.android.domain.remote.RemoteFileInfo
 import org.vetta.android.domain.remote.RemoteMessageEvent
 import org.vetta.android.domain.remote.RemoteModelOption
 import org.vetta.android.domain.remote.RemoteProjectSummary
 import org.vetta.android.domain.remote.RemoteQuestionAnswer
+import org.vetta.android.domain.remote.RemoteScreenCursor
+import org.vetta.android.domain.remote.RemoteScreenStatus
 import org.vetta.android.domain.remote.RemoteSessionState
 import org.vetta.android.domain.remote.RemoteSessionStatus
 import org.vetta.android.domain.remote.RemoteSessionSummary
@@ -125,12 +129,37 @@ data class MirrorState(
      * had from it stays readable. Pairing with that computer again carries on from there.
      */
     val unlinked: UnlinkReason? = null,
+    /**
+     * What the desktop said about its screen while the remote screen is open; null
+     * otherwise, and from desktops that share it without being asked (ADR-0140).
+     */
+    val screen: RemoteScreenStatus? = null,
+    /** Skills the composer may reference, per project; "" holds the global ones. In memory only. */
+    val skillCatalogs: Map<String, SkillCatalog> = emptyMap(),
+    /** The desktop's pointer shape while the screen is open; null draws a plain arrow. */
+    val screenCursor: RemoteScreenCursor? = null,
 ) {
     val online: Boolean
         get() = link.isUsable
 
     val conversationCwd: String?
         get() = projects.firstOrNull { it.isConversation }?.cwd
+
+    /** The skill list for a prompt in `cwd`: a project's, or the global one. */
+    fun skillCatalog(cwd: String?): SkillCatalog = skillCatalogs[skillScope(cwd)] ?: SkillCatalog()
+
+    /** The desktop's display name for a referenced skill, when any list has it. */
+    fun skillName(skill: SkillReference): String =
+        skillCatalogs.values.firstNotNullOfOrNull { catalog -> catalog.options?.firstOrNull { it.id == skill.id }?.displayName } ?: skill.name
+
+    /** A project's own skills, or "" for the global list: the conversation root has none of its own. */
+    fun skillScope(cwd: String?): String = cwd?.takeIf { it.isNotEmpty() && it != conversationCwd } ?: ""
+
+    /** What to call the project at `cwd`: its name on the desktop, else its folder's. */
+    fun projectName(cwd: String): String =
+        projects.firstOrNull { it.cwd == cwd }?.name
+            ?: sessions.firstOrNull { it.projectCwd == cwd }?.projectName
+            ?: cwd.trimEnd('/', '\\').substringAfterLast('/').substringAfterLast('\\')
 
     fun count(group: SessionStatusGroup): Int = sessions.count { SessionStatusGroup.of(it.status) == group }
 
@@ -184,11 +213,22 @@ class DesktopMirror(
     private var link: DesktopLink? = null
     private var linkJobs = emptyList<Job>()
     private var desktopKey: String? = null
+
+    private val fileCache = FileContentCache()
+
+    /** Sessions [startSession] just sent their first prompt to; see [openSession]. */
+    private val freshSessions = mutableSetOf<String>()
     private var flow: PairingFlow? = null
     private val transcriptSaves = mutableMapOf<String, Job>()
     private var unsavedSequence: Pair<String, Long>? = null
     private var sequenceSave: Job? = null
     private var active = true
+
+    /** The remote screen is open; the desktop captures only while it is and the app is in front. */
+    private var screenOpen = false
+
+    /** The desktop answers `screen.subscribe`, from its last `device.status`. */
+    private var desktopScreen = false
     private var newSessionModelsLoad: Deferred<Unit>? = null
     private var recentSync: Job? = null
 
@@ -219,6 +259,39 @@ class DesktopMirror(
         if (!value) saveProgress()
         link?.setForeground(value)
         if (value && !wasActive) link?.refresh()
+        if (screenOpen && value != wasActive) syncScreen()
+    }
+
+    /** The remote screen opened or closed: the desktop starts or stops capturing (ADR-0140). */
+    fun setScreenOpen(open: Boolean) {
+        if (screenOpen == open) return
+        screenOpen = open
+        syncScreen()
+    }
+
+    private fun syncScreen() {
+        val current = link ?: return
+        val wanted = screenOpen && active
+        if (!wanted) mutate { it.copy(screen = null, screenCursor = null) }
+        // An older desktop shares the screen whenever the P2P link is up and knows no such request.
+        if (!desktopScreen) return
+        scope.launch {
+            try {
+                // `cursor`: this phone draws the pointer itself and wants its shape (ADR-0140).
+                val result =
+                    current.request(
+                        RemoteRequestMethod.ScreenSubscribe,
+                        buildJsonObject {
+                            put("active", wanted)
+                            if (wanted) put("cursor", true)
+                        },
+                    )
+                // A later open or close has its own answer coming.
+                if (wanted == (screenOpen && active)) mutate { it.copy(screen = if (wanted) RemoteApi.readScreenStatus(result) else null) }
+            } catch (error: Throwable) {
+                platform.logger.warn("screen subscription failed", mapOf("active" to wanted, "error" to (error.message ?: "")))
+            }
+        }
     }
 
     fun refreshLink() {
@@ -325,6 +398,8 @@ class DesktopMirror(
 
     private fun attachLink(record: DesktopRecord) {
         detachLink()
+        freshSessions.clear()
+        fileCache.clear()
         val key = record.desktopIdentityKey
         desktopKey = key
         val cached = platform.cache.loadSessions(key)
@@ -343,6 +418,7 @@ class DesktopMirror(
                         ?.let { runCatching { json.decodeFromString(ModelChoice.serializer(), it) }.getOrNull() }
                         ?: ModelChoice(),
                 transcripts = emptyMap(),
+                skillCatalogs = emptyMap(),
                 link = LinkSnapshot.Offline,
             )
         }
@@ -474,7 +550,17 @@ class DesktopMirror(
         val sessionId = event.sessionId
         when (event.name) {
             RemoteEventName.DeviceRevoked -> onRevoked()
-            RemoteEventName.DeviceStatus -> followRelay(RemoteApi.readDeviceStatus(event.payload)?.relayBaseUrl)
+            RemoteEventName.DeviceStatus -> {
+                val status = RemoteApi.readDeviceStatus(event.payload)
+                followRelay(status?.relayBaseUrl)
+                desktopScreen = status?.screen == true
+                // Sent on every connection: a desktop that lost the phone for a moment forgot it was watching.
+                if (screenOpen && active) syncScreen()
+            }
+            RemoteEventName.ScreenStatus ->
+                if (screenOpen && active) mutate { it.copy(screen = RemoteApi.readScreenStatus(event.payload) ?: it.screen) }
+            RemoteEventName.ScreenCursor ->
+                if (screenOpen && active) RemoteApi.readScreenCursor(event.payload)?.let { cursor -> mutate { it.copy(screenCursor = cursor) } }
             RemoteEventName.SessionList -> keepSessions(RemoteApi.readSessionSummaries(event.payload))
             RemoteEventName.SessionState -> {
                 if (sessionId == null) return
@@ -612,7 +698,13 @@ class DesktopMirror(
         }
     }
 
+    /**
+     * Fetches the session's history, except right after [startSession]: the desktop
+     * accepts a prompt before its agent records it, so history taken then lacks the
+     * prompt and would wipe it off the chat. The chat already has everything then.
+     */
     suspend fun openSession(sessionId: String) {
+        val fresh = freshSessions.remove(sessionId) && _state.value.transcripts[sessionId]?.stale == false
         val key = desktopKey
         // Events for a chat never opened leave only a partial one: the cached copy is fuller.
         if (_state.value.transcripts[sessionId]?.loaded != true && key != null) {
@@ -624,6 +716,10 @@ class DesktopMirror(
         try {
             val current = requireLink()
             val opened = current.request(RemoteRequestMethod.SessionOpen, sessionId = sessionId)
+            if (fresh) {
+                patchSession(sessionId) { it.copy(live = true) }
+                return
+            }
             val history = current.request(RemoteRequestMethod.SessionHistory, sessionId = sessionId)
             val entries = RemoteApi.readTranscriptEntries(history)
             val sessionState = RemoteApi.readSessionState((history as? JsonObject)?.get("state") ?: (opened as? JsonObject)?.get("state"))
@@ -633,6 +729,70 @@ class DesktopMirror(
             // Offline: what was loaded or cached stays on screen.
         } catch (error: Throwable) {
             reportError(error)
+        }
+    }
+
+    // Files (ADR-0139)
+
+    private fun requireFiles(): DesktopLink {
+        val current = requireLink()
+        if (_state.value.link.desktop?.fileRead != true) throw FileViewException(FileViewError.UnsupportedDesktop)
+        return current
+    }
+
+    /** A folder inside the session's working directory; "" is the directory itself. Throws [FileViewException]. */
+    suspend fun listFiles(sessionId: String, path: String): List<RemoteFileEntry> =
+        fileRequest {
+            val payload = if (path.isEmpty()) null else buildJsonObject { put("path", path) }
+            RemoteApi.readFileEntries(requireFiles().request(RemoteRequestMethod.FileList, payload, sessionId))
+                .sortedWith(compareBy<RemoteFileEntry> { !it.isDirectory }.thenBy { it.name.lowercase() })
+        }
+
+    /** What `href` (a link as the assistant wrote it, or a listed path) points at. Throws [FileViewException]. */
+    suspend fun statFile(sessionId: String, href: String): RemoteFileInfo =
+        fileRequest {
+            RemoteApi.readFileInfo(requireFiles().request(RemoteRequestMethod.FileStat, buildJsonObject { put("path", href) }, sessionId))
+                ?: throw FileViewException(FileViewError.Failed)
+        }
+
+    /** The whole file, from this launch's cache while it is unchanged. Throws [FileViewException]. */
+    suspend fun readFile(sessionId: String, info: RemoteFileInfo): FileContent =
+        fileRequest {
+            if (info.isDirectory) throw FileViewException(FileViewError.NotAFile)
+            // Not judged by `info.size`: the desktop scales a large photo down to fit, so only
+            // the size of what it sends, in the first chunk, says whether it is too large.
+            fileCache.get(sessionId, info)?.let { return@fileRequest it }
+            val current = requireFiles()
+            RemoteFileReader.read(info.path, { RemoteFileReader.chunkBytes(_state.value.link.channel) }) { payload ->
+                current.request(RemoteRequestMethod.FileRead, payload, sessionId)
+            }.also { fileCache.put(sessionId, info, it) }
+        }
+
+    private inline fun <T> fileRequest(block: () -> T): T =
+        try {
+            block()
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Throwable) {
+            throw error as? FileViewException ?: FileViewException(FileViewError.from(error))
+        }
+
+    /**
+     * Fetches the skills a prompt in `cwd` may reference; the last list stays on screen
+     * meanwhile. `cwd` is a project, or null or the conversation root for the global ones.
+     */
+    suspend fun loadSkills(cwd: String?) {
+        val scope = _state.value.skillScope(cwd)
+        if (_state.value.skillCatalogs[scope]?.loading == true) return
+        mutate { it.copy(skillCatalogs = it.skillCatalogs + (scope to (it.skillCatalogs[scope] ?: SkillCatalog()).copy(loading = true, failed = false))) }
+        try {
+            val payload = if (scope.isEmpty()) null else buildJsonObject { put("cwd", scope) }
+            val options = RemoteApi.readSkillOptions(requireLink().request(RemoteRequestMethod.SkillList, payload))
+            mutate { it.copy(skillCatalogs = it.skillCatalogs + (scope to SkillCatalog(options))) }
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            mutate { it.copy(skillCatalogs = it.skillCatalogs + (scope to (it.skillCatalogs[scope] ?: SkillCatalog()).copy(loading = false, failed = true))) }
+            platform.logger.info("skill.list failed", mapOf("error" to error::class.simpleName))
         }
     }
 
@@ -775,6 +935,7 @@ class DesktopMirror(
                 }
                 configure(target, modelKey, thinkingLevel)
                 deliver(target, trimmed, attachments, echo = false)
+                freshSessions += target
             } catch (error: Throwable) {
                 if (error is CancellationException) throw error
                 mutate { it.copy(transcripts = it.transcripts - localId) }
@@ -847,7 +1008,8 @@ class DesktopMirror(
                 }
             requireLink().request(RemoteRequestMethod.SessionRespond, payload, sessionId)
             dispatch(sessionId, TranscriptAction.QuestionResolved(requestId))
-            patchSession(sessionId) { it.copy(status = RemoteSessionStatus.Running) }
+            // The desktop's next state may already be in, such as the end of the turn.
+            patchSession(sessionId) { if (it.status == RemoteSessionStatus.WaitingInput) it.copy(status = RemoteSessionStatus.Running) else it }
             true
         } catch (error: Throwable) {
             reportError(error)

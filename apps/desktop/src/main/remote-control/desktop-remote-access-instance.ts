@@ -2,7 +2,7 @@ import { realpath } from "node:fs/promises";
 import { homedir } from "node:os";
 import path, { basename } from "node:path";
 import { getAppMonitorSnapshot } from "../app-monitor/app-monitor-service.js";
-import { DEFAULT_CONVERSATION_CWD, readDesktopConfig, writeDesktopConfig } from "../config/desktop-config-store.js";
+import { DEFAULT_CONVERSATION_CWD, readDesktopConfig, updateDesktopConfig } from "../config/desktop-config-store.js";
 import { onConversationListChanged } from "../conversations/conversation-list-events.js";
 import { getDesktopConversationService } from "../conversations/desktop-conversation-service.js";
 import { createDesktopSessionCommands } from "../conversations/desktop-session-commands.js";
@@ -22,9 +22,11 @@ import { desktopDeviceId, desktopDisplayName, desktopHardware, formatOsLabel } f
 import type { DesktopRemoteDesktopController } from "./desktop-remote-access-manager.js";
 import { DesktopRemoteAccessManager } from "./desktop-remote-access-manager.js";
 import { DesktopRemoteMirror } from "./desktop-remote-mirror.js";
+import { readMacCursor } from "./mac-cursor.js";
 import { RemoteDeviceStore } from "./remote-device-store.js";
 import { RemoteFiles } from "./remote-files.js";
 import { scaleImageForPhone } from "./remote-image-scale.js";
+import { desktopScreenPermissions } from "./remote-screen-permissions.js";
 import { toRemoteSkillOptions } from "./remote-skills.js";
 import { saveRemoteUpload } from "./remote-upload-store.js";
 
@@ -42,7 +44,7 @@ export function getDesktopRemoteAccessManager(
 	manager ??= new DesktopRemoteAccessManager({
 		store: new RemoteDeviceStore({
 			readConfig: readDesktopConfig,
-			writeConfig: writeDesktopConfig,
+			updateConfig: updateDesktopConfig,
 			vault: getDesktopCredentialVault(),
 			defaultRelayBaseUrl,
 		}),
@@ -50,10 +52,14 @@ export function getDesktopRemoteAccessManager(
 		deviceName: desktopDisplayName(),
 		osLabel: formatOsLabel(),
 		remoteDesktop,
+		screenPermissions: desktopScreenPermissions,
+		readCursor: process.platform === "darwin" ? readMacCursor : undefined,
 		runningSessionCount: () => getSharedRuntime().getRunningSessionPaths().length,
 		notifications: {
 			deviceConnected: ({ name }) => void notify({ type: "remote-device-connected", deviceName: name }),
 			pairingRequested: ({ deviceName, code }) => void notify({ type: "remote-pairing-request", deviceName, code }),
+			screenPermissionMissing: ({ deviceName, screen, input }) =>
+				void notify({ type: "remote-screen-permission", deviceName, screen, input }),
 		},
 		createMirror: (emit, deviceStatus) =>
 			new DesktopRemoteMirror({

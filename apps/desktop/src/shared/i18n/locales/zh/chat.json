@@ -3,7 +3,6 @@
 		"title": "问答批注",
 		"ask": "问问 AI",
 		"history": "查看问答批注",
-		"messageMenu": "消息更多操作",
 		"saved": "查看 {{count}} 条问答批注",
 		"close": "关闭批注",
 		"contextHint": "参考截至此处的文字对话，单独讨论，不影响主对话。问答自动保存。",
@@ -559,6 +558,9 @@
 		},
 		"planMode": {
 			"label": "计划模式"
+		},
+		"goalMode": {
+			"label": "目标模式"
 		}
 	},
 	"externalInvocation": {
@@ -717,6 +719,7 @@
 		"layoutStacked": "收纳"
 	},
 	"messageList": {
+		"scrollToBottom": "滚动到底部",
 		"userMessage": {
 			"expand": "展开消息",
 			"sceneBadge": "场景",
@@ -1030,6 +1033,29 @@
 			"dismissed": "尚未决定",
 			"pending": "等待你批准",
 			"title": "计划"
+		}
+	},
+	"goalMode": {
+		"dialog": {
+			"cancel": "取消",
+			"clear": "清除目标",
+			"createDescription": "Vetta 会持续迭代，直到目标完成、受阻或暂停。",
+			"manageDescription": "查看当前目标状态，或恢复和清除目标。",
+			"objectiveLabel": "目标",
+			"objectivePlaceholder": "描述一个具体、可验证的最终结果…",
+			"resume": "继续目标",
+			"start": "开始执行",
+			"statusLabel": "状态",
+			"title": "目标模式",
+			"usage": "已使用 {{used}} Token · 自动续跑 {{count}} 次"
+		},
+		"operationFailed": "目标操作失败",
+		"status": {
+			"active": "执行中",
+			"blocked": "受阻",
+			"complete": "已完成",
+			"paused": "已暂停",
+			"usage_limited": "用量受限"
 		}
 	},
 	"questionPanel": {

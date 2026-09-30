@@ -236,6 +236,7 @@ export { resolveOfficialSessionOrigin } from "./official.js";
 export type {
 	PluginFsEntry,
 	PluginFsFileRef,
+	PluginFsListFilesRecursiveOptions,
 	PluginFsBinaryReadResult,
 	PluginFsStatResult,
 	PluginFsReadResult,
@@ -433,6 +434,7 @@ export type {
 	PluginBottomPanelContextValue,
 	PluginBottomPanelMeta,
 	PluginBottomPanelStatus,
+	PluginBottomPanelTerminalRequest,
 } from "./bottom-panel.js";
 export { __BottomPanelContext, useBottomPanel } from "./bottom-panel.js";
 

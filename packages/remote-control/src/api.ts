@@ -187,6 +187,40 @@ export const REMOTE_FILE_CHUNK_BYTES = 700 * 1024;
 /** Largest file the phone may preview, the desktop's own preview limit. */
 export const REMOTE_MAX_FILE_BYTES = 10 * 1024 * 1024;
 
+/**
+ * The desktop's screen as the phone may see it (ADR-0140). `stopped` while no phone
+ * subscribes; `permission_denied` when macOS withholds Screen Recording, so the phone
+ * explains it instead of showing black; `unavailable` when capture failed otherwise.
+ */
+export type RemoteScreenState = "stopped" | "streaming" | "permission_denied" | "unavailable";
+
+/**
+ * Whether taps and keys reach the desktop: `permission_denied` when macOS withholds
+ * Accessibility, `unsupported` on a system without input injection.
+ */
+export type RemoteInputState = "ready" | "permission_denied" | "unsupported";
+
+export interface RemoteScreenStatus {
+	readonly screen: RemoteScreenState;
+	readonly input: RemoteInputState;
+}
+
+/**
+ * The pointer as the desktop shows it now (arrow, I-beam, hand…), for a phone that draws
+ * the pointer itself where its finger put it instead of waiting for the video. Sizes are
+ * in the desktop's points; `screenWidth` is the display's, so the phone can scale it.
+ */
+export interface RemoteScreenCursor {
+	/** base64 PNG. */
+	readonly image: string;
+	readonly width: number;
+	readonly height: number;
+	/** The point of the image that is the pointer's position, from its top-left. */
+	readonly hotspotX: number;
+	readonly hotspotY: number;
+	readonly screenWidth: number;
+}
+
 export interface RemoteDeviceStatus {
 	readonly deviceName: string;
 	readonly osLabel?: string;
@@ -210,6 +244,12 @@ export interface RemoteDeviceStatus {
 	 * those methods, so the phone must not send them.
 	 */
 	readonly fileRead?: boolean;
+	/**
+	 * Whether the desktop answers `screen.subscribe` and captures only while a phone
+	 * subscribes (ADR-0140). Older desktops leave it out and stream whenever a P2P link
+	 * is up; the iPhone does not open one to them.
+	 */
+	readonly screen?: boolean;
 }
 
 /** Sealed follow-up to a manual pairing approval; carries the long-lived credential. */
@@ -269,6 +309,15 @@ export interface RemoteRequestPayloads {
 		/** From the first chunk, so a file rewritten mid-read answers `file_changed` instead of mixing versions. */
 		readonly modifiedAt?: number;
 	};
+	/**
+	 * `true` when the remote desktop screen opens, `false` when it closes or the app
+	 * leaves the foreground. The desktop captures only between the two.
+	 */
+	readonly "screen.subscribe": {
+		readonly active: boolean;
+		/** The phone draws the pointer itself and wants `screen.cursor` whenever its shape changes. */
+		readonly cursor?: boolean;
+	};
 }
 
 export interface RemoteResponsePayloads {
@@ -295,6 +344,7 @@ export interface RemoteResponsePayloads {
 	readonly "file.list": { readonly path: string; readonly entries: readonly RemoteFileEntry[] };
 	readonly "file.stat": { readonly file: RemoteFileInfo };
 	readonly "file.read": RemoteFileChunk;
+	readonly "screen.subscribe": RemoteScreenStatus;
 }
 
 export interface RemoteEventPayloads {
@@ -312,6 +362,9 @@ export interface RemoteEventPayloads {
 		  };
 	readonly "session.resync": undefined;
 	readonly "diagnostics.updated": RemoteDiagnosticsSnapshot;
+	/** The screen or input state changed while subscribed, e.g. a permission was granted. */
+	readonly "screen.status": RemoteScreenStatus;
+	readonly "screen.cursor": RemoteScreenCursor;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -497,6 +550,7 @@ export function readDeviceStatus(value: unknown): RemoteDeviceStatus | undefined
 		desktopControl: typeof value.desktopControl === "boolean" ? value.desktopControl : undefined,
 		relayBaseUrl: str(value.relayBaseUrl),
 		fileRead: value.fileRead === true,
+		screen: value.screen === true,
 	};
 }
 
@@ -598,5 +652,37 @@ export function readFileChunk(value: unknown): RemoteFileChunk | undefined {
 		totalSize,
 		modifiedAt: num(value.modifiedAt) ?? 0,
 		mimeType: str(value.mimeType) ?? "application/octet-stream",
+	};
+}
+
+const screenStates = new Set<RemoteScreenState>(["stopped", "streaming", "permission_denied", "unavailable"]);
+const inputStates = new Set<RemoteInputState>(["ready", "permission_denied", "unsupported"]);
+
+/** An unknown state from a newer desktop reads as `unavailable` / `unsupported`. */
+export function readScreenStatus(value: unknown): RemoteScreenStatus | undefined {
+	if (!isRecord(value)) return undefined;
+	const screen = str(value.screen);
+	const input = str(value.input);
+	if (screen === undefined || input === undefined) return undefined;
+	return {
+		screen: screenStates.has(screen as RemoteScreenState) ? (screen as RemoteScreenState) : "unavailable",
+		input: inputStates.has(input as RemoteInputState) ? (input as RemoteInputState) : "unsupported",
+	};
+}
+
+export function readScreenCursor(value: unknown): RemoteScreenCursor | undefined {
+	if (!isRecord(value)) return undefined;
+	const image = str(value.image);
+	const width = num(value.width);
+	const height = num(value.height);
+	const screenWidth = num(value.screenWidth);
+	if (!image || !width || !height || !screenWidth || width <= 0 || height <= 0 || screenWidth <= 0) return undefined;
+	return {
+		image,
+		width,
+		height,
+		hotspotX: Math.min(Math.max(num(value.hotspotX) ?? 0, 0), width),
+		hotspotY: Math.min(Math.max(num(value.hotspotY) ?? 0, 0), height),
+		screenWidth,
 	};
 }

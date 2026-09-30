@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.vetta.android.domain.remote.RemoteFileInfo
 import org.vetta.android.domain.remote.RemoteQuestionAnswer
 import org.vetta.android.domain.remote.RemoteSessionState
 import org.vetta.android.domain.work.DesktopMirror
@@ -43,6 +44,12 @@ interface WorkActions {
     fun configure(sessionId: String, next: ModelChoice, current: RemoteSessionState)
 
     fun setDraft(sessionId: String, draft: PromptDraft)
+
+    /** Refreshes the skills a prompt in `cwd` may reference (ADR-0137). */
+    fun loadSkills(cwd: String?) {}
+
+    /** The session's files on the desktop (ADR-0139); null where they cannot be read. */
+    fun files(sessionId: String): FileSource? = null
 
     /** Answers the question the desktop is waiting on, or cancels it. */
     fun respond(sessionId: String, requestId: String, answers: List<RemoteQuestionAnswer>, cancelled: Boolean = false)
@@ -82,6 +89,11 @@ class WorkViewModel(private val mirror: DesktopMirror) : ViewModel(), WorkAction
         mirror.refreshLink()
     }
 
+    /** The remote screen opened or closed; the desktop captures only in between. */
+    fun setScreenOpen(open: Boolean) {
+        mirror.setScreenOpen(open)
+    }
+
     fun setPreferences(update: (MirrorPreferences) -> MirrorPreferences) {
         mirror.setPreferences(update)
     }
@@ -113,7 +125,7 @@ class WorkViewModel(private val mirror: DesktopMirror) : ViewModel(), WorkAction
     fun startSession(start: NewSessionStart, onFailure: () -> Unit): String? {
         val id =
             mirror.startSession(
-                text = start.draft.text,
+                text = start.draft.promptText,
                 projectCwd = start.projectCwd,
                 modelKey = start.modelChoice.modelKey,
                 thinkingLevel = start.modelChoice.thinkingLevel,
@@ -153,7 +165,7 @@ class WorkViewModel(private val mirror: DesktopMirror) : ViewModel(), WorkAction
             try {
                 val target = mirror.state.value.resolve(sessionId)
                 // Put back what was typed so a failed send is not lost, unless something new was typed meanwhile.
-                if (mirror.sendPrompt(target, draft.text, attachments = draft.attachments) == null && _drafts.value[sessionId] == null) {
+                if (mirror.sendPrompt(target, draft.promptText, attachments = draft.attachments) == null && _drafts.value[sessionId] == null) {
                     setDraft(sessionId, draft)
                 }
             } finally {
@@ -195,7 +207,23 @@ class WorkViewModel(private val mirror: DesktopMirror) : ViewModel(), WorkAction
     }
 
     override fun setDraft(sessionId: String, draft: PromptDraft) {
-        _drafts.update { if (draft.text.isEmpty() && draft.attachments.isEmpty()) it - sessionId else it + (sessionId to draft) }
+        _drafts.update { if (draft.text.isEmpty() && draft.attachments.isEmpty() && draft.skills.isEmpty()) it - sessionId else it + (sessionId to draft) }
+    }
+
+    override fun files(sessionId: String): FileSource =
+        object : FileSource {
+            private val target: String
+                get() = mirror.state.value.resolve(sessionId)
+
+            override suspend fun list(path: String) = mirror.listFiles(target, path)
+
+            override suspend fun stat(href: String) = mirror.statFile(target, href)
+
+            override suspend fun read(info: RemoteFileInfo) = mirror.readFile(target, info)
+        }
+
+    override fun loadSkills(cwd: String?) {
+        viewModelScope.launch { mirror.loadSkills(cwd) }
     }
 
     override fun respond(sessionId: String, requestId: String, answers: List<RemoteQuestionAnswer>, cancelled: Boolean) {

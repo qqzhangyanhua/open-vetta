@@ -1,3 +1,4 @@
+import type { RemoteScreenCursor } from "@vetta/remote-control";
 import {
 	buildInviteQr,
 	buildPairingUri,
@@ -28,10 +29,11 @@ import { DesktopRemoteLanServer, type LanAcceptedLink, type LanDeviceCredential 
 import type { DesktopRemoteMirror } from "./desktop-remote-mirror.js";
 import { DesktopRemoteRelayLink } from "./desktop-remote-relay-link.js";
 import type { RemoteDeviceStore } from "./remote-device-store.js";
-import { toRemoteError } from "./remote-error-mapping.js";
+import { RemoteOperationError, toRemoteError } from "./remote-error-mapping.js";
 import { createRemoteInviteMailbox, type RemoteInviteMailbox } from "./remote-invite-mailbox.js";
 import { listLanEndpoints } from "./remote-lan-endpoints.js";
 import { probeRemoteRelay, type RemoteRelayProbeResult } from "./remote-relay-probe.js";
+import { RemoteScreenShare, type ScreenSharePermissions } from "./remote-screen-share.js";
 
 export interface RemoteAccessDeviceView {
 	readonly id: string;
@@ -99,6 +101,12 @@ export interface RemoteAccessState {
 export interface RemoteAccessNotifications {
 	deviceConnected(device: { readonly id: string; readonly name: string; readonly channel: RemoteChannel }): void;
 	pairingRequested(request: { readonly deviceName: string; readonly code: string }): void;
+	/** A phone opened the screen but macOS withholds Screen Recording or Accessibility (ADR-0140). */
+	screenPermissionMissing?(request: {
+		readonly deviceName: string;
+		readonly screen: boolean;
+		readonly input: boolean;
+	}): void;
 }
 
 export interface DesktopRemoteDesktopController {
@@ -106,6 +114,8 @@ export interface DesktopRemoteDesktopController {
 		readonly relayBaseUrl: string;
 		readonly pairingId: string;
 		readonly desktopSecret: string;
+		/** The phone declared `screen`: capture only while it subscribes (ADR-0140). */
+		readonly screenOnDemand: boolean;
 	}): Promise<DesktopRemoteDesktopHostHandle>;
 }
 
@@ -117,6 +127,12 @@ export interface DesktopRemoteAccessManagerOptions {
 	) => DesktopRemoteMirror;
 	readonly notifications: RemoteAccessNotifications;
 	readonly remoteDesktop?: DesktopRemoteDesktopController;
+	/** macOS privacy permissions the screen needs; granted everywhere when left out. */
+	readonly screenPermissions?: ScreenSharePermissions;
+	/** Test seam: how often a missing permission is checked again. */
+	readonly screenPermissionPollMs?: number;
+	/** The pointer the desktop shows now, for phones that draw it; left out where it cannot be read. */
+	readonly readCursor?: () => RemoteScreenCursor | undefined;
 	readonly deviceId: string;
 	readonly deviceName: string;
 	readonly osLabel?: string;
@@ -168,7 +184,13 @@ export class DesktopRemoteAccessManager {
 	private readonly desktopHosts = new Map<string, DesktopRemoteDesktopHostHandle>();
 	private readonly desktopHostStarts = new Set<string>();
 	private readonly desktopHostStops = new Map<string, Promise<void>>();
+	/** Phones that declared `screen` in their hello and so subscribe to it on demand. */
+	private readonly screenOnDemand = new Map<string, boolean>();
+	/** Whether each running host captures on demand, to replace one that does not. */
+	private readonly hostOnDemand = new Map<string, boolean>();
+	private readonly screenShare: RemoteScreenShare;
 	private readonly approvals = new Map<string, PendingApproval>();
+	private readonly deviceClaims = new Map<string, Promise<void>>();
 	private readonly lanLinks = new Map<string, Set<() => void>>();
 	private currentInvite:
 		| {
@@ -192,7 +214,10 @@ export class DesktopRemoteAccessManager {
 		this.inviteMailbox = options.inviteMailbox ?? createRemoteInviteMailbox();
 		this.hub = new DesktopRemoteDeviceHub(
 			{
-				handleRequest: (_deviceId, request) => this.requireMirror().handleRequest(request),
+				handleRequest: (deviceId, request) =>
+					request.method === "screen.subscribe"
+						? this.subscribeScreen(deviceId, request.payload)
+						: this.requireMirror().handleRequest(request),
 				toRemoteError,
 				onLinkOnline: (deviceId, link) =>
 					void this.handleLinkOnline(deviceId, link.channel, link.connection).catch((error: unknown) =>
@@ -202,11 +227,27 @@ export class DesktopRemoteAccessManager {
 					void this.handleDeviceOnline(deviceId, link.channel).catch((error: unknown) =>
 						log.warn("remote device online handling failed", { error: describe(error) }),
 					),
-				onDeviceOffline: () => this.handleDeviceOffline(),
+				onDeviceOffline: (deviceId) => {
+					this.screenShare.forget(deviceId);
+					this.handleDeviceOffline();
+				},
 				onLinksChanged: () => this.stateChanged(),
 			},
 			{ offlineGraceMs: options.hubGraceMs },
 		);
+		this.screenShare = new RemoteScreenShare({
+			permissions: options.screenPermissions ?? { screenAllowed: () => true, inputAllowed: () => true },
+			hostFor: (deviceId) => this.desktopHosts.get(deviceId),
+			emit: (deviceId, status) => void this.hub.emit(deviceId, "screen.status", status).catch(() => undefined),
+			notifyMissing: (deviceId, missing) =>
+				this.options.notifications.screenPermissionMissing?.({
+					deviceName: this.config.devices.find((entry) => entry.id === deviceId)?.name || "手机",
+					...missing,
+				}),
+			pollMs: options.screenPermissionPollMs,
+			readCursor: options.readCursor,
+			emitCursor: (deviceId, cursor) => void this.hub.emit(deviceId, "screen.cursor", cursor).catch(() => undefined),
+		});
 	}
 
 	// ---- public state ----
@@ -314,6 +355,7 @@ export class DesktopRemoteAccessManager {
 		this.invite = undefined;
 		for (const approval of this.approvals.values()) approval.resolve(false);
 		this.approvals.clear();
+		this.screenShare.stop();
 		await this.hub.dropAll();
 		this.mirror?.stop();
 		this.mirror = undefined;
@@ -416,6 +458,8 @@ export class DesktopRemoteAccessManager {
 		// A phone that is connected hears it at once and clears what it cached; one that is
 		// not finds out when this desktop's local server no longer knows its pairing.
 		if (this.hub.isOnline(id)) await this.hub.emit(id, "device.revoked").catch(() => undefined);
+		this.screenShare.forget(id);
+		this.screenOnDemand.delete(id);
 		await this.hub.drop(id);
 		await this.desktopHosts
 			.get(id)
@@ -453,6 +497,7 @@ export class DesktopRemoteAccessManager {
 		if (enabled) {
 			if (this.hub.isOnline(id)) void this.startDesktopHost(id);
 		} else {
+			this.screenShare.forget(id);
 			await this.desktopHosts
 				.get(id)
 				?.stop()
@@ -599,12 +644,24 @@ export class DesktopRemoteAccessManager {
 			// The connection already compared the pinned key; a mismatch never reaches here.
 			return { kind: "approve" };
 		}
-		void this.claim(device.id, hello.identityKey, hello.deviceName);
+		void this.claim(device.id, hello.identityKey, hello.deviceName).catch((error: unknown) =>
+			log.warn("remote device claim failed", { pairingId: device.id.slice(0, 6), error: describe(error) }),
+		);
 		return { kind: "approve" };
 	}
 
 	/** First phone to present an invite's secret becomes its owner; the invite cannot be reused afterwards. */
-	private async claim(deviceId: string, identityKey: string, deviceName: string | undefined): Promise<void> {
+	private claim(deviceId: string, identityKey: string, deviceName: string | undefined): Promise<void> {
+		const active = this.deviceClaims.get(deviceId);
+		if (active) return active;
+		const claim = this.claimDevice(deviceId, identityKey, deviceName).finally(() => {
+			if (this.deviceClaims.get(deviceId) === claim) this.deviceClaims.delete(deviceId);
+		});
+		this.deviceClaims.set(deviceId, claim);
+		return claim;
+	}
+
+	private async claimDevice(deviceId: string, identityKey: string, deviceName: string | undefined): Promise<void> {
 		const current = this.config.devices.find((device) => device.id === deviceId);
 		if (!current || current.mobileIdentityKey) return;
 		const name = deviceName?.trim() || current.name || "手机";
@@ -735,6 +792,11 @@ export class DesktopRemoteAccessManager {
 		const device = this.config.devices.find((entry) => entry.id === deviceId);
 		if (!device) return;
 		const snapshot = connection.getSnapshot();
+		// Before any await: the screen host started for this phone right after reads it.
+		if (snapshot.peerCapabilities) this.screenOnDemand.set(deviceId, snapshot.peerCapabilities.screen === true);
+		if (snapshot.peerCapabilities?.screen === true && device.screenOnDemand !== true) {
+			void this.rememberScreenOnDemand(deviceId);
+		}
 		const peerKey = snapshot.peerIdentityKey;
 		if (!device.mobileIdentityKey && peerKey) await this.claim(deviceId, peerKey, snapshot.peerDeviceName);
 		// A phone renamed since pairing (or paired before its name was kept) shows its current name,
@@ -796,7 +858,13 @@ export class DesktopRemoteAccessManager {
 		try {
 			// A host still stopping would be handed back instead of a new one.
 			await this.desktopHostStops.get(deviceId)?.catch(() => undefined);
-			const host = await controller.start({ relayBaseUrl, pairingId: deviceId, desktopSecret });
+			const onDemand = this.capturesOnDemand(deviceId);
+			const host = await controller.start({
+				relayBaseUrl,
+				pairingId: deviceId,
+				desktopSecret,
+				screenOnDemand: onDemand,
+			});
 			if (!this.hub.isOnline(deviceId)) {
 				await host.stop();
 				return;
@@ -824,6 +892,7 @@ export class DesktopRemoteAccessManager {
 				},
 			});
 			this.desktopHosts.set(deviceId, host);
+			this.hostOnDemand.set(deviceId, onDemand);
 			const detach = this.hub.attach(deviceId, { channel: "p2p", connection });
 			let released = false;
 			const release = (): void => {
@@ -831,7 +900,10 @@ export class DesktopRemoteAccessManager {
 				released = true;
 				unsubscribe();
 				detach();
-				if (this.desktopHosts.get(deviceId) === host) this.desktopHosts.delete(deviceId);
+				if (this.desktopHosts.get(deviceId) === host) {
+					this.desktopHosts.delete(deviceId);
+					this.hostOnDemand.delete(deviceId);
+				}
 				const stopped = host.stop();
 				this.desktopHostStops.set(deviceId, stopped);
 				void stopped.finally(() => {
@@ -855,10 +927,54 @@ export class DesktopRemoteAccessManager {
 				release();
 				throw error;
 			}
+			// A phone that kept the screen open across a dropped P2P link sees it again.
+			await this.screenShare.hostReady(deviceId);
 		} catch (error) {
 			log.warn("remote desktop host failed to start", { deviceId: deviceId.slice(0, 6), error: describe(error) });
 		} finally {
 			this.desktopHostStarts.delete(deviceId);
+		}
+	}
+
+	private async subscribeScreen(deviceId: string, payload: unknown): Promise<unknown> {
+		const fields =
+			typeof payload === "object" && payload !== null ? (payload as { active?: unknown; cursor?: unknown }) : {};
+		const active = fields.active;
+		if (typeof active !== "boolean") throw new RemoteOperationError("invalid_frame", "screen.subscribe needs active");
+		const device = this.config.devices.find((entry) => entry.id === deviceId);
+		if (active && device?.desktopControl === false) {
+			throw new RemoteOperationError("forbidden", "This desktop does not share its screen with this phone");
+		}
+		if (active && !this.capturesOnDemand(deviceId)) {
+			// Only a phone that captures on demand subscribes. Over the relay its handshake did
+			// not say so, and its host streams the whole time: remember it, and replace that host.
+			this.screenOnDemand.set(deviceId, true);
+			await this.rememberScreenOnDemand(deviceId);
+			if (this.hostOnDemand.get(deviceId) === false) {
+				log.info("remote desktop host restarts to capture on demand", { pairingId: deviceId.slice(0, 6) });
+				await this.desktopHosts
+					.get(deviceId)
+					?.stop()
+					.catch(() => undefined);
+			}
+		}
+		return this.screenShare.subscribe(deviceId, active, fields.cursor === true);
+	}
+
+	/** Said in this phone's handshake, or learnt earlier and kept with its pairing. */
+	private capturesOnDemand(deviceId: string): boolean {
+		return (
+			this.screenOnDemand.get(deviceId) ??
+			this.config.devices.find((entry) => entry.id === deviceId)?.screenOnDemand === true
+		);
+	}
+
+	private async rememberScreenOnDemand(deviceId: string): Promise<void> {
+		try {
+			await this.options.store.patchDevice(deviceId, { screenOnDemand: true });
+			this.config = await this.options.store.read();
+		} catch (error) {
+			log.warn("remote device screen mode save failed", { pairingId: deviceId.slice(0, 6), error: describe(error) });
 		}
 	}
 
@@ -891,6 +1007,7 @@ export class DesktopRemoteAccessManager {
 			relayEnabled: this.config.cloudEnabled && Boolean(this.config.relayBaseUrl),
 			runningSessionCount: this.options.runningSessionCount(),
 			fileRead: DESKTOP_REMOTE_CAPABILITIES.fileRead === true,
+			screen: DESKTOP_REMOTE_CAPABILITIES.screen === true,
 			...(device ? { desktopControl: device.desktopControl !== false } : {}),
 			...(this.config.cloudEnabled && this.config.relayBaseUrl ? { relayBaseUrl: this.config.relayBaseUrl } : {}),
 		};

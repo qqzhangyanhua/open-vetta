@@ -30,6 +30,7 @@ import {
 	TESTABLE_PACKAGES,
 	WORKSPACE_PACKAGES,
 } from "./lib.mjs";
+import { changedLockfileWorkspaceImpacts, changedLockfileWorkspaceKeys } from "./lockfile-impact.mjs";
 import { createChangedTestPlan, parseArgs } from "./test-changed.mjs";
 import { createImpactTestPlan, parseImpactArgs, relatedResultAction, runCapturedBun } from "./test-impact.mjs";
 
@@ -314,31 +315,134 @@ describe("affected package selection", () => {
 	});
 
 	it("runs Runtime and Desktop tests when those packages change", () => {
-		expect(createChangedTestPlan(["packages/runtime-core/src/index.ts"]).toTest).toEqual(
-			expect.arrayContaining(["runtime-core", "runtime-mcp", "coding-agent", "desktop"]),
-		);
-		expect(createChangedTestPlan(["apps/desktop/src/main.ts"]).toTest).toEqual(["desktop"]);
+		expect(createChangedTestPlan(["packages/runtime-core/src/index.ts"]).targets).toMatchObject([
+			{ key: "runtime-core", relatedSources: ["src/index.ts"] },
+		]);
+		expect(createChangedTestPlan(["apps/desktop/src/main/window-manager.ts"]).targets).toMatchObject([
+			{ key: "desktop", relatedSources: ["src/main/window-manager.ts"] },
+		]);
 	});
 
-	it("runs every core test package for global quality inputs", () => {
-		const plan = createChangedTestPlan(["bun.lock", "turbo.json"]);
-		expect(plan.globalTriggers).toEqual(["bun.lock", "turbo.json"]);
+	it("keeps ordinary test:changed source edits on targeted Vitest instead of the whole package", () => {
+		const plan = createChangedTestPlan(
+			[
+				"apps/desktop/src/renderer/domains/conversation/components/annotations/AnnotationMenus.tsx",
+				"apps/desktop/src/renderer/domains/conversation/components/annotations/AnnotationScope.test.tsx",
+				"apps/docs-site/content/docs/core/workspaces-and-sessions.mdx",
+			],
+			[],
+			() => true,
+		);
+
+		expect(plan.targets).toMatchObject([
+			{
+				key: "desktop",
+				directTests: ["src/renderer/domains/conversation/components/annotations/AnnotationScope.test.tsx"],
+				relatedSources: ["src/renderer/domains/conversation/components/annotations/AnnotationMenus.tsx"],
+			},
+		]);
+		expect(plan.targets).not.toEqual(expect.arrayContaining([expect.objectContaining({ key: "docs-site" })]));
+	});
+
+	it("maps lockfile dependency changes back to importing source files without package tests", () => {
+		const plan = createChangedTestPlan(
+			["bun.lock", "package.json", "turbo.json"],
+			[{ key: "externals/chinese-chess", dependencies: ["zh-chess"] }],
+		);
+		expect(plan.lockfileImpacts).toEqual([{ key: "externals/chinese-chess", dependencies: ["zh-chess"] }]);
 		expect(plan.runQuality).toBe(true);
-		expect(plan.toTest).toEqual(Object.keys(TESTABLE_PACKAGES));
+		expect(plan.targets).toMatchObject([
+			{
+				key: "externals/chinese-chess",
+				directTests: [],
+				relatedSources: ["src/game/engine.ts"],
+			},
+		]);
+	});
+
+	it("finds only workspaces whose resolved lockfile dependency closure changed", () => {
+		const before = `{
+			"lockfileVersion": 1,
+			"workspaces": {
+				"": { "name": "root", "devDependencies": { "vitest": "1.0.0" } },
+				"packages/alpha": { "name": "@test/alpha", "dependencies": { "shared": "^1.0.0" } },
+				"packages/beta": { "name": "@test/beta", "dependencies": { "other": "^1.0.0" } }
+			},
+			"packages": {
+				"shared": ["shared@1.0.0", "shared.tgz", { "dependencies": { "leaf": "^1.0.0" } }, "hash-a"],
+				"leaf": ["leaf@1.0.0", "leaf.tgz", {}, "hash-leaf"],
+				"other": ["other@1.0.0", "other.tgz", {}, "hash-b"],
+				"vitest": ["vitest@1.0.0", "vitest.tgz", {}, "hash-c"]
+			}
+		}`;
+		const after = before.replaceAll("leaf@1.0.0", "leaf@1.1.0").replaceAll("hash-leaf", "hash-new");
+
+		expect(
+			changedLockfileWorkspaceKeys(before, after, [
+				{ key: "alpha", dir: "packages/alpha", name: "@test/alpha" },
+				{ key: "beta", dir: "packages/beta", name: "@test/beta" },
+			]),
+		).toEqual(["alpha"]);
+		expect(
+			changedLockfileWorkspaceImpacts(before, after, [
+				{ key: "alpha", dir: "packages/alpha", name: "@test/alpha" },
+				{ key: "beta", dir: "packages/beta", name: "@test/beta" },
+			]),
+		).toEqual([{ key: "alpha", dependencies: ["shared"] }]);
+	});
+
+	it("ignores formatting and root-only tool changes in lockfile package selection", () => {
+		const before = `{
+			"lockfileVersion": 1,
+			"workspaces": {
+				"": { "name": "root", "devDependencies": { "vitest": "1.0.0" } },
+				"packages/alpha": { "name": "@test/alpha", "dependencies": { "shared": "^1.0.0" } }
+			},
+			"packages": {
+				"shared": ["shared@1.0.0", "shared.tgz", {}, "hash-a"],
+				"vitest": ["vitest@1.0.0", "vitest.tgz", {}, "hash-b"]
+			}
+		}`;
+		const formattingOnly = before.replaceAll("  ", "    ");
+		const rootToolOnly = before.replaceAll("vitest@1.0.0", "vitest@1.1.0").replaceAll("hash-b", "hash-new");
+		const workspaces = [{ key: "alpha", dir: "packages/alpha", name: "@test/alpha" }];
+
+		expect(changedLockfileWorkspaceKeys(before, formattingOnly, workspaces)).toEqual([]);
+		expect(changedLockfileWorkspaceKeys(before, rootToolOnly, workspaces)).toEqual([]);
+	});
+
+	it("fails lockfile impact analysis instead of degrading to every package", () => {
+		expect(() => changedLockfileWorkspaceKeys("not json", "{}", [])).toThrow("cannot parse bun.lock");
+		expect(() =>
+			changedLockfileWorkspaceKeys('{ "workspaces": {}, "packages": {} }', '{ "workspaces": {}, "packages": {} }', [
+				{ key: "alpha", dir: "packages/alpha", name: "@test/alpha" },
+			]),
+		).toThrow("current lockfile is missing workspace packages/alpha");
 	});
 
 	it("runs quality tests when their implementation changes", () => {
 		const plan = createChangedTestPlan(["scripts/quality/test-changed.mjs"]);
 		expect(plan.runQuality).toBe(true);
-		expect(plan.globalTriggers).toEqual([]);
-		expect(plan.toTest).toEqual([]);
+		expect(plan.qualityTests).toEqual(["scripts/quality/quality-gates.test.mjs"]);
+		expect(plan.lockfileImpacts).toEqual([]);
+		expect(plan.targets).toEqual([]);
 	});
 
 	it("does not run product tests for lint-only configuration changes", () => {
 		const plan = createChangedTestPlan(["biome.json"]);
 		expect(plan.runQuality).toBe(false);
-		expect(plan.globalTriggers).toEqual([]);
-		expect(plan.toTest).toEqual([]);
+		expect(plan.lockfileImpacts).toEqual([]);
+		expect(plan.targets).toEqual([]);
+	});
+
+	it("leaves package and test configuration validation to check without running package tests", () => {
+		const plan = createChangedTestPlan([
+			"packages/ai/package.json",
+			"packages/ai/tsconfig.build.json",
+			"packages/ai/vitest.config.ts",
+		]);
+		expect(plan.selectionErrors).toEqual([]);
+		expect(plan.targets).toEqual([]);
 	});
 
 	it("accepts both base argument forms and rejects unknown arguments", () => {
@@ -352,25 +456,42 @@ describe("affected package selection", () => {
 			"packages/ai/test/provider-retry-policy.test.ts",
 			"packages/ai/src/providers/retry-policy.ts",
 		]);
-		expect(plan.fallbackChanged).toBe(false);
+		expect(plan.selectionErrors).toEqual([]);
 		expect(plan.targets).toMatchObject([
 			{
 				key: "ai",
 				directTests: ["test/provider-retry-policy.test.ts"],
 				relatedSources: ["src/providers/retry-policy.ts"],
-				full: false,
 			},
 		]);
 	});
 
-	it("falls back for public contracts, deleted files, and workspaces without tests", () => {
-		expect(createImpactTestPlan(["packages/ai/src/index.ts"]).fallbackChanged).toBe(true);
-		expect(
-			createImpactTestPlan(["packages/coding-agent/src/composition/contracts/runtime-session-options.ts"])
-				.fallbackChanged,
-		).toBe(true);
-		expect(createImpactTestPlan(["packages/ai/src/provider.ts"], () => false).fallbackChanged).toBe(true);
-		expect(createImpactTestPlan(["packages/action-rpc/src/rpc.ts"]).fallbackChanged).toBe(true);
+	it("keeps public contracts on related tests and fails unselectable changes without a package-test fallback", () => {
+		const publicContract = createImpactTestPlan(["packages/ai/src/index.ts"]);
+		expect(publicContract.selectionErrors).toEqual([]);
+		expect(publicContract.targets).toMatchObject([
+			{
+				key: "ai",
+				directTests: [],
+				relatedSources: ["src/index.ts"],
+			},
+		]);
+		expect(publicContract.targets.every((target) => !("full" in target))).toBe(true);
+		expect(createImpactTestPlan(["packages/ai/src/provider.ts"], () => false).selectionErrors).toEqual([
+			"packages/ai/src/provider.ts was deleted; add an explicit regression test or mapping",
+		]);
+		expect(createImpactTestPlan(["packages/action-rpc/src/server.ts"]).selectionErrors).toEqual([
+			"action-rpc has no targeted test entry point for packages/action-rpc/src/server.ts",
+		]);
+	});
+
+	it("never exposes a package-test fallback from the changed-test runner", () => {
+		const implementation = readFileSync(join(repoRoot, "scripts/quality/test-impact.mjs"), "utf8");
+		expect(implementation).not.toContain("full package");
+		expect(implementation).not.toContain("target.full");
+		expect(implementation).not.toMatch(/runBun\(\["run",\s*"test"/u);
+		expect(implementation).not.toContain('["run", "test:quality"]');
+		expect(implementation).not.toContain("test-pkg.mjs");
 	});
 
 	it("uses explicit host component tests for shared model selector UI", () => {
@@ -380,7 +501,7 @@ describe("affected package selection", () => {
 			"packages/theme-ui/src/chat/ModelSelectorTrigger.tsx",
 			"packages/theme-ui/src/chat/ModelSelectorView.tsx",
 		]);
-		expect(plan.fallbackChanged).toBe(false);
+		expect(plan.selectionErrors).toEqual([]);
 		expect(plan.targets).toMatchObject([
 			{
 				key: "desktop",
@@ -389,29 +510,52 @@ describe("affected package selection", () => {
 					"src/renderer/domains/conversation/connectors/team/TeamModelSelector.test.tsx",
 				],
 				relatedSources: [],
-				full: false,
 			},
 		]);
 	});
 
+	it("keeps packages with test prerequisites on targeted tests", () => {
+		const plan = createImpactTestPlan(["packages/plugins/presets/vetta-ui-design/src/vetd/tool-gate.ts"]);
+		expect(plan.selectionErrors).toEqual([]);
+		expect(plan.targets).toMatchObject([
+			{
+				key: "presets/vetta-ui-design",
+				prerequisites: [["run", "build:runner"]],
+				relatedSources: ["src/vetd/tool-gate.ts"],
+			},
+		]);
+		expect(plan.targets.every((target) => !("full" in target))).toBe(true);
+	});
+
 	it("keeps unmapped source files inside workspaces with package tests on the targeted path", () => {
 		const plan = createImpactTestPlan(["packages/theme-ui/src/chat/UnmappedView.tsx"], () => true);
-		expect(plan.fallbackChanged).toBe(false);
+		expect(plan.selectionErrors).toEqual([]);
 		expect(plan.targets).toMatchObject([
 			{
 				key: "theme-ui",
 				directTests: [],
 				relatedSources: ["src/chat/UnmappedView.tsx"],
-				full: false,
 			},
 		]);
 	});
 
 	it("runs quality tests for scripts while documentation-only changes need no package tests", () => {
 		const quality = createImpactTestPlan(["scripts/quality/test-impact.mjs"]);
-		expect(quality).toMatchObject({ runQuality: true, fallbackChanged: false, targets: [] });
+		expect(quality).toMatchObject({
+			qualityTests: ["scripts/quality/quality-gates.test.mjs"],
+			runQuality: true,
+			selectionErrors: [],
+			targets: [],
+		});
+		const workflow = createImpactTestPlan([".github/workflows/desktop-release.yml"]);
+		expect(workflow).toMatchObject({
+			qualityTests: ["scripts/quality/desktop-release-workflow.test.mjs"],
+			runQuality: true,
+			selectionErrors: [],
+			targets: [],
+		});
 		const docs = createImpactTestPlan(["docs/dev/quality-gates.md"]);
-		expect(docs).toMatchObject({ runQuality: false, fallbackChanged: false, targets: [] });
+		expect(docs).toMatchObject({ runQuality: false, selectionErrors: [], targets: [] });
 		expect(parseImpactArgs(["--dry-run", "packages/ai/src/providers/retry-policy.ts"])).toMatchObject({
 			dryRun: true,
 			files: ["packages/ai/src/providers/retry-policy.ts"],
@@ -468,6 +612,16 @@ describe("affected package selection", () => {
 		expect(relatedResultAction(1, null)).toBe("fail");
 	});
 
+	it("routes changed plugin manifests to repository manifest contract tests", () => {
+		const plan = createImpactTestPlan(["packages/plugins/externals/chinese-chess/plugin.json"]);
+		expect(plan.targets).toEqual([]);
+		expect(plan).toMatchObject({
+			qualityTests: ["scripts/quality/plugin-manifests.test.mjs"],
+			runQuality: true,
+			selectionErrors: [],
+		});
+	});
+
 	it("builds generated workspace exports required by tests without building leaf applications", () => {
 		const dependencies = buildableTestDependencies(Object.keys(TESTABLE_PACKAGES));
 		expect(dependencies).toEqual(
@@ -502,22 +656,20 @@ describe("CI unit test coverage", () => {
 		expect(workflow).toContain("bun run test:changed --base");
 	});
 
-	it("cancels stale runs, fails the platform matrix fast, and reuses only the exact-lockfile Bun cache", () => {
+	it("cancels stale runs, fails the platform matrix fast, and installs Bun packages without Actions caches", () => {
 		expect(workflow).toContain("cancel-in-progress: true");
 		expect(workflow).toContain("fail-fast: true");
 		expect(workflow.match(/uses: actions\/checkout@v7/g)).toHaveLength(2);
 		expect(workflow.match(/uses: \.\/\.github\/actions\/install-bun-dependencies/g)).toHaveLength(2);
 		const installAction = readFileSync(join(repoRoot, ".github/actions/install-bun-dependencies/action.yml"), "utf8");
 		expect(installAction).not.toContain("node_modules");
-		expect(installAction).toContain("~/.bun/install/cache");
-		expect(installAction).toContain("bun-downloads-v1-");
-		expect(installAction).toContain("hashFiles('bun.lock', 'package.json')");
-		expect(installAction).not.toContain("restore-keys");
+		expect(installAction).not.toContain("actions/cache");
 	});
 
 	it("keeps the local full-test entry point sequential and discovery-based", () => {
-		expect(rootManifest.scripts.test).toBe("bun run scripts/quality/test-pkg.mjs --all");
-		expect(rootManifest.scripts["test:unit"]).toBe("bun run scripts/quality/test-pkg.mjs --all");
+		expect(rootManifest.scripts["test:full"]).toBe("bun run scripts/quality/test-pkg.mjs --all");
+		expect(rootManifest.scripts.test).toBe("bun run test:full");
+		expect(rootManifest.scripts["test:unit"]).toBe("bun run test:full");
 	});
 
 	it("does not duplicate checks already owned by the repository quality workflow", () => {

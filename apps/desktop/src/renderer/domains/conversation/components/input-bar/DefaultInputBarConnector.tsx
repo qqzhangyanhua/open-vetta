@@ -12,7 +12,7 @@ import {
 } from "@shared/store/external-recipient";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
 import { useAtomValue, useSetAtom } from "jotai";
-import { memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { externalAgentLabel } from "../external-invocation/external-agent-label";
 import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
 import { SessionExternalInvocationPage } from "../external-invocation/SessionExternalInvocationPage";
@@ -38,6 +38,7 @@ import { useInputActionBarModel } from "../useInputActionBarModel";
 import { useDefaultContextRingModel } from "../../hooks/useContextRingModel";
 import { useDefaultExecutionModeSelectorModel } from "../../hooks/useExecutionModeSelectorModel";
 import { usePlanModeModel } from "../../hooks/usePlanModeModel";
+import { GoalModeDialog } from "../GoalModeDialog";
 
 /** 普通 Chat 的默认配方；每项能力由独立 source/model 提供，其他 Connector 可自行取舍。 */
 export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(props: ConnectedInputBarProps): JSX.Element {
@@ -165,6 +166,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const contextMenu: InputBarContextMenuViewProps | null = contextMenuModel.contextMenu;
 
 	const model: InputBarModel = {
+		contentWidth: props.contentWidth ?? "compact",
 		dropZone,
 		isStreaming: session.isStreaming,
 		sendPending: props.sendPending,
@@ -289,31 +291,34 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 
 	const external = model.externalInvocation;
 	return (
-		<InputBar model={model}>
-			<InputBarToolbar model={model}>
-				{external ? (
-					<SessionExternalInvocationPage
-						session={external.session}
-						client={external.client}
-						prompt={external.prompt}
-						onPromptChange={external.onPromptChange}
-						showPrompt={false}
-						penguinTools={null}
-						draftKey={external.draftKey}
-						images={external.images}
-						onRemoveImage={external.onRemoveImage}
-						referencedPaths={external.referencedPaths}
-						remote={external.remote}
-						ensureSession={external.ensureSession}
-						onBindSend={external.onBindSend}
-						onHideComposer={external.onHideComposer}
-						onRecipientChange={external.onRecipientChange}
-						onInvocationEvent={external.onInvocationEvent}
-						onViewInTerminal={external.onViewInTerminal}
-					/>
-				) : null}
-				<InputBarModelAction visible={!model.commands?.slashOpen && !model.sendingExternally} />
-			</InputBarToolbar>
-		</InputBar>
+		<Fragment>
+			<InputBar model={model}>
+				<InputBarToolbar model={model}>
+					{external ? (
+						<SessionExternalInvocationPage
+							session={external.session}
+							client={external.client}
+							prompt={external.prompt}
+							onPromptChange={external.onPromptChange}
+							showPrompt={false}
+							penguinTools={null}
+							draftKey={external.draftKey}
+							images={external.images}
+							onRemoveImage={external.onRemoveImage}
+							referencedPaths={external.referencedPaths}
+							remote={external.remote}
+							ensureSession={external.ensureSession}
+							onBindSend={external.onBindSend}
+							onHideComposer={external.onHideComposer}
+							onRecipientChange={external.onRecipientChange}
+							onInvocationEvent={external.onInvocationEvent}
+							onViewInTerminal={external.onViewInTerminal}
+						/>
+					) : null}
+					<InputBarModelAction visible={!model.commands?.slashOpen && !model.sendingExternally} />
+				</InputBarToolbar>
+			</InputBar>
+			<GoalModeDialog />
+		</Fragment>
 	);
 });

@@ -197,6 +197,7 @@ public enum L10n {
 		public static var copied: String { tr("chat.copied") }
 		public static var questionTitle: String { tr("chat.questionTitle") }
 		public static var attach: String { tr("chat.attach") }
+		public static var scrollToBottom: String { tr("chat.scrollToBottom") }
 		public static var attachPhotos: String { tr("chat.attachPhotos") }
 		public static var attachFiles: String { tr("chat.attachFiles") }
 		public static var attachCamera: String { tr("chat.attachCamera") }
@@ -243,6 +244,51 @@ public enum L10n {
 		public static var compacted: String { tr("chat.compacted") }
 	}
 
+	public enum Notify {
+		public static var needsInput: String { tr("notify.needsInput") }
+		public static func needsInputDetail(_ question: String) -> String { tr("notify.needsInputDetail \(question)") }
+		public static var finished: String { tr("notify.finished") }
+		public static var failed: String { tr("notify.failed") }
+	}
+
+	public enum Activity {
+		public static var waiting: String { tr("activity.waiting") }
+		public static var running: String { tr("activity.running") }
+		public static func others(_ n: Int) -> String { tr("activity.others \(n)") }
+		public static var allDone: String { tr("activity.allDone") }
+		public static var stale: String { tr("activity.stale") }
+		public static var openToAnswer: String { tr("activity.openToAnswer") }
+		public static func answering(_ choice: String) -> String { tr("activity.answering \(choice)") }
+	}
+
+	/// The paired computer's screen, seen and operated from the phone (ADR-0140).
+	public enum Remote {
+		public static var title: String { tr("remote.title") }
+		public static var hint: String { tr("remote.hint") }
+		public static var notAllowed: String { tr("remote.notAllowed") }
+		public static var offline: String { tr("remote.offline") }
+		public static var noRelay: String { tr("remote.noRelay") }
+		public static var updateDesktop: String { tr("remote.updateDesktop") }
+		public static var connecting: String { tr("remote.connecting") }
+		public static var noDirectRoute: String { tr("remote.noDirectRoute") }
+		public static var screenPermission: String { tr("remote.screenPermission") }
+		public static var inputPermission: String { tr("remote.inputPermission") }
+		public static var inputUnsupported: String { tr("remote.inputUnsupported") }
+		public static var unavailable: String { tr("remote.unavailable") }
+		public static var keyboard: String { tr("remote.keyboard") }
+		public static var hideKeyboard: String { tr("remote.hideKeyboard") }
+		public static var rotate: String { tr("remote.rotate") }
+		public static var modifierOn: String { tr("remote.modifierOn") }
+		public static var modifierLocked: String { tr("remote.modifierLocked") }
+		public static var details: String { tr("remote.details") }
+		public static var routeLan: String { tr("remote.routeLan") }
+		public static var routeInternet: String { tr("remote.routeInternet") }
+		public static var routeRelayed: String { tr("remote.routeRelayed") }
+		public static func roundTrip(_ ms: Int) -> String { tr("remote.roundTrip \(ms)") }
+		public static func pictureDelay(_ ms: Int) -> String { tr("remote.pictureDelay \(ms)") }
+		public static func framesPerSecond(_ fps: Int) -> String { tr("remote.framesPerSecond \(fps)") }
+	}
+
 	public enum Settings {
 		public static var title: String { tr("settings.title") }
 		public static var rescan: String { tr("settings.rescan") }
@@ -250,14 +296,10 @@ public enum L10n {
 		public static var latency: String { tr("settings.latency") }
 		public static var viaLan: String { tr("settings.viaLan") }
 		public static var viaRelay: String { tr("settings.viaRelay") }
+		public static var viaP2p: String { tr("settings.viaP2p") }
 		public static var load: String { tr("settings.load") }
 		public static func loadValue(_ n: Int) -> String { tr("settings.loadValue \(n)") }
 		public static var loadIdle: String { tr("settings.loadIdle") }
-		public static var confirmPolicy: String { tr("settings.confirmPolicy") }
-		public static var confirmPolicyHint: String { tr("settings.confirmPolicyHint") }
-		public static var policyMajor: String { tr("settings.policyMajor") }
-		public static var policyImportant: String { tr("settings.policyImportant") }
-		public static var policyAuto: String { tr("settings.policyAuto") }
 		public static var liveThinking: String { tr("settings.liveThinking") }
 		public static var haptics: String { tr("settings.haptics") }
 		public static var unpair: String { tr("settings.unpair") }

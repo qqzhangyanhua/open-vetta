@@ -45,6 +45,7 @@ export const DefaultChatComposer = memo(function DefaultChatComposer({
 	return (
 		<ChatComposer>
 			<DefaultInputBarConnector
+				contentWidth="message"
 				onSend={onSend}
 				onAbort={onAbort}
 				onSendQueued={onSendQueued}

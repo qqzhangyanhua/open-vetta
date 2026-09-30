@@ -63,12 +63,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.stringResource
+import org.vetta.android.core.nowEpochMs
 import org.vetta.android.domain.remote.link.LinkIndicator
 import org.vetta.android.domain.work.MirrorState
 import org.vetta.android.domain.work.ModelChoice
 import org.vetta.android.domain.work.ProjectScope
 import org.vetta.android.domain.work.PromptDraft
-import org.vetta.android.domain.work.SessionStatusGroup
 import org.vetta.android.domain.work.TaskBoard
 import org.vetta.android.resources.Res
 import org.vetta.android.resources.chat_composer_placeholder
@@ -91,8 +91,8 @@ import org.vetta.android.ui.shell.DrawerButton
 /**
  * The root slot with no session in it (the iPhone's `NewSessionView`): a blank page for
  * starting one in a conversation or a project. Two large lines greet at the top left
- * over a violet-to-blue wash; the task board in brief waits at the bottom and steps
- * aside while typing. Until the desktop answers, the link pill stands where the composer
+ * over a violet-to-blue wash; the first sessions that need you wait at the bottom and
+ * step aside while typing. Until the desktop answers, the link pill stands where the composer
  * goes. Sending opens the chat at once; the desktop creates the session behind it.
  */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
@@ -114,6 +114,8 @@ fun NewSessionScreen(
     onReconnect: () -> Unit = {},
     onPair: () -> Unit = {},
     onRefreshProjects: suspend () -> Unit = {},
+    /** Refreshes the skills a prompt in the given project may reference. */
+    onLoadSkills: (String?) -> Unit = {},
 ) {
     var projectCwd by rememberSaveable { mutableStateOf(restored?.projectCwd ?: initialProjectCwd) }
     // Starts on what was used last on this desktop; empty keeps the desktop's default model and level.
@@ -128,7 +130,8 @@ fun NewSessionScreen(
         thinkingLevel = kept.thinkingLevel
     }
     val offline = LinkIndicator.of(state.link) == LinkIndicator.Offline
-    val cards = remember(state.sessions, state.conversationCwd) { TaskBoard.cards(state.sessions, state.conversationCwd) }
+    val overview = TaskBoard.overview(state.sessions, nowEpochMs())
+    val glance = overview.glance()
     val keyboardUp = WindowInsets.isImeVisible
     // The board's summary needs the height of a phone held upright; sideways it would be crushed.
     val tallEnough = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() } >= SUMMARY_MIN_WINDOW_HEIGHT
@@ -155,8 +158,8 @@ fun NewSessionScreen(
                     .padding(horizontal = 24.dp)
                     .padding(top = 12.dp, bottom = 12.dp),
             ) {
-                // With nothing on the board the avatar has no header to sit in; it greets from the top.
-                if (cards.isEmpty()) {
+                // With nothing waiting or running, the avatar has no header to sit in; it greets from the top.
+                if (glance.isEmpty()) {
                     BotAvatar(size = 40.dp, asleep = offline)
                     Spacer(Modifier.height(18.dp))
                 }
@@ -165,16 +168,16 @@ fun NewSessionScreen(
                 Spacer(Modifier.weight(1f))
                 // Typing is about the new session; the board steps aside for the keyboard.
                 AnimatedVisibility(
-                    !keyboardUp && tallEnough,
+                    glance.isNotEmpty() && !keyboardUp && tallEnough,
                     enter = fadeIn(VettaMotion.snappy()) + expandVertically(VettaMotion.snappy()),
                     exit = fadeOut(VettaMotion.snappy()) + shrinkVertically(VettaMotion.snappy()),
                 ) {
                     BoardSummary(
-                        cards = cards,
-                        waiting = state.count(SessionStatusGroup.Waiting),
-                        running = state.count(SessionStatusGroup.Processing),
+                        sessions = glance,
+                        hiddenActive = (overview.waiting.size + overview.running.size - glance.size).coerceAtLeast(0),
                         online = state.online,
                         avatarAsleep = offline,
+                        conversationCwd = state.conversationCwd,
                         onOpenSession = onOpenSession,
                         onOpenBoard = onOpenBoard,
                         modifier = Modifier.padding(bottom = 14.dp),
@@ -194,6 +197,7 @@ fun NewSessionScreen(
                         placeholder = stringResource(Res.string.chat_composer_placeholder),
                         onSend = { sent -> onStart(NewSessionStart(sent, projectCwd, choice)) },
                         containerColor = Color.Transparent,
+                        skills = ComposerSkills(state.skillCatalog(projectCwd), { onLoadSkills(projectCwd) }, state::skillName),
                     )
                 } else {
                     Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 12.dp), contentAlignment = Alignment.Center) {

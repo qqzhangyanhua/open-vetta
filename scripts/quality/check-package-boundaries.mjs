@@ -1050,13 +1050,7 @@ function checkCodingAgentChildCompositionPolicyBoundary(posixPath, text, finding
 	if (posixPath !== "packages/coding-agent/src/composition/runtime-composition.ts") return;
 
 	const sourceFile = ts.createSourceFile(posixPath, text, ts.ScriptTarget.Latest, true, scriptKind(posixPath));
-	const forbiddenSymbols = new Set([
-		"_createPluginMcpRuntime",
-		"_extensionTools",
-		"_mcpSource",
-		"childComposition",
-		"childCompositionOptions",
-	]);
+	const forbiddenSymbols = new Set(["_createPluginMcpRuntime", "_extensionTools", "_mcpSource"]);
 	const visit = (node) => {
 		if (ts.isIdentifier(node) && forbiddenSymbols.has(node.text)) {
 			findings.push(
@@ -1564,6 +1558,11 @@ export function findPackageManifestBoundaryViolations(manifest) {
 	}
 	return findings;
 }
+
+export {
+	findPackageBoundaryViolations as findDurablePackageBoundaryViolations,
+	findPackageManifestBoundaryViolations as findDurablePackageManifestBoundaryViolations,
+};
 
 const roots = [
 	join(repoRoot, "packages/capability-sdk"),

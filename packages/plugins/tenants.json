@@ -14,11 +14,11 @@
         "chart-renderer",
         "git",
         "github-issue-board",
+        "scripts",
         "plugin-workbench",
         "comfyui-media-provider",
         "content-creation",
-        "browser",
-        "build-apple-apps"
+        "browser"
       ]
     },
     "production": {
@@ -33,9 +33,9 @@
         "chart-renderer",
         "git",
         "github-issue-board",
+        "scripts",
         "plugin-workbench",
-        "browser",
-        "build-apple-apps"
+        "browser"
       ]
     }
   }

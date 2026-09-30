@@ -129,6 +129,8 @@ export type BottomPanelAction =
 			readonly newLeafId: string;
 			/** 省略则落在当前激活的格子里。 */
 			readonly leafId?: string;
+			/** 新实例的初始载荷，如插件替用户开的终端要敲的命令。 */
+			readonly payload?: unknown;
 	  }
 	| { readonly type: "close-tab"; readonly tabId: string }
 	| { readonly type: "activate-tab"; readonly tabId: string }
@@ -505,7 +507,10 @@ function reduceBottomPanelLayout(state: BottomPanelSessionState, action: BottomP
 			return openExternalInvocationTab(state, action);
 
 		case "open-tab": {
-			const tab: BottomPanelTabState = { tabId: action.tabId, componentId: action.componentId };
+			const tab: BottomPanelTabState =
+				action.payload === undefined
+					? { tabId: action.tabId, componentId: action.componentId }
+					: { tabId: action.tabId, componentId: action.componentId, payload: action.payload };
 			if (!state.root) {
 				const leaf: BottomPanelLeaf = {
 					kind: "leaf",

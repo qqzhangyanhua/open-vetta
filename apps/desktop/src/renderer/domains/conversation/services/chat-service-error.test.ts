@@ -262,6 +262,7 @@ describe("fullHistoryToChat error entries", () => {
 			{ type: "message", message: { role: "user", content: "hello", timestamp: 1 } },
 			{
 				type: "message",
+				entryId: "assistant-error-1",
 				message: {
 					role: "assistant",
 					content: [],

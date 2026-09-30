@@ -61,9 +61,8 @@ import org.vetta.android.ui.components.VettaInfoDialog
 import org.vetta.android.ui.design.VettaMotion
 import org.vetta.android.ui.home.HomeScreen
 import org.vetta.android.ui.home.ProjectScreen
-import org.vetta.android.ui.home.newSessionEntry
-import org.vetta.android.ui.home.remoteEntry
-import org.vetta.android.ui.home.taskBoardEntry
+import org.vetta.android.ui.home.connectComputerDetail
+import org.vetta.android.ui.home.homeEntries
 import org.vetta.android.ui.navigation.HomePage
 import org.vetta.android.ui.navigation.PlatformBackHandler
 import org.vetta.android.ui.navigation.Slot
@@ -239,7 +238,7 @@ fun RootApp(
                     enter = slideInVertically(VettaMotion.snappy(IntOffset.VisibilityThreshold)) { it / 3 } + fadeIn(VettaMotion.snappy()),
                     exit = slideOutVertically(VettaMotion.snappy(IntOffset.VisibilityThreshold)) { it / 3 } + fadeOut(VettaMotion.snappy()),
                 ) {
-                    RemoteDesktopScreen(workState, viewerUrl, onClose = vm::closeRemote)
+                    RemoteDesktopScreen(workState, viewerUrl, onClose = vm::closeRemote, onScreenOpen = work::setScreenOpen)
                 }
                 if (shareSkipped > 0) {
                     VettaInfoDialog(
@@ -267,6 +266,7 @@ fun RootApp(
                         onScanned = vm::connectDesktop,
                         onManual = vm::connectDesktopManually,
                         onCode = vm::connectDesktopWithCode,
+                        inviteFailure = state.inviteFailure,
                         onCancelPairing = work::cancelPairing,
                         onDismiss = vm::closePairing,
                     )
@@ -313,6 +313,7 @@ private fun SlotContent(slot: Slot, workState: MirrorState, vm: AppViewModel, wo
                         onReconnect = work::reconnect,
                         onPair = vm::openPairing,
                         onRefreshProjects = work::refreshProjects,
+                        onLoadSkills = work::loadSkills,
                     )
                 }
             is Slot.Session ->
@@ -364,10 +365,14 @@ private fun HomeStack(state: AppUiState, workState: MirrorState, vm: AppViewMode
                     onFilterChange = work::setFilter,
                     actions = work,
                     entries =
-                        listOfNotNull(
-                            newSessionEntry { vm.startNewSession() },
-                            taskBoardEntry(vm::openBoard),
-                            viewerUrl?.let { remoteEntry(vm::openRemote) },
+                        homeEntries(
+                            // Filtered to a project: a new session starts there, and the entry says so.
+                            projectName = filter.projectCwd?.let(workState::projectName),
+                            computerName = connectComputerDetail(workState.paired, workState.desktop?.desktopName),
+                            onNewSession = { vm.startNewSession(filter.projectCwd) },
+                            onOpenBoard = vm::openBoard,
+                            onConnect = vm::openPairing,
+                            onRemote = viewerUrl?.let { vm::openRemote },
                         ),
                     onClose = vm::closeDrawer,
                     onOpenSession = vm::show,

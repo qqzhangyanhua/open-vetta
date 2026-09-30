@@ -1,11 +1,13 @@
 package org.vetta.android.ui.home
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -15,6 +17,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.vetta.android.app.ThemeMode
@@ -33,6 +38,7 @@ import org.vetta.android.domain.work.SessionFilter
 import org.vetta.android.domain.work.SessionStatusGroup
 import org.vetta.android.resources.Res
 import org.vetta.android.resources.app_name
+import org.vetta.android.resources.home_connect_computer
 import org.vetta.android.resources.link_connected
 import org.vetta.android.resources.session_delete
 import org.vetta.android.resources.session_pin
@@ -42,9 +48,6 @@ import org.vetta.android.resources.work_group_waiting
 import org.vetta.android.ui.str
 import org.vetta.android.ui.theme.VettaTheme
 import org.vetta.android.ui.work.WorkActions
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class HomeScreenTest {
@@ -120,6 +123,98 @@ class HomeScreenTest {
                     onClose = {},
                     onOpenSession = onOpenSession,
                     onOpenProject = onOpenProject,
+                    onOpenSettings = {},
+                    onRefresh = {},
+                    onRefreshProjects = {},
+                    onReconnect = {},
+                    onPair = {},
+                )
+            }
+        }
+    }
+
+    @Test
+    fun theNewSessionEntryNamesTheProjectItStartsIn() {
+        var started = 0
+        composeRule.setContent {
+            VettaTheme(ThemeMode.Light) {
+                HomeScreen(
+                    state = paired,
+                    filter = SessionFilter(),
+                    onFilterChange = {},
+                    actions = RecordingActions(),
+                    entries = listOf(newSessionEntry("vetta") { started += 1 }),
+                    onClose = {},
+                    onOpenSession = {},
+                    onOpenProject = {},
+                    onOpenSettings = {},
+                    onRefresh = {},
+                    onRefreshProjects = {},
+                    onReconnect = {},
+                    onPair = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTag("home.newSession.detail").assertTextEquals("vetta")
+        composeRule.onNodeWithTag("home.newSession").performClick()
+        assertEquals(1, started)
+    }
+
+    @Test
+    fun connectComputerStaysInTheMenuNamesTheComputerAndOpensScanning() {
+        var scans = 0
+        showMenu {
+            homeEntries(
+                projectName = "vetta",
+                computerName = "MacBook Pro",
+                onNewSession = {},
+                onOpenBoard = {},
+                onConnect = { scans += 1 },
+                onRemote = {},
+            )
+        }
+        composeRule.onNodeWithText(str(Res.string.home_connect_computer)).assertIsDisplayed()
+        composeRule.onNodeWithTag("home.connect.detail").assertTextEquals("MacBook Pro")
+        assertTrue(top("home.newSession") < top("home.taskBoard"))
+        assertTrue(top("home.taskBoard") < top("home.connect"))
+        assertTrue(top("home.connect") < top("home.remote"))
+        assertTrue(top("home.remote") < top("filter.status"))
+        composeRule.onNodeWithTag("home.connect").performClick()
+        assertEquals(1, scans)
+    }
+
+    @Test
+    fun connectComputerStaysAvailableBeforeAComputerIsPaired() {
+        var scans = 0
+        showMenu {
+            homeEntries(
+                projectName = null,
+                computerName = null,
+                onNewSession = {},
+                onOpenBoard = {},
+                onConnect = { scans += 1 },
+                onRemote = null,
+            )
+        }
+        composeRule.onNodeWithTag("home.connect").assertIsDisplayed()
+        composeRule.onAllNodesWithTag("home.connect.detail").assertCountEquals(0)
+        composeRule.onAllNodesWithTag("home.remote").assertCountEquals(0)
+        composeRule.onNodeWithTag("home.connect").performClick()
+        assertEquals(1, scans)
+    }
+
+    private fun showMenu(entries: @Composable () -> List<HomeEntry>) {
+        composeRule.setContent {
+            VettaTheme(ThemeMode.Light) {
+                HomeScreen(
+                    state = paired,
+                    filter = SessionFilter(),
+                    onFilterChange = {},
+                    actions = RecordingActions(),
+                    entries = entries(),
+                    onClose = {},
+                    onOpenSession = {},
+                    onOpenProject = {},
                     onOpenSettings = {},
                     onRefresh = {},
                     onRefreshProjects = {},

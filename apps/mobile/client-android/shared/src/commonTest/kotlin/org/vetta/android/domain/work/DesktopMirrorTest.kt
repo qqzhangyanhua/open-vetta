@@ -8,6 +8,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
@@ -25,6 +26,7 @@ import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import org.vetta.android.data.remote.MemorySessionCache
 import org.vetta.android.domain.remote.AttachmentKind
+import org.vetta.android.domain.remote.RemoteInputState
 import org.vetta.android.domain.remote.RemoteQuestionAnswer
 import org.vetta.android.domain.remote.RemoteSessionStatus
 import org.vetta.android.domain.remote.TranscriptAttachment
@@ -212,9 +214,11 @@ class DesktopMirrorTest {
                     )
                 }
                 RemoteRequestMethod.SessionRespond -> {
-                    respond(request.requestId, buildJsonObject { put("responded", true) })
+                    // The turn can end before the answer's own reply reaches the phone.
                     emit(RemoteEventName.SessionMessage, buildJsonObject { put("kind", "turn_end"); put("at", 9) }, sid)
                     emit(RemoteEventName.SessionState, buildJsonObject { put("status", "completed") }, sid)
+                    delay(50)
+                    respond(request.requestId, buildJsonObject { put("responded", true) })
                 }
                 else -> respond(request.requestId, buildJsonObject {})
             }
@@ -272,6 +276,7 @@ class DesktopMirrorTest {
             mirror.respond("s2", "q1", listOf(RemoteQuestionAnswer("要发邮件吗？", listOf("发"))))
             assertTrue(eventually { mirror.state.value.transcript("s2").sessionState.status == RemoteSessionStatus.Completed })
             assertNull(mirror.state.value.transcript("s2").pendingQuestion)
+            assertEquals(RemoteSessionStatus.Completed, mirror.state.value.session("s2")?.status, "the list is not put back to running")
             assertEquals(1, device.turnEnds)
 
             mirror.openSession("s1")
@@ -449,6 +454,160 @@ class DesktopMirrorTest {
 
             assertNotNull(mirror.sendPrompt(null, "再来", projectCwd = "/code/vetta"))
             assertEquals(1, desktop.requests.count { it.method == RemoteRequestMethod.SessionConfigure }, "no choice leaves the desktop's defaults untouched")
+        }
+
+    @Test
+    fun openingAJustStartedSessionKeepsItsPrompt() =
+        runTest {
+            val desktop = scriptedDesktop()
+            val mirror = mirror(desktop)
+            assertTrue(mirror.pairWithCode(desktop.invite()))
+            assertTrue(eventually { mirror.state.value.sessions.map { it.id } == listOf("s1") })
+
+            val localId = assertNotNull(mirror.startSession("你好"))
+            assertTrue(eventually { !mirror.state.value.isStarting(localId) && mirror.state.value.resolve(localId) == "s2" })
+            assertTrue(eventually { mirror.state.value.transcript("s2").items.size >= 2 })
+
+            // The chat opens the session as soon as the prompt is out; the desktop's history
+            // (the fake's never has "你好") may not have it yet and must not replace the chat.
+            mirror.openSession("s2")
+            assertTrue(desktop.requests.any { it.method == RemoteRequestMethod.SessionOpen && it.sessionId == "s2" })
+            assertTrue(desktop.requests.none { it.method == RemoteRequestMethod.SessionHistory && it.sessionId == "s2" })
+            assertEquals("你好", (mirror.state.value.transcript("s2").items.first() as? TranscriptItem.User)?.text, "the prompt stays")
+            assertTrue(mirror.state.value.session("s2")?.live == true)
+
+            mirror.openSession("s2")
+            assertTrue(desktop.requests.any { it.method == RemoteRequestMethod.SessionHistory && it.sessionId == "s2" }, "only the first opening skips history")
+        }
+
+    @Test
+    fun listsSkillsPerProjectAndGlobalOnesForConversations() =
+        runTest {
+            val desktop = scriptedDesktop()
+            val asked = mutableListOf<String?>()
+            val scripted = desktop.handler
+            desktop.handler = { request ->
+                if (request.method == RemoteRequestMethod.SkillList) {
+                    val cwd = (request.payload as? JsonObject)?.get("cwd")?.jsonPrimitive?.content
+                    asked += cwd
+                    respond(
+                        request.requestId,
+                        buildJsonObject {
+                            putJsonArray("skills") {
+                                add(buildJsonObject { put("name", if (cwd == null) "global" else "project"); put("description", ""); put("type", "skill"); put("source", "user") })
+                            }
+                        },
+                    )
+                } else {
+                    scripted(request)
+                }
+            }
+            val mirror = mirror(desktop)
+            assertTrue(mirror.pairWithCode(desktop.invite()))
+            assertTrue(eventually { mirror.state.value.online })
+
+            mirror.loadSkills("/code/vetta")
+            mirror.loadSkills(null)
+            assertEquals(listOf<String?>("/code/vetta", null), asked)
+            assertEquals(listOf("project"), mirror.state.value.skillCatalog("/code/vetta").options?.map { it.name })
+            assertEquals(listOf("global"), mirror.state.value.skillCatalog(null).options?.map { it.name })
+
+            desktop.reachable = false
+            desktop.dropConnections()
+            assertTrue(eventually { !mirror.state.value.online })
+            mirror.loadSkills(null)
+            assertTrue(mirror.state.value.skillCatalog(null).failed)
+            assertEquals(listOf("global"), mirror.state.value.skillCatalog(null).options?.map { it.name }, "the last list stays")
+        }
+
+    @Test
+    fun browsesAndReadsTheSessionsFilesOnlyFromADesktopThatServesThem() =
+        runTest {
+            val desktop = scriptedDesktop()
+            val scripted = desktop.handler
+            desktop.handler = { request ->
+                when (request.method) {
+                    RemoteRequestMethod.FileList ->
+                        respond(
+                            request.requestId,
+                            buildJsonObject {
+                                put("path", "")
+                                putJsonArray("entries") {
+                                    add(buildJsonObject { put("name", "b.md"); put("path", "b.md"); put("isDirectory", false); put("size", 5); put("modifiedAt", 1) })
+                                    add(buildJsonObject { put("name", "src"); put("path", "src"); put("isDirectory", true); put("size", 0); put("modifiedAt", 1) })
+                                }
+                            },
+                        )
+                    RemoteRequestMethod.FileStat ->
+                        respond(
+                            request.requestId,
+                            buildJsonObject {
+                                putJsonObject("file") {
+                                    put("name", "b.md"); put("path", "b.md"); put("isDirectory", false); put("size", 5); put("modifiedAt", 1)
+                                    put("mimeType", "text/markdown"); put("displayPath", "~/vetta/b.md")
+                                }
+                            },
+                        )
+                    RemoteRequestMethod.FileRead ->
+                        respond(
+                            request.requestId,
+                            buildJsonObject { put("data", "IyBIaQ=="); put("offset", 0); put("totalSize", 4); put("modifiedAt", 1); put("mimeType", "text/markdown") },
+                        )
+                    else -> scripted(request)
+                }
+            }
+            val mirror = mirror(desktop)
+            assertTrue(mirror.pairWithCode(desktop.invite()))
+            assertTrue(eventually { mirror.state.value.online })
+            desktop.emit(RemoteEventName.DeviceStatus, buildJsonObject { put("deviceName", "MacBook Pro") })
+            testScheduler.runCurrent()
+            val old = runCatching { mirror.listFiles("s1", "") }.exceptionOrNull() as? FileViewException
+            assertEquals(FileViewError.UnsupportedDesktop, old?.reason, "an older desktop is not asked")
+
+            desktop.emit(RemoteEventName.DeviceStatus, buildJsonObject { put("deviceName", "MacBook Pro"); put("fileRead", true) })
+            assertTrue(eventually { mirror.state.value.link.desktop?.fileRead == true })
+            assertEquals(listOf("src", "b.md"), mirror.listFiles("s1", "").map { it.name }, "folders first")
+            val info = mirror.statFile("s1", "./b.md")
+            assertEquals("~/vetta/b.md", info.displayPath)
+            assertEquals("# Hi", mirror.readFile("s1", info).data.decodeToString())
+            mirror.readFile("s1", info)
+            assertEquals(1, desktop.requests.count { it.method == RemoteRequestMethod.FileRead }, "an unchanged file is read once")
+        }
+
+    @Test
+    fun opensAPhotoLargerThanTheLimitThatTheDesktopScalesDown() =
+        runTest {
+            val desktop = scriptedDesktop()
+            val scripted = desktop.handler
+            desktop.handler = { request ->
+                when (request.method) {
+                    RemoteRequestMethod.FileStat ->
+                        respond(
+                            request.requestId,
+                            buildJsonObject {
+                                putJsonObject("file") {
+                                    put("name", "IMG_0001.HEIC"); put("path", "IMG_0001.HEIC"); put("isDirectory", false); put("size", 20 * 1024 * 1024); put("modifiedAt", 1)
+                                    put("mimeType", "image/heic"); put("displayPath", "~/vetta/IMG_0001.HEIC")
+                                }
+                            },
+                        )
+                    // The desktop sends a scaled-down JPEG well under the limit.
+                    RemoteRequestMethod.FileRead ->
+                        respond(
+                            request.requestId,
+                            buildJsonObject { put("data", "/9j/"); put("offset", 0); put("totalSize", 3); put("modifiedAt", 1); put("mimeType", "image/jpeg") },
+                        )
+                    else -> scripted(request)
+                }
+            }
+            val mirror = mirror(desktop)
+            assertTrue(mirror.pairWithCode(desktop.invite()))
+            assertTrue(eventually { mirror.state.value.online })
+            desktop.emit(RemoteEventName.DeviceStatus, buildJsonObject { put("deviceName", "MacBook Pro"); put("fileRead", true) })
+            assertTrue(eventually { mirror.state.value.link.desktop?.fileRead == true })
+            val photo = mirror.readFile("s1", mirror.statFile("s1", "IMG_0001.HEIC"))
+            assertEquals("image/jpeg", photo.mimeType)
+            assertEquals(3, photo.data.size)
         }
 
     @Test
@@ -808,5 +967,90 @@ class DesktopMirrorTest {
                 mirror.state.value.pairing,
             )
             assertFalse(mirror.state.value.paired)
+        }
+
+    @Test
+    fun subscribesToTheScreenOnlyWhileItIsOpenAndTheAppIsInFront() =
+        runTest {
+            val desktop = scriptedDesktop()
+            val subscriptions = mutableListOf<Boolean>()
+            val cursorAsked = mutableListOf<Boolean?>()
+            val scripted = desktop.handler
+            desktop.handler = { request ->
+                if (request.method == RemoteRequestMethod.ScreenSubscribe) {
+                    val active = (request.payload as JsonObject)["active"]!!.jsonPrimitive.booleanOrNull!!
+                    subscriptions += active
+                    cursorAsked += (request.payload as JsonObject)["cursor"]?.jsonPrimitive?.booleanOrNull
+                    respond(
+                        request.requestId,
+                        buildJsonObject {
+                            put("screen", if (active) "streaming" else "stopped")
+                            put("input", "permission_denied")
+                        },
+                    )
+                } else {
+                    scripted(request)
+                }
+            }
+            val mirror = mirror(desktop)
+            assertTrue(mirror.pairWithCode(desktop.invite()))
+            assertTrue(eventually { mirror.state.value.online })
+            assertEquals(true, desktop.hellos.last().capabilities.screen, "the phone says it subscribes on demand")
+            desktop.emit(RemoteEventName.DeviceStatus, buildJsonObject { put("deviceName", "MacBook Pro"); put("screen", true) })
+            testScheduler.runCurrent()
+
+            mirror.setScreenOpen(true)
+            assertTrue(eventually { mirror.state.value.screen?.input == RemoteInputState.PermissionDenied })
+            assertEquals(listOf(true), subscriptions)
+            assertEquals(listOf<Boolean?>(true), cursorAsked, "the phone draws the pointer and asks for its shape")
+
+            desktop.emit(
+                RemoteEventName.ScreenCursor,
+                buildJsonObject {
+                    put("image", "iVBORw0KGgo=")
+                    put("width", 16)
+                    put("height", 24)
+                    put("hotspotX", 3)
+                    put("hotspotY", 40)
+                    put("screenWidth", 1512)
+                },
+            )
+            assertTrue(eventually { mirror.state.value.screenCursor != null })
+            assertEquals(24f, mirror.state.value.screenCursor!!.hotspotY, "the hot spot stays on the image")
+
+            desktop.emit(RemoteEventName.ScreenStatus, buildJsonObject { put("screen", "streaming"); put("input", "ready") })
+            assertTrue(eventually { mirror.state.value.screen?.input == RemoteInputState.Ready })
+
+            mirror.setActive(false)
+            assertTrue(eventually { subscriptions == listOf(true, false) }, "the background stops the capture")
+            assertNull(mirror.state.value.screen)
+            assertNull(mirror.state.value.screenCursor)
+            mirror.setActive(true)
+            assertTrue(eventually { subscriptions.last() })
+
+            // Every connection brings a device.status: a desktop that lost the phone for a moment forgot it.
+            desktop.emit(RemoteEventName.DeviceStatus, buildJsonObject { put("deviceName", "MacBook Pro"); put("screen", true) })
+            assertTrue(eventually { subscriptions.size == 4 && subscriptions.last() })
+
+            mirror.setScreenOpen(false)
+            assertTrue(eventually { subscriptions.size == 5 && !subscriptions.last() })
+            assertNull(mirror.state.value.screen)
+        }
+
+    @Test
+    fun neverAsksAnOlderDesktopForItsScreen() =
+        runTest {
+            val desktop = scriptedDesktop()
+            val mirror = mirror(desktop)
+            assertTrue(mirror.pairWithCode(desktop.invite()))
+            assertTrue(eventually { mirror.state.value.online })
+            desktop.emit(RemoteEventName.DeviceStatus, buildJsonObject { put("deviceName", "MacBook Pro") })
+            testScheduler.runCurrent()
+
+            mirror.setScreenOpen(true)
+            testScheduler.runCurrent()
+            mirror.setScreenOpen(false)
+            testScheduler.runCurrent()
+            assertTrue(desktop.requests.none { it.method == RemoteRequestMethod.ScreenSubscribe })
         }
 }
