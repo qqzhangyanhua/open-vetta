@@ -1,0 +1,521 @@
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarView.tsx
+  s_680cf7fc4ff7b4::t_6b76ef0e837d7d 149
+  s_680cf7fc4ff7b4::t_f6fde53b6b0857 146-148
+  s_680cf7fc4ff7b4::t_4efd017bb47cd0 150-152
+packages/coding-agent/test/personalization-prompt.test.ts
+  s_680cf7fc4ff7b4::t_e793f22774aaa0 13
+  s_680cf7fc4ff7b4::t_9de0ee35b85a6f 14-16
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.tsx
+  s_680cf7fc4ff7b4::t_5afb323596daaa 181-182
+  s_680cf7fc4ff7b4::t_3f97bd9003cbea 22
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionSend.ts
+  s_680cf7fc4ff7b4::t_4109c3f4bc4165 3,6-7,37,60,104-133
+  s_680cf7fc4ff7b4::t_a6a88bb659f1e5 2
+apps/desktop/src/renderer/domains/conversation/components/new-session/useNewSessionSend.test.tsx
+  s_680cf7fc4ff7b4::t_2aed20fadfe68f 115,178,254,293,323-350,352,357
+  s_680cf7fc4ff7b4::t_d03792e4367a31 351
+  s_680cf7fc4ff7b4::t_8756f2253fe6e9 353-356
+  s_680cf7fc4ff7b4::t_68d1fd4fec92c7 358-360
+apps/desktop/src/renderer/domains/conversation/session-conversation/SessionConversation.tsx
+  s_680cf7fc4ff7b4::t_da03c9ccab2059 12,52
+  s_680cf7fc4ff7b4::t_3dd0281a99425d 51
+  s_680cf7fc4ff7b4::t_56797dfea7de9d 1-11,13-50,53-72
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.tsx
+  s_680cf7fc4ff7b4::t_2d5075810dc9b6 8,11,32-33,46
+apps/desktop/src/main/agent-runtime/model-call-frame-contract.test.ts
+  s_680cf7fc4ff7b4::t_bf8130a6d821c5 340
+  s_680cf7fc4ff7b4::t_63e68e0c6e3540 337-339
+  s_680cf7fc4ff7b4::t_c5d41996d055a0 341-343
+.github/release-notes/v0.5.61.md
+  s_680cf7fc4ff7b4::t_676217462fa823 50
+  s_680cf7fc4ff7b4::t_7046760779f4b3 47-49
+  s_680cf7fc4ff7b4::t_848d732c0b6ec0 51-53
+packages/coding-agent/src/model-context/system-prompt-policy.ts
+  s_680cf7fc4ff7b4::t_281a0f87cfe9c9 53
+apps/desktop/src/renderer/domains/conversation/conversation-view/agent-message.tsx
+  s_680cf7fc4ff7b4::t_46736260990e85 25-169,301,313,333
+  s_680cf7fc4ff7b4::t_1a8191bdcd74e5 251-279
+  s_680cf7fc4ff7b4::t_37a390224004ab 22-24
+  s_680cf7fc4ff7b4::t_21897062fe8c4f 170-172,248-250
+  s_680cf7fc4ff7b4::t_e8ddefd73088ae 280-282,298-300
+  s_680cf7fc4ff7b4::t_9fa629b21fec26 302-304,310-312
+  s_680cf7fc4ff7b4::t_62b6bf1e6a2d8c 314-316,330-332
+  s_680cf7fc4ff7b4::t_72975dee3eb483 334-336
+apps/desktop/src/renderer/domains/conversation/components/input-bar/types.ts
+  s_680cf7fc4ff7b4::t_779398ad664429 46
+apps/desktop/src/renderer/domains/conversation/components/input-bar/DefaultInputBarConnector.tsx
+  s_680cf7fc4ff7b4::t_7aa4976af09a6f 99-107
+  s_680cf7fc4ff7b4::t_21d2ea840106cf 98
+  s_680cf7fc4ff7b4::t_3cdcbb26716ff0 108-110
+packages/coding-agent/test/system-prompt.test.ts
+  s_680cf7fc4ff7b4::t_595731c0fe8018 10
+  s_680cf7fc4ff7b4::t_a1937c336704cb 9
+apps/desktop/src/renderer/domains/conversation/components/TranscriptConversation.tsx
+  s_680cf7fc4ff7b4::t_f229ab83c5c825 3-38
+  s_680cf7fc4ff7b4::t_e7c7d8d643827f 1-2
+  s_680cf7fc4ff7b4::t_f4f57a9a07340a 39-41
+apps/desktop/src/renderer/domains/conversation/conversation-view/event-message.tsx
+  s_680cf7fc4ff7b4::t_5563ca08d607d1 5,27,29-30,32-34,36,39-40,55,62-75
+  s_680cf7fc4ff7b4::t_ddee1cc7d38f05 35
+  s_680cf7fc4ff7b4::t_4132e75ee08fb7 3,11-26,31,37-38
+  s_680cf7fc4ff7b4::t_39a0dafd503f58 43-52
+  s_680cf7fc4ff7b4::t_cb59bbf4f56fa3 1-2,4,6-7,9,41-42,53-54,57-61,76-79
+apps/desktop/src/renderer/domains/conversation/components/message-list/TimelineEventViews.tsx
+  s_680cf7fc4ff7b4::t_204c99a944f7b9 6,8,10-14,18
+  s_680cf7fc4ff7b4::t_ec801c1fbb4ca3 3-5
+  s_680cf7fc4ff7b4::t_fcd02763c5cd8f 7
+  s_680cf7fc4ff7b4::t_ca7a241247b028 9
+  s_680cf7fc4ff7b4::t_5eab80ccae2791 15-17
+apps/desktop/src/renderer/domains/conversation/components/ChatView.tsx
+  s_680cf7fc4ff7b4::t_9585359f632db4 187-194
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.external-invocation.test.tsx
+  s_680cf7fc4ff7b4::t_5ac03af187cdb5 14-16,52-58
+.agents/skills/vetta-testing/SKILL.md
+  s_680cf7fc4ff7b4::t_9c90166fd2d79c 123,129
+.github/workflows/desktop-promote.yml
+  s_680cf7fc4ff7b4::t_b5d71cd0ddc437 5-6,8-21,31,47,50,53-55,72,74,92-94,103,106
+.github/workflows/desktop-release.yml
+  s_680cf7fc4ff7b4::t_7d39b6b1e8996e 65-68,83,160-167,227,502-515
+.github/workflows/quality.yml
+  s_680cf7fc4ff7b4::t_0041a262b3d509 33
+AGENTS.md
+  s_680cf7fc4ff7b4::t_514b5ecad435ba 213-214,216
+apps/desktop/docs/message-feed-extensions.md
+  s_680cf7fc4ff7b4::t_e5830d2cacbc01 8-13,16,18,20-22,24,27-61,64,66,68,70,72,74,106,118,121
+apps/desktop/package.json
+  s_680cf7fc4ff7b4::t_f3b7daf8e39636 3
+apps/desktop/src/main/agent-modes/agent-modes.test.ts
+  s_680cf7fc4ff7b4::t_ec926ffb141871 65-83,91-118
+apps/desktop/src/main/agent-modes/modes-data.ts
+  s_680cf7fc4ff7b4::t_9fa6509ce99cb9 21,28
+apps/desktop/src/main/agent-modes/modes/coding.md
+  s_680cf7fc4ff7b4::t_0a688462b372eb 8,10-11,21,45,54,57
+apps/desktop/src/main/agent-modes/modes/partials/code-discipline.md
+  s_680cf7fc4ff7b4::t_0740813723ee63 2
+apps/desktop/src/main/agent-modes/modes/partials/deliverables-placement.md
+  s_680cf7fc4ff7b4::t_2985d5b1d8d8d0 24,26
+apps/desktop/src/main/agent-modes/modes/partials/narration.md
+  s_680cf7fc4ff7b4::t_04af1c27a1df1f 2,10
+apps/desktop/src/main/agent-modes/modes/work.md
+  s_680cf7fc4ff7b4::t_927d326db04754 9
+apps/desktop/src/main/agent-teams/team-session-event-hub.test.ts
+  s_680cf7fc4ff7b4::t_bbf5520d670eda 205,207,210-212
+apps/desktop/src/main/conversations/slim-session-event-for-ipc.test.ts
+  s_680cf7fc4ff7b4::t_ac53718fa90b03 69,74-79,81
+apps/desktop/src/main/ipc/session.ts
+  s_680cf7fc4ff7b4::t_2249a310316ba0 177,1566-1568,1575,1577-1579,1613,1615-1616,1668,1670-1677,1681-1696,1765,1767
+apps/desktop/src/main/notifications/session-turn-notification-controller.test.ts
+  s_680cf7fc4ff7b4::t_b06612d3de24ac 10-14
+apps/desktop/src/main/notifications/session-turn-notification-controller.ts
+  s_680cf7fc4ff7b4::t_23745eade27fe3 11
+apps/desktop/src/main/pet/pet-session-presentation-controller.ts
+  s_680cf7fc4ff7b4::t_0f4f8fdc0e8344 258
+apps/desktop/src/main/pet/session-event-action-policy.test.ts
+  s_680cf7fc4ff7b4::t_b36c0c9fd99309 46,48-54,63,65-71
+apps/desktop/src/main/pet/session-event-action-policy.ts
+  s_680cf7fc4ff7b4::t_afcc1cbefffafa 1,126,230,232-234
+apps/desktop/src/main/remote-control/desktop-remote-mirror.test.ts
+  s_680cf7fc4ff7b4::t_df5f2af8d5679a 358-359,374-379,659
+apps/desktop/src/main/remote-control/desktop-remote-mirror.ts
+  s_680cf7fc4ff7b4::t_21902d5a25eefb 138
+apps/desktop/src/preload/api-types/session.ts
+  s_680cf7fc4ff7b4::t_59e804bf4b84c7 70-76,178-188,311
+apps/desktop/src/preload/apis/helper.test.ts
+  s_680cf7fc4ff7b4::t_858bc4de7582b9 3,7-42,70-71,75-76
+apps/desktop/src/preload/apis/helper.ts
+  s_680cf7fc4ff7b4::t_34576ff3ed7e88 17-63
+apps/desktop/src/preload/apis/session.ts
+  s_680cf7fc4ff7b4::t_87db776915aade 4,24,128-137,210
+apps/desktop/src/renderer/domains/activity-panel/components/WorkflowTabPanel.tsx
+  s_680cf7fc4ff7b4::t_8f32d8de0655ee 1,7,21-22
+apps/desktop/src/renderer/domains/conversation/components/ChatExportHost.tsx
+  s_680cf7fc4ff7b4::t_7e3e740a1f6355 5
+apps/desktop/src/renderer/domains/conversation/components/SessionViewerPage.test.tsx
+  s_680cf7fc4ff7b4::t_d29d44af68347d 66-67,94
+apps/desktop/src/renderer/domains/conversation/components/annotations/AnnotationScope.test.tsx
+  s_680cf7fc4ff7b4::t_17a25c1aa36262 7,11,125,138
+apps/desktop/src/renderer/domains/conversation/components/annotations/AnnotationScope.tsx
+  s_680cf7fc4ff7b4::t_65699ae2102a54 1,24-29,35,38-63,93-94,109-118,123
+apps/desktop/src/renderer/domains/conversation/components/command-panel/CommandPanel.tsx
+  s_680cf7fc4ff7b4::t_cc5f00127348af 5,9-10
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarGoalStatus.test.tsx
+  s_680cf7fc4ff7b4::t_20310e835b22d1 4-6,8-13,15,17-18,20-31,33-35,37-43,46,48-60,62-67,71,76,78-79,82
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarGoalStatus.tsx
+  s_680cf7fc4ff7b4::t_76b64daccd70e3 2-10,12,14-20,22-35,37-50,53-93,95-100,102-114,116,118-142,144-148,150-151,153-156
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.tsx
+  s_680cf7fc4ff7b4::t_aaf8fe0f8cd6b7 2,4-5,7,28-31,43-56
+apps/desktop/src/renderer/domains/conversation/components/message-list/ContentRendering.tsx
+  s_680cf7fc4ff7b4::t_f83c78e1cb6307 1-11
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageExtensions.flow.test.tsx
+  s_680cf7fc4ff7b4::t_7d48c2aee5f30b 7,12,21,23-26,48-69,94,124,127,153,180
+apps/desktop/src/renderer/domains/conversation/components/message-list/RenderingScopes.test.tsx
+  s_680cf7fc4ff7b4::t_bff515fa0c0edf 7-8,63-68,71,73-74,81-83,90,98-105
+apps/desktop/src/renderer/domains/conversation/components/message-list/SubagentCardsScope.tsx
+  s_680cf7fc4ff7b4::t_4253305ac1c743 1-5,9,14,16-18
+apps/desktop/src/renderer/domains/conversation/components/message-list/TeamMemberReplyCard.test.tsx
+  s_680cf7fc4ff7b4::t_0076692473fe2b 3-6,30-40,58-59,61,65-80,87,89-90,92-94
+apps/desktop/src/renderer/domains/conversation/components/message-list/TeamMemberReplyCard.tsx
+  s_680cf7fc4ff7b4::t_5ed79c10a0313b 2,51-66
+apps/desktop/src/renderer/domains/conversation/components/message-list/UserMessageView.runtime-readiness.test.tsx
+  s_680cf7fc4ff7b4::t_d1d164b644b858 25-28,44-57,60-66,68-72
+apps/desktop/src/renderer/domains/conversation/components/message-list/index.ts
+  s_680cf7fc4ff7b4::t_4ce1fb6d80b528 3-4,6,8
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-height-estimates.test.ts
+  s_680cf7fc4ff7b4::t_019e6b79fba8d1 102,130
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-height-estimates.ts
+  s_680cf7fc4ff7b4::t_631bf06fa9f707 236-237
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-list-derived.test.ts
+  s_680cf7fc4ff7b4::t_af9b6a054498ae 6-23
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-list-derived.ts
+  s_680cf7fc4ff7b4::t_51c34c014f0d19 39-47,52-54
+apps/desktop/src/renderer/domains/conversation/components/message-list/types.ts
+  s_680cf7fc4ff7b4::t_a5f928848ed879 10-11,26
+apps/desktop/src/renderer/domains/conversation/components/useInputActionBarModel.test.tsx
+  s_680cf7fc4ff7b4::t_d9e61b1278ea75 17-21,61-90
+apps/desktop/src/renderer/domains/conversation/components/useInputActionBarModel.ts
+  s_680cf7fc4ff7b4::t_1f940c0617c28a 45-49,77,150
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatDelegationFlow.test.tsx
+  s_680cf7fc4ff7b4::t_d1d5d63f22fdcf 117,120,125,137,155
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatView.test.tsx
+  s_680cf7fc4ff7b4::t_1809e49f26d18a 19-20,132
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamChatView.tsx
+  s_680cf7fc4ff7b4::t_f40cfa3039a2f5 7,47-48,53-54
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamComposerConnector.tsx
+  s_680cf7fc4ff7b4::t_23da61313bc149 353
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamConversation.tsx
+  s_680cf7fc4ff7b4::t_98ded2310be5d6 1-48
+apps/desktop/src/renderer/domains/conversation/conversation-view/agent-message.test.tsx
+  s_680cf7fc4ff7b4::t_6d62016eb92739 1,3-46,49-66,68-76,79-91,93-115
+apps/desktop/src/renderer/domains/conversation/conversation-view/composition.test.tsx
+  s_680cf7fc4ff7b4::t_5918a0467636e8 1-2,4-82,85-89,91-119,122-123,126-138,140,143-166,170-180,182-184,186-209,211,213-228,230-237
+apps/desktop/src/renderer/domains/conversation/conversation-view/defaults.tsx
+  s_680cf7fc4ff7b4::t_8e40bd440aaf51 1-35
+apps/desktop/src/renderer/domains/conversation/conversation-view/event-message.test.tsx
+  s_680cf7fc4ff7b4::t_784e3da140dbfa 1-58
+apps/desktop/src/renderer/domains/conversation/conversation-view/extensions.tsx
+  s_680cf7fc4ff7b4::t_b76c1237c91635 1-12,14-16,19-39,42-75,79-81,83-89,91-94,96-100,102-110,112,115-121,123
+apps/desktop/src/renderer/domains/conversation/conversation-view/feed.ts
+  s_680cf7fc4ff7b4::t_b83a76a700aac1 1-116
+apps/desktop/src/renderer/domains/conversation/conversation-view/index.ts
+  s_680cf7fc4ff7b4::t_df3fe4f7b15326 1-47
+apps/desktop/src/renderer/domains/conversation/conversation-view/message-scope.tsx
+  s_680cf7fc4ff7b4::t_fcd3ba2c408133 1-35
+apps/desktop/src/renderer/domains/conversation/conversation-view/parts.test.tsx
+  s_680cf7fc4ff7b4::t_606b3e794ef85e 9-42,114,122,125-137,221
+apps/desktop/src/renderer/domains/conversation/conversation-view/parts.tsx
+  s_680cf7fc4ff7b4::t_bc8692bea12e9b 2,10,12-25,29-56,58,69,74,77,83-87,91-114,116-117,119,124,129,150-152,158-160,164-173,177-218,220,222-247,249-259
+apps/desktop/src/renderer/domains/conversation/conversation-view/root.tsx
+  s_680cf7fc4ff7b4::t_c0e069970105bd 1-29
+apps/desktop/src/renderer/domains/conversation/conversation-view/snapshot-feed.ts
+  s_680cf7fc4ff7b4::t_96a8961a0598fb 1-48
+apps/desktop/src/renderer/domains/conversation/conversation-view/subagent-cards.test.tsx
+  s_680cf7fc4ff7b4::t_c77ba48e9fc7e8 1-57
+apps/desktop/src/renderer/domains/conversation/conversation-view/subagent-cards.tsx
+  s_680cf7fc4ff7b4::t_401949ffa864b7 1-15
+apps/desktop/src/renderer/domains/conversation/conversation-view/templates.tsx
+  s_680cf7fc4ff7b4::t_e136ca2632c71f 1-88
+apps/desktop/src/renderer/domains/conversation/conversation-view/usages.ts
+  s_680cf7fc4ff7b4::t_7207a0d3a31001 1-2,4,6-7
+apps/desktop/src/renderer/domains/conversation/conversation-view/user-message.tsx
+  s_680cf7fc4ff7b4::t_90cae7affcbaf1 1,7-15,18-31,34-45,47-102,104-105,108-110,112-115,118-254
+apps/desktop/src/renderer/domains/conversation/conversation-view/viewport-frame.tsx
+  s_680cf7fc4ff7b4::t_8ada03910b1387 1-78
+apps/desktop/src/renderer/domains/conversation/conversation-view/viewport.tsx
+  s_680cf7fc4ff7b4::t_e7339ad181a518 3,5,8-9,11,14-22,24-28,30,32-51,54-58
+apps/desktop/src/renderer/domains/conversation/hooks/session-attach.fixture.ts
+  s_680cf7fc4ff7b4::t_f0fb5bc21f7117 1-27
+apps/desktop/src/renderer/domains/conversation/hooks/session-event-routes.test.ts
+  s_680cf7fc4ff7b4::t_8a97bab1a73265 1-19
+apps/desktop/src/renderer/domains/conversation/hooks/session-event-routes.ts
+  s_680cf7fc4ff7b4::t_b2f7f7befdce89 1-49
+apps/desktop/src/renderer/domains/conversation/hooks/useAssistantMessageModel.ts
+  s_680cf7fc4ff7b4::t_3e203ae7c24bae 22-23,32,121
+apps/desktop/src/renderer/domains/conversation/hooks/useBoundAgentParticipants.ts
+  s_680cf7fc4ff7b4::t_05c9bee421d5c9 12
+apps/desktop/src/renderer/domains/conversation/hooks/useCommandPanelModel.test.tsx
+  s_680cf7fc4ff7b4::t_ae2c2c2989a75f 106-147
+apps/desktop/src/renderer/domains/conversation/hooks/useCommandPanelModel.tsx
+  s_680cf7fc4ff7b4::t_60e650dbed299e 16-19,26,44,85-86
+apps/desktop/src/renderer/domains/conversation/hooks/useGoalModeModel.test.tsx
+  s_680cf7fc4ff7b4::t_7adb28d2f53dd5 1,3-42,45-105,107-111,114,117-128,130-133,136-137,140-153,156-159,161-163,165-168,171-174,176-177,179-181,184-206,208-209,211,213-224,226-229,231-247
+apps/desktop/src/renderer/domains/conversation/hooks/useGoalModeModel.ts
+  s_680cf7fc4ff7b4::t_27ceddef3b5254 1-8,11-12,14,18-21,23-28,31,33,37,39,41-42,45-47,49,53,59,63,65-66,70,74-120,123,127,131,134-137,140-141,144-158
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageListModel.test.tsx
+  s_680cf7fc4ff7b4::t_2ba6f109b2f8f8 6,25,62
+apps/desktop/src/renderer/domains/conversation/hooks/useMessageListModel.ts
+  s_680cf7fc4ff7b4::t_05de773f18bd96 5,8,11,13
+apps/desktop/src/renderer/domains/conversation/hooks/usePromptPrediction.ts
+  s_680cf7fc4ff7b4::t_95c8c2b6fec722 1-95
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionEventController.reopen-turn.test.tsx
+  s_680cf7fc4ff7b4::t_51d2147726b484 1,3-19,21-23,25-29,32-41,44-46,49-64,66-97,99-120,122-124
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionEventController.request-state.test.tsx
+  s_680cf7fc4ff7b4::t_5a6312fd452d9b 5-10,15-16,32,45-56,59-60,67-81,84,91-97,100,102,106-119
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionEventController.ts
+  s_680cf7fc4ff7b4::t_fd256cc86bf410 1,3,5-8,10-11,21-23,30-35,38-42,46-49,52-84,86,90-92,94-95,99,101-107,109-118,120-123,125,127,129-130,133,136-142,144-145,147-150,152-155,157-158,160-161,163,165-180,182-183,185,189,192
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionManager.cross-session-leak.test.ts
+  s_680cf7fc4ff7b4::t_0747e2393c167f 8,167,202-209
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionManager.queue.test.ts
+  s_680cf7fc4ff7b4::t_8ec40cb45c4f9f 8,126,134,211-215,226,300-301,590-591,621,623-629,633
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionManager.session-switch.test.ts
+  s_680cf7fc4ff7b4::t_52671dfeefee6f 10,208,309,401,432,527,638-639,663,684,737
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionManager.stale-instance-send.test.ts
+  s_680cf7fc4ff7b4::t_889c5b585d24f5 7,140
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionMessageSender.ts
+  s_680cf7fc4ff7b4::t_3831528c3a598a 57-58,179,187-192,237-244,302,308-313,366-367,371-374,383,426-434,438-450,480-485,500-504,600,619-624,629-640,644,647-654,663-671,683-688,728-736
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionOpener.ts
+  s_680cf7fc4ff7b4::t_461c6f6befcca7 3,24,58-63,144-145,202,248-250,281-283,287,289,302-306,375,407-409,427,459-503,509-512,537-538,564,616-617,714-715
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionStateEvents.ts
+  s_680cf7fc4ff7b4::t_1169752076016f 1-232
+apps/desktop/src/renderer/domains/conversation/hooks/useUserMessageActions.ts
+  s_680cf7fc4ff7b4::t_a9a8427b3e7b4a 15,18,106,332
+apps/desktop/src/renderer/domains/conversation/hooks/userMessageMenu.ts
+  s_680cf7fc4ff7b4::t_8d436002df3414 1-75
+apps/desktop/src/renderer/domains/conversation/services/chat-service-error.test.ts
+  s_680cf7fc4ff7b4::t_c7a50263cbeabc 1-2,4-5,8-20,49,118,120,127,134-143,320-327,330-335,338,340,349-356,368,370-371
+apps/desktop/src/renderer/domains/conversation/services/chat-service-usage.test.ts
+  s_680cf7fc4ff7b4::t_2abc00e4140aef 1-3,5,7-8,82-100
+apps/desktop/src/renderer/domains/conversation/services/chat-service.ts
+  s_680cf7fc4ff7b4::t_d1dbd1fb7c64b2 353-371,373,379,381,408,443,473,543-546,738,819-822,912-920,922,925-927,932-946,956,959-961,966-968,970-989,993-995,997-998,1002-1012
+apps/desktop/src/renderer/domains/conversation/services/conversation-feed-history.ts
+  s_680cf7fc4ff7b4::t_2a187aa101c5eb 1-2,4-43,46-50,55-57,59-88,90-92,94-103,106-131,133-162
+apps/desktop/src/renderer/domains/conversation/services/conversation-feed-store.ts
+  s_680cf7fc4ff7b4::t_02a6d19f970f04 1-38,40,44-46,48-60,62
+apps/desktop/src/renderer/domains/conversation/services/conversation-feed.test.ts
+  s_680cf7fc4ff7b4::t_6c70a44ab4eae7 1-743
+apps/desktop/src/renderer/domains/conversation/services/conversation-feed.ts
+  s_680cf7fc4ff7b4::t_61afff90a5a7f4 6,8-19,21-142,145-182,184-296,298-304,309-310,312-316,319,326-328,332,334,346-351,353,355,379-416,419-434,437-470,474-538,540-569,572-580,582-586,589-596,598-601,605-641
+apps/desktop/src/renderer/domains/conversation/services/conversation-projection.test.ts
+  s_680cf7fc4ff7b4::t_363b98070160af 1,3,5
+apps/desktop/src/renderer/domains/conversation/services/conversation-projection.ts
+  s_680cf7fc4ff7b4::t_df35ae38259c0a 9,11,42-51,53-55,57-63,66,69-70,84,118-123,127,130-135,137-141
+apps/desktop/src/renderer/domains/conversation/services/goal-mode-entry.ts
+  s_680cf7fc4ff7b4::t_85cb45be0ffedd 1-9
+apps/desktop/src/renderer/domains/conversation/services/staged-new-session-send.ts
+  s_680cf7fc4ff7b4::t_501559aff56992 26,116-117,162,183
+apps/desktop/src/renderer/domains/conversation/session-conversation/ForkOriginBanner.tsx
+  s_680cf7fc4ff7b4::t_96c823111d6109 13
+apps/desktop/src/renderer/domains/conversation/session-conversation/MessageListFooter.test.tsx
+  s_680cf7fc4ff7b4::t_181eb7fd96f273 35-36
+apps/desktop/src/renderer/domains/conversation/session-conversation/MessageListFooter.tsx
+  s_680cf7fc4ff7b4::t_4c55a62a90d2bc 6-8
+apps/desktop/src/renderer/domains/conversation/session-conversation/SessionAgentMessage.tsx
+  s_680cf7fc4ff7b4::t_331478e2186083 1-27
+apps/desktop/src/renderer/domains/conversation/session-conversation/SessionConversation.stability.test.tsx
+  s_680cf7fc4ff7b4::t_4549ea285987e3 1,4-58,60-108,110-114,116-124,126-129,131-133,135-140,142-150,153-168,170-175,177-189,191-192,194-196,198-204,206-211,213-214,216-225,227-250
+apps/desktop/src/renderer/domains/conversation/session-conversation/SessionUserMessage.tsx
+  s_680cf7fc4ff7b4::t_444d61384da304 1-24
+apps/desktop/src/renderer/domains/conversation/session-conversation/session-extensions.tsx
+  s_680cf7fc4ff7b4::t_b709e690c09c5c 2-16,18-37,39-49,51-58,62-73,75-78,80-121
+apps/desktop/src/renderer/domains/conversation/session-conversation/session-user-message-commands.ts
+  s_680cf7fc4ff7b4::t_2d3aedd945f561 1-28
+apps/desktop/src/renderer/domains/conversation/session-conversation/useSessionConversationFeed.ts
+  s_680cf7fc4ff7b4::t_3f646ed8ea6325 1-10,12-14,16-17,19-45,49-79
+apps/desktop/src/renderer/shared/components/message-feed/useMessageFeedScrollModel.test.tsx
+  s_680cf7fc4ff7b4::t_c969cad8855ea3 380,549-552,587-615
+apps/desktop/src/renderer/shared/components/message-feed/useMessageFeedScrollModel.ts
+  s_680cf7fc4ff7b4::t_e9c68f77574f3c 179-181,187-190
+apps/desktop/src/renderer/shared/conversation/message-stream.test.ts
+  s_680cf7fc4ff7b4::t_caf5baa71453b7 135-161
+apps/desktop/src/renderer/shared/conversation/message-stream.ts
+  s_680cf7fc4ff7b4::t_485a1bda53b953 177-181
+apps/desktop/src/renderer/shared/store/chat-atoms.ts
+  s_680cf7fc4ff7b4::t_c10b3804faeecb 198-254,493
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_680cf7fc4ff7b4::t_fd0ef64691104a 1039,1041-1042,1045-1048
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_680cf7fc4ff7b4::t_5d024687106de0 1039,1041-1042,1045-1048
+apps/desktop/src/shared/session-event-codec.ts
+  s_680cf7fc4ff7b4::t_5ce6fb0cc5ee94 1,4,6-51
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/home/HomeScreenTest.kt
+  s_680cf7fc4ff7b4::t_0b6fc3c417323a 11,15,20,22,47,50,74-76,250-268,317,319-320,322-327,331-338,340
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/settings/SettingsScreenTest.kt
+  s_680cf7fc4ff7b4::t_5aeb803253e8b2 10,32-33,35-36,39,72-76,78,89-101,125
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/work/SessionScreenTest.kt
+  s_680cf7fc4ff7b4::t_22af81d9e434ab 9,25-27,42,49,51-54,59,66-77,196-200,207-210,297-344
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/settings/PhoneModel.android.kt
+  s_680cf7fc4ff7b4::t_0deeea121852bc 1-6
+apps/mobile/client-android/shared/src/commonMain/composeResources/values-zh-rCN/strings.xml
+  s_680cf7fc4ff7b4::t_c40af2f9300efe 260-264
+apps/mobile/client-android/shared/src/commonMain/composeResources/values/strings.xml
+  s_680cf7fc4ff7b4::t_35ea0375ad92ad 269-273
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/board/TaskBoardSheet.kt
+  s_680cf7fc4ff7b4::t_9f494f2ac47dc2 88,313,357-359,398-404,414
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/Button.kt
+  s_680cf7fc4ff7b4::t_7234a9099294fb 1-100
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/Chrome.kt
+  s_680cf7fc4ff7b4::t_8c99eedb5798a3 1-39
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/FormMetrics.kt
+  s_680cf7fc4ff7b4::t_7b12560319e710 1,3,6-7,9-15,17-18
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/LabeledContent.kt
+  s_680cf7fc4ff7b4::t_dd019dab8a5c6a 1-75
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/Picker.kt
+  s_680cf7fc4ff7b4::t_7e2b2e69c47f63 1-132
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/ProgressView.kt
+  s_680cf7fc4ff7b4::t_374bbe9d9a0a8c 1-83
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/Section.kt
+  s_680cf7fc4ff7b4::t_6d5f5031582579 1-153
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/Slider.kt
+  s_680cf7fc4ff7b4::t_61fc33c7d11846 1-126
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/Stepper.kt
+  s_680cf7fc4ff7b4::t_0f7510dc6b9087 1,5,7,9-10,13,16-17,24,27-28,34-37,39-45,47,49,51-60,65-72,74,79-86
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/TextField.kt
+  s_680cf7fc4ff7b4::t_8e0c7a0d36b674 1-67
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/design/form/Toggle.kt
+  s_680cf7fc4ff7b4::t_dcb5fb6b6cd233 1-108
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/HomeScreen.kt
+  s_680cf7fc4ff7b4::t_0777261ab0c80c 153,265,290
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/LinkPill.kt
+  s_680cf7fc4ff7b4::t_3536d0afd7422f 11,40,63,76-78,80-84,103,107-111,115,138
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/ProjectScreen.kt
+  s_680cf7fc4ff7b4::t_b8ecbbddc52ef3 82,132,154
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/home/SessionRows.kt
+  s_680cf7fc4ff7b4::t_cd9d5889b483ad 25,30,37,48,73,83,86-87,94,109-152,161,170-171,175,177,188,191,193-195,202-205,211-212,215-221,223-233,235-265,286-303
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/settings/NotificationSettingsScreen.kt
+  s_680cf7fc4ff7b4::t_b17acfc1678fe6 55-60,94,97-104,108-123,128-133
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/settings/PhoneModel.kt
+  s_680cf7fc4ff7b4::t_6d98de300370c8 1-4
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/settings/SettingsScreen.kt
+  s_680cf7fc4ff7b4::t_1a63ecb09d6bbb 3-9,17,22,28-31,42-45,49-50,68-69,84,86,88-95,100-101,104-109,146-147,156-170,173-174,179-187,191-197,204-205,223-408,410-417,419-420
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/Composer.kt
+  s_680cf7fc4ff7b4::t_fdda87ef457802 6,12,118-122,248,252,256-262,285-313,315-322,325-331
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/SessionScreen.kt
+  s_680cf7fc4ff7b4::t_8fbaddfe10a1a8 167-176
+apps/mobile/client-apple/Vetta.xcodeproj/project.pbxproj
+  s_680cf7fc4ff7b4::t_226331c0113942 669,747
+apps/mobile/client-apple/Vetta/Components/SelectableText.swift
+  s_680cf7fc4ff7b4::t_17f59d319269b3 16,39,46,56-88
+apps/mobile/client-apple/project.yml
+  s_680cf7fc4ff7b4::t_3827581f75f155 17
+bun.lock
+  s_680cf7fc4ff7b4::t_527e202f00d0b8 65
+docs/adr/0071-agent-mode-is-a-task-interpretation-prior.md
+  s_680cf7fc4ff7b4::t_7d397185a80d07 235-237
+docs/adr/0144-goal-mode-is-a-session-extension.md
+  s_680cf7fc4ff7b4::t_e6f01b299332a1 24-27,44-45
+docs/adr/0145-desktop-release-publishes-installers-per-platform.md
+  s_680cf7fc4ff7b4::t_a2eb2469a09bab 37-43
+docs/adr/0146-desktop-conversation-feed-single-source.md
+  s_680cf7fc4ff7b4::t_222a708a55e381 1-137
+docs/adr/0147-composable-conversation-view.md
+  s_680cf7fc4ff7b4::t_06284858ede931 1-126
+docs/desktop/release-ci.md
+  s_680cf7fc4ff7b4::t_61e7905a3a76b6 5,7,16,18-23,27,32
+docs/dev/quality-gates.md
+  s_680cf7fc4ff7b4::t_bb24b647edf494 11-13,15-16,30,57-58,65-67,70-71,77-78,185,198,238,240-241,248-252
+package.json
+  s_680cf7fc4ff7b4::t_5bddc404adf0cf 87,96,98,102,112
+packages/ai/src/providers/google-stream/request.ts
+  s_680cf7fc4ff7b4::t_90290ee2cc37c4 2,48-57
+packages/ai/test/google-native-adapters.test.ts
+  s_680cf7fc4ff7b4::t_6997e61edbe07e 4,20-63
+packages/coding-agent/docs/system-prompt-architecture.md
+  s_680cf7fc4ff7b4::t_3347d2fbeeeec1 9,12,16,69
+packages/coding-agent/src/features/goal/goal-feature.ts
+  s_680cf7fc4ff7b4::t_f815b24de15ad0 1-5,12-15,17-31,61
+packages/coding-agent/src/features/goal/goal-instructions.ts
+  s_680cf7fc4ff7b4::t_4198236087688d 8
+packages/coding-agent/src/features/goal/goal-runtime.ts
+  s_680cf7fc4ff7b4::t_071459480e9e7a 23,28-34,59,79,86,93,123-124,131-136,140,147-148,155,157-160,181,196,205-251,267-272,282-294,300-309
+packages/coding-agent/src/features/goal/goal-session-extension.ts
+  s_680cf7fc4ff7b4::t_ca7a69977232fc 84-87
+packages/coding-agent/src/features/goal/tools.ts
+  s_680cf7fc4ff7b4::t_c42defc580acda 30
+packages/coding-agent/src/model-context/system-prompt-sources.ts
+  s_680cf7fc4ff7b4::t_7c0b5e1d97b0e3 55-56
+packages/coding-agent/src/profiles/personas-data.ts
+  s_680cf7fc4ff7b4::t_c8511b9a02a24c 21
+packages/coding-agent/src/profiles/personas/20-interactive.md
+  s_680cf7fc4ff7b4::t_94653be11a56e4 6,8,10-13,15
+packages/coding-agent/src/resources/skills/prompt.ts
+  s_680cf7fc4ff7b4::t_9080a6f09c8997 20
+packages/coding-agent/test/composition/goal-execution.test.ts
+  s_680cf7fc4ff7b4::t_55ad5a55a1a2cb 1-166
+packages/coding-agent/test/features/goal/goal-session-extension.test.ts
+  s_680cf7fc4ff7b4::t_ddc14d83476173 38-39,41-42,46-54,107-124,164,173,176,192-219,247-299
+packages/coding-agent/test/runtime-core/model-call-and-prompt-runtime.test.ts
+  s_680cf7fc4ff7b4::t_0a20c81b8dfb73 805,811,817,822
+packages/coding-agent/test/runtime-core/session-retry-events.test.ts
+  s_680cf7fc4ff7b4::t_e6e4152c65213f 75,108-112
+packages/runtime-core/src/contracts.ts
+  s_680cf7fc4ff7b4::t_317ee55b9b8c80 298-306,567-572
+packages/runtime-core/src/index.ts
+  s_680cf7fc4ff7b4::t_bb9843420db853 21
+packages/runtime-core/src/runtime-host/runtime-host-session-event-relay.test.ts
+  s_680cf7fc4ff7b4::t_74a27b0b8bf986 109-241
+packages/runtime-core/src/runtime-host/runtime-host-session-event-relay.ts
+  s_680cf7fc4ff7b4::t_b4a2912e2d7c7a 69,90-91,95-101,105-108,116-126,145-146,172-174,206-213,296-359
+packages/runtime-core/src/runtime-host/runtime-host-session-operations.attach.test.ts
+  s_680cf7fc4ff7b4::t_41df5789ff57ed 2-6,8-10,12,14-40,42-46,48-53
+packages/runtime-core/src/runtime-host/runtime-host-session-operations.ts
+  s_680cf7fc4ff7b4::t_2b290c755fd098 8,276-286
+packages/runtime-core/src/runtime-host/runtime-host.ts
+  s_680cf7fc4ff7b4::t_592126edb5972a 11,384-387
+packages/runtime-core/src/runtime-host/types.ts
+  s_680cf7fc4ff7b4::t_e790053391270a 88-89,92-93
+packages/runtime-core/src/session-observation.ts
+  s_680cf7fc4ff7b4::t_5e55185cb6376d 2
+packages/runtime-core/test/kernel/turn-pipeline.test.ts
+  s_680cf7fc4ff7b4::t_10aee7ff74c49e 154-156,304-306,1188-1195
+packages/runtime-core/test/observation/session-observation-bridge.test.ts
+  s_680cf7fc4ff7b4::t_5f7d7b046f241a 1,16,18-27,48
+packages/runtime-core/test/runtime-host/kernel-session-events.test.ts
+  s_680cf7fc4ff7b4::t_9ddb2e0d9a032e 39-46,54-58
+packages/runtime-core/test/runtime-host/running-changed-reason.test.ts
+  s_680cf7fc4ff7b4::t_be76a003e36b54 69-75
+packages/runtime-core/test/runtime-host/session-retry-events.test.ts
+  s_680cf7fc4ff7b4::t_b7efeb48efd161 75,108-112
+packages/runtime-core/test/session-event-producers.test.ts
+  s_680cf7fc4ff7b4::t_a60db50c81961f 1-61
+packages/theme-ui/src/chat/MessageBoundaryViews.tsx
+  s_680cf7fc4ff7b4::t_3e0514f2c20d9c 2-4,40-57
+packages/theme-ui/src/chat/MessageFeedView.tsx
+  s_680cf7fc4ff7b4::t_f094ac96cf9158 49
+packages/theme-ui/src/chat/TeamMemberReplyCardView.test.tsx
+  s_680cf7fc4ff7b4::t_703c1f60b7260e 1-33
+packages/theme-ui/src/chat/TeamMemberReplyCardView.tsx
+  s_680cf7fc4ff7b4::t_00db166f61fa12 1-133
+packages/theme-ui/src/chat/UserMessageView.tsx
+  s_680cf7fc4ff7b4::t_55e5d4103ebb0c 266-319,324-325
+packages/theme-ui/src/chat/index.ts
+  s_680cf7fc4ff7b4::t_9fe6b2f16afc4f 177,184,443-444,519,528-529
+scripts/quality/check-conversation-message-architecture.mjs
+  s_680cf7fc4ff7b4::t_080a12f69fb425 30-57,62-66
+scripts/quality/check-guards.mjs
+  s_680cf7fc4ff7b4::t_8ac33013b93a80 18,78-87
+scripts/quality/check-lint.mjs
+  s_680cf7fc4ff7b4::t_517968e6f2eb18 2,7-9,35-122
+scripts/quality/check-lint.test.mjs
+  s_680cf7fc4ff7b4::t_df81ef5803e114 1-77
+scripts/quality/check-quick.mjs
+  s_680cf7fc4ff7b4::t_4d39282778938b 12-13,15,32,39
+scripts/quality/check-session-event-tombstones.mjs
+  s_680cf7fc4ff7b4::t_d3a277d4a17aa0 1-85
+scripts/quality/conversation-message-architecture.test.mjs
+  s_680cf7fc4ff7b4::t_0e200cae054e24 31-74,116-135
+scripts/quality/desktop-release-workflow.test.mjs
+  s_680cf7fc4ff7b4::t_363c8bc8760237 40,63-64,77-79,83-88,92,98-115,120
+scripts/quality/quality-gates.test.mjs
+  s_680cf7fc4ff7b4::t_fa4d50bfcc1916 284,290-292,521-558,711,713-726
+scripts/quality/session-event-tombstones.test.mjs
+  s_680cf7fc4ff7b4::t_145636fbe5bfae 1-32
+scripts/quality/test-impact.mjs
+  s_680cf7fc4ff7b4::t_38c08975f34a69 52-53,58-65,67-73
+scripts/release-desktop.mjs
+  s_680cf7fc4ff7b4::t_ba74636855cc27 98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "1d1c3a8c21b853fe763caca2524eb1d0a80a15d8",
+  "prompts": {},
+  "sessions": {
+    "s_680cf7fc4ff7b4": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a110a6-6b45-7ab0-a5e7-328105643e5b",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
