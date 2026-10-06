@@ -1,0 +1,1288 @@
+# Live Coding Agent architecture rules. check-coding-agent-architecture.mjs loads this file.
+# The generic forbidden-import engine does not. Add a rule here instead of editing the checker.
+# Violation text stays identical to the legacy checker so the differential test can compare it.
+name: coding-agent-architecture
+description: Coding Agent dependency direction, host injection, and public package surface.
+rationale: |
+  Coding Agent owns product policy and stable facades. Contracts do not depend on
+  adapters, composition implementations, or host implementations. Product domains
+  do not select Node mechanisms. Hosts inject those mechanisms at the composition
+  root. ADR-0077 records the ownership split. The readable contract is
+  docs/dev/quality-gates.md and packages/coding-agent/AGENTS.md.
+docs:
+  - ADR-0077
+  - docs/dev/quality-gates.md
+  - packages/coding-agent/AGENTS.md
+examples:
+  - violation: |
+      // packages/coding-agent/src/composition/contracts/sample.ts
+      import type { Value } from "../../adapters/runtime-core/adapter.js";
+    fix: |
+      // Depend on a contract, not an adapter implementation.
+      import type { Value } from "../runtime-contracts/index.js";
+  - violation: |
+      // apps/cli-host/src/runtime.ts
+      import { value } from "@vetta/coding-agent/src/private.js";
+    fix: |
+      // Import a subpath declared in package.json#exports.
+      import { value } from "@vetta/coding-agent/composition";
+package:
+  root: packages/coding-agent
+  sourceRoot: packages/coding-agent/src
+  specifier: "@vetta/coding-agent"
+  manifest: packages/coding-agent/package.json
+compositionPublic:
+  sameDirectory: packages/coding-agent/src/composition
+  prefixes:
+    - packages/coding-agent/src/composition/contracts/
+    - packages/coding-agent/src/composition/session-host/
+    - packages/coding-agent/src/host/runtime-host/
+    - packages/coding-agent/src/sessions/setup/
+    - packages/coding-agent/src/tool-results/
+  externalSpecifiers:
+    - "@vetta/runtime-storage/conversation"
+scan:
+  sourceRoot: packages/coding-agent/src
+  sourceExtensions: [".ts", ".tsx"]
+  consumerRoots: [packages, apps]
+  consumerExtensions: [".ts", ".tsx", ".js", ".mjs", ".cjs"]
+  skipContains: ["/node_modules/", "/dist/"]
+  consumerTextIncludes: ["@vetta/coding-agent"]
+  consumerPaths:
+    - packages/runtime-node/src/coding/index.ts
+  consumerPrefixes:
+    - packages/runtime-node/src/coding/tools/kb-
+classes:
+  contract:
+    any:
+      - prefix: packages/coding-agent/src/runtime-contracts/
+      - prefix: packages/coding-agent/src/composition/contracts/
+      - prefix: packages/coding-agent/src/host/sdk-session/contracts/
+      - exact: packages/coding-agent/src/composition/knowledge-processing-contract.ts
+      - suffix: "-contract.ts"
+      - suffix: "/contracts.ts"
+      - suffix: "/runtime-contracts.ts"
+  domain:
+    all:
+      - anyPrefix:
+          - packages/coding-agent/src/execution/
+          - packages/coding-agent/src/extensions/
+          - packages/coding-agent/src/features/
+          - packages/coding-agent/src/memory/
+          - packages/coding-agent/src/mcp/
+          - packages/coding-agent/src/model-context/
+          - packages/coding-agent/src/plugins/
+          - packages/coding-agent/src/resources/
+          - packages/coding-agent/src/rpc/
+          - packages/coding-agent/src/sessions/
+          - packages/coding-agent/src/theme/
+      - not: contract
+  adapter:
+    any:
+      - prefix: packages/coding-agent/src/adapters/
+  publicContract:
+    all:
+      - prefix: packages/coding-agent/src/public-api/sdk/
+      - class: contract
+  publicFacade:
+    all:
+      - prefix: packages/coding-agent/src/public-api/
+      - not: publicContract
+  compositionImplementation:
+    all:
+      - prefix: packages/coding-agent/src/composition/
+      - not: contract
+  hostImplementation:
+    all:
+      - prefix: packages/coding-agent/src/host/
+      - not: contract
+  implementation:
+    anyClass: [adapter, compositionImplementation, hostImplementation, publicFacade]
+  historicalExecution:
+    any:
+      - class: adapter
+      - prefix: packages/coding-agent/src/composition/
+      - prefix: packages/coding-agent/src/execution/
+      - prefix: packages/coding-agent/src/host/
+      - prefix: packages/coding-agent/src/modes/
+      - prefix: packages/coding-agent/src/public-api/sdk
+lists:
+  nodeSpecifierPrefixes: ["node:", "@vetta/runtime-node"]
+  retiredHostNames:
+    - RuntimeAgentHost
+    - CodingAgentRuntimeAgentSessionAssemblyRequest
+    - CodingAgentRuntimeHostSessionBackend
+  retiredOwnershipMethods: [trackRuntime, untrackRuntime, trackAssessment, untrackAssessment]
+  portableRoots:
+    - packages/coding-agent/src/compaction/
+    - packages/coding-agent/src/composition/subagent/
+    - packages/coding-agent/src/mcp/
+    - packages/coding-agent/src/plugins/runtime/
+    - packages/coding-agent/src/sessions/projection/
+    - packages/coding-agent/src/sessions/setup/
+    - packages/coding-agent/src/settings/
+    - packages/coding-agent/src/tool-policy/
+  toolEnvironmentRoots:
+    - apps/cli-host/src/rpc/runtime-host/cli-session-assembly.ts
+    - packages/runtime-desktop/src/backend-pool.ts
+    - apps/desktop/src/main/knowledge/processing-session-factory.ts
+    - packages/coding-agent/src/host/sdk-session/node-session-host.ts
+  migratedToolEnvironmentRoots:
+    - apps/cli-host/src/rpc/runtime-host/cli-session-assembly.ts
+    - packages/runtime-desktop/src/backend-pool.ts
+    - apps/desktop/src/main/knowledge/processing-session-factory.ts
+  platformEnvironmentFactories:
+    - apps/cli-host/src/rpc/runtime-host/cli-tool-environment.ts
+    - packages/runtime-desktop/src/coding-agent-tool-environment.ts
+  knowledgeRuntimeRoots:
+    - apps/cli-host/src/rpc/runtime-host/cli-session-assembly.ts
+    - apps/desktop/src/main/agent-runtime/composition.ts
+    - apps/desktop/src/main/knowledge/processing-session-factory.ts
+    - packages/coding-agent/src/host/sdk-session/node-session-host.ts
+  memoryRuntimeRoots:
+    - apps/cli-host/src/rpc/runtime-host/cli-session-assembly.ts
+    - apps/desktop/src/main/agent-runtime/composition.ts
+    - packages/coding-agent/src/host/sdk-session/node-session-host.ts
+  retiredCliPaths:
+    - packages/coding-agent/src/cli/args.ts
+    - packages/coding-agent/src/cli/file-processor.ts
+    - packages/coding-agent/src/cli/list-models.ts
+    - packages/coding-agent/src/host/coding-agent-cli-control.ts
+    - packages/coding-agent/src/public-api/cli-control.ts
+    - packages/coding-agent/src/composition/session-host/process-session-host.ts
+  retiredAdapterPaths:
+    - packages/coding-agent/src/adapters/runtime-core/ecosystem-hook-tool-wrapper.ts
+    - packages/coding-agent/src/adapters/runtime-core/extension-observation-adapter.ts
+    - packages/coding-agent/src/adapters/runtime-core/extension-run-adapter.ts
+    - packages/coding-agent/src/adapters/runtime-core/extension-tool-wrapper.ts
+    - packages/coding-agent/src/adapters/extensions/extension-tool-interceptor.ts
+  retiredBootstrapPaths:
+    - packages/coding-agent/src/host/coding-agent-host-bootstrap.ts
+    - packages/coding-agent/src/host/coding-agent-cli-bootstrap.ts
+  retiredToolResultPaths:
+    - packages/coding-agent/src/tool-results/contracts.ts
+    - packages/coding-agent/src/tool-results/file-result-artifact-store.ts
+    - packages/coding-agent/src/tool-results/session-artifact-cleaner.ts
+    - packages/coding-agent/src/mcp/runtime/file-result-artifact-store.ts
+    - packages/coding-agent/src/mcp/runtime/result-policy.ts
+  retiredNodeStatePaths:
+    - packages/coding-agent/src/auth/storage/file-auth-storage-backend.ts
+    - packages/coding-agent/src/settings/storage/file-settings-storage.ts
+  retiredExtensionPaths:
+    - packages/coding-agent/src/extensions/runtime/loading/extension-module-loader.ts
+    - packages/coding-agent/src/extensions/runtime/exec-command.ts
+  portableResourcePaths:
+    - packages/coding-agent/src/resources/contracts/resource-access.ts
+    - packages/coding-agent/src/resources/runtime/context-resources.ts
+    - packages/coding-agent/src/resources/runtime/resource-state.ts
+    - packages/coding-agent/src/resources/runtime/session-resource-runtime.ts
+    - packages/coding-agent/src/resources/runtime/theme-resources.ts
+    - packages/coding-agent/src/resources/runtime/prompt-resource-state.ts
+    - packages/coding-agent/src/resources/runtime/skill-resource-state.ts
+    - packages/coding-agent/src/resources/prompts/arguments.ts
+    - packages/coding-agent/src/resources/prompts/contracts.ts
+    - packages/coding-agent/src/resources/prompts/discovery.ts
+    - packages/coding-agent/src/resources/prompts/index.ts
+    - packages/coding-agent/src/resources/skills/contracts.ts
+    - packages/coding-agent/src/resources/skills/discovery.ts
+    - packages/coding-agent/src/resources/skills/index.ts
+    - packages/coding-agent/src/resources/skills/prompt.ts
+    - packages/coding-agent/src/model-context/prompt-snapshot.ts
+    - packages/coding-agent/src/resources/prompt-resources/prompt-resource-expander.ts
+    - packages/coding-agent/src/extensions/host-contracts.ts
+    - packages/coding-agent/src/extensions/pi-compat/loading.ts
+    - packages/coding-agent/src/extensions/runtime/discovery/extension-paths.ts
+    - packages/coding-agent/src/extensions/runtime/loading/load-extensions.ts
+    - packages/coding-agent/src/extensions/runtime/registration/extension-registration.ts
+    - packages/coding-agent/src/resources/runtime/extension-resources.ts
+    - packages/coding-agent/src/resources/packages/resource-discovery.ts
+    - packages/coding-agent/src/resources/packages/resource-patterns.ts
+    - packages/coding-agent/src/resources/packages/resource-projection.ts
+    - packages/coding-agent/src/resources/packages/package-source-runtime.ts
+    - packages/coding-agent/src/resources/packages/package-lifecycle.ts
+    - packages/coding-agent/src/resources/packages/source-spec.ts
+    - packages/coding-agent/src/resources/packages/resource-package-locations.ts
+  sandboxPlatformFiles:
+    - packages/coding-agent/src/execution/sandbox/linux-bwrap-tools.ts
+    - packages/coding-agent/src/execution/sandbox/macos-seatbelt-tools.ts
+    - packages/coding-agent/src/execution/sandbox/windows-sandbox-policy.ts
+    - packages/coding-agent/src/execution/sandbox/windows-sandbox-tools.ts
+    - packages/coding-agent/src/execution/sandbox/workspace-guard.ts
+  workspaceFactPaths:
+    - packages/coding-agent/src/model-context/workspace-facts.ts
+    - packages/coding-agent/src/model-context/prompt-runtime.ts
+    - packages/coding-agent/src/model-context/system-prompt-policy.ts
+  imagePaths:
+    - packages/coding-agent/src/model-context/image-normalization.ts
+    - packages/coding-agent/src/model-context/image-budget.ts
+  modelHosts:
+    - apps/cli-host/src/coding-agent-bootstrap.ts
+    - apps/desktop/src/main/agent-runtime/host-services.ts
+    - packages/coding-agent/src/host/sdk-session/node-session-host.ts
+  htmlHosts:
+    - apps/cli-host/src/html-export-runtime.ts
+    - packages/coding-agent/src/host/sdk-session/node-session-host.ts
+  themeHosts:
+    - apps/cli-host/src/coding-agent-resource-runtime.ts
+    - apps/desktop/src/main/agent-runtime/resource-runtime.ts
+    - packages/coding-agent/src/host/sdk-session/resource-runtime.ts
+  mcpSupervisorPaths:
+    - apps/cli-host/src/rpc/runtime-host/mcp-supervisor.ts
+    - apps/desktop/src/main/agent-runtime/mcp-supervisor.ts
+    - packages/coding-agent/src/host/sdk-session/node-session-host.ts
+  historicalHostPaths:
+    - apps/cli-host/src/historical-session-host.ts
+    - packages/runtime-desktop/src/historical-session-host.ts
+  retiredNodeKnowledgePrefixes:
+    - packages/runtime-node/src/coding/tools/kb-filter-by-tags/
+    - packages/runtime-node/src/coding/tools/kb-list-tags/
+    - packages/runtime-node/src/coding/tools/kb-write-page/
+  retiredNodeMemoryPrefixes:
+    - packages/runtime-node/src/coding/tools/memory/
+  retiredNodeAskPrefixes:
+    - packages/runtime-node/src/coding/tools/ask-user-question/
+  retiredNodeSkillPrefixes:
+    - packages/runtime-node/src/coding/tools/invoke-skill/
+  retiredNodeToolSearchPrefixes:
+    - packages/runtime-node/src/coding/tools/tool-search/
+  retiredNodeSubagentPrefixes:
+    - packages/runtime-node/src/coding/tools/dispatch-workflows/
+    - packages/runtime-node/src/coding/tools/followup-task/
+    - packages/runtime-node/src/coding/tools/interrupt-agent/
+    - packages/runtime-node/src/coding/tools/list-agents/
+    - packages/runtime-node/src/coding/tools/send-message/
+    - packages/runtime-node/src/coding/tools/spawn-agent/
+    - packages/runtime-node/src/coding/tools/wait-agent/
+  portableFeatureRoots:
+    - packages/coding-agent/src/features/current-time/
+    - packages/coding-agent/src/features/background-tasks/
+    - packages/coding-agent/src/features/progress/
+    - packages/coding-agent/src/features/im-send-attachment/
+  retiredPortableToolPrefixes:
+    - packages/runtime-node/src/coding/tools/current-time/
+    - packages/runtime-node/src/coding/tools/progress/
+    - packages/runtime-node/src/coding/tools/task-output/
+    - packages/runtime-node/src/coding/tools/task-stop/
+    - packages/runtime-node/src/coding/tools/im-send-attachment/
+  portableProductCompositionPaths:
+    - packages/coding-agent/src/composition/tool-surface/specialized-tools.ts
+    - packages/coding-agent/src/tool-policy/ocr-execution-gate.ts
+  rpcPortablePaths:
+    - packages/coding-agent/src/rpc/rpc-mode.ts
+    - packages/coding-agent/src/rpc/rpc-client.ts
+    - packages/coding-agent/src/rpc/rpc-extension-ui-bridge.ts
+    - packages/coding-agent/src/rpc/rpc-host-bridge.ts
+  rpcHostPaths:
+    - apps/cli-host/src/rpc/runtime-host/runtime-host.ts
+  lifecyclePaths:
+    - packages/coding-agent/src/mcp/runtime/supervisor.ts
+    - packages/coding-agent/src/migrations.ts
+groups:
+  platformPersistenceRoots:
+    - path: apps/cli-host/src/rpc/runtime-host/cli-session-assembly.ts
+      factory: createFileConversationPersistence
+    - path: packages/runtime-desktop/src/backend-pool.ts
+      factory: createFileConversationPersistence
+    - path: apps/desktop/src/main/knowledge/processing-session-factory.ts
+      factory: createFileConversationPersistence
+  workspaceFactInjections:
+    - path: apps/cli-host/src/rpc/runtime-host/cli-session-assembly.ts
+      regex: '\bworkspaceFacts\s*:'
+    - path: packages/runtime-desktop/src/backend-pool.ts
+      regex: '\bworkspaceFacts\s*:'
+    - path: packages/coding-agent/src/host/sdk-session/node-session-host.ts
+      regex: '\bworkspaceFacts\s*[,/:]'
+    - path: apps/desktop/src/main/knowledge/processing-session-factory.ts
+      regex: '\bresolveWorkspaceFacts\s*:'
+rules:
+  - name: retired-multi-host-concepts
+    doc: ADR-0077
+    steps:
+      - op: eachFile
+        steps:
+          - op: eachText
+            includesFrom: retiredHostNames
+            report: "{path} references retired multi-Host concept {item}"
+          - op: when
+            pathPrefix: packages/coding-agent/src/
+            steps:
+              - op: when
+                textRegex: '\b(?:composition|childComposition)\.backend\.(?:create|resume)\s*\('
+                report: "{path} calls the deprecated product Backend facade instead of composition.sessions"
+              - op: eachText
+                includesFrom: retiredOwnershipMethods
+                report: "{path} references retired duplicate Session resource ownership {item}"
+  - name: platform-persistence-composition
+    doc: ADR-0077
+    steps:
+      - op: eachItem
+        itemsFrom: platformPersistenceRoots
+        skipIfAbsent: true
+        steps:
+          - op: unlessImport
+            specifier: "@vetta/runtime-node/conversation"
+            name: "{factory}"
+            report: "{path}: platform Composition Root must select {factory} from runtime-node"
+          - op: unlessText
+            regex: '\bcreateConversationPersistence\s*:'
+            report: "{path}: platform Composition Root must inject createConversationPersistence"
+  - name: composition-persistence-boundary
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/composition/
+            specifierExact: "@vetta/runtime-node/conversation"
+            report: "{path}:{line}: Coding Agent Composition must consume a persistence Port, not a Node implementation"
+      - op: file
+        path: packages/coding-agent/src/composition/runtime-composition.ts
+        steps:
+          - op: unlessText
+            regex: '\boptions\.createConversationPersistence\s*\('
+            report: "{path}: Coding Agent Composition must obtain conversation persistence from its host Port"
+  - name: tool-environment-boundary
+    doc: ADR-0077
+    steps:
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/adapters/runtime-tools/
+            report: "{path}: Node command and executable implementations belong to runtime-node"
+      - op: eachEdge
+        steps:
+          - op: when
+            pathExact: packages/coding-agent/src/composition/tool-surface/runtime-tools-composition.ts
+            specifierExact: "@vetta/runtime-node/coding"
+            report: "{path}:{line}: Coding Agent tool composition must consume ToolEnvironment, not Node tools"
+          - op: when
+            pathPrefix: packages/coding-agent/src/tool-policy/path/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Coding Agent path policy must consume Host path boundaries"
+          - op: when
+            pathExact:
+              - packages/coding-agent/src/execution/session/runtime.ts
+              - packages/coding-agent/src/execution/sandbox/tool-registrations.ts
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Session execution must consume its Host environment Port"
+      - op: file
+        path: packages/coding-agent/src/composition/runtime-composition.ts
+        steps:
+          - op: unlessText
+            regex: '\bcreateToolEnvironment\s*:\s*options\.createToolEnvironment\b'
+            report: "{path}: Coding Agent Composition must forward the host ToolEnvironment factory"
+      - op: eachItem
+        itemsFrom: toolEnvironmentRoots
+        skipIfAbsent: true
+        steps:
+          - op: unlessText
+            regex: '\bcreateToolEnvironment\s*(?::|,)'
+            report: "{path}: host Composition Root must inject createToolEnvironment"
+          - op: unlessText
+            regex: '\bcreateSessionExecutionEnvironment\s*(?::|,)'
+            report: "{path}: host Composition Root must inject createSessionExecutionEnvironment"
+      - op: eachItem
+        itemsFrom: migratedToolEnvironmentRoots
+        skipIfAbsent: true
+        steps:
+          - op: when
+            textRegex: '\bcreateCodingAgentNodeToolEnvironment\b'
+            report: "{path}: platform Composition Root must not select Coding Agent's legacy Node factory"
+          - op: when
+            textRegex: '\bcreateCodingAgentNodeSessionExecutionEnvironment\b'
+            report: "{path}: platform Composition Root must not select Coding Agent's legacy Session environment"
+      - op: eachItem
+        itemsFrom: platformEnvironmentFactories
+        skipIfAbsent: true
+        steps:
+          - op: unlessAll
+            checks:
+              - textRegex: '\bcreateNodeHostCodingToolEnvironment\b'
+              - textRegex: '\bcreateNodeHostSessionCommandEnvironment\b'
+              - textRegex: '\bcreateNodeSandboxCodingToolEnvironment\b'
+              - textRegex: '\bcreateCodingAgentEditPathPolicy\b'
+              - textRegex: '\bcreateCodingAgentWritePathPolicy\b'
+            report: "{path}: platform environment factory must compose Node mechanisms with Coding Agent policies"
+  - name: prompt-request-adapter
+    doc: ADR-0077
+    steps:
+      - op: file
+        path: packages/coding-agent/src/adapters/runtime-core/prompt-request-adapter.ts
+        steps:
+          - op: eachEdge
+            steps:
+              - op: when
+                pathExact: packages/coding-agent/src/adapters/runtime-core/prompt-request-adapter.ts
+                specifierPrefix: ["../../plugins/", "../../extensions/", "@vetta/ecosystem-adapter"]
+                report: "{path}:{line}: Prompt request Adapter must delegate domain policy"
+          - op: unlessAll
+            checks:
+              - textRegex: 'private readonly runtime:\s*CodingAgentPromptRequestRuntime'
+              - textRegex: 'this\.runtime\.prepare\(readPromptRequest\(inputRequest\.payload\), context\)'
+            report: "{path}: Prompt request Adapter must delegate preparation to its runtime Port"
+  - name: retired-concurrency
+    doc: ADR-0077
+    steps:
+      - op: eachSourcePath
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/concurrency/
+            report: "{path}: generic concurrency belongs to Runtime Tools"
+      - op: ifExport
+        names: ["./concurrency"]
+        report: "{path}: generic concurrency must not be published by Coding Agent"
+  - name: retired-configuration
+    doc: ADR-0077
+    steps:
+      - op: eachSourcePath
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/configuration/
+            report: "{path}: environment configuration resolution belongs to the platform Runtime"
+      - op: ifExport
+        names: ["./configuration"]
+        report: "{path}: environment configuration resolution must not be published by Coding Agent"
+  - name: retired-utils
+    doc: ADR-0077
+    steps:
+      - op: eachSourcePath
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/utils/
+            report: "{path}: generic utility dumping ground is retired; place code in its owning domain"
+  - name: cli-host-boundary
+    doc: ADR-0077
+    steps:
+      - op: eachSourcePath
+        steps:
+          - op: when
+            pathExactFrom: retiredCliPaths
+            report: "{path}: terminal CLI behavior belongs to cli-host"
+      - op: ifExport
+        names: ["./cli-control"]
+        report: "{path}: CLI process control must not be published by Coding Agent"
+      - op: file
+        path: packages/coding-agent/src/host/coding-agent-print-invocation.ts
+        steps:
+          - op: when
+            textRegex: '\bprocess\s*\.|\bconsole\.(?:log|error)\s*\('
+            report: "{path}: Print input assembly must consume host-provided I/O Ports"
+  - name: retired-adapter-ownership
+    doc: ADR-0077
+    steps:
+      - op: eachSourcePath
+        steps:
+          - op: when
+            pathExactFrom: retiredAdapterPaths
+            report: "{path}: implementation belongs to its Extension or ecosystem owner"
+  - name: node-state-backend
+    doc: ADR-0077
+    steps:
+      - op: eachFile
+        steps:
+          - op: when
+            pathExactFrom: retiredNodeStatePaths
+            report: "{path}: Node file state backends belong to runtime-node"
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/settings/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Settings semantics must consume SettingsStoragePort, not a Node backend"
+      - op: file
+        path: packages/coding-agent/src/settings/index.ts
+        steps:
+          - op: when
+            textRegex: '\bcreate\s*:\s*createFileSettingsRuntime\b'
+            report: "{path}: SettingsRuntime must not select a Node file backend"
+  - name: extension-module-boundary
+    doc: ADR-0077
+    steps:
+      - op: eachFile
+        steps:
+          - op: when
+            pathExactFrom: retiredExtensionPaths
+            report: "{path}: Node Extension execution belongs behind Host Ports"
+          - op: when
+            pathPrefix: packages/coding-agent/src/extensions/
+            textRegexAny: ['\bBuffer\b', '\bNodeJS\s*\.']
+            report: "{path}: Extension contracts must use platform-neutral data types"
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/extensions/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Extension semantics must not depend on Node implementations"
+  - name: resource-access-boundary
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathExactFrom: portableResourcePaths
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: portable resource access must consume ResourceAccessPort, not a Node implementation"
+      - op: file
+        path: packages/coding-agent/src/resources/contracts/resource-runtime.ts
+        steps:
+          - op: unlessText
+            regex: '\bresourceAccess\s*:\s*ResourceAccessPort\b'
+            report: "{path}: SessionResourceRuntimeOptions must require ResourceAccessPort"
+          - op: unlessText
+            regex: '\bthemeParser\s*:\s*ThemeResourceParser\b'
+            report: "{path}: SessionResourceRuntimeOptions must require ThemeResourceParser"
+          - op: unlessAll
+            checks:
+              - textRegex: '\bextensionFactoryLoader\s*:\s*ExtensionFactoryLoader\b'
+              - textRegex: '\bextensionCommandExecutor\s*:\s*ExtensionCommandExecutor\b'
+            report: "{path}: SessionResourceRuntimeOptions must require Extension Host Ports"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/resources/
+            textRegex: '\breadSkillContent\b'
+            report: "{path}: Skill consumers must use the materialized resource snapshot"
+  - name: command-execution-boundary
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/host/command-execution/
+            specifierPrefix: "node:"
+            report: "{path}:{line}: command execution implementation belongs to runtime-node, not Coding Agent"
+  - name: execution-mode-host
+    doc: ADR-0077
+    steps:
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/adapters/runtime-core/execution-mode/
+            report: "{path}: sandbox host policy must not return to the Runtime adapter directory"
+          - op: when
+            pathExactFrom: sandboxPlatformFiles
+            report: "{path}: OS sandbox implementation belongs to runtime-node"
+          - op: when
+            pathPrefix: packages/coding-agent/src/execution/sandbox/
+            textRegexAny: ['\bNodeJS\s*\.', '\bprocess\s*\.']
+            report: "{path}: sandbox policy must consume Host Services, not Node globals"
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/execution/sandbox/
+            specifierPrefix: "node:"
+            report: "{path}:{line}: OS sandbox implementation belongs to runtime-node"
+          - op: when
+            pathPrefix: packages/coding-agent/src/execution/sandbox/
+            specifierPrefix: "@vetta/runtime-node"
+            report: "{path}:{line}: sandbox policy must consume injected Host Services"
+  - name: print-mode-transport
+    doc: ADR-0077
+    steps:
+      - op: file
+        path: packages/coding-agent/src/modes/print-mode.ts
+        steps:
+          - op: when
+            textRegex: '\bprocess\.|\bconsole\.(log|error)\s*\('
+            report: "{path}: Print mode must consume the host PrintOutput Port"
+      - op: file
+        path: apps/cli-host/src/print-output.ts
+        steps:
+          - op: unlessText
+            regex: CodingAgentPrintOutputPort
+            report: "{path}: CLI Print output must implement CodingAgentPrintOutputPort"
+  - name: workspace-facts
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathExactFrom: workspaceFactPaths
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Workspace facts product policy must consume host-provided facts or file access"
+      - op: eachFile
+        steps:
+          - op: when
+            pathExactFrom: workspaceFactPaths
+            textRegex: '\bprocess\s*\.'
+            report: "{path}: Workspace facts product policy must not read Node process state"
+      - op: eachItem
+        itemsFrom: workspaceFactInjections
+        skipIfAbsent: true
+        steps:
+          - op: unlessText
+            regex: "{regex}"
+            report: "{path}: platform Composition Root must inject workspace facts"
+  - name: model-input-image
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathExactFrom: imagePaths
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Model input image policy must consume a host-provided processor"
+      - op: eachFile
+        steps:
+          - op: when
+            pathExactFrom: imagePaths
+            textRegex: '\b(?:Buffer|process)\b'
+            report: "{path}: Model input image policy must remain platform-neutral"
+      - op: eachItem
+        itemsFrom: toolEnvironmentRoots
+        skipIfAbsent: true
+        steps:
+          - op: unlessText
+            regex: '\bmodelInputImageProcessor\s*:'
+            report: "{path}: Node Composition Root must inject modelInputImageProcessor"
+  - name: model-domain
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/models/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Model product policy must consume host-provided state"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/models/
+            textRegex: '\bprocess\s*\.'
+            report: "{path}: Model product policy must not control the host process"
+      - op: eachItem
+        itemsFrom: modelHosts
+        skipIfAbsent: true
+        steps:
+          - op: unlessText
+            regex: '\bconfigFileSource\s*:'
+            report: "{path}: Node model host must inject configFileSource"
+  - name: html-export
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/export-html/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: HTML export product logic must consume host file adapters"
+      - op: eachItem
+        itemsFrom: htmlHosts
+        skipIfAbsent: true
+        steps:
+          - op: unlessText
+            regex: '\bcreateNodeHtmlExportFileAdapters\s*\('
+            report: "{path}: Node HTML export host must inject file adapters"
+  - name: theme-domain
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/theme/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Theme product policy must consume host-provided environment ports"
+          - op: when
+            pathNotExact: packages/coding-agent/src/modes/interactive/theme/theme.ts
+            pathPrefix: packages/coding-agent/src/
+            targetExact: packages/coding-agent/src/modes/interactive/theme/theme.ts
+            report: "{path}:{line}: internal Theme consumers must use the Theme domain entry"
+          - op: when
+            pathExact: packages/coding-agent/src/modes/interactive/theme/theme.ts
+            steps:
+              - op: whenAny
+                checks:
+                  - kindNot: export
+                  - targetNotExact: packages/coding-agent/src/theme/index.ts
+                report: "{path}:{line}: legacy Theme facade may only export the Theme domain entry"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/theme/
+            textRegex: '\bprocess\.(?:env|platform|cwd)\b'
+            report: "{path}: Theme product policy must not read the Node process environment"
+      - op: eachItem
+        itemsFrom: themeHosts
+        skipIfAbsent: true
+        steps:
+          - op: unlessAll
+            checks:
+              - textRegex: '\bconfigureThemeRuntime\s*\('
+              - textRegex: '\bnodeTextFileWatchPort\b'
+            report: "{path}: Node Theme host must inject environment defaults and file watching"
+  - name: portable-product-domain
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefixFrom: portableRoots
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: portable product domain must consume host-provided capabilities"
+          - op: when
+            pathPrefix: packages/coding-agent/src/
+            pathNotPrefix: packages/coding-agent/src/host/
+            pathNotExact: packages/coding-agent/src/config.ts
+            targetExact: packages/coding-agent/src/config.ts
+            report: "{path}:{line}: portable product code must import identity, not Node config"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefixFrom: portableRoots
+            textRegex: '\bprocess\.(?:env|cwd|pid|platform|execPath|stdin|stdout|stderr)\b'
+            report: "{path}: portable product domain must not read Node process state"
+      - op: file
+        path: packages/coding-agent/src/identity.ts
+        steps:
+          - op: whenAny
+            checks:
+              - textRegex: '\bprocess\b'
+              - edges:
+                  specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}: identity must remain portable and side-effect free"
+      - op: file
+        path: packages/coding-agent/src/config.ts
+        steps:
+          - op: when
+            textRegex: '\b(?:process|readFile|existsSync|function|class)\b'
+            report: "{path}: public config must remain a thin Node-host compatibility facade"
+      - op: ifSourceHas
+        pathsFrom: lifecyclePaths
+        report: "{path}: platform lifecycle implementation belongs to an application Composition Root"
+      - op: eachItem
+        itemsFrom: mcpSupervisorPaths
+        skipIfAbsent: true
+        steps:
+          - op: unlessText
+            regex: '\bcreateNodeMcpSupervisor\s*\('
+            report: "{path}: Node Composition Root must select the runtime-node MCP supervisor"
+  - name: tool-result-artifact
+    doc: ADR-0077
+    steps:
+      - op: eachFile
+        steps:
+          - op: when
+            pathExactFrom: retiredToolResultPaths
+            report: "{path}: result artifact file implementation belongs to runtime-node"
+      - op: eachEdge
+        steps:
+          - op: when
+            pathExact: packages/coding-agent/src/tool-results/result-policy.ts
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Tool Result policy must consume an Artifact Store contract"
+      - op: file
+        path: packages/coding-agent/src/composition/runtime-composition.ts
+        steps:
+          - op: unlessText
+            regex: '\bresultPolicy\s*:\s*options\.codingToolResultPolicy\b'
+            report: "{path}: Coding Agent Composition must forward the host Tool Result policy"
+      - op: eachItem
+        itemsFrom: toolEnvironmentRoots
+        skipIfAbsent: true
+        steps:
+          - op: unlessAny
+            checks:
+              - textRegex: '\bcodingToolResultPolicy\s*:'
+              - textRegex: '\bcodingToolResultPolicy,'
+            report: "{path}: Node Host Composition Root must inject codingToolResultPolicy"
+  - name: bootstrap-boundary
+    doc: ADR-0077
+    steps:
+      - op: eachFile
+        steps:
+          - op: when
+            pathExactFrom: retiredBootstrapPaths
+            report: "{path}: platform bootstrap belongs to the application Composition Root"
+          - op: when
+            pathPrefix: packages/coding-agent/src/host/extensions/compatibility/
+            report: "{path}: Extension compatibility rules belong to the Extension domain"
+          - op: when
+            pathPrefix: packages/coding-agent/src/bootstrap/
+            textRegexAny: ['\bprocess\s*\.', '\bgetAgentDir\b|\brunMigrations\b|\bNode\w*Storage\b']
+            report: "{path}: Coding Agent Bootstrap must consume host-owned state and environment facts"
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/bootstrap/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Coding Agent Bootstrap must not select a Node implementation"
+      - op: file
+        path: packages/coding-agent/src/bootstrap/coding-agent-bootstrap.ts
+        steps:
+          - op: unlessAll
+            checks:
+              - textRegex: '\bsettingsManager\s*:\s*SettingsRuntime\b'
+              - textRegex: '\bauthStorage\s*:\s*CodingAgentAuthRuntime\b'
+              - textRegex: '\bmodelRegistry\s*:\s*CodingAgentModelRuntime\b'
+              - textRegex: '\bcreateResourceRuntime\s*:\s*CodingAgentBootstrapResourceFactory\b'
+            report: "{path}: Coding Agent Bootstrap must require explicit host-owned dependencies"
+      - op: file
+        path: apps/cli-host/src/coding-agent-bootstrap.ts
+        steps:
+          - op: unlessAll
+            checks:
+              - textRegex: '\bcreateCodingAgentBootstrap\s*\('
+              - textRegex: '\bNodeTransactionalTextStorage\b'
+              - textRegex: '\brunCodingAgentStartupMigrations\s*\(\s*\{\s*cwd\s*,\s*agentDir\s*\}\s*\)'
+              - textRegex: '\bcreateCliSettingsRuntime\b'
+              - textRegex: '\bcreateCliSessionResourceRuntime\b'
+              - fileText:
+                  path: apps/cli-host/src/coding-agent-resource-runtime.ts
+                  regex: '\bNodeScopedTextStorage\b'
+              - fileText:
+                  path: apps/cli-host/src/coding-agent-resource-runtime.ts
+                  regex: '\bcreateNodeResourcePackageHost\b'
+              - fileText:
+                  path: apps/cli-host/src/coding-agent-resource-runtime.ts
+                  regex: '\bcreateNodeCommandExecutor\b'
+            report: "{path}: CLI host composition must select Node dependencies explicitly"
+  - name: resource-package-host
+    doc: ADR-0077
+    steps:
+      - op: ifSourceHas
+        paths: [packages/coding-agent/src/resources/packages/package-effects.ts]
+        report: "{path}: Resource Package Node effects belong to runtime-node"
+      - op: file
+        path: packages/coding-agent/src/resources/packages/package-source-runtime.ts
+        steps:
+          - op: unlessAll
+            checks:
+              - textRegex: '\bcommands\s*:\s*ResourcePackageCommandPort\b'
+              - textRegex: '\bdigest\s*:\s*ResourcePackageDigestPort\b'
+              - textRegex: '\bregistry\s*:\s*ResourcePackageRegistryPort\b'
+              - textRegex: '\benvironment\s*:\s*ResourcePackageEnvironmentPort\b'
+              - textRegex: '\blocationFacts\s*:\s*ResourcePackageLocationFacts\b'
+              - textRegex: '\bresourceAccess\s*:\s*ResourceAccessPort\b'
+              - textRegex: '\bfiles\s*:\s*ResourcePackageFilePort\b'
+              - textRegex: '\bmanagedSkillsDir\s*:\s*string\b'
+            report: "{path}: ResourcePackageRuntimeOptions must require all Host Ports"
+          - op: when
+            textRegex: '\brunSync\s*\('
+            report: "{path}: Resource Package runtime must not synchronously query Node commands"
+          - op: when
+            textRegex: '\bnew\s+(?:NodeResourcePackageCommands|NpmResourcePackageRegistry)\b|\bprocess\.env\.PI_OFFLINE\b'
+            report: "{path}: Resource Package runtime must not select Node defaults"
+      - op: file
+        path: packages/coding-agent/src/resources/packages/source-spec.ts
+        steps:
+          - op: when
+            textRegex: '\bclass\s+ResourcePackageLocations\b'
+            report: "{path}: Resource source parsing must not own package location policy"
+  - name: host-owned-resource-composition
+    doc: ADR-0077
+    steps:
+      - op: ifSourceHas
+        paths:
+          - packages/coding-agent/src/host/coding-agent-resource-runtime.ts
+        report: "{path}: Node resource composition belongs to application hosts"
+      - op: ifSourceHas
+        paths:
+          - packages/coding-agent/src/composition/turn/prompt-runtime-factory.ts
+        report: "{path}: Prompt resource selection belongs to application hosts"
+      - op: file
+        path: packages/coding-agent/src/public-api/resources.ts
+        steps:
+          - op: when
+            textRegex: '\bcreateCodingAgent(?:Settings|ResourcePackage|SessionResource|SkillResource)Runtime\b'
+            report: "{path}: Resources facade must expose portable constructors only"
+      - op: file
+        path: packages/coding-agent/src/composition/contracts/runtime-composition-options.ts
+        steps:
+          - op: unlessText
+            regex: '\bcreatePromptRuntimeSources\??\s*:'
+            report: "{path}: Composition must accept host-owned Prompt runtime sources"
+      - op: file
+        path: packages/coding-agent/src/composition/session-initialization/transaction.ts
+        steps:
+          - op: unlessText
+            regex: '\bruntimeSourceFactory\s*:\s*createPromptRuntimeSources\b'
+            report: "{path}: Session initialization must forward host-owned Prompt runtime sources"
+  - name: knowledge-runtime
+    doc: ADR-0077
+    steps:
+      - op: ifSourceHas
+        paths: [packages/coding-agent/src/composition/coding-agent-knowledge-runtime.ts]
+        report: "{path}: Knowledge platform implementation belongs to application hosts"
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/features/knowledge/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Knowledge Feature must consume portable operations"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefixFrom: retiredNodeKnowledgePrefixes
+            report: "{path}: Knowledge Tool definitions belong to the Coding Agent feature"
+      - op: file
+        path: packages/runtime-node/src/coding/index.ts
+        steps:
+          - op: when
+            textRegex: '\bcreateKb(?:FilterByTags|ListTags|WritePage)Tool\b|\./tools/kb-(?:filter-by-tags|list-tags|write-page)/'
+            report: "{path}: runtime-node must not export Coding Agent Knowledge Tools"
+      - op: file
+        path: packages/coding-agent/src/composition/contracts/runtime-composition-options.ts
+        steps:
+          - op: unlessText
+            regex: '\bknowledgeRuntime\??\s*:\s*CodingAgentKnowledgeRuntime\b'
+            report: "{path}: Composition must accept an explicit Knowledge runtime"
+          - op: when
+            textRegex: '\bknowledge(?:Root|Enabled)\??\s*:'
+            report: "{path}: Composition must not infer Knowledge platform availability"
+      - op: file
+        path: packages/coding-agent/src/composition/tool-surface/runtime-tool-surface.ts
+        steps:
+          - op: when
+            textRegexAny:
+              - '\bprocess\s*\.'
+              - '\bgetKnowledgeDir\b|\bcreateNodeKnowledgeRuntime\b|\bknowledge(?:Root|Enabled)\b'
+            report: "{path}: Tool Surface must consume the injected Knowledge runtime"
+      - op: eachItem
+        itemsFrom: knowledgeRuntimeRoots
+        skipIfAbsent: true
+        steps:
+          - op: unlessAll
+            checks:
+              - import:
+                  specifier: "@vetta/runtime-node/host"
+                  name: createNodeKnowledgeRuntime
+              - textRegex: '\bknowledgeRuntime\s*:'
+            report: "{path}: Node Host Composition Root must inject createNodeKnowledgeRuntime"
+  - name: memory-runtime
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/memory/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Memory semantics must consume portable storage ports"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefixFrom: retiredNodeMemoryPrefixes
+            report: "{path}: Memory Tool definitions belong to the Coding Agent feature"
+          - op: when
+            pathPrefix: packages/coding-agent/src/memory/
+            textRegex: '\bFileMemory(?:Store|Journal)\b'
+            report: "{path}: Memory semantics must not contain a file-backed implementation"
+      - op: file
+        path: packages/runtime-node/src/coding/index.ts
+        steps:
+          - op: when
+            textRegex: '\bcreateMemoryTool\b|\./tools/memory/'
+            report: "{path}: runtime-node must not export Coding Agent Memory Tools"
+      - op: file
+        path: packages/coding-agent/src/composition/contracts/runtime-composition-options.ts
+        steps:
+          - op: unlessText
+            regex: '\bcreateMemoryRolloverRuntime\??\s*:'
+            report: "{path}: Composition must accept an explicit Memory runtime factory"
+      - op: file
+        path: packages/coding-agent/src/composition/session-initialization/peripheral-assembly.ts
+        steps:
+          - op: when
+            textRegexAny:
+              - '\bnew\s+CodingAgentMemoryRolloverOrchestrator\b'
+              - '\bjoin\s*\([^)]*MEMORY\.md'
+            report: "{path}: Memory host storage must be selected by the Composition Root"
+      - op: eachItem
+        itemsFrom: memoryRuntimeRoots
+        skipIfAbsent: true
+        steps:
+          - op: unlessAll
+            checks:
+              - import:
+                  specifier: "@vetta/runtime-node/host"
+                  name: NodeTextFileStorage
+              - textRegex: '\bcreateMemoryRolloverRuntime\s*:'
+            report: "{path}: Node Host Composition Root must inject NodeTextFileStorage for Memory"
+  - name: ask-user-question-ownership
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/features/ask-user-question/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Ask User Question Feature must consume portable Runtime ports"
+      - op: eachFile
+        steps:
+          - op: when
+            pathExact: packages/coding-agent/src/composition/tool-surface/ask-user-question-feature.ts
+            report: "{path}: Ask User Question belongs to its Coding Agent feature"
+          - op: when
+            pathPrefixFrom: retiredNodeAskPrefixes
+            report: "{path}: Ask User Question Tool definitions belong to the Coding Agent feature"
+      - op: file
+        path: packages/runtime-node/src/coding/index.ts
+        steps:
+          - op: when
+            textRegex: '\b(?:createAskUserQuestionTool|AskUserQuestionToolInputSchema)\b|\./tools/ask-user-question/'
+            report: "{path}: runtime-node must not export Coding Agent Ask User Question Tools"
+  - name: invoke-skill-ownership
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/resources/skills/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Skill semantics must consume portable Runtime and resource ports"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefixFrom: retiredNodeSkillPrefixes
+            report: "{path}: Invoke Skill Tool definitions belong to the Coding Agent Skill domain"
+      - op: file
+        path: packages/runtime-node/src/coding/index.ts
+        steps:
+          - op: when
+            textRegex: '\b(?:createInvokeSkillTool|InvokeSkillToolInputSchema)\b|\./tools/invoke-skill/'
+            report: "{path}: runtime-node must not export Coding Agent Invoke Skill Tools"
+  - name: mcp-tool-search-ownership
+    doc: ADR-0077
+    steps:
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefixFrom: retiredNodeToolSearchPrefixes
+            report: "{path}: MCP Tool Search belongs to runtime-mcp"
+      - op: file
+        path: packages/runtime-node/src/coding/index.ts
+        steps:
+          - op: when
+            textRegex: '\b(?:createToolSearchTool|ToolSearchToolInputSchema|scoreDeferredTools)\b|\./tools/tool-search/'
+            report: "{path}: runtime-node must not duplicate runtime-mcp Tool Search"
+  - name: subagent-control-ownership
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/composition/subagent/tools/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Subagent control Tools must consume portable Runtime Ports"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefixFrom: retiredNodeSubagentPrefixes
+            report: "{path}: Subagent control Tool definitions belong to the Coding Agent Subagent feature"
+          - op: when
+            pathExact: packages/runtime-node/src/coding/shared/subagent-notification.ts
+            report: "{path}: Subagent notification projection belongs to the Coding Agent Subagent feature"
+      - op: file
+        path: packages/runtime-node/src/coding/index.ts
+        steps:
+          - op: when
+            textRegex: '\b(?:createDispatchWorkflows|createFollowupTask|createInterruptAgent|createListAgents|createSendMessage|createSpawnAgent|createWaitAgent)Tool\b|\bbuildSubagentNotification\b|\./tools/(?:dispatch-workflows|followup-task|interrupt-agent|list-agents|send-message|spawn-agent|wait-agent)/'
+            report: "{path}: runtime-node must not export Coding Agent Subagent control Tools"
+  - name: portable-product-tool-ownership
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefixFrom: portableFeatureRoots
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: portable Coding Agent Tool Features must consume Runtime ports"
+          - op: when
+            pathExactFrom: portableProductCompositionPaths
+            specifierPrefix: "@vetta/runtime-node"
+            report: "{path}:{line}: Coding Agent product Tool composition must consume host factories"
+      - op: eachFile
+        steps:
+          - op: when
+            pathPrefixFrom: retiredPortableToolPrefixes
+            report: "{path}: portable product Tool definitions belong to Coding Agent Features"
+          - op: when
+            pathExact: packages/runtime-node/src/coding/shared/async-execution-gate.ts
+            report: "{path}: platform-neutral execution gates belong to runtime-tools"
+      - op: file
+        path: packages/runtime-node/src/coding/index.ts
+        steps:
+          - op: when
+            textRegex: '\b(?:createCurrentTime|createProgress|createTaskOutput|createTaskStop|createImSendAttachment)Tool\b|\./tools/(?:current-time|progress|task-output|task-stop|im-send-attachment)/'
+            report: "{path}: runtime-node must not export portable Coding Agent product Tools"
+          - op: when
+            textRegex: '\./shared/async-execution-gate\.js'
+            report: "{path}: runtime-node must not export platform-neutral execution gates"
+      - op: file
+        path: packages/runtime-node/src/coding/node-tool-environment.ts
+        steps:
+          - op: when
+            textRegex: '\b(?:createCurrentTime|createTaskOutput|createTaskStop)ToolRegistration\b|["''](?:current_time|task_output|task_stop)["'']'
+            report: "{path}: Node Tool Environment must compose platform Tools only"
+  - name: rpc-host-boundary
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathExactFrom: rpcPortablePaths
+            specifierPrefix: "node:"
+            report: "{path}:{line}: RPC protocol semantics must consume host transport and ID ports"
+      - op: eachFile
+        steps:
+          - op: when
+            pathExactFrom: rpcPortablePaths
+            textRegex: '\bprocess\.(?:env|stdin|stdout|exit)\b|\brandomUUID\s*\('
+            report: "{path}: RPC protocol semantics must not access Node process or randomness directly"
+      - op: file
+        path: packages/coding-agent/src/rpc/rpc-mode.ts
+        steps:
+          - op: unlessAll
+            checks:
+              - textRegex: 'transport:\s*RpcFrameTransport'
+              - textRegex: createRequestId
+            report: "{path}: RPC mode must require explicit transport and request ID ports"
+      - op: eachItem
+        itemsFrom: rpcHostPaths
+        skipIfAbsent: true
+        steps:
+          - op: unlessAll
+            checks:
+              - import:
+                  name: NodeRpcJsonlTransport
+              - textRegex: 'transport:\s*new\s+NodeRpcJsonlTransport'
+              - textRegex: 'createRequestId:'
+            report: "{path}: Node RPC Host must inject JSONL transport, exit and request ID ports"
+      - op: file
+        path: apps/cli-host/src/rpc/node-rpc-client-transport.ts
+        steps:
+          - op: unlessAll
+            checks:
+              - import:
+                  specifier: "@vetta/coding-agent/rpc"
+                  name: RpcClientTransport
+              - textRegex: 'implements\s+RpcClientTransport'
+            report: "{path}: Node RPC Client transport must implement the public RPC Port"
+  - name: sdk-session-identity
+    doc: ADR-0077
+    steps:
+      - op: eachEdge
+        steps:
+          - op: when
+            pathExact: packages/coding-agent/src/host/sdk-session/runtime-factory.ts
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: SDK Session factory must consume an identity runtime Port"
+      - op: file
+        path: packages/coding-agent/src/host/sdk-session/runtime-factory.ts
+        steps:
+          - op: when
+            textRegex: '\bprocess\.|\brandomUUID\s*\(|\bFileConversationRuntimeSessionCatalog\b'
+            report: "{path}: SDK Session factory must not select Node identity defaults"
+          - op: unlessAll
+            checks:
+              - textRegex: '^\s*readonly\s+identityRuntime:\s*CodingAgentSdkSessionIdentityRuntime\s*;'
+                flags: m
+              - textRegex: 'options\.identityRuntime\.resolveStorage\s*\('
+              - textRegex: 'options\.identityRuntime\.createSessionCatalog\s*\('
+            report: "{path}: SDK Session factory must require the complete identity runtime Port"
+      - op: file
+        path: packages/coding-agent/src/host/sdk-session/session-host.ts
+        steps:
+          - op: eachEdge
+            steps:
+              - op: when
+                pathExact: packages/coding-agent/src/host/sdk-session/session-host.ts
+                specifierPrefixFrom: nodeSpecifierPrefixes
+                report: "{path}:{line}: public SDK mapping must not select Node implementations"
+      - op: file
+        path: packages/coding-agent/src/host/sdk-session/node-session-host.ts
+        steps:
+          - op: unlessAll
+            checks:
+              - import:
+                  name: nodeCodingAgentSdkSessionIdentityRuntime
+              - textRegex: 'identityRuntime:\s*[^,]*nodeCodingAgentSdkSessionIdentityRuntime'
+            report: "{path}: default SDK Host must inject the Node Session identity runtime"
+      - op: file
+        path: packages/coding-agent/src/host/sdk-session/node-session-identity-runtime.ts
+        steps:
+          - op: unlessText
+            regex: CodingAgentSdkSessionIdentityRuntime
+            report: "{path}: Node SDK identity adapter must implement the identity runtime Port"
+  - name: retired-layer-terminology
+    doc: ADR-0077
+    steps:
+      - op: retiredTerm
+        term: product
+        scopePrefix: packages/coding-agent/src/
+        fileReport: "{path}: implementation uses a retired architecture-layer term"
+        exportReport: "{path}: export {export} uses a retired architecture-layer term"
+  - name: dependency-direction
+    doc: ADR-0077
+    steps:
+      - op: eachSourcePath
+        steps:
+          - op: when
+            pathPrefix:
+              - packages/coding-agent/src/core/
+              - packages/coding-agent/src/compat/
+            report: "{path}: retired implementation directory is outside the current architecture"
+      - op: eachEdge
+        steps:
+          - op: when
+            pathPrefix: packages/coding-agent/src/adapters/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: Adapter must consume platform-neutral facts, not a Node implementation"
+          - op: when
+            pathExact: packages/coding-agent/src/index.ts
+            steps:
+              - op: whenAny
+                checks:
+                  - kindNot: export
+                  - specifierNot: ./public-api/extensions.js
+                report: "{path}:{line}: package root may only export the Extension facade"
+          - op: when
+            pathExact: packages/coding-agent/src/composition/index.ts
+            kind: export
+            notCompositionPublic: true
+            report: "{path}:{line}: Composition public entry exports an internal implementation ({specifier})"
+          - op: when
+            outsidePackage: true
+            specifierPackagePrefix: true
+            unpublished: true
+            report: "{path}:{line}: consumer uses a non-public Coding Agent subpath ({specifier})"
+          - op: when
+            pathPrefix: packages/coding-agent/src/
+            namesIncludes: migrateLegacySessionToV2
+            report: "{path}:{line}: historical migration execution must be injected by a Host"
+          - op: when
+            pathPrefix: packages/coding-agent/src/sessions/legacy/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: historical format policy must consume host-provided file operations"
+          - op: when
+            pathPrefix: packages/coding-agent/src/sessions/external/
+            specifierPrefixFrom: nodeSpecifierPrefixes
+            report: "{path}:{line}: external format policy must consume host-provided file operations"
+          - op: whenTargetInside
+            steps:
+              - op: when
+                pathClass: contract
+                targetClass: implementation
+                report: "{path}:{line}: contract depends on implementation ({specifier})"
+              - op: when
+                pathClass: domain
+                targetClassAny: [adapter, compositionImplementation, publicFacade]
+                report: "{path}:{line}: Coding Agent domain depends on orchestration or implementation ({specifier})"
+              - op: when
+                pathClass: adapter
+                targetClassAny: [compositionImplementation, publicFacade]
+                report: "{path}:{line}: Adapter depends on Composition or a public facade ({specifier})"
+              - op: when
+                pathPrefix: packages/coding-agent/src/sessions/legacy/
+                targetClass: historicalExecution
+                report: "{path}:{line}: historical format boundary depends on Agent execution ({specifier})"
+              - op: when
+                pathPrefix: packages/coding-agent/src/sessions/external/
+                targetClass: historicalExecution
+                report: "{path}:{line}: external format boundary depends on Agent execution ({specifier})"
+      - op: eachItem
+        itemsFrom: historicalHostPaths
+        skipIfAbsent: true
+        steps:
+          - op: unlessText
+            regex: '\bcreateNodeLegacySessionHost\s*\('
+            report: "{path}: platform historical-session Host must inject Node file execution"

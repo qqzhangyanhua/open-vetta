@@ -1,0 +1,220 @@
+# Live runtime-boundary rules. check-runtime-boundaries.mjs loads this file.
+# Add a ban, marker, or required file here instead of editing the checker.
+name: runtime-boundaries
+description: Runtime packages stay below Coding Agent, and production failures stay structured.
+rationale: |
+  Runtime packages are capability domains. They must not take a dependency on the
+  Coding Agent product, the subagent kernel must not grow tool or product state,
+  and production recovery must key off structured failures instead of error text.
+examples:
+  - violation: |
+      # packages/runtime-tools/package.json
+      devDependencies:
+        "@vetta/coding-agent": "workspace:*"
+    fix: |
+      Depend on @vetta/runtime-core or another lower-level contract.
+  - violation: |
+      # packages/runtime-subagents/src/coordinator.ts
+      snapshot.status = "completed";
+    fix: |
+      Leave child status on the run that owns it.
+  - violation: |
+      if (error.message.includes("timeout")) return "automatic_replay";
+    fix: |
+      Branch on the structured recoverability value.
+guards:
+  - name: coding-agent-independence
+    label: runtime-independence
+    summary: "{manifests} manifests, {files} code/config files, Coding Agent dependencies=0"
+    input: manifests
+    scan:
+      kind: packages
+      packages:
+        - packages/runtime-core
+        - packages/runtime-knowledge
+        - packages/runtime-mcp
+        - packages/runtime-storage
+        - packages/runtime-subagents
+        - packages/runtime-telemetry
+        - packages/runtime-tools
+    manifests:
+      sections:
+        - dependencies
+        - devDependencies
+        - optionalDependencies
+        - peerDependencies
+      key: "@vetta/coding-agent"
+      report: "{section} must not declare @vetta/coding-agent"
+    lines:
+      - tokens:
+          - "@vetta/coding-agent"
+        report: "Runtime package file depends on @vetta/coding-agent"
+      - whenPathIncludes: "/src/"
+        tokens:
+          - KB_PROCESSING_GUIDE
+          - SubagentTodo
+          - 'todo(action='
+          - todoProgress
+          - AgentPlugin
+          - sideEffect
+          - side_effect
+          - askUserQuestion
+          - RuntimeUserQuestion
+          - RuntimeUserConfirmation
+          - RuntimeQuestion
+          - RuntimeConfirmation
+          - RuntimeInteraction
+          - HostInteraction
+        report: "Runtime source hardcodes product token {token}"
+  - name: subagents-boundary
+    label: runtime-subagents-boundary
+    summary: "{files} source files, workspace dependencies=0, tool protocol tokens=0"
+    input: manifest
+    scan:
+      kind: package-source
+      package: packages/runtime-subagents
+      directory: src
+      extensions:
+        - ".ts"
+    manifests:
+      sections:
+        - dependencies
+        - devDependencies
+        - optionalDependencies
+        - peerDependencies
+      keyPrefix: "@vetta/"
+      report: "{section} must not declare workspace dependency {dependency}"
+    lines:
+      - tokens:
+          - "@vetta/coding-agent"
+          - "@vetta/runtime-core"
+          - "@vetta/runtime-tools"
+          - SubagentNotificationPayload
+          - buildSubagentNotification
+          - describeForTools
+          - dispatch_workflows
+          - followup_task
+          - spawn_agent
+          - SubagentTodo
+          - todoProgress
+          - setTodos
+          - getTodoProgress
+          - subscribeTodos
+          - typeDocs
+          - wait_agent
+        report: "forbidden subagent kernel token {token}"
+      - path: packages/runtime-subagents/src/coordinator.ts
+        tokens:
+          - SubagentChildHandle
+          - MutableSubagentSnapshot
+          - "snapshot.status ="
+          - "snapshot.generation +="
+          - "handle.prompt("
+          - "handle.abort("
+        report: "coordinator must not own {token}"
+    requiredFiles:
+      report: "required runtime-subagents owner file is missing"
+      paths:
+        - packages/runtime-subagents/src/subagent-dispatcher.ts
+        - packages/runtime-subagents/src/subagent-pool.ts
+        - packages/runtime-subagents/src/subagent-run.ts
+        - packages/runtime-subagents/src/recovery.ts
+    retiredFiles:
+      report: "retired runtime-subagents owner file still exists"
+      paths:
+        - packages/runtime-subagents/src/internal.ts
+        - packages/runtime-subagents/src/scheduler.ts
+        - packages/runtime-subagents/src/subagent-store.ts
+  - name: failure-contract
+    label: runtime-failure-contract
+    summary: "boundary files={files}, violations=0"
+    input: files
+    scan:
+      kind: boundary
+      roots:
+        - packages/coding-agent/src/rpc
+        - packages/runtime-desktop/src
+        - apps/im-gateway/internal/hostclient
+        - apps/im-gateway/internal/bridge
+        - apps/im-gateway/internal/router
+      extensions:
+        - ".ts"
+        - ".go"
+      excludeSuffixes:
+        - _test.go
+        - .test.ts
+      files:
+        - apps/cli-host/src/agent-runtime-selection.ts
+        - apps/cli-host/src/extension-compatibility-error.ts
+        - apps/cli-host/src/session-compatibility-error.ts
+        - apps/cli-host/src/rpc/node-rpc-client-transport.ts
+        - apps/desktop/src/main/agent-runtime/composition.ts
+        - apps/desktop/src/main/conversations/desktop-conversation-service.ts
+        - apps/desktop/src/main/runtime.ts
+        - packages/runtime-core/src/errors.ts
+        - packages/runtime-core/src/runtime-host/runtime-host.ts
+        - packages/coding-agent/src/composition/runtime-host-retry.ts
+    markers:
+      missingFile: "required runtime failure contract file is missing"
+      missingMarker: "missing contract marker ({marker})"
+      files:
+        - path: packages/coding-agent/src/rpc/rpc-failure.ts
+          tokens:
+            - RpcFailureMetadataSchema
+            - '"retry_safe"'
+            - '"continue_session"'
+            - '"restart_session"'
+            - '"user_action"'
+            - '"fatal"'
+        - path: packages/coding-agent/src/rpc/rpc-types.ts
+          tokens:
+            - RpcFailureMetadata
+        - path: packages/coding-agent/src/rpc/rpc-client.ts
+          tokens:
+            - "reject(rpcClientErrorFromResponse(response))"
+        - path: packages/coding-agent/src/composition/runtime-host-retry.ts
+          tokens:
+            - CONVERSATION_STORAGE_ERROR_CODES.OWNERSHIP_CONFLICT
+            - 'runtimeError("SESSION_LOCKED"'
+        - path: apps/cli-host/src/session-compatibility-error.ts
+          tokens:
+            - recoverability
+        - path: packages/runtime-core/src/errors.ts
+          tokens:
+            - SESSION_BUSY
+            - SESSION_LOCKED
+            - isSessionError
+        - path: apps/desktop/src/main/conversations/desktop-conversation-service.ts
+          tokens:
+            - RUNTIME_ERROR_CODES.SESSION_BUSY
+            - RUNTIME_ERROR_CODES.SESSION_LOCKED
+        - path: packages/runtime-desktop/src/lifecycle.ts
+          tokens:
+            - DesktopRuntimeFailure
+            - DesktopRuntimeHealth
+        - path: apps/im-gateway/internal/hostclient/types.go
+          tokens:
+            - "type TypedFailure interface"
+            - "FailureRecoverability() FailureRecoverability"
+        - path: apps/im-gateway/internal/hostclient/local/session.go
+          tokens:
+            - "failureFromResponse(resp, commandPhase(cmd.Type))"
+        - path: apps/im-gateway/internal/hostclient/pool.go
+          tokens:
+            - "func (a *Acquired) Discard() error"
+        - path: apps/im-gateway/internal/router/router.go
+          tokens:
+            - discardRestartRequiredSession
+            - FailureRestartSession
+    patterns:
+      - label: classifies recovery by JavaScript error message
+        source: '(?:error|err)\.message\.(?:includes|match|startsWith|endsWith)\s*\('
+      - label: classifies recovery by JavaScript error name
+        source: '(?:error|err)\.name\s*==='
+      - label: classifies recovery by Go error message
+        source: 'strings\.(?:Contains|HasPrefix|HasSuffix)\s*\(\s*(?:err|failure)\.Error\(\)'
+      - label: reintroduces automatic Turn replay
+        source: 'automatic[_ -]?replay|auto[_ -]?replay'
+        flags: i
+      - label: reintroduces the legacy Desktop backend selector
+        source: 'session-route backend='

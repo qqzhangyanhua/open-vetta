@@ -10,7 +10,7 @@
 
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { isDirectRun, repoRoot } from "./lib.mjs";
+import { isDirectRun, repoRoot, toPosix } from "./lib.mjs";
 
 const WRAPPER_MARKER = "scripts/quality/run-vitest.mjs";
 const DIRECT_VITEST = /(?:^|[\s;&|])(?:bunx\s+|npx\s+)?vitest(?:\s|$)/;
@@ -83,7 +83,7 @@ export function checkVitestRunner(rootPath = repoRoot) {
 		} catch {
 			continue;
 		}
-		const manifestPath = relative(rootPath, absolute).replaceAll("\\", "/");
+		const manifestPath = toPosix(relative(rootPath, absolute));
 		violations.push(...findVitestRunnerViolations(manifestPath, manifest));
 	}
 	return violations;

@@ -93,7 +93,7 @@ Desktop 主进程部分目录还有更细规则；修改对应目录时必须继
 - 如果现有实现看起来不自然，先确认它是否在保护兼容性、生命周期或宿主边界，不要在未理解原因时改写。
 - 任务需要改变现有架构行为时，先向用户说明替代方案和迁移影响，再修改实现，并使用 ADR 记录这次架构变更；不得只改 ADR 来宣称行为已经改变。
 - 发生长期且跨模块的架构变更时，应使用仓库现有 ADR 格式记录背景、决策、备选方案和后果；局部实现细节不需要新增 ADR。
-- 包边界和 Coding Agent 依赖规则由 [`check-package-boundaries.mjs`](scripts/quality/check-package-boundaries.mjs) 与 [`check-coding-agent-architecture.mjs`](scripts/quality/check-coding-agent-architecture.mjs) 机械验证。不得通过删除检查、放宽基线或添加忽略项来掩盖违规，除非用户明确批准规则变更。
+- 包边界规则在 [`package-boundaries.yml`](scripts/quality/rules/package-boundaries.yml)，Coding Agent 架构规则在 [`coding-agent-architecture.yml`](scripts/quality/rules/coding-agent-architecture.yml)，分别由对应检查脚本执行。旧实现只给差分测试对照。不得通过删除检查、放宽基线或添加忽略项来掩盖违规，除非用户明确批准规则变更。
 
 ## 实施原则
 
@@ -210,10 +210,10 @@ Desktop 主进程部分目录还有更细规则；修改对应目录时必须继
 
 使用最小但充分的验证范围：
 
-1. 对本次任务文件运行 `bun run check:quick -- <file...>`（变更文件 lint 与相关架构守卫）；只需 lint 时使用 `bun run check:lint -- <file...>`。需要核对整个工作区差异时省略文件参数，不默认扫描全仓。Biome 或 EditorConfig 配置变更会扩大 lint 影响范围。
+1. 对本次任务文件运行 `bun run check:quick -- <file...>`（变更文件 lint 与相关架构守卫）；只需 lint 时使用 `bun run check:lint -- <file...>`。需要核对整个工作区差异时省略文件参数，不默认扫描全仓。Biome 或 EditorConfig 配置变更会扩大 lint 影响范围。文件已经暂存、只要私钥、冲突标记和 Biome 时用 `bun run check:fast`。只跑包边界和 Coding Agent 架构时用 `bun run check:arch`。
 2. 优先运行 `bun run test:impact -- <file...>`；它会选择直接测试、已审查的合同映射和依赖相关测试。无法可靠选择时补充回归测试或显式映射，不静默扩大为整包或全仓；`bun run test` / `test:unit` 同样默认按影响范围选择。
 3. 公共合同、删除文件、多个包或影响范围不明确时运行 `bun run test:changed -- <file...>`；提 PR 前仍可不带文件参数核对完整分支差异。
-4. 一轮代码任务完成后，确保本次文件的定向测试、lint 和相关守卫通过；按受影响的 TypeScript 合同执行类型检查。通过后只有新修改、失败或未解决风险才需要重跑，不默认执行全量检查。`bun run check` 组合变更 lint、类型检查和全量守卫；`bun run check:full` 与 `bun run check:lint:full` 保留给显式全量核查及 CI/发布。
+4. 一轮代码任务完成后，确保本次文件的定向测试、lint 和相关守卫通过；按受影响的 TypeScript 合同执行类型检查。通过后只有新修改、失败或未解决风险才需要重跑，不默认执行全量检查。`bun run check` 组合变更 lint、类型检查和全量守卫；`bun run check:full` 与 `bun run check:lint:full` 保留给显式全量核查及 CI/发布。`check:arch` 只跑架构引擎，不能代替 `check`。
 
 `bun run check` 不运行测试，不能替代定向行为测试。
 

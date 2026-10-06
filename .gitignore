@@ -49,6 +49,8 @@ deploy/logs/
 .npm/
 coverage/
 .nyc_output/
+# Quality-gate AST cache written by scripts/quality/arch-engine
+/.cache/
 .pi_config/
 tui-debug.log
 compaction-results/

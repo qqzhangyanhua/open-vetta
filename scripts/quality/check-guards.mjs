@@ -1,6 +1,7 @@
 /** Run repository guards in full mode or select the guards affected by task files. */
 
 import { spawn } from "node:child_process";
+import { referenceStatus, syncQualityGatesReference } from "./generate-docs.mjs";
 import { isDirectRun, repoRoot } from "./lib.mjs";
 
 const FULL_STEPS = Object.freeze([
@@ -12,11 +13,9 @@ const FULL_STEPS = Object.freeze([
 	["conflict-markers", "scripts/quality/check-conflict-markers.mjs"],
 	["package-boundaries", "scripts/quality/check-package-boundaries.mjs"],
 	["coding-agent-architecture", "scripts/quality/check-coding-agent-architecture.mjs"],
-	["runtime-independence", "scripts/quality/check-runtime-coding-agent-independence.mjs"],
-	["runtime-subagents", "scripts/quality/check-runtime-subagents-boundary.mjs"],
+	["runtime-boundaries", "scripts/quality/check-runtime-boundaries.mjs"],
 	["conversation-architecture", "scripts/quality/check-conversation-message-architecture.mjs"],
 	["session-event-tombstones", "scripts/quality/check-session-event-tombstones.mjs"],
-	["runtime-failure", "scripts/quality/check-runtime-failure-contract.mjs"],
 	["agent-ai-maintainability", "scripts/quality/check-agent-ai-maintainability.mjs"],
 	["standalone-cli-build", "scripts/quality/check-standalone-cli-build.mjs"],
 	["skill-frontmatter", "scripts/quality/check-skill-frontmatter.mjs"],
@@ -103,10 +102,16 @@ export function createQuickGuardPlan(inputFiles) {
 	if (matchesAny(files, [/^apps\/desktop\/(?:src\/main\/agent-modes|scripts\/build-agent-modes\.mjs)/u])) {
 		add("agent-modes");
 	}
-	if (matchesAny(files, [/^packages\/runtime-(?:core|knowledge|mcp|storage|subagents|telemetry|tools)\//u])) {
-		add("runtime-independence");
+	if (
+		matchesAny(files, [
+			/^packages\/runtime-(?:core|knowledge|mcp|storage|subagents|telemetry|tools)\//u,
+			/^packages\/coding-agent\/src\/(?:rpc|composition)\//u,
+			/^packages\/(?:runtime-core|runtime-desktop)\/src\//u,
+			/^apps\/(?:cli-host\/src|desktop\/src\/main|im-gateway\/internal)\//u,
+		])
+	) {
+		add("runtime-boundaries");
 	}
-	if (matchesAny(files, [/^packages\/runtime-subagents\//u])) add("runtime-subagents");
 	if (
 		matchesAny(files, [
 			/^apps\/desktop\/src\/main\/agent-teams\//u,
@@ -115,15 +120,6 @@ export function createQuickGuardPlan(inputFiles) {
 		])
 	) {
 		add("conversation-architecture");
-	}
-	if (
-		matchesAny(files, [
-			/^packages\/coding-agent\/src\/(?:rpc|composition)\//u,
-			/^packages\/(?:runtime-core|runtime-desktop)\/src\//u,
-			/^apps\/(?:cli-host\/src|desktop\/src\/main|im-gateway\/internal)\//u,
-		])
-	) {
-		add("runtime-failure");
 	}
 	if (matchesAny(files, [/^packages\/(?:agent|ai)\//u])) add("agent-ai-maintainability");
 	if (
@@ -156,6 +152,11 @@ export function fullGuardPlan() {
 	return FULL_STEPS.map((step) => [...step]);
 }
 
+/** Full guard list. The name is the one `generate-docs` tests already call. */
+export function createGuardCheckPlan() {
+	return fullGuardPlan();
+}
+
 function runStep([, ...args]) {
 	return new Promise((resolve) => {
 		const child = spawn("bun", ["run", ...args], {
@@ -174,11 +175,69 @@ export async function runGuardPlan(steps) {
 	return results.find((code) => code !== 0) ?? 0;
 }
 
+/** GitHub Actions and most CI systems set `CI=true`. Local checks leave it unset. */
+export function referenceCheckOnly(env = process.env) {
+	const value = env.CI;
+	return value === "true" || value === "1";
+}
+
+function isGuardOptions(value) {
+	return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+async function finishReference({ sync, root, sources, log, error, check }) {
+	let docCode = 0;
+	try {
+		const result = (sync ?? (() => syncQualityGatesReference({ root, sources, check })))();
+		const status = referenceStatus(result, { check });
+		if (status.error) {
+			error(status.line);
+			docCode = 1;
+		} else {
+			log(status.line);
+		}
+	} catch (cause) {
+		const message = cause instanceof Error ? cause.message : String(cause);
+		error(`[generate-docs] internal error: ${message}`);
+		docCode = 1;
+	}
+	return docCode;
+}
+
+/**
+ * CLI passes an argv array (`--quick` selects guards and does not rewrite docs).
+ * `generate-docs` tests pass `{ run, root, sources, check, log, error }` and
+ * the injected `run` replaces the real guard processes.
+ */
 export async function main(args = process.argv.slice(2)) {
+	if (isGuardOptions(args)) {
+		const {
+			run = (steps) => runGuardPlan(steps),
+			sync,
+			root,
+			sources,
+			log = console.log,
+			error = console.error,
+			check = referenceCheckOnly(),
+		} = args;
+		const guardCode = await run(createGuardCheckPlan());
+		const docCode = await finishReference({ sync, root, sources, log, error, check });
+		return guardCode !== 0 ? guardCode : docCode;
+	}
+
 	const quick = args[0] === "--quick";
 	const plan = quick ? createQuickGuardPlan(args.slice(1)) : fullGuardPlan();
-	if (quick) console.log(`[check:guards] quick plan: ${plan.map(([id]) => id).join(", ") || "(none)"}`);
-	return runGuardPlan(plan);
+	if (quick) {
+		console.log(`[check:guards] quick plan: ${plan.map(([id]) => id).join(", ") || "(none)"}`);
+		return runGuardPlan(plan);
+	}
+	const guardCode = await runGuardPlan(plan);
+	const docCode = await finishReference({
+		log: console.log,
+		error: console.error,
+		check: referenceCheckOnly(),
+	});
+	return guardCode !== 0 ? guardCode : docCode;
 }
 
 if (isDirectRun(import.meta.url)) {

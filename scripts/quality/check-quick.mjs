@@ -8,11 +8,39 @@
  *   bun run check:quick -- packages/ai/src/index.ts
  */
 
+import { join } from "node:path";
+import { checkConflictMarkers, selectConflictMarkerFiles } from "./check-conflict-markers.mjs";
 import { createQuickGuardPlan, runGuardPlan } from "./check-guards.mjs";
 import { createLintPlan, runLintPlan } from "./check-lint.mjs";
-import { changedFiles, isDirectRun, ok, parseFileSelectionArgs } from "./lib.mjs";
+import { checkPrivateKeys, selectPrivateKeyFiles } from "./check-private-keys.mjs";
+import {
+	changedFiles,
+	isBinaryLike,
+	isDirectRun,
+	ok,
+	parseFileSelectionArgs,
+	readText,
+	repoRoot,
+	runCheck,
+} from "./lib.mjs";
 
 export { batchPaths, createLintPlan as createQuickCheckPlan, isBiomeGlobalTrigger } from "./check-lint.mjs";
+
+/** Private keys and conflict markers for an explicit file list. Architecture guards stay on the quick plan. */
+export function runChangedFileGuards(files, readFile = (file) => readText(join(repoRoot, file)), reporters) {
+	const textFiles = files.filter((file) => !isBinaryLike(file));
+	const keyCode = runCheck(
+		"private-key",
+		() => checkPrivateKeys(selectPrivateKeyFiles(textFiles), readFile),
+		reporters,
+	);
+	const markerCode = runCheck(
+		"conflict-markers",
+		() => checkConflictMarkers(selectConflictMarkerFiles(textFiles), readFile),
+		reporters,
+	);
+	return keyCode || markerCode;
+}
 
 export async function main(args = process.argv.slice(2)) {
 	try {

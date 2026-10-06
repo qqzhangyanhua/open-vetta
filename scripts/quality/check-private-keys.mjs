@@ -1,27 +1,49 @@
 /**
- * Fail if committed/staged sources look like they contain private keys.
- * Inspired by pre-commit detect-private-key; scoped to text-ish sources.
+ * Fail if text outside docs and generated trees looks like a private key.
+ * The full scan and `check:quick` use the same set, including repo-root
+ * files and extensions such as `.pem`. Docs stay skipped so examples are not keys.
+ *
+ * Pass repo-relative paths to scan only those files.
  *
  * Usage:
  *   bun run scripts/quality/check-private-keys.mjs
  *   bun run scripts/quality/check-private-keys.mjs --staged
+ *   bun run scripts/quality/check-private-keys.mjs packages/ai/src/index.ts
  */
 
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import { fail, isBinaryLike, isDirectRun, ok, readText, rel, repoRoot, stagedFiles, walkFiles } from "./lib.mjs";
+import { existsSync, readdirSync } from "node:fs";
+import { join, relative } from "node:path";
+import {
+	CheckViolation,
+	collectFileViolations,
+	isBinaryLike,
+	isDirectRun,
+	lineNumberAt,
+	readText,
+	repoRoot,
+	runCheck,
+	stagedFiles,
+	toPosix,
+	walkFiles,
+} from "./lib.mjs";
 
 // Build markers at runtime so this file is not flagged by its own patterns.
 const begin = "-----BEGIN ";
 const endKey = "PRIVATE KEY-----";
 const PATTERNS = [
-	{ name: "RSA private key", re: new RegExp(`${begin}RSA ${endKey}`) },
-	{ name: "OPENSSH private key", re: new RegExp(`${begin}OPENSSH ${endKey}`) },
-	{ name: "EC private key", re: new RegExp(`${begin}EC ${endKey}`) },
-	{ name: "DSA private key", re: new RegExp(`${begin}DSA ${endKey}`) },
-	{ name: "PGP private key block", re: new RegExp(`${begin}PGP PRIVATE KEY BLOCK-----`) },
-	{ name: "generic PRIVATE KEY block", re: new RegExp(`${begin}([A-Z0-9 ]+)?${endKey}`) },
+	{ name: "RSA private key", rule: "rsa-private-key", re: new RegExp(`${begin}RSA ${endKey}`) },
+	{ name: "OPENSSH private key", rule: "openssh-private-key", re: new RegExp(`${begin}OPENSSH ${endKey}`) },
+	{ name: "EC private key", rule: "ec-private-key", re: new RegExp(`${begin}EC ${endKey}`) },
+	{ name: "DSA private key", rule: "dsa-private-key", re: new RegExp(`${begin}DSA ${endKey}`) },
+	{ name: "PGP private key block", rule: "pgp-private-key", re: new RegExp(`${begin}PGP PRIVATE KEY BLOCK-----`) },
+	{
+		name: "generic PRIVATE KEY block",
+		rule: "generic-private-key",
+		re: new RegExp(`${begin}([A-Z0-9 ]+)?${endKey}`),
+	},
 ];
+
+const MAX_TEXT_LENGTH = 2_000_000;
 
 const SKIP_DIR_PARTS = [
 	"/node_modules/",
@@ -37,81 +59,73 @@ const SKIP_DIR_PARTS = [
 ];
 
 function shouldSkip(posixPath) {
-	const p = `/${posixPath.replaceAll("\\", "/")}`;
-	if (p.endsWith("/check-private-keys.mjs")) return true;
-	return SKIP_DIR_PARTS.some((part) => p.includes(part));
+	const path = `/${toPosix(posixPath)}`;
+	if (path.endsWith("/check-private-keys.mjs")) return true;
+	return SKIP_DIR_PARTS.some((part) => path.includes(part));
 }
 
-export function collectTargets({ stagedOnly = false, files = [] } = {}) {
+/** Changed-file gates reuse the full scan's skip list, including docs and this directory. */
+export function selectPrivateKeyFiles(files) {
+	return files.filter((file) => !isBinaryLike(file) && !shouldSkip(file));
+}
+
+const SCAN_ROOTS = ["packages", "apps", "scripts", "deploy"];
+
+function repoRelative(root, file) {
+	return toPosix(relative(root, file));
+}
+
+/** Full-tree paths, including repo-root text and extensions such as `.pem`. */
+export function listPrivateKeyTargets(root = repoRoot) {
+	const files = [];
+	for (const dir of SCAN_ROOTS) {
+		files.push(...walkFiles(join(root, dir), { extensions: null }).map((file) => repoRelative(root, file)));
+	}
+	let entries = [];
+	try {
+		entries = readdirSync(root, { withFileTypes: true });
+	} catch {
+		entries = [];
+	}
+	for (const entry of entries) {
+		if (!entry.isFile()) continue;
+		files.push(entry.name);
+	}
+	return selectPrivateKeyFiles(files);
+}
+
+/** First matching key in one file. Text above the size cap is ignored. */
+export function findPrivateKeyViolationsInText(file, text) {
+	if (text.length > MAX_TEXT_LENGTH) return [];
+	for (const pattern of PATTERNS) {
+		const index = text.search(pattern.re);
+		if (index === -1) continue;
+		return [new CheckViolation(file, lineNumberAt(text, index), pattern.rule, `possible ${pattern.name}`)];
+	}
+	return [];
+}
+
+function collectTargets({ stagedOnly = false, files = [] } = {}) {
 	if (stagedOnly) {
-		return stagedFiles()
-			.map((f) => join(repoRoot, f))
-			.filter((f) => existsSync(f) && !isBinaryLike(f) && !shouldSkip(rel(f)));
+		return selectPrivateKeyFiles(stagedFiles()).filter((file) => existsSync(join(repoRoot, file)));
 	}
 	if (files.length > 0) {
-		return files
-			.map((file) => join(repoRoot, file))
-			.filter((file) => existsSync(file) && !isBinaryLike(file) && !shouldSkip(rel(file)));
+		return selectPrivateKeyFiles(files).filter((file) => existsSync(join(repoRoot, file)));
 	}
-	const roots = ["packages", "apps", "scripts", "deploy"].map((d) => join(repoRoot, d));
-	const targets = [];
-	for (const root of roots) {
-		targets.push(
-			...walkFiles(root, {
-				extensions: [
-					".ts",
-					".tsx",
-					".js",
-					".mjs",
-					".cjs",
-					".json",
-					".yml",
-					".yaml",
-					".env",
-					".toml",
-					".md",
-					".sh",
-					".ps1",
-					".go",
-				],
-			}),
-		);
-	}
-	return targets.filter((f) => !shouldSkip(rel(f)) && !isBinaryLike(f));
+	return listPrivateKeyTargets();
+}
+
+/** Read each repo-relative path and return key violations. A file that cannot be read is skipped. */
+export function checkPrivateKeys(files, readFile = (file) => readText(join(repoRoot, file))) {
+	return collectFileViolations(files, findPrivateKeyViolationsInText, readFile);
 }
 
 export function main(args = process.argv.slice(2)) {
 	const stagedOnly = args.includes("--staged");
 	const files = args.filter((arg) => arg !== "--staged");
-	const targets = collectTargets({ stagedOnly, files });
-	let hits = 0;
-
-	for (const file of targets) {
-		let text;
-		try {
-			text = readText(file);
-		} catch {
-			continue;
-		}
-		if (text.length > 2_000_000) continue;
-		for (const { name, re } of PATTERNS) {
-			if (re.test(text)) {
-				hits += 1;
-				fail(`[private-key] ${rel(file)}: possible ${name}`);
-				break;
-			}
-		}
-	}
-
-	if (hits === 0) {
-		const scope = stagedOnly ? ", staged" : files.length > 0 ? ", selected" : "";
-		ok(`[private-key] ok (${targets.length} file(s)${scope})`);
-		return 0;
-	}
-	fail(`[private-key] ${hits} file(s) failed`);
-	return 1;
+	return runCheck("private-key", () => checkPrivateKeys(collectTargets({ stagedOnly, files })));
 }
 
 if (isDirectRun(import.meta.url)) {
-	process.exit(main());
+	process.exitCode = main();
 }

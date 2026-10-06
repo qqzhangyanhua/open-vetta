@@ -1,12 +1,12 @@
 /** Enforce the repository-wide top-level import-type convention in Agent and AI. */
 
 import { join } from "node:path";
-import { fail, isDirectRun, ok, readText, rel, repoRoot, walkFiles } from "./lib.mjs";
+import { fail, isDirectRun, ok, readText, rel, repoRoot, toPosix, walkFiles } from "./lib.mjs";
 
 export function findAgentAiMaintainabilityViolations(files) {
 	const violations = [];
 	for (const file of files) {
-		const path = file.path.replaceAll("\\", "/");
+		const path = toPosix(file.path);
 		if (!path.startsWith("packages/agent/src/") && !path.startsWith("packages/ai/src/")) continue;
 		if (/typeof\s+import\s*\(/u.test(file.text)) {
 			violations.push(`${path}: inline import type is forbidden; use a top-level import type`);

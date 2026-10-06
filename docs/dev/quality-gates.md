@@ -7,10 +7,12 @@
 | 层级 | 命令 | 何时跑 | 内容 |
 |------|------|--------|------|
 | 提交前（快） | `bun run check:precommit`（husky 自动） | 每次 commit | staged 私钥/冲突标记 + 只读 Biome；不会改写工作区或把未暂存 hunk 加入提交 |
+| 编辑中（最快） | `bun run check:fast` | 文件已经暂存，想在 1 秒内看结果 | 已暂存文件的私钥、冲突标记和 Biome。只报告问题，不改文件 |
 | 开发中（快） | `bun run check:quick` | 一轮编辑后 | 准确合并分支已提交差异、暂存、未暂存和未跟踪文件；对变更文件运行 Biome，并只运行命中范围的架构守卫；不做类型检查 |
+| 架构引擎 | `bun run check:arch` | 改了包边界或 Coding Agent 架构 | 并行执行 YAML 架构引擎（包边界、Coding Agent 架构）。其余守卫仍由 `check:guards` 负责 |
 | 日常任务 | `bun run check:lint -- <file...>` / `bun run check:quick -- <file...>` | 只检查当前任务影响范围 | 变更文件 Biome，quick 额外执行相关守卫；不默认扫描全仓，类型检查按受影响合同选择 |
 | 组合检查 | `bun run check` | 需要完整类型和守卫检查时 | 变更文件 Biome，并行执行根 `tsgo`、增量 desktop `tsc`、docs check 与全量架构守卫 |
-| 显式全量 | `bun run check:full` | 用户要求全量核查、CI 或发布 | 对显式源码根运行 Biome，并行执行全部类型检查和架构守卫 |
+| 显式全量 | `bun run check:full` | 用户要求全量核查、CI 或发布 | 对显式源码根运行 Biome，并行执行全部类型检查和架构守卫。`check:arch` 不能代替它 |
 | 构建声明消费 | `bun run check:types:build-surfaces` | workspace 前置声明生成后 | 按 `cli-host/tsconfig.build.json` 验证真实包声明消费；会拒绝陈旧 `dist/*.d.ts` |
 | 质量脚本测试 | `bun run test:impact -- <file...>`；全量质量脚本使用 `test:quality` | 修改 `scripts/quality`、workflow 或插件清单 | 只运行命中的脚本、插件清单或发布流程合同测试 |
 | 全量单元测试 | `bun run test:full` | 明确需要全仓验证 | 先由 Turbo 生成测试消费的 workspace 依赖产物，再顺序运行所有声明 `test` 的 TypeScript workspace |
@@ -28,13 +30,17 @@ scripts/quality/
   lib.mjs                      共享工具
   precommit.mjs                快路径编排
   check-lint.mjs               默认按变更选择 Biome；--full 显式扫描源码根
-  check-guards.mjs             并行全量守卫入口
-  check-quick.mjs              按完整 Git 工作区差异做快速检查
+  check-guards.mjs             并行全量守卫；结束后重写质量门禁参考。CI 只核对，过期则失败
+  generate-docs.mjs            从守卫 JSDoc 和 rules/*.yml 生成质量门禁参考
+  check-quick.mjs              按完整 Git 工作区差异做 Biome，并只运行命中范围的守卫
+  check-fast.mjs               已暂存文件的私钥、冲突标记和只读 Biome
+  check-architecture.mjs       并行跑包边界和 Coding Agent 架构引擎
   check-private-keys.mjs       私钥形态检测
   check-conflict-markers.mjs   未解决冲突标记
   check-package-boundaries.mjs 库/插件不得依赖 app 宿主
   check-coding-agent-architecture.mjs
-                               Coding Agent 当前架构依赖与公开面
+                               Coding Agent 当前架构依赖与公开面，读取 rules/coding-agent-architecture.yml
+  check-runtime-boundaries.mjs Runtime 不依赖产品层、subagent 内核边界、失败契约，读取 rules/runtime-boundaries.yml
   run-vitest.mjs               用 Node 启动 Vitest（Windows 上禁止 Bun 拉起 worker）
   check-vitest-runner.mjs      package.json 测试脚本必须走 run-vitest.mjs
   check-turbo-config.mjs       Turbo 输入、环境、入口与 Remote Cache 安全合同
@@ -45,8 +51,159 @@ scripts/quality/
   test-changed.mjs             按 git 变更和依赖图选包
   quality-gates.test.mjs       质量脚本定向测试
   plugin-manifests.test.mjs    仓库插件清单 Schema 合同测试
+  generate-docs.test.mjs       质量门禁参考的生成，以及 check:guards 在本地重写、在 CI 核对
+  arch-engine/ast-walker.mjs   可序列化的 TypeScript 语法树
+  arch-engine/cache.mjs        按 mtime 与内容 hash 缓存语法树
+  arch-engine/rule-engine.mjs  从 YAML 加载并执行 forbidden-import
+  arch-engine/boundary-rules.mjs 加载并执行包边界 YAML
+  check-package-boundaries.legacy.mjs 迁移前的包边界实现，只给差分测试对照
+  package-boundaries-differential.test.mjs 新旧包边界结果对照
+  rules/package-boundaries.yml 包边界规则，由 check-package-boundaries.mjs 读取
+  check-coding-agent-architecture.legacy.mjs 迁移前的 Coding Agent 架构实现，只给差分测试对照
+  coding-agent-architecture-differential.test.mjs 新旧 Coding Agent 架构结果对照
+  rules/coding-agent-architecture.yml Coding Agent 架构规则，由 check-coding-agent-architecture.mjs 读取
+  arch-engine/coding-agent-rules.mjs 加载并执行 Coding Agent 架构 YAML
+  arch-engine/runtime-rules.mjs 加载并执行 Runtime 边界 YAML
+  rules/runtime-boundaries.yml Runtime 边界规则，由 check-runtime-boundaries.mjs 读取
 knip.config.ts                 Knip（可选）
 ```
+
+## 架构引擎
+
+`scripts/quality/arch-engine/` 是架构守卫共用的解析、缓存和规则执行。`check-package-boundaries`、`check-coding-agent-architecture` 和 `check-runtime-boundaries` 已经改为读取 YAML；会话消息架构等其余守卫还没有迁过来。
+
+各条规则的名称、理由、示例和修复建议集中在自动生成的 [质量门禁参考](./quality-gates-reference.md)。本地 `bun run check` 在守卫结束后按守卫文件头和 YAML 重写它。CI 只核对、不改文件；参考和源头不一致时这次检查失败。也可以单独运行 `bun run scripts/quality/generate-docs.mjs`。
+
+`parseSource(filePath, text)` 按扩展名选择 script kind（`.tsx` / `.jsx` 才会解析 JSX），返回一棵可写成 JSON 的语法树。节点字段：
+
+| 字段 | 含义 |
+| --- | --- |
+| `kind` | TypeScript `SyntaxKind` 的名字，例如 `ImportDeclaration` |
+| `start` / `end` | 源码偏移 |
+| `line` | 从 1 开始的行号 |
+| `text` | 标识符（含 `#private`）、字符串、数字、bigint、JSX 文本和正则才有；字符串是去掉引号后的内容 |
+| `typeOnly` | 仅 type-only 的 import / export 为 `true` |
+| `children` | 子节点；没有子节点时省略 |
+
+`walkAst(node, visit)` 先序遍历。`visit` 返回 `false` 时不再进入子节点。`findNodes(node, predicate)` 收集命中的节点。模块说明符是 `ImportDeclaration` 下面的 `StringLiteral`。
+
+从 `scripts/quality/` 里的脚本这样用：
+
+```javascript
+import { findNodes, parseSource } from "./arch-engine/ast-walker.mjs";
+
+const ast = parseSource("src/mod.ts", 'import { Foo } from "@vetta/desktop";\n');
+const specifier = findNodes(ast, (node) => node.kind === "ImportDeclaration")[0]?.children?.find(
+	(node) => node.kind === "StringLiteral",
+)?.text;
+```
+
+`createAstCache({ root, cacheDir })` 把解析结果写到 `cacheDir/ast/` 下的 JSON 文件。`cacheDir` 默认是 `<root>/.cache/quality`，`root` 默认是进程的当前工作目录。`load` 接受仓库内的相对路径或绝对路径，两种写法共用同一条缓存。路径必须留在 `root` 里；指到外面的符号链接会直接拒绝。
+
+每次 `load` 都会读文件并计算内容 hash。修改时间按毫秒取整。缓存身份按下面四条处理：
+
+- 没有记录，或记录的 `AST_FORMAT_VERSION` 对不上、JSON 读不出来：解析并写入（未命中）
+- 取整后的修改时间和内容 hash 都与记录一致：直接返回已缓存的树（命中），不再解析
+- 只有修改时间变了：记一次 mtime 失效并重新解析。内容没变也会再解析，避免一次 touch 沿用旧的缓存身份
+- 内容 hash 变了：记一次 hash 失效并重新解析。即使把修改时间改回原来的值，也不会继续用旧语法树
+
+`stats()` 返回 `hits`、`misses`、`mtimeInvalidations`、`hashInvalidations`、`parses` 和 `hitRate`（命中次数 / 全部读取次数）。返回的树归缓存所有，调用方不要改它。同一个进程还会把已经读过的树留在内存里，直到这个进程退出；这期间删掉 `<root>/.cache/quality` 不会让下一次 `load` 重解析。新开的进程看不到这些文件，会重新解析。语法树字段变化时要抬高 `AST_FORMAT_VERSION`，旧文件会当作未命中。
+
+## 声明式规则
+
+`scripts/quality/arch-engine/rule-engine.mjs` 能加载下面这种 `forbidden-import` 配置。`check` 不会把整个 `rules/` 目录交给这个加载器。包边界的现行规则是另一份结构，见后面的「包边界规则」。
+
+一份配置是一个 mapping，字段都要有：
+
+| 字段 | 含义 |
+| --- | --- |
+| `name` | 这组规则的名字 |
+| `description` | 一句话说明这组规则在管什么 |
+| `rationale` | 为什么要这条约束 |
+| `examples` | 列表。每一项有 `violation` 和 `fix`，分别是一段会违规的写法和对应改法。可以是空列表 |
+| `rules` | 至少一条规则 |
+
+一条 `forbidden-import` 规则的字段：
+
+| 字段 | 含义 |
+| --- | --- |
+| `name` | 违规对象上的规则名，同一份配置里不能重复 |
+| `type` | 目前只接受 `forbidden-import` |
+| `sources` | 仓库内相对路径的 glob。文件不命中就不检查 |
+| `targets` | 模块说明符的 glob。命中的 import 算违规 |
+| `message` | 写给读者的说明，原样出现在违规里 |
+
+`sources` 对的是文件路径，例如 `packages/ai/src/index.ts`。`targets` 对的是说明符原文，例如 `@vetta/desktop` 或 `../test/fixture`，不会先解析成磁盘路径。会算进去的依赖边是 `import`、`export ... from`、`import()`、`require()`、`import x = require()`，以及类型位置的 `import("模块")`。`import type` 也算。没有插值的模板字符串、写在类型参数后面的说明符也算，说明符外面的括号会去掉。注释、普通字符串、带 `${}` 的模板，以及 `import(name)` 这种不是字面量的说明符，不算。被调用的名字是 `require` 时会当成依赖，即使它是当前文件里的本地函数；引擎不做作用域分析。
+
+glob 按 `/` 分段。`*` 和 `?` 只匹配一段里面的字符，`**` 匹配零段或多段。写在末尾的 `**` 也匹配零段，所以 `@vetta/desktop/**` 同时盖住 `@vetta/desktop`。以 `!` 开头的模式表示排除，按书写顺序生效，后面的模式可以再把文件选回来。模式使用 `/`。以 `*`、`!`、`@` 或 `&` 开头时必须加引号；不加引号的 `!` 会被 YAML 当成标签。
+
+```yaml
+rules:
+  - name: libs-must-not-depend-on-apps
+    type: forbidden-import
+    sources:
+      - packages/ai/**
+    targets:
+      - "@vetta/desktop"
+      - "@vetta/desktop/**"
+    message: Core libraries must not depend on application packages
+```
+
+在仓库根目录这样跑一份 `forbidden-import` 配置。下面的 `example.yml` 只说明调用方式，不是现行的 `package-boundaries.yml`。
+
+```javascript
+import { readFileSync } from "node:fs";
+import { checkDocument, parseRuleDocument } from "./arch-engine/rule-engine.mjs";
+
+const source = "scripts/quality/rules/example.yml";
+const document = parseRuleDocument(readFileSync(source, "utf8"), source);
+const path = "packages/ai/src/index.ts";
+const violations = checkDocument(document, [{ path, text: readFileSync(path, "utf8") }]);
+```
+
+`violations` 是 `CheckViolation` 数组。`file` 用 `/`，`line` 从 1 开始，`rule` 和 `message` 来自 YAML。配置读不出来、字段缺失、规则类型不认识，或者 glob 是空的，会抛 `RuleDocumentError`，消息里带文件路径。`loadRuleDirectory` 按文件名顺序读取目录里的 `.yml` 和 `.yaml`，其它文件忽略。
+
+## 守卫错误处理
+
+新守卫，以及从旧写法迁过来的守卫，用 `scripts/quality/lib.mjs` 里的 `CheckViolation` 和 `runCheck()`。失败信息只有一种格式：
+
+```text
+[guard] file:line: message (rule)
+```
+
+`CheckViolation` 记下 `file`、`line`（从 1 开始）、`rule`、`message` 和 `severity`。`severity` 默认是 `error`。目前只要返回了违规，检查就失败；严重级别先记在对象上，不单独决定退出码。
+
+`runCheck(name, checkFn)` 调用 `checkFn`，期望它返回 `CheckViolation[]`：
+
+- 空数组：向 stdout 打 `[name] passed`，返回 `0`
+- 有违规：每条打到 stderr，返回 `1`
+- `checkFn` 抛错：打 `[name] internal error: ...`，返回 `1`
+
+它不调用 `process.exit()`，也不改 `process.exitCode`。测试可以传入 `{ log, error }` 把输出接走。脚本只有在被直接运行时才把返回码赋给 `process.exitCode`。
+
+包边界检查沿用扫描文件数作为成功输出，因为操作者要知道扫过多少文件。失败时仍是上面的 `[package-boundaries] 文件:行号: 说明 (规则)`，下一行再打出 YAML 里的 `fix`。规则文件读不出来时打印 `[package-boundaries] internal error: ...`。Coding Agent 架构检查同样保留源文件数、模块边数和 manifest 导出数作为成功输出；失败时除了 `[coding-agent-architecture] 文件:行号: 说明 (规则)`，还会列出 YAML `docs` 里的 ADR 和设计文档。
+
+Runtime 边界把原来的三道检查放在同一次运行里。成功时仍分别打印合并前的计数，前缀是 `[runtime-independence]`、`[runtime-subagents-boundary]`、`[runtime-failure-contract]`。失败时仍打印合并前的句子，不加 `(规则)`，否则和已经写进测试的说明对不上。某一道读文件失败只打印自己的 `[标签] internal error: ...`，另外两道照常出结果。直接运行时把返回码赋给 `process.exitCode`。
+
+```javascript
+import { CheckViolation, isDirectRun, lineNumberAt, runCheck } from "./lib.mjs";
+
+export function findDemoViolations(file, text) {
+	const index = text.indexOf("FIXME");
+	if (index === -1) return [];
+	return [new CheckViolation(file, lineNumberAt(text, index), "demo-fixme", "unresolved FIXME")];
+}
+
+export function main() {
+	return runCheck("demo", () => findDemoViolations("apps/demo.ts", "ok\nFIXME\n"));
+}
+
+if (isDirectRun(import.meta.url)) process.exitCode = main();
+```
+
+多个文件用 `collectFileViolations(files, findInText, readFile)`：读不到的文件会跳过，再把每个文件的违规拼起来。已经迁移的三个守卫都走它。抛出的异常会变成上面的 internal error，不要在检查函数里退出进程。
+
+已经按这个模式运行的守卫：`check-private-keys.mjs`（`private-key`）、`check-conflict-markers.mjs`（`conflict-markers`）、`check-skill-frontmatter.mjs`（`skill-frontmatter`）。成功时只打 `[name] passed`，不再附带扫描文件数。
 
 ## 根 package.json scripts
 
@@ -58,10 +215,12 @@ knip.config.ts                 Knip（可选）
 | `check:lint:full` | 显式对全部源码根运行 Biome；全量修复使用 `check:lint:fix --full` |
 | `check:types` | 并行执行根 `tsgo`、带持久增量缓存的 desktop `tsc` 与 docs check；CLI 已包含在根 `tsconfig` 中 |
 | `check:types:build-surfaces` | 使用 CLI build config 验证上游 workspace `dist/*.d.ts` 的真实消费面；要求先生成当前声明 |
-| `check:guards` | 并行执行私钥、冲突标记、包边界等全量守卫 |
-| `check:staged` | 仅 staged Biome |
+| `check:guards` | 并行执行私钥、冲突标记、包边界等全量守卫，并重写自动生成的质量门禁参考。CI 只核对 |
+| `check:staged` | 仅 staged Biome，会写回 |
 | `check:precommit` | husky 使用的快路径 |
+| `check:fast` | 已暂存文件的私钥、冲突标记和只读 Biome |
 | `check:quick` | 变更文件 Biome + 按路径选择的 guards；Biome 配置变化时自动回退全量 Biome |
+| `check:arch` | 包边界和 Coding Agent 架构这两项 YAML 引擎 |
 | `check` | 并行变更 lint + 全部 types + 全部 guards（只读） |
 | `check:full` | 并行全量 lint + types + guards（只读），CI/发布入口 |
 | `fix` | Biome 变更文件格式化与安全修复；全量需显式 `--full` |
@@ -109,6 +268,12 @@ bun run test:pkg <name>
 
 ## 包边界规则（`check-package-boundaries`）
 
+现行规则在 `scripts/quality/rules/package-boundaries.yml`。`check-package-boundaries.mjs` 读取这份文件。新增一条导入、标识符或声明限制时改 YAML，不用改检查脚本。`scripts/quality/check-package-boundaries.legacy.mjs` 是迁移前的实现，只给差分测试对照，不要在那里加规则。
+
+一条规则至少要有 `name`，并用 `scope` 选文件。`prefix` / `path` / `suffix` 命中任一即可；`notPrefix`、`notPath`、`notSuffix` 是排除。`excludeTestFile` 跳过 `test` 目录和测试文件名，`excludeTestSuffix` 只跳过测试文件名，`requireSrc` 要求路径里有 `/src/`。`imports` 检查模块说明符，`walk` 检查标识符、字面量、声明、`new` / 调用和属性访问，`textIncludes` / `textGate` 检查原文，`bannedPath` 表示这个路径本身不该存在。`report` 是写进结果里的那句说明，`fix` 是失败时另外打印的改法。文件选择用架构引擎的 glob。
+
+违规结果与迁移前一致：`findPackageBoundaryViolations` 仍返回 `路径: 说明`。直接跑检查时，失败行是 `[package-boundaries] 文件:行号: 说明 (规则)`；没有违规时仍打印扫描文件数。
+
 依赖方向与 README 一致：**应用 → runtime-\* / coding-agent / agent / ai**；核心库不感知宿主。
 
 守卫会扫描 lib/plugin 源码，禁止：
@@ -121,9 +286,13 @@ bun run test:pkg <name>
 
 ## Coding Agent 架构规则（`check-coding-agent-architecture`）
 
+现行规则在 `scripts/quality/rules/coding-agent-architecture.yml`。`check-coding-agent-architecture.mjs` 读取这份文件。新增一条依赖方向、退役路径或宿主注入要求时改 YAML，不用改检查脚本。`scripts/quality/check-coding-agent-architecture.legacy.mjs` 是迁移前的实现，只给差分测试对照，不要在那里加规则。
+
 该守卫不生成全量 AST 模块图，也不启动 TypeScript TypeChecker。它只用 TypeScript AST 从
 `import`、`export ... from` 和动态 `import()` 中提取模块边，再执行声明式规则，因此不会把注释、
-字符串或同名变量误判为依赖。
+字符串或同名变量误判为依赖。直接跑检查时，失败行是 `[coding-agent-architecture] 文件:行号: 说明 (规则)`，最后再列出文档里的 ADR 和设计文档；没有违规时仍打印源文件数、模块边数和 manifest 导出数。开发者从 `findCodingAgentArchitectureViolations` 拿到的说明文字与迁移前一致。
+
+一条规则是一组按书写顺序执行的步骤。常用步骤：`eachFile` / `eachEdge` / `eachSourcePath` 遍历输入；`when` 用路径、说明符、文本或路径类别过滤；`unlessText` / `unlessAll` / `unlessAny` / `unlessImport` 表示文件在场但缺少要求的文本或导入；`ifSourceHas` / `ifExport` 表示退役路径或 package export 不得出现。路径类别写在 `classes`，重复的路径表写在 `lists` 或 `groups`。`findCodingAgentArchitectureViolations` 仍返回迁移前的整句说明。新的检查种类才需要改解释器；现有种类的路径、正则和说明只改这份 YAML。
 
 长期规则包括：
 
@@ -139,6 +308,16 @@ bun run test:pkg <name>
 固定 owner 文件、迁移进度基线、Greenfield/Legacy 名称墓碑、固定文件数量和行数阈值不进入构建门禁；
 这些实现细节需要长期约束时，应提升为可解释的依赖方向或公共合同。
 架构规则测试位于 `scripts/quality/coding-agent-architecture.test.mjs`。
+
+## Runtime 边界规则（`check-runtime-boundaries`）
+
+现行规则在 `scripts/quality/rules/runtime-boundaries.yml`。`check-runtime-boundaries.mjs` 读取这份文件，在 `check:guards` 里一次跑完原先分开的三道检查：Runtime 不依赖 Coding Agent、`runtime-subagents` 的内核边界、生产失败契约。`check:arch` 不跑这一项。
+
+改禁用依赖、源码里的产品词、必须存在或已经退役的文件、失败契约标记、按正则禁止的恢复判断时，改 YAML，不用改检查脚本。直接跑检查时，三道检查仍各自打印原来的 `[runtime-independence]`、`[runtime-subagents-boundary]`、`[runtime-failure-contract]`。没有违规时仍打印原来的计数。`findRuntimeCodingAgentIndependenceViolations`、`findRuntimeSubagentsBoundaryViolations` 和 `findRuntimeFailureContractViolations` 返回的说明与合并前一致。
+
+`guards` 按书写顺序执行。`input` 决定输入形状：`manifests` 扫若干包的清单和源码，并用 `manifests.key` 禁止一个依赖名；`manifest` 扫一个包，`manifests.keyPrefix` 禁止该前缀的依赖，`lines` 按行禁止词，`requiredFiles` / `retiredFiles` 要求文件在或不在；`files` 扫边界文件，`markers` 要求原文包含标记，`patterns` 是整文件正则。调用 `findRuntimeFailureContractViolations` 时传 `requireBaseline: false` 就只跑正则。
+
+`lines` 里的 `path` 是整条路径相等才检查，`whenPathIncludes` 是路径包含该段才检查。说明里的 `{section}`、`{dependency}`、`{token}`、`{marker}` 会换成实际命中的值。
 
 ## Workspace 构建编排（Turborepo）
 
@@ -164,6 +343,10 @@ Desktop build task 显式依赖 `@vetta-org/plugin-vite`。开发前置构建读
 `bun.lock` 会比较基线与当前锁文件中每个 workspace 的完整已解析依赖闭包，并把变化定位到 workspace 的直接依赖；随后只把实际 import 这些依赖的源码或测试交给同一文件级选择器。纯格式变化和只被根工具使用的依赖变化不会触发产品包测试；无法定位依赖或 importer 时直接失败。workspace 的 `package.json`、Vitest/Vite/TypeScript 配置由 `check` 校验，不触发产品包测试；根 `package.json`、Turbo、workflow、质量脚本和 `plugin.json` 选择对应的质量合同测试，不会运行整个 `test:quality`，其中插件清单由仓库级 Schema 测试验证。测试启动前会由 Turbo 构建所选测试消费的 workspace 依赖，确保干净 checkout 中指向 `dist` 的包导出可被解析，同时不会构建 Desktop、Docs 或 Remote Relay 这些叶子应用本身。锁文件或 Git 基线无法可靠读取、解析时同样直接失败。
 
 `test:impact` 面向本地短反馈循环：显式测试文件直接运行，普通源码交给 Vitest 的 `related` 依赖图选择。拥有测试文件的 workspace 应声明可定向的包级 `test` 入口。共享 UI 的跨宿主行为，或 Vitest 的依赖图明显大于组件合同时，只要已有宿主组件测试从公开入口直接覆盖该源码，就可以在脚本中登记窄范围的源码到测试映射。没有关联测试、删除文件或缺少可定向入口都直接报错，不再回退整包测试；根配置只运行其对应的质量门禁。`bun.lock` 委托 `test:changed` 做 workspace 依赖闭包分析。CI 继续使用 `test:changed`，同时获得相同的文件级选择。
+
+`check:fast` 只看已经暂存的文件，适合在 1 秒内确认私钥、冲突标记和 Biome。它不写回文件；需要格式化时仍用 `check:staged` 或提交时的 `check:precommit`。没有暂存文件时这三项都为空，命令成功返回。
+
+`check:arch` 只跑已经迁到 YAML 引擎的两项：包边界和 Coding Agent 架构。运行时边界、技能前言、生成物校验等其余守卫仍在 `check:guards` 里，随 `bun run check` 一起跑。包边界按文件分到两个工作线程，结果顺序与单线程扫描一致。它扫的是整库，不是这次改动的文件，所以仍然要数秒，不是 `check:fast` 那种亚秒命令。`check:full` 仍是全量 lint、类型和全部守卫，CI 和质量阶段用它，不能用 `check:arch` 代替。
 
 `check:quick` 复用同一套 Git 变更选择器，因此不带路径时不会漏掉未暂存或未跟踪文件；`check:quick -- <file...>` 可限制为本次任务实际修改的文件。删除文件会从 Biome 输入中排除；修改任意 `biome.json` / `biome.jsonc` 或根 `.editorconfig` 时，会自动回退为全仓 Biome，避免配置影响未被检查。私钥、冲突标记与包边界只扫描选中的文件，其余生成物和架构守卫按路径命中。它不做类型检查，不能替代任务结束时的完整 `check`。
 
@@ -235,6 +418,9 @@ Windows、macOS、Linux runner 上真实安装基线包，驱动现有 updater �
 bun scripts/quality/run-vitest.mjs --run packages/ai/test/provider-retry-policy.test.ts
 bun run check:quick -- packages/ai/src/providers/retry-policy.ts packages/ai/test/provider-retry-policy.test.ts
 
+# 已暂存、只要私钥 / 冲突标记 / Biome：bun run check:fast
+# 改了包边界或 Coding Agent 架构：bun run check:arch
+
 # 任务完成：显式列出本次修改文件；已通过且未再修改的检查无需重复执行
 bun run test:impact -- packages/ai/src/providers/retry-policy.ts packages/ai/test/provider-retry-policy.test.ts
 bun run check:quick -- packages/ai/src/providers/retry-policy.ts packages/ai/test/provider-retry-policy.test.ts
@@ -270,7 +456,10 @@ bun run deadcode:report
 
 - [ ] `bun run check:guards` 通过  
 - [ ] `turbo.json` 的 `build` 保持 `dependsOn: ["^build"]`，目标包 dry-run 包含所需依赖闭包
-- [ ] `bun run check:quick` 覆盖已提交、暂存、未暂存和未跟踪文件  
+- [ ] `bun run check:quick` 覆盖已提交、暂存、未暂存和未跟踪文件，且不跑架构守卫
+- [ ] `bun run check:fast` 只检查已暂存文件，且不改写它们
+- [ ] `bun run check:arch` 只跑包边界和 Coding Agent 架构
+- [ ] CI 的 quality workflow 仍是 `bun run check`，不是 `check:full`
 - [ ] `bun run test:quality` 通过  
 - [ ] `bun run check:precommit` 在有 staged 文件时行为正确  
 - [ ] `bun run test:pkg --list` 列出当前所有可测包

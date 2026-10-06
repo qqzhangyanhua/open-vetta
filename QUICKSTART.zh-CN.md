@@ -52,7 +52,7 @@ bun run --cwd apps/docs-site dev
 ### 实际会跑的检查
 
 ```bash
-bun run check:quick        # 对改动文件跑 Biome + 架构守卫
+bun run check:quick        # 对改动文件跑 Biome、私钥和冲突标记
 bun run check              # 开 PR 前：lint + 类型 + 守卫
 bun run test:pkg ai        # 单包；`bun run test:pkg --list` 查看包名
 ```

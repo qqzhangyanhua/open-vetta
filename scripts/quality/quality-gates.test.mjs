@@ -1,13 +1,41 @@
-import { existsSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { evaluateBoundaryFile, loadBoundaryDocument } from "./arch-engine/boundary-rules.mjs";
+import { mergeBoundaryItems, partitionBoundaryJobs } from "./arch-engine/boundary-scan.mjs";
+import { createAstCache } from "./arch-engine/cache.mjs";
+import { collectCodingAgentArchitectureState } from "./arch-engine/coding-agent-rules.mjs";
+import { createArchitectureCheckPlan } from "./check-architecture.mjs";
+import {
+	checkConflictMarkers,
+	findConflictMarkerViolationsInText,
+	listConflictMarkerTargets,
+	selectConflictMarkerFiles,
+} from "./check-conflict-markers.mjs";
+import { createFastCheckPlan } from "./check-fast.mjs";
 import { createQuickGuardPlan } from "./check-guards.mjs";
 import {
+	boundaryWorkerCount,
+	collectBoundaryScan,
+	evaluateBoundaryFileJobs,
 	findDurablePackageBoundaryViolations,
 	findDurablePackageManifestBoundaryViolations,
+	findPackageBoundaryViolations,
 } from "./check-package-boundaries.mjs";
-import { batchPaths, createQuickCheckPlan, isBiomeGlobalTrigger } from "./check-quick.mjs";
-import { findSkillFrontmatterProblems } from "./check-skill-frontmatter.mjs";
+import {
+	checkPrivateKeys,
+	findPrivateKeyViolationsInText,
+	listPrivateKeyTargets,
+	selectPrivateKeyFiles,
+} from "./check-private-keys.mjs";
+import { batchPaths, createQuickCheckPlan, isBiomeGlobalTrigger, runChangedFileGuards } from "./check-quick.mjs";
+import {
+	checkSkillFrontmatter,
+	findSkillFrontmatterProblems,
+	findSkillFrontmatterViolations,
+} from "./check-skill-frontmatter.mjs";
 import {
 	collectTypeScriptExportEntries,
 	findImportedSourcePathMapViolations,
@@ -19,20 +47,40 @@ import { findTurboConfigurationProblems, readTurboConfiguration } from "./check-
 import { findVitestRunnerViolations } from "./check-vitest-runner.mjs";
 import {
 	buildableTestDependencies,
+	CheckViolation,
 	changedFiles,
+	discoverWorkspacePackages,
 	expandTestablePackages,
 	formatElapsedTime,
+	getWorkspacesBySpecificity,
+	normalizeRepoPath,
 	packagesFromPaths,
 	parseBaseArgs,
 	parseFileSelectionArgs,
 	repoRoot,
+	runCheck,
 	stagedFiles,
 	TESTABLE_PACKAGES,
 	WORKSPACE_PACKAGES,
+	workspaceForFile,
 } from "./lib.mjs";
 import { changedLockfileWorkspaceImpacts, changedLockfileWorkspaceKeys } from "./lockfile-impact.mjs";
 import { createChangedTestPlan, parseArgs } from "./test-changed.mjs";
 import { createImpactTestPlan, parseImpactArgs, relatedResultAction, runCapturedBun } from "./test-impact.mjs";
+
+function canCreateSymlink() {
+	const directory = mkdtempSync(join(tmpdir(), "vetta-symlink-probe-"));
+	try {
+		symlinkSync(directory, join(directory, "link"), "dir");
+		return true;
+	} catch (error) {
+		const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+		if (code === "EPERM" || code === "EACCES" || code === "ENOTSUP") return false;
+		throw error;
+	} finally {
+		rmSync(directory, { recursive: true, force: true });
+	}
+}
 
 describe("changed file selection", () => {
 	it("combines committed, working tree, and untracked paths", () => {
@@ -95,6 +143,59 @@ describe("changed file selection", () => {
 		});
 		expect(() => parseFileSelectionArgs(["../outside.ts"])).toThrow("inside the repository");
 		expect(() => parseFileSelectionArgs(["..\\outside.ts"])).toThrow("inside the repository");
+	});
+
+	it("rejects path traversal outside the repository", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-repo-path-"));
+		try {
+			expect(() => normalizeRepoPath("../../etc/passwd", root)).toThrow("inside the repository");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("normalizes Windows separators to forward slashes", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-repo-path-"));
+		try {
+			expect(normalizeRepoPath("packages\\ai\\src\\index.ts", root)).toBe("packages/ai/src/index.ts");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("keeps a lexical path when a middle component is a file", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-repo-path-"));
+		try {
+			writeFileSync(join(root, "file.txt"), "text\n");
+			expect(normalizeRepoPath("file.txt/child.ts", root)).toBe("file.txt/child.ts");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it.skipIf(!canCreateSymlink())("keeps an in-repo symlink and rejects one that resolves outside", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-repo-path-"));
+		const outside = mkdtempSync(join(tmpdir(), "vetta-repo-outside-"));
+		try {
+			mkdirSync(join(root, "packages"));
+			writeFileSync(join(root, "packages", "real.ts"), "export {}\n");
+			symlinkSync(join(root, "packages", "real.ts"), join(root, "packages", "alias.ts"), "file");
+			writeFileSync(join(outside, "secret.txt"), "secret\n");
+			symlinkSync(join(outside, "secret.txt"), join(root, "escape.txt"), "file");
+			symlinkSync(outside, join(root, "linked-out"), "dir");
+			symlinkSync(join(root, "packages"), join(root, "pkg-link"), "dir");
+			symlinkSync(root, join(root, "link-root"), "dir");
+
+			expect(normalizeRepoPath("packages/alias.ts", root)).toBe("packages/alias.ts");
+			expect(normalizeRepoPath("pkg-link/missing.ts", root)).toBe("pkg-link/missing.ts");
+			expect(normalizeRepoPath("link-root", root)).toBe("link-root");
+			expect(() => normalizeRepoPath("escape.txt", root)).toThrow("inside the repository");
+			expect(() => normalizeRepoPath("linked-out/secret.txt", root)).toThrow("inside the repository");
+			expect(() => normalizeRepoPath("linked-out/missing.ts", root)).toThrow("inside the repository");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+			rmSync(outside, { recursive: true, force: true });
+		}
 	});
 });
 
@@ -680,6 +781,98 @@ describe("affected package selection", () => {
 	});
 });
 
+describe("workspace discovery cache", () => {
+	function createWorkspaceFixture(workspaces, packages) {
+		const root = mkdtempSync(join(tmpdir(), "vetta-workspace-"));
+		writeFileSync(join(root, "package.json"), JSON.stringify({ workspaces }));
+		for (const pkg of packages) {
+			mkdirSync(join(root, pkg.dir), { recursive: true });
+			writeFileSync(
+				join(root, pkg.dir, "package.json"),
+				JSON.stringify({ name: pkg.name, scripts: pkg.scripts ?? {} }),
+			);
+		}
+		return root;
+	}
+
+	function removeFixture(root) {
+		rmSync(root, { recursive: true, force: true });
+	}
+
+	it("reuses the first scan for the same repository root", () => {
+		expect(discoverWorkspacePackages()).toBe(WORKSPACE_PACKAGES);
+		expect(discoverWorkspacePackages(repoRoot)).toBe(WORKSPACE_PACKAGES);
+	});
+
+	it("does not rescan after the first visit to a root", () => {
+		const root = createWorkspaceFixture(["packages/*"], [{ dir: "packages/alpha", name: "alpha" }]);
+		try {
+			const first = discoverWorkspacePackages(root);
+			mkdirSync(join(root, "packages/beta"), { recursive: true });
+			writeFileSync(join(root, "packages/beta/package.json"), JSON.stringify({ name: "beta" }));
+			const second = discoverWorkspacePackages(root);
+			expect(second).toBe(first);
+			expect(second.map((pkg) => pkg.key)).toEqual(["alpha"]);
+		} finally {
+			removeFixture(root);
+		}
+	});
+
+	it("keeps discovery results isolated per root", () => {
+		const left = createWorkspaceFixture(["packages/*"], [{ dir: "packages/left", name: "left" }]);
+		const right = createWorkspaceFixture(["packages/*"], [{ dir: "packages/right", name: "right" }]);
+		try {
+			expect(discoverWorkspacePackages(left).map((pkg) => pkg.name)).toEqual(["left"]);
+			expect(discoverWorkspacePackages(right).map((pkg) => pkg.name)).toEqual(["right"]);
+		} finally {
+			removeFixture(left);
+			removeFixture(right);
+		}
+	});
+
+	it("returns a cached list ordered so nested workspaces win", () => {
+		const dirs = getWorkspacesBySpecificity().map((pkg) => pkg.dir);
+		const nested = "packages/coding-agent/examples/extensions/with-deps";
+		const parent = "packages/coding-agent";
+		expect(dirs.indexOf(nested)).toBeGreaterThanOrEqual(0);
+		expect(dirs.indexOf(nested)).toBeLessThan(dirs.indexOf(parent));
+		expect(getWorkspacesBySpecificity()).toBe(getWorkspacesBySpecificity());
+	});
+
+	it("maps a file to the most specific workspace", () => {
+		expect(workspaceForFile("packages/coding-agent/examples/extensions/with-deps/src/index.ts")?.key).toBe(
+			"coding-agent/examples/extensions/with-deps",
+		);
+		expect(workspaceForFile("packages/coding-agent/src/index.ts")?.key).toBe("coding-agent");
+		expect(workspaceForFile("packages\\ai\\src\\index.ts")?.key).toBe("ai");
+		expect(workspaceForFile("docs/dev/quality-gates.md")).toBeUndefined();
+		expect(packagesFromPaths(["packages/coding-agent/examples/extensions/with-deps/src/index.ts"])).toEqual([
+			"coding-agent/examples/extensions/with-deps",
+		]);
+	});
+
+	it("pre-sorts a custom root so the nested workspace owns nested files", () => {
+		const root = createWorkspaceFixture(
+			["packages/*", "packages/group/*"],
+			[
+				{ dir: "packages/group", name: "group" },
+				{ dir: "packages/group/child", name: "child" },
+			],
+		);
+		try {
+			expect(getWorkspacesBySpecificity(root).map((pkg) => pkg.dir)).toEqual([
+				"packages/group/child",
+				"packages/group",
+			]);
+			expect(workspaceForFile("packages/group/child/src/index.ts", root)?.name).toBe("child");
+			expect(workspaceForFile("packages/group/src/index.ts", root)?.name).toBe("group");
+			expect(getWorkspacesBySpecificity(root)).toBe(getWorkspacesBySpecificity(root));
+		} finally {
+			removeFixture(root);
+		}
+	});
+});
+
 describe("CI unit test coverage", () => {
 	const workflow = readFileSync(join(repoRoot, ".github/workflows/quality.yml"), "utf8");
 	const imGatewayWorkflow = readFileSync(join(repoRoot, ".github/workflows/im-gateway.yml"), "utf8");
@@ -769,6 +962,15 @@ describe("durable package boundaries", () => {
 		expect(check(file, 'import "@vetta/desktop";')).toHaveLength(1);
 		expect(check(file, 'const host = await import("@vetta/cli-host/runtime");')).toHaveLength(1);
 		expect(check(file, '// import host from "@vetta/desktop";')).toEqual([]);
+	});
+
+	it("flags a dynamic import that also passes import attributes", () => {
+		const file = "packages/ai/src/example.ts";
+		const imported = 'const app = await import("@vetta/desktop", { with: { type: "json" } });';
+		const required = 'const app = require("@vetta/desktop", true);';
+		const expected = [`${file}: libs/plugins must not import app package (@vetta/desktop)`];
+		expect(findPackageBoundaryViolations(file, imported)).toEqual(expected);
+		expect(findPackageBoundaryViolations(file, required)).toEqual(expected);
 	});
 
 	it("blocks production imports from test trees but allows tests to share fixtures", () => {
@@ -990,5 +1192,558 @@ describe("skill frontmatter analysis", () => {
 	it("requires frontmatter and a description", () => {
 		expect(findSkillFrontmatterProblems("# No frontmatter\n")).toHaveLength(1);
 		expect(findSkillFrontmatterProblems(wrap("name: demo"))).toHaveLength(1);
+	});
+});
+
+describe("guard error reporting", () => {
+	it("keeps process.exit out of the migrated guard scripts", () => {
+		for (const file of [
+			"scripts/quality/check-private-keys.mjs",
+			"scripts/quality/check-conflict-markers.mjs",
+			"scripts/quality/check-skill-frontmatter.mjs",
+		]) {
+			expect(readFileSync(join(repoRoot, file), "utf8"), file).not.toContain("process.exit(");
+		}
+	});
+
+	it("records the file, line, rule, message, and error severity", () => {
+		expect(new CheckViolation("apps/demo.ts", 4, "conflict-marker", "unresolved conflict marker")).toEqual({
+			file: "apps/demo.ts",
+			line: 4,
+			rule: "conflict-marker",
+			message: "unresolved conflict marker",
+			severity: "error",
+		});
+	});
+
+	it("keeps an explicit severity on the violation", () => {
+		expect(new CheckViolation("apps/demo.ts", 1, "demo", "heads up", "warning").severity).toBe("warning");
+	});
+
+	it("prints a pass line and returns 0 when the guard finds nothing", () => {
+		const lines = [];
+		const code = runCheck("conflict-markers", () => [], { log: (line) => lines.push(line) });
+
+		expect(code).toBe(0);
+		expect(lines).toEqual(["[conflict-markers] passed"]);
+	});
+
+	it("writes the pass line to stdout when no reporter is passed", () => {
+		const lines = [];
+		const spy = vi.spyOn(console, "log").mockImplementation((line) => {
+			lines.push(line);
+		});
+		try {
+			expect(runCheck("conflict-markers", () => [])).toBe(0);
+			expect(lines).toEqual(["[conflict-markers] passed"]);
+		} finally {
+			spy.mockRestore();
+		}
+	});
+
+	it("prints file:line: message (rule) and returns 1 without exiting", () => {
+		const previousExitCode = process.exitCode;
+		const lines = [];
+		const code = runCheck(
+			"conflict-markers",
+			() => [new CheckViolation("apps/demo.ts", 4, "conflict-marker", "unresolved conflict marker")],
+			{ error: (line) => lines.push(line) },
+		);
+
+		expect(code).toBe(1);
+		expect(lines).toEqual(["[conflict-markers] apps/demo.ts:4: unresolved conflict marker (conflict-marker)"]);
+		expect(process.exitCode).toBe(previousExitCode);
+	});
+
+	it("turns a thrown check into an internal error status", () => {
+		const lines = [];
+		const code = runCheck(
+			"private-key",
+			() => {
+				throw new Error("disk full");
+			},
+			{ error: (line) => lines.push(line) },
+		);
+
+		expect(code).toBe(1);
+		expect(lines).toEqual(["[private-key] internal error: disk full"]);
+	});
+});
+
+describe("conflict marker guard", () => {
+	const start = `${"<".repeat(7)} `;
+	const middle = "=".repeat(7);
+	const end = `${">".repeat(7)} `;
+
+	it("reports every marker line through the shared status code", () => {
+		const text = `keep\n${start}HEAD\nours\n${middle}\ntheirs\n${end}branch\n`;
+		const violations = findConflictMarkerViolationsInText("apps/demo.ts", text);
+		const lines = [];
+		const code = runCheck("conflict-markers", () => violations, { error: (line) => lines.push(line) });
+
+		expect(violations).toEqual([
+			new CheckViolation("apps/demo.ts", 2, "conflict-marker", "unresolved conflict marker"),
+			new CheckViolation("apps/demo.ts", 4, "conflict-marker", "unresolved conflict marker"),
+			new CheckViolation("apps/demo.ts", 6, "conflict-marker", "unresolved conflict marker"),
+		]);
+		expect(code).toBe(1);
+		expect(lines).toEqual([
+			"[conflict-markers] apps/demo.ts:2: unresolved conflict marker (conflict-marker)",
+			"[conflict-markers] apps/demo.ts:4: unresolved conflict marker (conflict-marker)",
+			"[conflict-markers] apps/demo.ts:6: unresolved conflict marker (conflict-marker)",
+		]);
+	});
+
+	it("accepts a clean file and ignores a marker that is not at column 0", () => {
+		expect(findConflictMarkerViolationsInText("apps/demo.ts", "no markers\n")).toEqual([]);
+		expect(findConflictMarkerViolationsInText("apps/demo.ts", `  ${start}not a marker\n`)).toEqual([]);
+	});
+
+	it("reports a marker stored with CRLF newlines", () => {
+		expect(findConflictMarkerViolationsInText("apps/demo.ts", `keep\r\n${middle}\r\n`)).toEqual([
+			new CheckViolation("apps/demo.ts", 2, "conflict-marker", "unresolved conflict marker"),
+		]);
+	});
+
+	it("skips a file that cannot be read and still checks the rest", () => {
+		const violations = checkConflictMarkers(["missing.ts", "apps/demo.ts"], (file) => {
+			if (file === "missing.ts") throw new Error("ENOENT");
+			return `${middle}\n`;
+		});
+
+		expect(violations).toEqual([
+			new CheckViolation("apps/demo.ts", 1, "conflict-marker", "unresolved conflict marker"),
+		]);
+	});
+
+	it("reads a repo-relative path with the default reader", () => {
+		expect(checkConflictMarkers(["scripts/quality/lib.mjs"])).toEqual([]);
+	});
+
+	it("checks README, docs, and package text for conflict markers in both quick and full scans", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-conflict-scope-"));
+		try {
+			mkdirSync(join(root, "docs"), { recursive: true });
+			mkdirSync(join(root, "packages", "demo", "src"), { recursive: true });
+			mkdirSync(join(root, "packages", "demo", "node_modules", "left"), { recursive: true });
+			writeFileSync(join(root, "README.md"), "# readme\n");
+			writeFileSync(join(root, "docs", "guide.md"), "# guide\n");
+			writeFileSync(join(root, "packages", "demo", "src", "index.ts"), "export {}\n");
+			writeFileSync(join(root, "packages", "demo", "README.md"), "# pkg\n");
+			writeFileSync(join(root, "packages", "demo", "node_modules", "left", "index.ts"), "export {}\n");
+			writeFileSync(join(root, "apps-icon.png"), "not-really-png");
+
+			const full = listConflictMarkerTargets(root).sort();
+			expect(full).toEqual(["README.md", "docs/guide.md", "packages/demo/README.md", "packages/demo/src/index.ts"]);
+			const changed = [
+				"README.md",
+				"docs/guide.md",
+				"packages/demo/src/index.ts",
+				"packages/demo/node_modules/left/index.ts",
+				"apps-icon.png",
+			];
+			expect(selectConflictMarkerFiles(changed)).toEqual([
+				"README.md",
+				"docs/guide.md",
+				"packages/demo/src/index.ts",
+			]);
+			expect(listConflictMarkerTargets()).toEqual(
+				expect.arrayContaining(["README.md", "docs/dev/quality-gates.md"]),
+			);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+});
+
+describe("private key guard", () => {
+	const begin = "-----BEGIN ";
+	const endKey = "PRIVATE KEY-----";
+
+	it("reports the first matching key and its line", () => {
+		const text = `note\n${begin}RSA ${endKey}\nbody\n`;
+		const violations = findPrivateKeyViolationsInText("secrets/id_rsa", text);
+		const lines = [];
+		const code = runCheck("private-key", () => violations, { error: (line) => lines.push(line) });
+
+		expect(violations).toEqual([
+			new CheckViolation("secrets/id_rsa", 2, "rsa-private-key", "possible RSA private key"),
+		]);
+		expect(code).toBe(1);
+		expect(lines).toEqual(["[private-key] secrets/id_rsa:2: possible RSA private key (rsa-private-key)"]);
+	});
+
+	it("reports a generic key block when no specific type matches", () => {
+		expect(findPrivateKeyViolationsInText("secrets/key.pem", `${begin}${endKey}\n`)).toEqual([
+			new CheckViolation("secrets/key.pem", 1, "generic-private-key", "possible generic PRIVATE KEY block"),
+		]);
+	});
+
+	it("reports EC, DSA, and PGP private keys", () => {
+		expect(findPrivateKeyViolationsInText("secrets/ec.pem", `${begin}EC ${endKey}\n`)).toEqual([
+			new CheckViolation("secrets/ec.pem", 1, "ec-private-key", "possible EC private key"),
+		]);
+		expect(findPrivateKeyViolationsInText("secrets/dsa.pem", `${begin}DSA ${endKey}\n`)).toEqual([
+			new CheckViolation("secrets/dsa.pem", 1, "dsa-private-key", "possible DSA private key"),
+		]);
+		expect(findPrivateKeyViolationsInText("secrets/key.asc", `${begin}PGP PRIVATE KEY BLOCK-----\n`)).toEqual([
+			new CheckViolation("secrets/key.asc", 1, "pgp-private-key", "possible PGP private key block"),
+		]);
+	});
+
+	it("accepts text with no key and ignores a key past the size cap", () => {
+		expect(findPrivateKeyViolationsInText("secrets/note.txt", "just a note\n")).toEqual([]);
+		const huge = `${"a".repeat(2_000_000)}\n${begin}RSA ${endKey}\n`;
+		expect(findPrivateKeyViolationsInText("secrets/huge.pem", huge)).toEqual([]);
+	});
+
+	it("skips a file that cannot be read and still checks the rest", () => {
+		const violations = checkPrivateKeys(["missing.pem", "secrets/id_rsa"], (file) => {
+			if (file === "missing.pem") throw new Error("ENOENT");
+			return `${begin}OPENSSH ${endKey}\n`;
+		});
+
+		expect(violations).toEqual([
+			new CheckViolation("secrets/id_rsa", 1, "openssh-private-key", "possible OPENSSH private key"),
+		]);
+	});
+
+	it("checks repo-root text and pem keys in the full scan, and still skips docs", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-private-key-scope-"));
+		try {
+			mkdirSync(join(root, "docs"), { recursive: true });
+			mkdirSync(join(root, "packages", "demo"), { recursive: true });
+			mkdirSync(join(root, "scripts", "quality"), { recursive: true });
+			writeFileSync(join(root, "README.md"), "# readme\n");
+			writeFileSync(join(root, "docs", "guide.md"), "# guide\n");
+			writeFileSync(join(root, "packages", "demo", "id_rsa.pem"), "pem\n");
+			writeFileSync(join(root, "packages", "demo", "note.txt"), "note\n");
+			writeFileSync(join(root, "scripts", "quality", "helper.mjs"), "export {}\n");
+
+			expect(listPrivateKeyTargets(root).sort()).toEqual([
+				"README.md",
+				"packages/demo/id_rsa.pem",
+				"packages/demo/note.txt",
+			]);
+			expect(selectPrivateKeyFiles(["README.md", "docs/guide.md", "packages/demo/id_rsa.pem"])).toEqual([
+				"README.md",
+				"packages/demo/id_rsa.pem",
+			]);
+			expect(listPrivateKeyTargets()).toContain("README.md");
+			expect(listPrivateKeyTargets()).not.toContain("docs/dev/quality-gates.md");
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+});
+
+describe("skill frontmatter guard", () => {
+	const wrap = (frontmatter) => `---\n${frontmatter}\n---\n\n# Skill body\n`;
+
+	it("reports an unquoted colon with its line and returns status 1", () => {
+		const file = "packages/demo/SKILL.md";
+		const text = wrap("name: demo\ndescription: Use it: it does a thing.");
+		const violations = findSkillFrontmatterViolations(file, text);
+		const lines = [];
+		const code = runCheck("skill-frontmatter", () => violations, { error: (line) => lines.push(line) });
+
+		expect(violations).toEqual([
+			new CheckViolation(
+				file,
+				3,
+				"unquoted-scalar",
+				'`description` contains ": " — YAML reads it as a nested mapping and fails to parse (wrap the value in double quotes)',
+			),
+		]);
+		expect(code).toBe(1);
+		expect(lines).toEqual([
+			'[skill-frontmatter] packages/demo/SKILL.md:3: `description` contains ": " — YAML reads it as a nested mapping and fails to parse (wrap the value in double quotes) (unquoted-scalar)',
+		]);
+	});
+
+	it("reports a missing block and a missing description", () => {
+		expect(findSkillFrontmatterViolations("packages/demo/SKILL.md", "# No frontmatter\n")).toEqual([
+			new CheckViolation(
+				"packages/demo/SKILL.md",
+				1,
+				"frontmatter-block",
+				"missing or unterminated --- frontmatter block",
+			),
+		]);
+		expect(findSkillFrontmatterViolations("packages/demo/SKILL.md", wrap("name: demo"))).toEqual([
+			new CheckViolation(
+				"packages/demo/SKILL.md",
+				1,
+				"description-required",
+				"description is required — it is the only text the model sees before invoking the skill",
+			),
+		]);
+		expect(findSkillFrontmatterViolations("packages/demo/SKILL.md", wrap("name: demo\ndescription:"))).toEqual([
+			new CheckViolation(
+				"packages/demo/SKILL.md",
+				3,
+				"description-required",
+				"description is required — it is the only text the model sees before invoking the skill",
+			),
+		]);
+	});
+
+	it("reports an oversized folded description on the key line", () => {
+		const long = `name: demo\ndescription: >\n  ${"x".repeat(1100)}`;
+		expect(findSkillFrontmatterViolations("packages/demo/SKILL.md", wrap(long))).toEqual([
+			new CheckViolation("packages/demo/SKILL.md", 3, "description-length", "description is 1100 chars (max 1024)"),
+		]);
+	});
+
+	it("skips a file that cannot be read and still checks the rest", () => {
+		const violations = checkSkillFrontmatter(["missing/SKILL.md", "packages/demo/SKILL.md"], (file) => {
+			if (file === "missing/SKILL.md") throw new Error("ENOENT");
+			return "# No frontmatter\n";
+		});
+
+		expect(violations).toEqual([
+			new CheckViolation(
+				"packages/demo/SKILL.md",
+				1,
+				"frontmatter-block",
+				"missing or unterminated --- frontmatter block",
+			),
+		]);
+	});
+});
+
+describe("layered quality gates", () => {
+	it("plans the staged fast gate as private keys, conflict markers, and read-only Biome", () => {
+		expect(createFastCheckPlan()).toEqual([
+			["run", "scripts/quality/check-private-keys.mjs", "--staged"],
+			["run", "scripts/quality/check-conflict-markers.mjs", "--staged"],
+			["x", "@biomejs/biome", "check", "--error-on-warnings", "--staged", "--no-errors-on-unmatched"],
+		]);
+	});
+
+	it("plans the architecture gate as the YAML engine only", () => {
+		expect(createArchitectureCheckPlan()).toEqual([
+			["run", "scripts/quality/check-package-boundaries.mjs"],
+			["run", "scripts/quality/check-coding-agent-architecture.mjs"],
+		]);
+	});
+
+	it("keeps CI on the full check and adds fast, arch, and full beside it", () => {
+		const scripts = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")).scripts;
+		const workflow = readFileSync(join(repoRoot, ".github/workflows/quality.yml"), "utf8");
+
+		expect(scripts["check:fast"]).toBe("bun run scripts/quality/check-fast.mjs");
+		expect(scripts["check:arch"]).toBe("bun run scripts/quality/check-architecture.mjs");
+		expect(scripts["check:full"]).toBe(
+			'concurrently --names "lint,types,guards" --prefix-colors "cyan,yellow,magenta" "bun run check:lint:full" "bun run check:types" "bun run check:guards"',
+		);
+		expect(scripts.check).toContain("bun run check:guards");
+		expect(scripts.check).not.toContain("apps/mobile");
+		expect(scripts.check).not.toContain("check:arch");
+		expect(scripts["check:full"]).toContain("check:guards");
+		expect(workflow).toContain("run: bun run check:full\n");
+	});
+
+	it("reports a conflict marker in a changed file and skips private-key exclusions", () => {
+		const begin = "-----BEGIN ";
+		const seen = [];
+		const lines = [];
+		const reporters = {
+			log: (line) => lines.push(line),
+			error: (line) => lines.push(line),
+		};
+		const code = runChangedFileGuards(
+			["packages/ai/src/index.ts", "docs/example.md", "apps/desktop/icon.png", "scripts/quality/lib.mjs"],
+			(file) => {
+				seen.push(file);
+				if (file.startsWith("docs/")) return `${begin}RSA PRIVATE KEY-----\n`;
+				if (file.startsWith("packages/")) return "<<<<<<< HEAD\n";
+				return "ok\n";
+			},
+			reporters,
+		);
+
+		expect(code).toBe(1);
+		expect(lines).toContain(
+			"[conflict-markers] packages/ai/src/index.ts:1: unresolved conflict marker (conflict-marker)",
+		);
+		expect(lines.some((line) => line.includes("private-key") && line.includes("docs/example.md"))).toBe(false);
+		expect(lines.some((line) => line.includes("icon.png"))).toBe(false);
+		expect(seen.filter((file) => file.startsWith("docs/"))).toEqual(["docs/example.md"]);
+		expect(seen.filter((file) => file.startsWith("scripts/quality/"))).toEqual(["scripts/quality/lib.mjs"]);
+		expect(seen.filter((file) => file.startsWith("packages/"))).toEqual([
+			"packages/ai/src/index.ts",
+			"packages/ai/src/index.ts",
+		]);
+		expect(selectPrivateKeyFiles(["docs/example.md", "packages/ai/src/index.ts", "apps/desktop/icon.png"])).toEqual([
+			"packages/ai/src/index.ts",
+		]);
+	});
+
+	it("passes fast guards when the changed files are clean", () => {
+		const lines = [];
+		const code = runChangedFileGuards(["packages/ai/src/index.ts"], () => "export const value = 1;\n", {
+			log: (line) => lines.push(line),
+			error: (line) => lines.push(line),
+		});
+
+		expect(code).toBe(0);
+		expect(lines).toEqual(["[private-key] passed", "[conflict-markers] passed"]);
+	});
+
+	it("runs check:quick on one file without the architecture engine", () => {
+		const result = spawnSync("bun", ["run", "scripts/quality/check-quick.mjs", "--", "scripts/quality/lib.mjs"], {
+			cwd: repoRoot,
+			encoding: "utf8",
+		});
+		const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+
+		expect(result.status).toBe(0);
+		expect(output).toContain("[private-key] passed");
+		expect(output).toContain("[conflict-markers] passed");
+		expect(output).not.toContain("[package-boundaries]");
+		expect(output).not.toContain("[coding-agent-architecture]");
+		expect(output).not.toContain("check:guards");
+	});
+});
+
+describe("package boundary parallel scan", () => {
+	it("keeps one worker below 64 files and caps a large scan at two", () => {
+		expect(boundaryWorkerCount(10, 8)).toBe(1);
+		expect(boundaryWorkerCount(100, 1)).toBe(1);
+		expect(boundaryWorkerCount(100, 8)).toBe(2);
+		expect(boundaryWorkerCount(3, 8)).toBe(1);
+	});
+
+	it("round-robins jobs and merges findings back into walk order", () => {
+		const jobs = [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }, { id: "e" }];
+		expect(partitionBoundaryJobs(jobs, 2)).toEqual([
+			[{ id: "a" }, { id: "c" }, { id: "e" }],
+			[{ id: "b" }, { id: "d" }],
+		]);
+		expect(() => partitionBoundaryJobs(jobs, 0)).toThrow("worker count must be a positive integer");
+		expect(
+			mergeBoundaryItems([
+				{ index: 2, scanned: 1, findings: [{ file: "c.ts", line: 1 }] },
+				{ index: 0, scanned: 0, findings: [{ file: "manifest", line: 1 }] },
+				{ index: 1, scanned: 1, findings: [] },
+			]),
+		).toEqual({
+			findings: [
+				{ file: "manifest", line: 1 },
+				{ file: "c.ts", line: 1 },
+			],
+			scanned: 2,
+		});
+	});
+
+	it("lists the tsconfig entry and drops skipped trees", () => {
+		const scan = collectBoundaryScan();
+		const indexes = [...scan.jobs, ...scan.inline].map((item) => item.index);
+
+		expect(scan.jobs.some((job) => job.entry && job.file === "tsconfig.json")).toBe(true);
+		expect(scan.jobs.some((job) => job.file.includes("/examples/"))).toBe(false);
+		expect(scan.jobs.some((job) => job.file.includes("/dist/"))).toBe(false);
+		expect(new Set(indexes).size).toBe(indexes.length);
+	});
+
+	it("reports the line of an app import and a raw capability id", () => {
+		const document = loadBoundaryDocument(join(repoRoot, "scripts/quality/rules/package-boundaries.yml"));
+		const file = "packages/ai/src/example.ts";
+
+		expect(
+			evaluateBoundaryFile(document, file, 'import "@vetta/desktop";\n').map((finding) => [
+				finding.line,
+				finding.rule,
+			]),
+		).toContainEqual([1, "libs-must-not-depend-on-apps"]);
+		expect(
+			evaluateBoundaryFile(document, file, 'const ok = "cap";\nconst id = "cap.domain.vetta.example.read";\n').map(
+				(finding) => [finding.line, finding.rule],
+			),
+		).toContainEqual([2, "no-raw-capability-ids"]);
+	});
+
+	it("keeps coding-agent import edges and does not parse again when the AST cache is warm", () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-coding-agent-cache-"));
+		const relativePath = "packages/coding-agent/src/example.ts";
+		const text =
+			'import { read as load } from "@vetta/runtime-storage/conversation";\nexport { value } from "./local.js";\n';
+		try {
+			mkdirSync(join(root, "packages", "coding-agent", "src"), { recursive: true });
+			writeFileSync(join(root, relativePath), text);
+			const cache = createAstCache({ root, cacheDir: join(root, "quality-cache") });
+			const input = {
+				files: [{ path: relativePath, text }],
+				packageJson: { exports: { ".": "./dist/index.js" } },
+			};
+			const first = collectCodingAgentArchitectureState(input, "packages/coding-agent/src", cache);
+			const second = collectCodingAgentArchitectureState(input, "packages/coding-agent/src", cache);
+			expect(first.edges).toEqual([
+				{
+					path: relativePath,
+					specifier: "@vetta/runtime-storage/conversation",
+					kind: "import",
+					names: ["read"],
+					line: 1,
+				},
+				{
+					path: relativePath,
+					specifier: "./local.js",
+					kind: "export",
+					names: ["value"],
+					line: 2,
+				},
+			]);
+			expect(second.edges).toEqual(first.edges);
+			expect(cache.stats().parses).toBe(1);
+			expect(cache.stats().hits).toBe(1);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("keeps boundary findings and does not parse again when the AST cache is warm", async () => {
+		const root = mkdtempSync(join(tmpdir(), "vetta-ast-cache-scan-"));
+		const relativePath = "packages/ai/src/example.ts";
+		const text = 'import "@vetta/desktop";\n';
+		try {
+			mkdirSync(join(root, "packages", "ai", "src"), { recursive: true });
+			writeFileSync(join(root, relativePath), text);
+			const cache = createAstCache({ root, cacheDir: join(root, "quality-cache") });
+			const document = loadBoundaryDocument(join(repoRoot, "scripts/quality/rules/package-boundaries.yml"));
+			const jobs = [{ index: 0, file: relativePath, manifest: null, entry: true }];
+			const readFile = () => text;
+			const first = await evaluateBoundaryFileJobs(jobs, { workers: 1, cache, readFile, document });
+			const second = await evaluateBoundaryFileJobs(jobs, { workers: 1, cache, readFile, document });
+			const overlaid = await evaluateBoundaryFileJobs(jobs, {
+				workers: 1,
+				cache,
+				readFile: () => "export {}\n",
+				document,
+			});
+
+			expect(first[0].findings.map((finding) => finding.rule)).toContain("libs-must-not-depend-on-apps");
+			expect(second).toEqual(first);
+			expect(overlaid[0].findings).toEqual([]);
+			expect(cache.stats().parses).toBe(1);
+			expect(cache.stats().hits).toBe(1);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+
+	it("returns the same findings from a worker shard as from the serial scan", async () => {
+		const texts = { "packages/ai/src/layered-gate-example.ts": 'import "@vetta/desktop";\n' };
+		const jobs = [
+			{ index: 1, file: "packages/ai/src/layered-gate-example.ts", manifest: null, entry: false },
+			{ index: 0, file: "scripts/quality/lib.mjs", manifest: null, entry: false },
+		];
+		const readFile = (file) => texts[file] ?? readFileSync(join(repoRoot, file), "utf8");
+		const serial = await evaluateBoundaryFileJobs(jobs, { workers: 1, readFile });
+		const parallel = await evaluateBoundaryFileJobs(jobs, { workers: 2, texts });
+
+		expect(mergeBoundaryItems(serial).findings.length).toBeGreaterThan(0);
+		expect(mergeBoundaryItems(parallel)).toEqual(mergeBoundaryItems(serial));
 	});
 });
