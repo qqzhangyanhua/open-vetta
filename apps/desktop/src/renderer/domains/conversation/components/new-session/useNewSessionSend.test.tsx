@@ -112,7 +112,7 @@ describe("useNewSessionSend", () => {
 		const opened = deferred<void>();
 		const openSession = vi.fn(
 			(_cwd: string, _path?: string, _mode?: SessionExecutionMode, options?: OpenSessionOptions) => {
-				options?.onPromptReady?.();
+				options?.onPromptReady?.("runtime-1");
 				return opened.promise;
 			},
 		);
@@ -175,7 +175,7 @@ describe("useNewSessionSend", () => {
 		const prepareCwd = vi.fn(async () => "/w/created");
 		const openSession = vi.fn(
 			(_cwd: string, _path?: string, _mode?: SessionExecutionMode, options?: OpenSessionOptions) => {
-				options?.onPromptReady?.();
+				options?.onPromptReady?.("runtime-1");
 				return Promise.resolve();
 			},
 		);
@@ -251,7 +251,7 @@ describe("useNewSessionSend", () => {
 		const prepareCwd = vi.fn(() => prepared.promise);
 		const openSession = vi.fn(
 			(_cwd: string, _path?: string, _mode?: SessionExecutionMode, options?: OpenSessionOptions) => {
-				options?.onPromptReady?.();
+				options?.onPromptReady?.("runtime-1");
 				return Promise.resolve();
 			},
 		);
@@ -290,7 +290,7 @@ describe("useNewSessionSend", () => {
 					sessionPath: "/sessions/new.jsonl",
 					runtimeId: "runtime-1",
 				});
-				options?.onPromptReady?.();
+				options?.onPromptReady?.("runtime-1");
 			},
 		);
 		const sendMessage = vi.fn();
@@ -319,5 +319,46 @@ describe("useNewSessionSend", () => {
 		);
 		expect(openSession.mock.calls[0]?.[3]).not.toHaveProperty("preserveMessagesBeforeCreate");
 		store.set(activeSessionAtom, null);
+	});
+
+	it("creates the session before starting a goal and does not synthesize a user prompt", async () => {
+		const order: string[] = [];
+		const startGoal = vi.fn(async (sessionId: string, objective: string) => {
+			order.push(`goal:${sessionId}:${objective}`);
+			return {
+				goalId: "goal-1",
+				objective,
+				status: "active" as const,
+				tokensUsed: 0,
+				timeUsedSeconds: 0,
+				continuationCount: 0,
+				createdAt: "t",
+				updatedAt: "t",
+			};
+		});
+		Object.defineProperty(window, "vetta", {
+			configurable: true,
+			value: { session: { startGoal } },
+		});
+		const openSession = vi.fn(
+			async (_cwd: string, _path?: string, _mode?: SessionExecutionMode, options?: OpenSessionOptions) => {
+				order.push("session");
+				await options?.onPromptReady?.("runtime-goal");
+			},
+		);
+		const sendMessage = vi.fn();
+		const { result } = renderHook(() =>
+			useNewSessionSend({ cwd: "C:/workspace", executionMode: "sandbox", openSession, sendMessage }),
+		);
+
+		let started: Awaited<ReturnType<typeof result.current.startGoal>> | undefined;
+		await act(async () => {
+			started = await result.current.startGoal("Finish the release");
+		});
+
+		expect(order).toEqual(["session", "goal:runtime-goal:Finish the release"]);
+		expect(started).toMatchObject({ sessionId: "runtime-goal", state: { status: "active" } });
+		expect(sendMessage).not.toHaveBeenCalled();
+		expect(stagedSend.stage).not.toHaveBeenCalled();
 	});
 });

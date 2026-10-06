@@ -1,35 +1,14 @@
-import {
-	CompactionBoundaryView,
-	ExportMessageListView,
-	Message,
-	MessageLayout,
-	MessageVisual,
-	ModelSwitchBoundaryView,
-} from "@vetta-org/theme-ui/chat";
+import { ExportMessageListView, ModelSwitchBoundaryView } from "@vetta-org/theme-ui/chat";
 import { forwardRef, memo } from "react";
 import { useTranslation } from "react-i18next";
-import { useAtomValue, useSetAtom } from "jotai";
 import type { Usage } from "@vetta/ai/protocol";
-import { Button } from "@shared/components/ui/button";
-import { activeSessionAtom, type ChatTimelineEventViewModel } from "@shared/store/atoms";
 import type { ChatConversationItem } from "./types";
 import type { ConversationParticipantViewModel } from "@shared/conversation";
-import { externalAgentLabel } from "../external-invocation/external-agent-label";
-import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
 import { AssistantMessage } from "./AssistantMessage";
+import { ExternalInvocationHistoryCard } from "./ExternalInvocationHistoryCard";
 import { TeamMemberReplyCard } from "./TeamMemberReplyCard";
 import { ReadonlyUserMessage } from "./ReadonlyUserMessage";
-import { useMessageRendering } from "./MessageRendering";
-
-export const CompactionBoundary = memo(function CompactionBoundary() {
-	const { t } = useTranslation("chat");
-	return <CompactionBoundaryView label={t("messageList.compactionBoundary")} />;
-});
-
-const OmittedReasoningNote = memo(function OmittedReasoningNote({ count }: { count: number }) {
-	const { t } = useTranslation("chat");
-	return <CompactionBoundaryView label={t("sessionViewer.omittedReasoning", { count })} />;
-});
+import { CompactionBoundary, DelegationNotice, OmittedReasoningNote } from "./TimelineEventViews";
 
 export const ModelSwitchBoundary = memo(function ModelSwitchBoundary({ from, to }: { from: string; to: string }) {
 	const { t } = useTranslation("chat");
@@ -50,72 +29,8 @@ export interface MessageItemProps {
 	sessionUsages?: readonly Usage[];
 }
 
-export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
-	const definition = useMessageRendering();
-	const message = definition.project?.(props.message) ?? props.message;
-	const Renderer = definition.renderers?.[message.kind] ?? DefaultMessageItem;
-	return <Renderer {...props} message={message} />;
-});
-
-const externalInvocationStatusKey = {
-	queued: "externalInvocation.status.queued",
-	running: "externalInvocation.status.running",
-	completed: "externalInvocation.status.completed",
-	failed: "externalInvocation.status.failed",
-} as const;
-
-const ExternalInvocationHistoryCard = memo(function ExternalInvocationHistoryCard({
-	event,
-	exportMode,
-}: {
-	event: Extract<ChatTimelineEventViewModel, { kind: "external_invocation" }>;
-	exportMode: boolean;
-}) {
-	const { t } = useTranslation("chat");
-	const session = useAtomValue(activeSessionAtom);
-	const openTab = useSetAtom(openExternalInvocationTabAtom);
-	const agent = externalAgentLabel(event.agentId, t) || event.agentId;
-	return (
-		<article aria-label={`${agent} ${event.prompt}`}>
-			<p>{event.prompt}</p>
-			<p>
-				{event.status === "interrupted"
-					? t(
-							event.interruptReason === "app-exit"
-								? "externalInvocation.status.interruptedAppExit"
-								: event.interruptReason === "cancelled"
-									? "externalInvocation.status.interruptedCancelled"
-									: "externalInvocation.status.interruptedUser",
-						)
-					: t(externalInvocationStatusKey[event.status])}
-			</p>
-			{event.exitCode !== null ? <p>{t("externalInvocation.exitCode", { code: event.exitCode })}</p> : null}
-			{event.status !== "interrupted" && event.failureReason ? <p>{event.failureReason}</p> : null}
-			{exportMode || !session ? null : (
-				<Button
-					type="button"
-					variant="ghost"
-					size="sm"
-					onClick={() =>
-						openTab({
-							scopeKey: session.sessionPath,
-							invocationId: event.invocationId,
-							status: event.status === "running" || event.status === "queued" ? "running" : "finished",
-							cwd: session.cwd,
-							sessionId: session.runtimeId,
-							agentLabel: agent,
-							agentId: event.agentId,
-						})
-					}
-				>
-					{t("externalInvocation.viewInTerminal")}
-				</Button>
-			)}
-		</article>
-	);
-});
-
-export const DefaultMessageItem = memo(function DefaultMessageItem({
+/** A message from explicit props, outside a conversation feed (export). */
+export const MessageItem = memo(function MessageItem({
 	message,
 	isTailMessage,
 	isStreaming,
@@ -128,7 +43,7 @@ export const DefaultMessageItem = memo(function DefaultMessageItem({
 }: MessageItemProps) {
 	if (message.kind === "event") {
 		if (message.event.kind === "external_invocation") {
-			return <ExternalInvocationHistoryCard event={message.event} exportMode={exportMode} />;
+			return <ExternalInvocationHistoryCard event={message.event} />;
 		}
 		if (message.event.kind === "compaction") return <CompactionBoundary />;
 		if (message.event.kind === "omitted_reasoning") {
@@ -137,16 +52,7 @@ export const DefaultMessageItem = memo(function DefaultMessageItem({
 		if (message.event.kind === "team-member-summary") {
 			return <TeamMemberReplyCard event={message.event} onOpen={onTeamMemberOpen} />;
 		}
-		return (
-			<Message.Root>
-				<MessageLayout.Event>
-					<MessageVisual.EventBubble>
-						<span className="icon-[solar--forward-linear] h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-						<span className="truncate">{message.event.label}</span>
-					</MessageVisual.EventBubble>
-				</MessageLayout.Event>
-			</Message.Root>
-		);
+		return <DelegationNotice label={message.event.label} />;
 	}
 	if (message.kind === "user") {
 		return <ReadonlyUserMessage message={message} participants={participants} />;

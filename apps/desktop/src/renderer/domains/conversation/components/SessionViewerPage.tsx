@@ -14,13 +14,12 @@ import { useTranslation } from "react-i18next";
 import { useSessionViewerContinueFrom } from "../hooks/useSessionViewerContinueFrom";
 import { useSessionViewerPageModel } from "../hooks/useSessionViewerPageModel";
 import { ChatExportHost } from "./ChatExportHost";
-import { MessageList } from "./MessageList";
 import { SessionViewerContinueFromProgress } from "./SessionViewerContinueFromProgress";
+import { TranscriptConversation } from "./TranscriptConversation";
 
 /**
  * Read-only viewer for sessions the desktop app does not own
- * (IM sessions written by im-gateway, and external-tool records such as Grok).
- * Read-only viewer for external and child sessions.
+ * (IM sessions written by im-gateway, external-tool records such as Grok, and child sessions).
  */
 export function SessionViewerPage(): JSX.Element {
 	const { t } = useTranslation("chat");
@@ -179,11 +178,11 @@ export function SessionViewerPage(): JSX.Element {
 				}
 				sourceBannerLabel={model.sourceBannerLabel}
 				messageList={
-					<MessageList
+					<TranscriptConversation
+						feedKey={model.path || null}
 						messages={model.messages}
 						workspace={workspace}
 						isStreaming={false}
-						sessionId={model.path || null}
 					/>
 				}
 				activityPanel={

@@ -26,6 +26,7 @@ import { createActivityWorkspace } from "@shared/workspace/activity-workspace";
 import { TeamComposerConnector } from "../../connectors/team/TeamComposerConnector";
 import type { TeamChatActions, TeamChatViewModel } from "../../connectors/team/teamChatModel";
 import { isTeamTarget, type NewSessionTargetKey } from "./target";
+import type { StartNewSessionGoal } from "../../services/goal-mode-entry";
 
 
 /** 命令区展开时输入栏下移的距离：面板向上生长，下方留白同步收掉。 */
@@ -49,6 +50,7 @@ interface NewSessionPageViewProps {
 	onSelectProject: (cwd: string | null) => void;
 	onSend: (overrideText?: string, context?: SendInteractionContext) => Promise<void>;
 	onEnsureSession?: () => Promise<{ sessionId: string; cwd: string } | null>;
+	onStartGoal: StartNewSessionGoal;
 	preparingProject: boolean;
 	projectOptions: readonly ProjectOption[];
 	projectSelection: ProjectSelection;
@@ -78,6 +80,7 @@ export function NewSessionPageView({
 	onSelectProject,
 	onSend,
 	onEnsureSession,
+	onStartGoal,
 	preparingProject,
 	projectOptions,
 	projectSelection,
@@ -194,6 +197,7 @@ export function NewSessionPageView({
 								onSend={onSend}
 								onAbort={onAbort}
 								onEnsureSession={onEnsureSession}
+								startNewSessionGoal={onStartGoal}
 								cwdOverride={cwd}
 								onExpandedChange={onCommandPanelExpandedChange}
 								sendPending={preparingProject ? { label: preparingLabel } : undefined}

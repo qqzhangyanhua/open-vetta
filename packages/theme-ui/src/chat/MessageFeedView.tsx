@@ -46,6 +46,7 @@ export const MessageFeedFooter = forwardRef<HTMLDivElement, MessageFeedPrimitive
 
 export interface MessageFeedVirtualListProps<T> extends Omit<ComponentPropsWithoutRef<"div">, "children"> {
 	readonly items: readonly T[];
+	/** Renders one item; `index` is its position in `items`. */
 	readonly children: (item: T, index: number) => ReactNode;
 	readonly getKey?: (item: T, index: number) => string | number;
 	readonly virtuosoRef?: Ref<VirtuosoHandle>;

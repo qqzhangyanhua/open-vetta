@@ -11,7 +11,9 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createStore, Provider } from "jotai";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { DefaultMessageItem } from "./MessageItem";
+import { EventMessage } from "../../conversation-view/event-message";
+import { ConversationMessageScope } from "../../conversation-view/message-scope";
+import { SessionExternalInvocationEvent } from "../../session-conversation/SessionExternalInvocationEvent";
 import type { ChatConversationItem } from "./types";
 
 beforeEach(async () => {
@@ -47,7 +49,13 @@ describe("external invocation history card", () => {
 		};
 		render(
 			<Provider store={store}>
-				<DefaultMessageItem message={message} isStreaming={false} isTailMessage />
+				<ConversationMessageScope
+					row={{ message, index: 0, isTail: true, isLastUserMessage: false }}
+				>
+					<EventMessage.Root>
+						<SessionExternalInvocationEvent />
+					</EventMessage.Root>
+				</ConversationMessageScope>
 			</Provider>,
 		);
 		await user.click(screen.getByRole("button", { name: "在终端查看" }));
