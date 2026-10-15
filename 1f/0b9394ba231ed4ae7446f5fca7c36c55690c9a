@@ -1,0 +1,1327 @@
+scripts/release/publish-github-installers.test.mjs
+  s_a43cb585378514::t_7cd387eb773e1e 30
+  s_a43cb585378514::t_64d9551132b65a 27-29
+  s_a43cb585378514::t_d8fd79a071b523 31-33
+  s_a43cb585378514::t_d02f32c70206d4 1-26,34-80
+apps/desktop/src/preload/apis/system.ts
+  s_a43cb585378514::t_85a6be44f72a14 215
+  s_a43cb585378514::t_d88a6b6042da68 224,253-254
+.github/release-notes/v0.5.64.md
+  s_a43cb585378514::t_67a213c84c265c 17-20
+  s_a43cb585378514::t_c65a71d423b646 1-16
+scripts/release/publish-github-installers.mjs
+  s_a43cb585378514::t_c5b6e74fcdbcf1 40
+  s_a43cb585378514::t_231bf24b4b713b 37-39
+  s_a43cb585378514::t_0f27dedeee798f 41-43
+  s_a43cb585378514::t_13035b3a6d70ad 1-36,44-71
+.github/release-notes/v0.5.62.md
+  s_a43cb585378514::t_654ffddd3166ff 1-45
+.github/release-notes/v0.5.63.md
+  s_a43cb585378514::t_a855d2c222dd8d 1-18
+.gitignore
+  s_a43cb585378514::t_b264a10e8f196e 35-37
+apps/cli-host/src/rpc/runtime-host/cli-session-assembly.ts
+  s_a43cb585378514::t_541a2aa96a65c2 149
+apps/desktop/README.md
+  s_a43cb585378514::t_0ce8c49b0009ad 174-182,221-232
+apps/desktop/package.json
+  s_a43cb585378514::t_951157ec1d47c1 3
+apps/desktop/src/main/agent-settings/model-transport-settings.test.ts
+  s_a43cb585378514::t_2317c326596a4d 1-32
+apps/desktop/src/main/agent-settings/model-transport-settings.ts
+  s_a43cb585378514::t_103c7fe3fa3e49 1-20
+apps/desktop/src/main/app-actions/types.ts
+  s_a43cb585378514::t_e43467a00d59de 58-59,74
+apps/desktop/src/main/config/desktop-config-store.test.ts
+  s_a43cb585378514::t_77e0815fd7e832 281-323
+apps/desktop/src/main/config/desktop-config-store.ts
+  s_a43cb585378514::t_5d64d8a4f279b9 84,86-89,102,108-115,122-124,446-452,466-490,504-511
+apps/desktop/src/main/ipc/plugin-input-parsers.ts
+  s_a43cb585378514::t_d8a55640d6e33c 270
+apps/desktop/src/main/ipc/settings.ts
+  s_a43cb585378514::t_8b56ae0a2a391e 2,48-51,80-81
+apps/desktop/src/main/main.ts
+  s_a43cb585378514::t_0852e4d91bba3f 83,111-112,752-755
+apps/desktop/src/main/mcp/mcp-tools-service.test.ts
+  s_a43cb585378514::t_6458a73123f00e 1-69
+apps/desktop/src/main/mcp/mcp-tools-service.ts
+  s_a43cb585378514::t_802bbaa255e3ae 1-107
+apps/desktop/src/main/models/enrich-fetched-models.test.ts
+  s_a43cb585378514::t_9766c801e81d63 1-83
+apps/desktop/src/main/models/enrich-fetched-models.ts
+  s_a43cb585378514::t_5d7a0455a8a016 1-46
+apps/desktop/src/main/models/fetch-models.ts
+  s_a43cb585378514::t_b385831c7d7a05 3-4,6-7,11,20-22,46-49
+apps/desktop/src/main/models/lookup-model-metadata.ts
+  s_a43cb585378514::t_8b5a196ce51fc2 1-19
+apps/desktop/src/main/models/model-settings-service.test.ts
+  s_a43cb585378514::t_eca6bf40c74dda 39,54
+apps/desktop/src/main/models/parse-provider-models.test.ts
+  s_a43cb585378514::t_05112a9371f475 1-139
+apps/desktop/src/main/models/parse-provider-models.ts
+  s_a43cb585378514::t_265a980c45b361 1-162
+apps/desktop/src/main/models/presets/models-dev-lookup.test.ts
+  s_a43cb585378514::t_2b999b1f268325 1-92
+apps/desktop/src/main/models/presets/models-dev-snapshot.generated.ts
+  s_a43cb585378514::t_3c2a42b75d4fe7 6-7,10,12-13,20-23,26,46,48-49,51,53-54,56-59,62,64,66-67,76,80,84,86-87,89,94-97,100,102,104-105,107,109,112-115,118,120,122-123,127-128,138,140-141,148-151,156,158-159,163-164,174,176-177,179,181,184-187,190,192,194-195,197,202-205,208,228,230-249,256-259,262,282-284,286-287,289,291-292,294-296,300,307,310,312-314,320-322,324-325,328-329,331-333,337,339,341-342,344-347,349-350,355,357,359-360,367-369,373,375,377-378,381-382,384-386,390,410-412,414-415,417,419-420,422-425,428,447-449,451-452,455-456,458,478,480-481,483,485-492,494,516,518-519,532,534,536-541,544-545,549,551-552,570,572-573,575,577-578,580-583,586,588,590-591,593,595-596,598-600,604,623-656,675,677-678,681-682,684-687,690,699,701-704,711-4801
+apps/desktop/src/main/models/presets/models-dev.test.ts
+  s_a43cb585378514::t_e759ab6db63d06 209-211
+apps/desktop/src/main/models/presets/models-dev.ts
+  s_a43cb585378514::t_a6572442286ba5 1-4,9,20-21,23-25,34-78,93-132,154,158,160-161,195-200,267-367
+apps/desktop/src/main/models/presets/sync.test.ts
+  s_a43cb585378514::t_b724088ec44f16 30,33
+apps/desktop/src/main/models/presets/sync.ts
+  s_a43cb585378514::t_7437bf08d649e4 11,14-15,54,115,141,151,153,163
+apps/desktop/src/main/plugins/plugin-action-service.test.ts
+  s_a43cb585378514::t_b584c08cfa5303 139-166
+apps/desktop/src/main/plugins/plugin-action-service.ts
+  s_a43cb585378514::t_b90039f71d907b 330-335,351
+apps/desktop/src/main/remote-control/desktop-capabilities.ts
+  s_a43cb585378514::t_e84885a41d1108 7-8,15-16
+apps/desktop/src/main/remote-control/desktop-remote-access-instance.ts
+  s_a43cb585378514::t_532bd22e38b46a 26,44,111
+apps/desktop/src/main/remote-control/desktop-remote-access-manager.test.ts
+  s_a43cb585378514::t_b801d7df2c2a36 1-6,8-9,16,18,46,61-64,201-203,210-260,276-349,359-361,363-364,366-367,369-381,386,390-391,413,470-472,474,476-486,488,491-492,494-502,504-513,515-520,541-608,612-613,1130-1421
+apps/desktop/src/main/remote-control/desktop-remote-access-manager.ts
+  s_a43cb585378514::t_e6bd049cbb6772 1,15,28-29,33,181,197-199,224,227,248,325-326,352-353,359-365,385-422,469-476,478-483,486-487,490-515,517,520-543,546,559-566,571,573,575,578,580-581,591-595,604,606-609,617,620,633-637,657-658,675,691,699,712,714,722-747,749,753-755,759-820,822-826,829-835,838-861,886,896,898-902,917-930,933-948,968-970,973-976,982,988-995,1000-1004,1012-1014,1045,1062,1134,1156,1160-1161,1163,1191,1200-1201,1247-1249
+apps/desktop/src/main/remote-control/desktop-remote-device-hub.test.ts
+  s_a43cb585378514::t_fdd272e276c858 1,35-37,41-148
+apps/desktop/src/main/remote-control/desktop-remote-device-hub.ts
+  s_a43cb585378514::t_9a06b2448e4b89 14,75,136,148-175,183
+apps/desktop/src/main/remote-control/desktop-remote-mirror.test.ts
+  s_a43cb585378514::t_b0b082fdfce7f7 643-674
+apps/desktop/src/main/remote-control/desktop-remote-mirror.ts
+  s_a43cb585378514::t_a06d931c55a49f 37,42,46,119-120,253-254,334-344,998-1001,1003,1008
+apps/desktop/src/main/remote-control/remote-actions.test.ts
+  s_a43cb585378514::t_c5be446275de99 1-77
+apps/desktop/src/main/remote-control/remote-actions.ts
+  s_a43cb585378514::t_d9720041fd47ad 1-64
+apps/desktop/src/main/remote-control/remote-device-pairings.ts
+  s_a43cb585378514::t_1340c5d0e9a7d6 1-94
+apps/desktop/src/main/remote-control/remote-device-store.ts
+  s_a43cb585378514::t_45dcb5c0f03fe1 15,76,82-83,91-131
+apps/desktop/src/main/remote-control/remote-transcript.test.ts
+  s_a43cb585378514::t_12d8bcce773048 1-2,5,94-222
+apps/desktop/src/main/remote-control/remote-transcript.ts
+  s_a43cb585378514::t_aa89f931935f75 7-13,18-35,121-174,205-223
+apps/desktop/src/main/remote-control/remote-video-encoding.test.ts
+  s_a43cb585378514::t_37f63edd918d22 1-31
+apps/desktop/src/main/remote-control/remote-video-encoding.ts
+  s_a43cb585378514::t_1008e6363822f5 1-18
+apps/desktop/src/preload/api-types/mcp.ts
+  s_a43cb585378514::t_0208f2271147ed 49-53,55-56
+apps/desktop/src/preload/api-types/plugins.ts
+  s_a43cb585378514::t_5693ccdbea4b6b 307
+apps/desktop/src/preload/api-types/system.ts
+  s_a43cb585378514::t_f9d67038ece930 1,49-50
+apps/desktop/src/preload/apis/system.test.ts
+  s_a43cb585378514::t_f50a5808bb944c 87-94
+apps/desktop/src/renderer/domains/abilities/components/detail/AbilityDetailHeader.tsx
+  s_a43cb585378514::t_867b6075896a9c 44-49,54-56
+apps/desktop/src/renderer/domains/abilities/components/detail/AbilityDetailView.tsx
+  s_a43cb585378514::t_1daaa4b9f95518 16,140-141,157,159
+apps/desktop/src/renderer/domains/abilities/components/detail/McpToolsSection.test.tsx
+  s_a43cb585378514::t_2b8dbb8ac3605b 1-90
+apps/desktop/src/renderer/domains/abilities/components/detail/McpToolsSection.tsx
+  s_a43cb585378514::t_72b15342660544 1-68
+apps/desktop/src/renderer/domains/abilities/hooks/useMcpToolsModel.ts
+  s_a43cb585378514::t_f08d4e437f7d13 1-38
+apps/desktop/src/renderer/domains/activity-panel/builtins/background-tasks-tab.tsx
+  s_a43cb585378514::t_ab54f7a563954b 12,14,19-22,39,56
+apps/desktop/src/renderer/domains/activity-panel/builtins/batch-progress-tab.tsx
+  s_a43cb585378514::t_e832c56d62ef0f 1,4,8-11
+apps/desktop/src/renderer/domains/activity-panel/builtins/browser-tab.tsx
+  s_a43cb585378514::t_d02e215d1b633d 1-2,5,9-12
+apps/desktop/src/renderer/domains/activity-panel/builtins/debug-tab.tsx
+  s_a43cb585378514::t_1a1cb4b281dd59 1,5,9-12
+apps/desktop/src/renderer/domains/activity-panel/builtins/file-tab.tsx
+  s_a43cb585378514::t_3092b279e65f6e 1,3,7-10
+apps/desktop/src/renderer/domains/activity-panel/builtins/knowledge-history-tab.tsx
+  s_a43cb585378514::t_72893606d786e8 1,3,7-10
+apps/desktop/src/renderer/domains/activity-panel/builtins/plan-tab.test.tsx
+  s_a43cb585378514::t_9baab008b818a5 5,31,48-54,61-64
+apps/desktop/src/renderer/domains/activity-panel/builtins/plan-tab.tsx
+  s_a43cb585378514::t_dcef6071bdc05f 1,3,7-10
+apps/desktop/src/renderer/domains/activity-panel/builtins/ports-tab.tsx
+  s_a43cb585378514::t_4083b7f8bc5077 1,3,8-11
+apps/desktop/src/renderer/domains/activity-panel/builtins/todo-tab.tsx
+  s_a43cb585378514::t_1e781aab24ca67 3,5,10-13
+apps/desktop/src/renderer/domains/activity-panel/builtins/workflow-tab.tsx
+  s_a43cb585378514::t_bf03ed9bfbcb83 1,3,5,10-13
+apps/desktop/src/renderer/domains/activity-panel/components/BackgroundTasksTabPanel.tsx
+  s_a43cb585378514::t_8ffc90b1c54824 1
+apps/desktop/src/renderer/domains/activity-panel/components/BatchProgressTabPanel.tsx
+  s_a43cb585378514::t_b73d5328d5ea56 1
+apps/desktop/src/renderer/domains/activity-panel/components/BrowserPanel.tsx
+  s_a43cb585378514::t_7e3e16ac1b7eeb 1
+apps/desktop/src/renderer/domains/activity-panel/components/DebugTabPanel.tsx
+  s_a43cb585378514::t_3e353d5d06d85f 1
+apps/desktop/src/renderer/domains/activity-panel/components/KnowledgeHistoryPanel.tsx
+  s_a43cb585378514::t_ab0acefeae38a0 1
+apps/desktop/src/renderer/domains/activity-panel/components/PluginTabPicker.tsx
+  s_a43cb585378514::t_583aec65b8659a 2-3
+apps/desktop/src/renderer/domains/activity-panel/components/PortsTabPanel.tsx
+  s_a43cb585378514::t_c2979619ea8be5 1
+apps/desktop/src/renderer/domains/activity-panel/components/RequestHistorySubTab.tsx
+  s_a43cb585378514::t_dc9435c003a8c1 1
+apps/desktop/src/renderer/domains/activity-panel/components/TodoTabPanel.tsx
+  s_a43cb585378514::t_95cf573f60ac1b 1
+apps/desktop/src/renderer/domains/activity-panel/components/ToolCallsSubTab.tsx
+  s_a43cb585378514::t_47a766993a06f4 1
+apps/desktop/src/renderer/domains/activity-panel/components/WorkflowTabPanel.tsx
+  s_a43cb585378514::t_98cd41532fab06 2
+apps/desktop/src/renderer/domains/activity-panel/components/activity-panel/ActivityPanelFrame.tsx
+  s_a43cb585378514::t_de780b9dc91d33 2
+apps/desktop/src/renderer/domains/activity-panel/components/activity-panel/ActivityPanelView.tsx
+  s_a43cb585378514::t_7594a7f3e20fab 3
+apps/desktop/src/renderer/domains/activity-panel/components/activity-panel/ActivityTabSurface.test.ts
+  s_a43cb585378514::t_c07384bf152598 3,70,82-88,93,121-123
+apps/desktop/src/renderer/domains/activity-panel/components/activity-panel/ActivityTabSurface.tsx
+  s_a43cb585378514::t_e3dfeccbcddc8f 4-5,57-59
+apps/desktop/src/renderer/domains/activity-panel/components/file-tab/FileTabContent.tsx
+  s_a43cb585378514::t_5cb4d5eeae1ea6 3
+apps/desktop/src/renderer/domains/activity-panel/components/previews/CodePreview.tsx
+  s_a43cb585378514::t_5a736a6be2875c 2
+apps/desktop/src/renderer/domains/activity-panel/components/previews/HtmlPreview.tsx
+  s_a43cb585378514::t_22535dc901ae46 1
+apps/desktop/src/renderer/domains/activity-panel/components/previews/MarkdownPreview.tsx
+  s_a43cb585378514::t_e17abfb65f1cf4 3
+apps/desktop/src/renderer/domains/batch-tasks/components/batch-project-form/BatchProjectArtifactField.tsx
+  s_a43cb585378514::t_831f1c80bdcc1a 1
+apps/desktop/src/renderer/domains/batch-tasks/components/batch-project-form/BatchProjectFoldersField.tsx
+  s_a43cb585378514::t_08558f2bda657c 2
+apps/desktop/src/renderer/domains/batch-tasks/components/batch-project-form/BatchProjectNameField.tsx
+  s_a43cb585378514::t_5ecd8b77fee468 1
+apps/desktop/src/renderer/domains/batch-tasks/components/batch-project-form/BatchProjectNotificationField.tsx
+  s_a43cb585378514::t_aadc41e11ec979 1
+apps/desktop/src/renderer/domains/batch-tasks/components/batch-project-form/BatchProjectRuntimeFields.tsx
+  s_a43cb585378514::t_2f285e94360b8d 5
+apps/desktop/src/renderer/domains/command-menu/components/CommandMenu.tsx
+  s_a43cb585378514::t_28493e57e9d959 2
+apps/desktop/src/renderer/domains/conversation/components/ActionButtonBar.tsx
+  s_a43cb585378514::t_161552d3d008a5 1
+apps/desktop/src/renderer/domains/conversation/components/AppshotCard.tsx
+  s_a43cb585378514::t_4ea489fda534e6 1
+apps/desktop/src/renderer/domains/conversation/components/ContextRing.tsx
+  s_a43cb585378514::t_bae3c624199922 1-2
+apps/desktop/src/renderer/domains/conversation/components/GuideBadgeSwiper.tsx
+  s_a43cb585378514::t_3fe430e07d8c74 1
+apps/desktop/src/renderer/domains/conversation/components/MessageCards.tsx
+  s_a43cb585378514::t_a032771fee70b1 4
+apps/desktop/src/renderer/domains/conversation/components/ModelSelector.tsx
+  s_a43cb585378514::t_13217cc1d1686a 3
+apps/desktop/src/renderer/domains/conversation/components/SendButton.tsx
+  s_a43cb585378514::t_edc1e51847be28 1-2
+apps/desktop/src/renderer/domains/conversation/components/SkillPromptArea.tsx
+  s_a43cb585378514::t_61814785471823 2
+apps/desktop/src/renderer/domains/conversation/components/at-panel/AtPanelView.tsx
+  s_a43cb585378514::t_e1f981a7396763 7
+apps/desktop/src/renderer/domains/conversation/components/blocks/CompactionBlock.tsx
+  s_a43cb585378514::t_a9b9d6190dce67 1-39
+apps/desktop/src/renderer/domains/conversation/components/blocks/ErrorBlock.tsx
+  s_a43cb585378514::t_73ad4880908cbf 2
+apps/desktop/src/renderer/domains/conversation/components/blocks/TextBlockView.streaming.test.tsx
+  s_a43cb585378514::t_b59d1ee00c656c 147-173
+apps/desktop/src/renderer/domains/conversation/components/blocks/ThinkingBlock.tsx
+  s_a43cb585378514::t_1653cd1394eea6 1
+apps/desktop/src/renderer/domains/conversation/components/blocks/ToolCallBlock.tsx
+  s_a43cb585378514::t_7f5ce88a81cafb 2
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/AskUserQuestionView.tsx
+  s_a43cb585378514::t_795c038dc867fc 1-2
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/BashTerminalCard.tsx
+  s_a43cb585378514::t_b70d2ff2a1aac8 1
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/EditDiffView.tsx
+  s_a43cb585378514::t_af3c6ff81591bf 1-2
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/KnowledgeToolViews.tsx
+  s_a43cb585378514::t_b73f150394f173 1
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/ReadImageView.tsx
+  s_a43cb585378514::t_e29cf893986d41 1
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/WriteContentView.tsx
+  s_a43cb585378514::t_3b583f649f5a54 1
+apps/desktop/src/renderer/domains/conversation/components/blocks/tool-views/shared/CopyIconButton.tsx
+  s_a43cb585378514::t_e396e7f3f4ab5b 1-2
+apps/desktop/src/renderer/domains/conversation/components/command-panel/CommandPanelView.tsx
+  s_a43cb585378514::t_ae954453f7a976 1-2
+apps/desktop/src/renderer/domains/conversation/components/command-panel/SkillList.tsx
+  s_a43cb585378514::t_6e789bfe8a64c6 2
+apps/desktop/src/renderer/domains/conversation/components/command-panel/SkillPickerPanel.tsx
+  s_a43cb585378514::t_d81a41f6b2e40e 2
+apps/desktop/src/renderer/domains/conversation/components/execution-mode-selector/ExecutionModeSelectorView.tsx
+  s_a43cb585378514::t_1a13dea3fcb8d7 5
+apps/desktop/src/renderer/domains/conversation/components/input-bar/ActiveActionCapsules.tsx
+  s_a43cb585378514::t_114eb7d34973eb 1
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarBackground.tsx
+  s_a43cb585378514::t_746919f1bf2d9f 2
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarMention.tsx
+  s_a43cb585378514::t_5069de563f716f 3
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarTodoStatus.tsx
+  s_a43cb585378514::t_278ba196fbcf79 2
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarToolbarActions.tsx
+  s_a43cb585378514::t_6e3d6930b25a39 1
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarToolbarButton.tsx
+  s_a43cb585378514::t_f6a851aff9382d 2
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarView.tsx
+  s_a43cb585378514::t_dcb50399c4730d 4-8
+apps/desktop/src/renderer/domains/conversation/components/input-bar/SandboxPermissionCard.tsx
+  s_a43cb585378514::t_dfa2e132b06891 6
+apps/desktop/src/renderer/domains/conversation/components/input-bar/editor/nodes/SkillTokenChip.tsx
+  s_a43cb585378514::t_2a2384c7ee7ec0 2
+apps/desktop/src/renderer/domains/conversation/components/input-bar/editor/nodes/TokenChip.tsx
+  s_a43cb585378514::t_2a1c520807d145 1
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.tsx
+  s_a43cb585378514::t_715d8ee129ce09 4
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessage.waiting.test.tsx
+  s_a43cb585378514::t_c52a53df0a0c3c 74
+apps/desktop/src/renderer/domains/conversation/components/message-list/AssistantMessageView.test.tsx
+  s_a43cb585378514::t_846ac27f194b12 54-107
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageActions.tsx
+  s_a43cb585378514::t_22a3106f1e5749 1
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageBlockSegments.tsx
+  s_a43cb585378514::t_8f3c05c31ae940 1-2,5,176-178
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageItem.tsx
+  s_a43cb585378514::t_cd6541b8ed0063 1-2
+apps/desktop/src/renderer/domains/conversation/components/message-list/ReadonlyUserMessage.tsx
+  s_a43cb585378514::t_5abedcc4d9b74b 2-3
+apps/desktop/src/renderer/domains/conversation/components/message-list/RenderingScopes.test.tsx
+  s_a43cb585378514::t_546583f47ab537 146-147
+apps/desktop/src/renderer/domains/conversation/components/message-list/TeamMemberReplyCard.test.tsx
+  s_a43cb585378514::t_ca5a32b5c2b7e4 31
+apps/desktop/src/renderer/domains/conversation/components/message-list/TeamMemberReplyCard.tsx
+  s_a43cb585378514::t_f11f617af6e83e 2
+apps/desktop/src/renderer/domains/conversation/components/message-list/TimelineEventViews.tsx
+  s_a43cb585378514::t_c0011b3cb2bb47 1
+apps/desktop/src/renderer/domains/conversation/components/message-list/UserMessage.tsx
+  s_a43cb585378514::t_dabb38c1304ed7 5-8
+apps/desktop/src/renderer/domains/conversation/components/message-list/WorkSegmentRenderer.test.tsx
+  s_a43cb585378514::t_8166f75fd48eee 24,243-246
+apps/desktop/src/renderer/domains/conversation/components/message-list/WorkSegmentRenderer.tsx
+  s_a43cb585378514::t_bb1da6ac69b3ca 4-6,10,298-300
+apps/desktop/src/renderer/domains/conversation/components/message-list/message-height-estimates.ts
+  s_a43cb585378514::t_52ba00d9894137 92-94,177-178
+apps/desktop/src/renderer/domains/conversation/components/message-list/messageBlockModel.test.ts
+  s_a43cb585378514::t_a0702983ae4f4b 143-151
+apps/desktop/src/renderer/domains/conversation/components/message-list/messageBlockModel.ts
+  s_a43cb585378514::t_df360fde3e8764 46,105-109,117,145
+apps/desktop/src/renderer/domains/conversation/components/message-list/progressGroupModel.test.ts
+  s_a43cb585378514::t_60507f0e4982ae 155-170
+apps/desktop/src/renderer/domains/conversation/components/message-list/progressGroupModel.ts
+  s_a43cb585378514::t_526f699c03f85a 163-167,169
+apps/desktop/src/renderer/domains/conversation/components/message-list/types.ts
+  s_a43cb585378514::t_895012b8dc1fb0 38-39
+apps/desktop/src/renderer/domains/conversation/components/new-session/NewSessionAgentSelector.tsx
+  s_a43cb585378514::t_1cd21528df63e1 5-7
+apps/desktop/src/renderer/domains/conversation/components/new-session/NewSessionBackground.test.tsx
+  s_a43cb585378514::t_2f88ea93440a55 11
+apps/desktop/src/renderer/domains/conversation/components/new-session/NewSessionHeaderActions.tsx
+  s_a43cb585378514::t_c5b0d45df504d6 1
+apps/desktop/src/renderer/domains/conversation/components/new-session/NewSessionHero.tsx
+  s_a43cb585378514::t_6c9f8b7761f9f5 11
+apps/desktop/src/renderer/domains/conversation/components/new-session/NewSessionPageView.tsx
+  s_a43cb585378514::t_148fb2bb972082 7
+apps/desktop/src/renderer/domains/conversation/components/new-session/project-selector/NewSessionProjectSelector.tsx
+  s_a43cb585378514::t_568da36838a254 4
+apps/desktop/src/renderer/domains/conversation/components/plan-review-panel/PlanReviewPanelView.tsx
+  s_a43cb585378514::t_a0752e0ea904b7 2-3
+apps/desktop/src/renderer/domains/conversation/components/question-panel/QuestionPanelView.tsx
+  s_a43cb585378514::t_12571f32f13e52 1,3
+apps/desktop/src/renderer/domains/conversation/connectors/team/TeamModelSelector.tsx
+  s_a43cb585378514::t_3a02b69162c236 8-9,11
+apps/desktop/src/renderer/domains/conversation/connectors/team/teamChatModel.ts
+  s_a43cb585378514::t_de65e1f6952f94 1053
+apps/desktop/src/renderer/domains/conversation/conversation-view/agent-message.tsx
+  s_a43cb585378514::t_7e088704f036c6 6-10,99,108-109,317,320-329,341-344,359-406
+apps/desktop/src/renderer/domains/conversation/conversation-view/composition.test.tsx
+  s_a43cb585378514::t_9e43f94c0dc9bf 21,240-241
+apps/desktop/src/renderer/domains/conversation/conversation-view/parts.test.tsx
+  s_a43cb585378514::t_d5af89768cdd32 70,421-422
+apps/desktop/src/renderer/domains/conversation/conversation-view/parts.tsx
+  s_a43cb585378514::t_bdcdd6a39c0f53 12-13
+apps/desktop/src/renderer/domains/conversation/conversation-view/user-message.tsx
+  s_a43cb585378514::t_b93807238e81a3 2-4
+apps/desktop/src/renderer/domains/conversation/conversation-view/viewport-frame.tsx
+  s_a43cb585378514::t_6c0cf8129408dd 8-9
+apps/desktop/src/renderer/domains/conversation/hooks/session-event-routes.test.ts
+  s_a43cb585378514::t_94d09c0a379bd6 19-23
+apps/desktop/src/renderer/domains/conversation/hooks/session-event-routes.ts
+  s_a43cb585378514::t_f0810b9c8904f1 9,12,35-36
+apps/desktop/src/renderer/domains/conversation/hooks/useAssistantMessageModel.ts
+  s_a43cb585378514::t_2f2bdfd1c8fcf6 67-81,140-141
+apps/desktop/src/renderer/domains/conversation/hooks/useContextRingModel.ts
+  s_a43cb585378514::t_dfb3d245aafb47 2
+apps/desktop/src/renderer/domains/conversation/hooks/useModelSelectorModel.ts
+  s_a43cb585378514::t_27570336450675 12
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionEventController.ts
+  s_a43cb585378514::t_7c2b879a0d205b 185-188
+apps/desktop/src/renderer/domains/conversation/services/chat-service-compaction.test.ts
+  s_a43cb585378514::t_d871d223a0af3c 1-97
+apps/desktop/src/renderer/domains/conversation/services/chat-service.ts
+  s_a43cb585378514::t_e04f5af778c3a9 12,592-594,599-600,605,633-651,888-889
+apps/desktop/src/renderer/domains/conversation/services/conversation-feed-history.ts
+  s_a43cb585378514::t_a88aecf37c56b8 1-6,104,141-156
+apps/desktop/src/renderer/domains/conversation/services/conversation-feed.test.ts
+  s_a43cb585378514::t_d8828cfd339a57 125-146,171-173,432-479,527-529,531-533,820-953
+apps/desktop/src/renderer/domains/conversation/services/conversation-feed.ts
+  s_a43cb585378514::t_46ae4b71838168 8-13,277-279,329-330,334,398-440,551-560,572-576
+apps/desktop/src/renderer/domains/conversation/session-conversation/session-extensions.tsx
+  s_a43cb585378514::t_03e188de7b9e11 115-118,121
+apps/desktop/src/renderer/domains/file-explorer/components/ConfirmDeleteDialog.tsx
+  s_a43cb585378514::t_12470ce47c2d61 2
+apps/desktop/src/renderer/domains/file-explorer/components/FileContextMenu.tsx
+  s_a43cb585378514::t_f419bf3d2ac382 3
+apps/desktop/src/renderer/domains/file-explorer/components/FileExplorerSettings.tsx
+  s_a43cb585378514::t_ba33364cefadd7 6
+apps/desktop/src/renderer/domains/file-explorer/components/FileTree.tsx
+  s_a43cb585378514::t_35dd0aaea5c68e 7
+apps/desktop/src/renderer/domains/file-explorer/components/FilesPanel.tsx
+  s_a43cb585378514::t_24f497a2da3bbe 1
+apps/desktop/src/renderer/domains/file-explorer/hooks/useFilesPanelModel.tsx
+  s_a43cb585378514::t_00f328614477a1 39
+apps/desktop/src/renderer/domains/file-explorer/services/rasterize-app-file-icon.ts
+  s_a43cb585378514::t_b3fd056b12df0e 1
+apps/desktop/src/renderer/domains/file-preview/components/EditableTextFileView.tsx
+  s_a43cb585378514::t_32915b841b18c5 3-5
+apps/desktop/src/renderer/domains/file-preview/components/FilePreviewDialogView.tsx
+  s_a43cb585378514::t_cf5cefcbb1d9f8 2
+apps/desktop/src/renderer/domains/file-preview/components/FilePreviewView.tsx
+  s_a43cb585378514::t_cec416fa62bb39 2
+apps/desktop/src/renderer/domains/file-preview/components/LightboxImage.tsx
+  s_a43cb585378514::t_0ce5fed7836195 2
+apps/desktop/src/renderer/domains/file-preview/components/PluginFilePreview.tsx
+  s_a43cb585378514::t_828f69c2946a58 3
+apps/desktop/src/renderer/domains/file-preview/components/PreviewContent.tsx
+  s_a43cb585378514::t_4b16ef166d6fcd 2-4
+apps/desktop/src/renderer/domains/file-preview/components/PreviewErrorBoundary.tsx
+  s_a43cb585378514::t_21bcda83152726 2
+apps/desktop/src/renderer/domains/file-preview/hooks/useFilePreviewKeyboardScope.ts
+  s_a43cb585378514::t_997a1657669763 2-3
+apps/desktop/src/renderer/domains/file-preview/hooks/useLightboxImageModel.ts
+  s_a43cb585378514::t_425d0a04405349 1-2
+apps/desktop/src/renderer/domains/file-preview/hooks/usePreviewBodyModel.tsx
+  s_a43cb585378514::t_b51279616eaafe 3
+apps/desktop/src/renderer/domains/file-preview/preview-utils.ts
+  s_a43cb585378514::t_9900d8f74c319b 2
+apps/desktop/src/renderer/domains/knowledge-base/components/KnowledgeDropOverlayView.tsx
+  s_a43cb585378514::t_ec761950192ad6 2
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-agent-context.ts
+  s_a43cb585378514::t_88e6fb2623f83f 411
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-models-api.test.ts
+  s_a43cb585378514::t_9858bf229ef2dc 19,22,27-29,38-40
+apps/desktop/src/renderer/domains/plugins/runtime/plugin-models-api.ts
+  s_a43cb585378514::t_d53f088d0a80f0 11-32
+apps/desktop/src/renderer/domains/project/components/BatchQueueStatus.tsx
+  s_a43cb585378514::t_c0bdc4b39c4246 2
+apps/desktop/src/renderer/domains/project/components/ConversationTagEditorDialog.tsx
+  s_a43cb585378514::t_99e8f5aed436b4 1
+apps/desktop/src/renderer/domains/project/components/ProjectContextMenu.tsx
+  s_a43cb585378514::t_796ca29ef8080f 2
+apps/desktop/src/renderer/domains/project/components/ProjectDetailPage.tsx
+  s_a43cb585378514::t_e6d1d5c509355e 9,24-25,69-77
+apps/desktop/src/renderer/domains/project/components/SessionContextMenu.tsx
+  s_a43cb585378514::t_00902ff2137127 2
+apps/desktop/src/renderer/domains/project/components/orphan-remote/OrphanRemoteProjectGuard.tsx
+  s_a43cb585378514::t_52ee025a26a50a 2
+apps/desktop/src/renderer/domains/project/components/sidebar/DefaultSidebar.tsx
+  s_a43cb585378514::t_a7511b64840fd1 1
+apps/desktop/src/renderer/domains/project/components/sidebar/SidebarCommandMenuTrigger.tsx
+  s_a43cb585378514::t_ceaf8c9fff98fe 4
+apps/desktop/src/renderer/domains/project/components/sidebar/SidebarProjectsSection.tsx
+  s_a43cb585378514::t_b1b3d7c013c51d 2
+apps/desktop/src/renderer/domains/project/components/sidebar/SidebarTopBar.tsx
+  s_a43cb585378514::t_2eb4f0da0961d6 1
+apps/desktop/src/renderer/domains/project/components/sidebar/add-project/AddProjectMenuPopover.tsx
+  s_a43cb585378514::t_5a8b534795ad7c 1
+apps/desktop/src/renderer/domains/project/components/sidebar/add-project/AddProjectMenuTrigger.tsx
+  s_a43cb585378514::t_615ee8b37bdb2c 1
+apps/desktop/src/renderer/domains/project/components/sidebar/add-project/RemoteProjectPickerDialog.tsx
+  s_a43cb585378514::t_3bce02e13c346d 1-2
+apps/desktop/src/renderer/domains/project/components/sidebar/filters/SidebarFilterSelectView.tsx
+  s_a43cb585378514::t_12e6d47ca86cd9 1-2
+apps/desktop/src/renderer/domains/project/components/sidebar/message-center/MessageCenterDialog.tsx
+  s_a43cb585378514::t_750b68426579c4 2
+apps/desktop/src/renderer/domains/project/components/sidebar/message-center/MessageCenterEmptyState.tsx
+  s_a43cb585378514::t_1ed1e2c789b04d 2
+apps/desktop/src/renderer/domains/project/components/sidebar/message-center/MessageCenterTabs.tsx
+  s_a43cb585378514::t_c298d955c2f292 1-2
+apps/desktop/src/renderer/domains/project/components/sidebar/message-center/MessageCenterTrigger.tsx
+  s_a43cb585378514::t_6fc888c3ebdf5f 1
+apps/desktop/src/renderer/domains/project/components/sidebar/message-center/NotificationMessageListView.tsx
+  s_a43cb585378514::t_7f78f780cb20ea 1
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/ProjectGroup.tsx
+  s_a43cb585378514::t_23610947f64744 2-3
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultConversationSection.tsx
+  s_a43cb585378514::t_56e140d000e89c 3
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/DefaultSessionList.tsx
+  s_a43cb585378514::t_b4679d42860af5 2-3
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/ProjectsPanel.tsx
+  s_a43cb585378514::t_461712e3baee98 1-2
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/ProjectsPanelEmptyState.tsx
+  s_a43cb585378514::t_562e3786096f24 1
+apps/desktop/src/renderer/domains/project/components/sidebar/projects/panel/ProjectsPanelMenus.tsx
+  s_a43cb585378514::t_f83f769e92de96 1
+apps/desktop/src/renderer/domains/project/components/sidebar/settings-menu/SettingsMenuAccountSection.tsx
+  s_a43cb585378514::t_a114b8aee25534 1
+apps/desktop/src/renderer/domains/project/components/sidebar/settings-menu/SettingsMenuDivider.tsx
+  s_a43cb585378514::t_8f66ae6dd633e8 1
+apps/desktop/src/renderer/domains/project/components/sidebar/settings-menu/SettingsMenuPopover.tsx
+  s_a43cb585378514::t_d9d253de5732da 3-4
+apps/desktop/src/renderer/domains/project/components/sidebar/settings-menu/SettingsMenuQuotaSection.tsx
+  s_a43cb585378514::t_b8afa2ef944ce8 1
+apps/desktop/src/renderer/domains/project/components/sidebar/settings-menu/SettingsMenuThemeSection.tsx
+  s_a43cb585378514::t_d2a7fd9ce5c9da 1
+apps/desktop/src/renderer/domains/project/components/sidebar/settings-menu/SettingsMenuTrigger.tsx
+  s_a43cb585378514::t_99610f22259bad 4
+apps/desktop/src/renderer/domains/project/components/sidebar/useDeferredSidebarProjects.ts
+  s_a43cb585378514::t_fc0ba8064067a9 1
+apps/desktop/src/renderer/domains/project/hooks/useProjectDetailPageModel.ts
+  s_a43cb585378514::t_8c2c9ef7f1689d 10,12-17,23,25,44,55,59,62,65-66,68-70,73-100,103,107,111,115-122,145-147,153,155-169,188-213,253-259,284,288-299,308-317
+apps/desktop/src/renderer/domains/project/hooks/useProjectGroupModel.ts
+  s_a43cb585378514::t_f647a0d38f4f7a 16
+apps/desktop/src/renderer/domains/project/hooks/useProjectInstruction.test.tsx
+  s_a43cb585378514::t_16c8700dd02fec 1-56
+apps/desktop/src/renderer/domains/scheduler/components/AutomationFieldRows.tsx
+  s_a43cb585378514::t_503ed766d8b327 1-2
+apps/desktop/src/renderer/domains/scheduler/components/SchedulerTaskFieldsView.tsx
+  s_a43cb585378514::t_dadba4cdcdb315 3-4
+apps/desktop/src/renderer/domains/scheduler/components/schedule-picker/ScheduleEditorView.tsx
+  s_a43cb585378514::t_c3d194f654299b 1-2
+apps/desktop/src/renderer/domains/settings/components/ManualMcpDialog.tsx
+  s_a43cb585378514::t_af0b9066d18486 9,43,48-79,81-82,97,99,102-107,114-116,120-121,123,125-134
+apps/desktop/src/renderer/domains/settings/components/McpEditDialog.tsx
+  s_a43cb585378514::t_1559dbc8a80ddb 19-25,29
+apps/desktop/src/renderer/domains/settings/components/McpServerForm.test.tsx
+  s_a43cb585378514::t_e667ebb8fd4457 1-61
+apps/desktop/src/renderer/domains/settings/components/McpServerForm.tsx
+  s_a43cb585378514::t_2a2328d18d9424 3-5,7,27,30-36,39-45,49,65-84,86,89-90,92-93,101-102,105,107,111,115,119,125-147,149-150,165,171,191-194,196,199-200,202-204,206,209-210,212,227-228,235-237,241-242,244,258-290,303-304,311
+apps/desktop/src/renderer/domains/settings/components/ModelTransportSettingsSection.test.tsx
+  s_a43cb585378514::t_1cfae7ade77bc2 1-77
+apps/desktop/src/renderer/domains/settings/components/ModelTransportSettingsSection.tsx
+  s_a43cb585378514::t_b4413a4003fdd4 1-24
+apps/desktop/src/renderer/domains/settings/components/ModelsFetchedModelsDrawer.test.tsx
+  s_a43cb585378514::t_597c681b0c8b65 1-158
+apps/desktop/src/renderer/domains/settings/components/ModelsFetchedModelsDrawer.tsx
+  s_a43cb585378514::t_631aab90cf365d 1-97
+apps/desktop/src/renderer/domains/settings/components/ModelsModelDialog.test.tsx
+  s_a43cb585378514::t_f1cae0ebefd348 1-109
+apps/desktop/src/renderer/domains/settings/components/ModelsModelDialog.tsx
+  s_a43cb585378514::t_4f3bf756c1a26a 1-204
+apps/desktop/src/renderer/domains/settings/components/ModelsModelForm.test.tsx
+  s_a43cb585378514::t_28de0d8c964ae2 1-95
+apps/desktop/src/renderer/domains/settings/components/ModelsModelForm.tsx
+  s_a43cb585378514::t_24f505e0ffb715 2,9,17,37-83,86-117,119-120,124-140,149-153,156-177,183,186-285
+apps/desktop/src/renderer/domains/settings/components/ModelsProviderDialog.tsx
+  s_a43cb585378514::t_b98b2b39bb04a9 1-7,9,12-16,19-31,34-63
+apps/desktop/src/renderer/domains/settings/components/ModelsProviderRow.test.tsx
+  s_a43cb585378514::t_7b18eb41bf881a 1-76
+apps/desktop/src/renderer/domains/settings/components/ModelsProviderRow.tsx
+  s_a43cb585378514::t_05166254a71be2 1-2,5-6,9-16,26,32-33,35-40,42-49,53-54,58,61,63-69,71-72,74,78-91,99-101,113-114,121-128,130-135,137-214,216,218-227,229-235,242,245,255-273,276
+apps/desktop/src/renderer/domains/settings/components/ModelsProvidersSection.tsx
+  s_a43cb585378514::t_355afde6aed100 4-6,14-32
+apps/desktop/src/renderer/domains/settings/components/ModelsSettings.tsx
+  s_a43cb585378514::t_5af92814eca5a6 2,8-9
+apps/desktop/src/renderer/domains/settings/components/ModelsSettingsView.test.tsx
+  s_a43cb585378514::t_a1b3018cdb6b0c 1-39
+apps/desktop/src/renderer/domains/settings/components/ModelsSettingsView.tsx
+  s_a43cb585378514::t_67dfcadd4a7dfb 4,7,10-16,37
+apps/desktop/src/renderer/domains/settings/components/RemotePairingSettings.test.tsx
+  s_a43cb585378514::t_7bff2b85f02c30 365-384
+apps/desktop/src/renderer/domains/settings/components/ShortcutRecorder.tsx
+  s_a43cb585378514::t_a06012a607197e 1
+apps/desktop/src/renderer/domains/settings/components/fetched-models.test.ts
+  s_a43cb585378514::t_774a24149a012c 1-51
+apps/desktop/src/renderer/domains/settings/components/fetched-models.ts
+  s_a43cb585378514::t_7adad69b4cfa99 1-38
+apps/desktop/src/renderer/domains/settings/components/mcp-authorization-header.ts
+  s_a43cb585378514::t_53dc81d3fbbee2 1-19
+apps/desktop/src/renderer/domains/settings/components/reasoning-levels.test.ts
+  s_a43cb585378514::t_b97ce34ae10f19 1-32
+apps/desktop/src/renderer/domains/settings/components/reasoning-levels.ts
+  s_a43cb585378514::t_1006c5fe7bc961 1-21
+apps/desktop/src/renderer/domains/settings/components/useModelTransportSettingsModel.ts
+  s_a43cb585378514::t_8ae56ffde82b20 1-89
+apps/desktop/src/renderer/domains/settings/components/useModelsSettingsModel.test.tsx
+  s_a43cb585378514::t_79aebd209f43ac 2,19-36,38-69,72-87,90,92-93,95-97,99-107,109-126,129-130,133-140,143-167
+apps/desktop/src/renderer/domains/settings/components/useModelsSettingsModel.ts
+  s_a43cb585378514::t_6271a2887a954b 1-2,8,40-52,55-56,58-59,74,97-100,104,107-108,273-292,434-439,442-449,452-453,455-456,458-490,498-502,537,559,580-583,586,591,593-596,598-610,672-689
+apps/desktop/src/renderer/domains/settings/registry.ts
+  s_a43cb585378514::t_87953e131ca634 117
+apps/desktop/src/renderer/domains/setup-wizard/components/SetupWizardView.tsx
+  s_a43cb585378514::t_d9546b85b875aa 2
+apps/desktop/src/renderer/domains/setup-wizard/components/steps/PermissionsStep.tsx
+  s_a43cb585378514::t_9c2f7d80eff371 3
+apps/desktop/src/renderer/main.tsx
+  s_a43cb585378514::t_b27081603c7480 3,50
+apps/desktop/src/renderer/public-ui-exports.test.ts
+  s_a43cb585378514::t_6f6efa399f0e50 1-84
+apps/desktop/src/renderer/remote-desktop-host.test.ts
+  s_a43cb585378514::t_47537f8e23a8b8 1-105
+apps/desktop/src/renderer/remote-desktop-host.ts
+  s_a43cb585378514::t_9fa206f1b0bab4 2-8,34,38-41,43-53,127-129,201
+apps/desktop/src/renderer/root-layout/InitialRoutePaint.tsx
+  s_a43cb585378514::t_1827b878eadb93 1-24
+apps/desktop/src/renderer/root-layout/RootGlobalOverlays.tsx
+  s_a43cb585378514::t_6f9c60afc8ce23 1,4-5,7-9,11-12,15,17-22
+apps/desktop/src/renderer/root-layout/RootLayoutView.tsx
+  s_a43cb585378514::t_e086a38e1d86e9 4-9,11,16,32-38,41-43,73,127,135
+apps/desktop/src/renderer/root-layout/RootOverlayViews.tsx
+  s_a43cb585378514::t_57af6b053b3978 1-76
+apps/desktop/src/renderer/root-layout/app-background/AppBackground.tsx
+  s_a43cb585378514::t_c6b2587a8e0d6a 2
+apps/desktop/src/renderer/root-layout/chat-route-pending.test.ts
+  s_a43cb585378514::t_cc90375c6d62a5 18-21
+apps/desktop/src/renderer/root-layout/chat-route-pending.ts
+  s_a43cb585378514::t_96409f24cf07a3 11,17
+apps/desktop/src/renderer/root-layout/initial-route-paint-state.ts
+  s_a43cb585378514::t_a9f28f0cc72288 1-4
+apps/desktop/src/renderer/root-layout/lazy-route-page.test.tsx
+  s_a43cb585378514::t_59c20c60814a0f 1-78
+apps/desktop/src/renderer/root-layout/lazy-route-page.tsx
+  s_a43cb585378514::t_4413c019581d2e 1-28
+apps/desktop/src/renderer/root-layout/preload-startup-page.test.ts
+  s_a43cb585378514::t_b89e8d94217ea9 1-43
+apps/desktop/src/renderer/root-layout/preload-startup-page.ts
+  s_a43cb585378514::t_c8385d229e7fa0 1-16
+apps/desktop/src/renderer/root-layout/useIdleRoutePrefetch.ts
+  s_a43cb585378514::t_c1bbbfb464aca9 9-10
+apps/desktop/src/renderer/route-page-loaders.ts
+  s_a43cb585378514::t_01fd5965dbc996 1,6-9
+apps/desktop/src/renderer/router.tsx
+  s_a43cb585378514::t_246a69ee9c5eb2 2-5,12,20,26-32,35-39,42-44,47-48,51-52,308
+apps/desktop/src/renderer/shared/action-approval/GenericActionApprovalView.tsx
+  s_a43cb585378514::t_c36b52b325a374 6
+apps/desktop/src/renderer/shared/action-approval/appearance/AppearanceActionPicker.tsx
+  s_a43cb585378514::t_20850201af9f05 3-4
+apps/desktop/src/renderer/shared/action-approval/appearance/AppearanceApprovalDrawerView.tsx
+  s_a43cb585378514::t_fd0fca485c8d64 5
+apps/desktop/src/renderer/shared/action-approval/appearance/AppearancePickerApprovalView.tsx
+  s_a43cb585378514::t_7eac9838b687e3 2
+apps/desktop/src/renderer/shared/action-approval/appearance/ThemeChangeApprovalView.tsx
+  s_a43cb585378514::t_296f245c9513b8 2
+apps/desktop/src/renderer/shared/action-approval/batch-tasks/BatchTasksApprovalFrameView.tsx
+  s_a43cb585378514::t_7be2d32ec13c3b 5
+apps/desktop/src/renderer/shared/action-approval/batch-tasks/BatchTasksExecutionApprovalView.tsx
+  s_a43cb585378514::t_1efe55cc1f7fea 2
+apps/desktop/src/renderer/shared/action-approval/batch-tasks/BatchTasksProjectApprovalView.tsx
+  s_a43cb585378514::t_af8907f262afdd 3-4
+apps/desktop/src/renderer/shared/action-approval/batch-tasks/BatchTasksTaskApprovalView.tsx
+  s_a43cb585378514::t_1c6d8b8277984a 2-3
+apps/desktop/src/renderer/shared/action-approval/manage/ApprovalParts.tsx
+  s_a43cb585378514::t_5ebc5eef6a84b2 1-2,5
+apps/desktop/src/renderer/shared/action-approval/manage/ManageActionApprovalFrameView.tsx
+  s_a43cb585378514::t_866818c217c31b 5
+apps/desktop/src/renderer/shared/action-approval/manage/agent/AgentSetExperimentalApproval.tsx
+  s_a43cb585378514::t_4ffdf363273bea 2-3
+apps/desktop/src/renderer/shared/action-approval/manage/general/GeneralSetExecutionModeApproval.tsx
+  s_a43cb585378514::t_bb0dfe0f877ea8 2-3
+apps/desktop/src/renderer/shared/action-approval/manage/knowledge/KnowledgeSetProcessingApproval.tsx
+  s_a43cb585378514::t_61f0f3cf550a1e 2,4,7
+apps/desktop/src/renderer/shared/action-approval/manage/shortcuts/ShortcutsSetBindingApproval.tsx
+  s_a43cb585378514::t_96b61502120f7d 2
+apps/desktop/src/renderer/shared/action-approval/manage/shortcuts/ShortcutsSetQuickPanelBehaviorApproval.tsx
+  s_a43cb585378514::t_b20c9ef92a39d8 1
+apps/desktop/src/renderer/shared/action-approval/manage/shortcuts/ShortcutsSetQuickPanelTriggerApproval.tsx
+  s_a43cb585378514::t_ab95d0ee948954 1
+apps/desktop/src/renderer/shared/action-approval/manage/webhook/WebhookDeleteApprovalView.tsx
+  s_a43cb585378514::t_4f0442bce56d4e 1
+apps/desktop/src/renderer/shared/action-approval/manage/webhook/WebhookTestApprovalView.tsx
+  s_a43cb585378514::t_bc790df82055ea 1
+apps/desktop/src/renderer/shared/action-approval/navigation/NavigationOpenApprovalView.tsx
+  s_a43cb585378514::t_9a48caca9e3e81 6
+apps/desktop/src/renderer/shared/action-approval/scheduler/SchedulerActionApprovalDialogView.tsx
+  s_a43cb585378514::t_adf916aadac809 6
+apps/desktop/src/renderer/shared/action-approval/scheduler/SchedulerEditApprovalDrawerView.tsx
+  s_a43cb585378514::t_fdb394b877ce8c 1-2
+apps/desktop/src/renderer/shared/action-approval/scheduler/SchedulerUpdateApprovalView.tsx
+  s_a43cb585378514::t_9aa7b5d135d95e 2
+apps/desktop/src/renderer/shared/app-shell/page-header/PageHeader.tsx
+  s_a43cb585378514::t_78ebc3e80ebdc7 3,7
+apps/desktop/src/renderer/shared/app-shell/page-header/PageHeaderActionGroup.tsx
+  s_a43cb585378514::t_6dfecc3b5c242e 2
+apps/desktop/src/renderer/shared/app-shell/page-header/PageHeaderContent.tsx
+  s_a43cb585378514::t_5addabc988029e 2
+apps/desktop/src/renderer/shared/app-shell/page-header/PageHeaderFrame.tsx
+  s_a43cb585378514::t_1b5512278d2381 2
+apps/desktop/src/renderer/shared/app-shell/page-header/PageHeaderSidebarTrigger.tsx
+  s_a43cb585378514::t_b6d734c52bbf0a 1
+apps/desktop/src/renderer/shared/app-shell/page-header/PageHeaderTitle.tsx
+  s_a43cb585378514::t_e53b4617d05be5 2
+apps/desktop/src/renderer/shared/app-shell/page-header/PageHeaderWindowActions.tsx
+  s_a43cb585378514::t_48ba2c81079929 2
+apps/desktop/src/renderer/shared/app-shell/session-open-context.tsx
+  s_a43cb585378514::t_32680531abc74a 1-18
+apps/desktop/src/renderer/shared/app-shell/window-controls/WindowControlButton.tsx
+  s_a43cb585378514::t_bc033a587fd39f 1
+apps/desktop/src/renderer/shared/app-shell/window-controls/WindowControls.tsx
+  s_a43cb585378514::t_ea4763fdb867a3 3,6
+apps/desktop/src/renderer/shared/components/AfterPaint.test.tsx
+  s_a43cb585378514::t_c344d0affbbd42 1-109
+apps/desktop/src/renderer/shared/components/AfterPaint.tsx
+  s_a43cb585378514::t_45d223c82b2f16 1-17
+apps/desktop/src/renderer/shared/components/BotAvatar.tsx
+  s_a43cb585378514::t_c9474ee65349f1 1
+apps/desktop/src/renderer/shared/components/DrawerCard.tsx
+  s_a43cb585378514::t_c5a0da740ed844 2
+apps/desktop/src/renderer/shared/components/ModelSelect/ModelSelect.tsx
+  s_a43cb585378514::t_aa4e756b33f1b3 1,4-5
+apps/desktop/src/renderer/shared/components/ModelSelect/MultiplierTag.tsx
+  s_a43cb585378514::t_72cc1c5f922779 2,5
+apps/desktop/src/renderer/shared/components/NewProjectDialog.tsx
+  s_a43cb585378514::t_7f1287985e7d6e 1
+apps/desktop/src/renderer/shared/components/QueueCard.tsx
+  s_a43cb585378514::t_1f7f34c8ea4e3c 1
+apps/desktop/src/renderer/shared/components/RendererMarkdownContent.tsx
+  s_a43cb585378514::t_eb8f27503e808a 2
+apps/desktop/src/renderer/shared/components/RouteErrorPage.tsx
+  s_a43cb585378514::t_0e8d8f782140f3 2
+apps/desktop/src/renderer/shared/components/SshPromptDialog.tsx
+  s_a43cb585378514::t_9e8a6abd5151fb 3
+apps/desktop/src/renderer/shared/components/UpdateRestartDialogView.tsx
+  s_a43cb585378514::t_3eed3d2b60cf40 5
+apps/desktop/src/renderer/shared/components/message-feed/MessageFeedNavigationRecipe.tsx
+  s_a43cb585378514::t_be6b2fdf5833c2 2
+apps/desktop/src/renderer/shared/components/ripple/RippleTexture.tsx
+  s_a43cb585378514::t_1ac0e44879f531 1
+apps/desktop/src/renderer/shared/components/ui/ConfirmDialogView.tsx
+  s_a43cb585378514::t_d262d5fac9b75b 6
+apps/desktop/src/renderer/shared/components/ui/Toaster.tsx
+  s_a43cb585378514::t_104f47f6900888 1
+apps/desktop/src/renderer/shared/components/ui/button.tsx
+  s_a43cb585378514::t_d301432ef38c4a 1
+apps/desktop/src/renderer/shared/components/ui/dialog.tsx
+  s_a43cb585378514::t_8efcb754cac612 1
+apps/desktop/src/renderer/shared/components/ui/input.tsx
+  s_a43cb585378514::t_6816dd196615ff 1
+apps/desktop/src/renderer/shared/components/ui/popover.tsx
+  s_a43cb585378514::t_db2985fea56c51 1
+apps/desktop/src/renderer/shared/components/ui/select.tsx
+  s_a43cb585378514::t_b6de97eb05962e 1
+apps/desktop/src/renderer/shared/components/ui/switch.tsx
+  s_a43cb585378514::t_80f4a4a213afc3 1
+apps/desktop/src/renderer/shared/components/ui/tab-bar.tsx
+  s_a43cb585378514::t_7e33a9e536917e 2
+apps/desktop/src/renderer/shared/conversation/content-blocks.ts
+  s_a43cb585378514::t_06d324a8ccaafd 133-142,156
+apps/desktop/src/renderer/shared/conversation/message-stream.ts
+  s_a43cb585378514::t_e616d22cde2339 156-157,162
+apps/desktop/src/renderer/shared/hooks/useRendererMarkdownModel.ts
+  s_a43cb585378514::t_1222d1c4ae1691 14
+apps/desktop/src/renderer/shared/shortcuts/scope-stack.ts
+  s_a43cb585378514::t_ee383d4f899865 1
+apps/desktop/src/renderer/shared/store/atoms.ts
+  s_a43cb585378514::t_affec1c4d2b1b9 31
+apps/desktop/src/renderer/shared/store/chat-atoms.ts
+  s_a43cb585378514::t_703f50319e6f1e 15-16,69,140
+apps/desktop/src/renderer/shared/store/last-active-session-storage.ts
+  s_a43cb585378514::t_006a25ddec92db 1-22
+apps/desktop/src/renderer/shared/theme/new-session-texture.ts
+  s_a43cb585378514::t_0692dd01128099 3
+apps/desktop/src/renderer/shared/theme/runtime/ThemeRuntimeProvider.test.tsx
+  s_a43cb585378514::t_f80fb4f5faa518 1-88
+apps/desktop/src/renderer/shared/theme/runtime/ThemeRuntimeProvider.tsx
+  s_a43cb585378514::t_73998554ef9d8c 3,69
+apps/desktop/src/renderer/shared/theme/themes/mono.test.ts
+  s_a43cb585378514::t_4dc7f1d0621aff 1-23
+apps/desktop/src/renderer/shared/theme/themes/mono.ts
+  s_a43cb585378514::t_11c16939563a05 12,14,37-38,43-46
+apps/desktop/src/shared/i18n/locales/en/abilities.json
+  s_a43cb585378514::t_2eac77579790de 253-263
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_a43cb585378514::t_744a311c0be2b4 750,752-755,837-842
+apps/desktop/src/shared/i18n/locales/en/project.json
+  s_a43cb585378514::t_25ea6500480806 178,180-188
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  s_a43cb585378514::t_61025bab6e53f7 590-602,938,956-965,969-972,999-1000,1370,1497-1504
+apps/desktop/src/shared/i18n/locales/zh/abilities.json
+  s_a43cb585378514::t_ad989c41303a1f 253-263
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_a43cb585378514::t_5cce766a890107 750,752-755,837-842
+apps/desktop/src/shared/i18n/locales/zh/project.json
+  s_a43cb585378514::t_7090c068432952 178,180-220
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  s_a43cb585378514::t_8343d476649f11 590-602,938,956-965,969-972,999-1000,1370,1497-1504
+apps/desktop/vite.config.ts
+  s_a43cb585378514::t_1825f10adb6e95 154-156
+apps/docs-site/content/docs/en/product/remote-control.mdx
+  s_a43cb585378514::t_2b04a0bf166920 62-67
+apps/docs-site/content/docs/product/remote-control.mdx
+  s_a43cb585378514::t_a3f285c9e32de1 62-67
+apps/docs-site/docs-coverage.json
+  s_a43cb585378514::t_eb7dbeaade596e 145
+apps/mobile/client-android/README.md
+  s_a43cb585378514::t_acf32a415d9874 22-33,45-46
+apps/mobile/client-android/androidApp/build.gradle.kts
+  s_a43cb585378514::t_a2b6a99e6ca48f 30-31,38-54,57,72-87
+apps/mobile/client-android/gradle.properties
+  s_a43cb585378514::t_6baa2551574af8 16-18
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/pairing/PairingSheetTest.kt
+  s_a43cb585378514::t_b2cbc83bb2e8a8 10,31,42-60
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/settings/SettingsScreenTest.kt
+  s_a43cb585378514::t_aed8fb66a5ab8c 31,34-35,37,39-40,75,78,80-81,119-172,182
+apps/mobile/client-android/shared/src/androidDeviceTest/kotlin/org/vetta/android/ui/work/SessionScreenTest.kt
+  s_a43cb585378514::t_8f167580b7e352 328
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/remote/NativeRemoteDesktopSession.kt
+  s_a43cb585378514::t_d2c148fd3464d6 63-65,69-86,104-107,197,264-284,294,297,346,378-388,413,420,423-438,547-548
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/remote/PairingScanner.android.kt
+  s_a43cb585378514::t_3aedcfaa63c5a9 4-6,8-13,28,33-34,38,44-45,48,50-51,58,62-64,67-72,74-87,89-92,95-105,107-121,123-160,165,167,175-176,179-180,188,190,193-199,202,204-216,219,226-254,256-267,271-281,289-305
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/remote/RemoteDesktopSurface.android.kt
+  s_a43cb585378514::t_3a8e8d3cd915c5 35,71,81,98-99,158-165,310-311,343-345
+apps/mobile/client-android/shared/src/androidMain/kotlin/org/vetta/android/ui/remote/RemoteNetworkInterfaces.kt
+  s_a43cb585378514::t_7ee3690d62742d 1-21
+apps/mobile/client-android/shared/src/commonMain/composeResources/values-zh-rCN/strings.xml
+  s_a43cb585378514::t_cbb867bfedc4b0 145,218,235-236
+apps/mobile/client-android/shared/src/commonMain/composeResources/values/strings.xml
+  s_a43cb585378514::t_da64e0875c7512 151,227,244-245
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/RemoteNetworkRoute.kt
+  s_a43cb585378514::t_a0a9a2703618cc 1-99
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/RemoteStreamStats.kt
+  s_a43cb585378514::t_420155d67ba993 19-23,34-39,53,57,60,64-77,79,86,93-97,99,101,103
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/link/DesktopLink.kt
+  s_a43cb585378514::t_4998daa6228a47 71-75,126,201-203,534,537,548-551,554,566
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/remote/link/RttWindow.kt
+  s_a43cb585378514::t_40ef1613bc6f8d 1-19
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/domain/work/DesktopMirror.kt
+  s_a43cb585378514::t_a9cdaa2b54de1c 451-453,496,498
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/pairing/PairingSheet.kt
+  s_a43cb585378514::t_c582f360226840 17,47,52,54-55,96,102-107,126-127,138,182,185,254-255,258-260,263-292,297-312
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/remote/PairingScanner.kt
+  s_a43cb585378514::t_86ee5b1bbec4ad 4,7-10,13-18
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/settings/SettingsScreen.kt
+  s_a43cb585378514::t_b274bdfae4bd45 10-14,21,39-40,42-43,45-46,53-55,65,76-77,86,89,106-109,147,157-168,236-240,249-250,252-273,275,277-278,280-300,302-337,343-360,362,364,367,369-372,375-403,405-438,444-445,448,450-490,495,497-521,523-555
+apps/mobile/client-android/shared/src/commonMain/kotlin/org/vetta/android/ui/work/SessionScreen.kt
+  s_a43cb585378514::t_d7febf1d055dc0 167-169
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/RemoteStreamStatsTest.kt
+  s_a43cb585378514::t_20cdb2a41fa8fc 6,9-42,44-61,64-65,67-88,92-98,101-113,117-133
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/link/DesktopLinkTest.kt
+  s_a43cb585378514::t_573de58d6d1259 7,289-323
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/remote/link/RttWindowTest.kt
+  s_a43cb585378514::t_78d514d57b8642 1-31
+apps/mobile/client-android/shared/src/commonTest/kotlin/org/vetta/android/domain/work/DesktopMirrorTest.kt
+  s_a43cb585378514::t_527fefaafafb64 35,290-294
+apps/mobile/client-apple/README.md
+  s_a43cb585378514::t_c4124df90b8e52 38-40,47-48,53-60
+apps/mobile/client-apple/Vetta.xcodeproj/project.pbxproj
+  s_a43cb585378514::t_988e3ddfa39f0d 10,13,27,36,39,41,107,122,142,154,156,181-189,193-200,210,212,260-267,302,313,320-327,340,399-418,475-477,507,550,578,586,603-610,753,795-828,865,910-918,964-971
+apps/mobile/client-apple/Vetta.xcodeproj/xcshareddata/xcschemes/Vetta.xcscheme
+  s_a43cb585378514::t_8a2853dbd9aea2 24-37,81-91
+apps/mobile/client-apple/Vetta/App/VettaApp.swift
+  s_a43cb585378514::t_cf42d49f0759cf 12,27,96
+apps/mobile/client-apple/Vetta/Components/ChatViews.swift
+  s_a43cb585378514::t_a41f9ba02fbc5b 312-313,316,321-357,438,445-447,461-465
+apps/mobile/client-apple/Vetta/Components/MarkdownView.swift
+  s_a43cb585378514::t_f2b0fb864887f9 23-26,261-262,281-287,291-305,307,309-313,315,318,346-358
+apps/mobile/client-apple/Vetta/Components/SelectableText.swift
+  s_a43cb585378514::t_a142350ae4a2cb 33-37,48-49,86-90,92-97,101-104
+apps/mobile/client-apple/Vetta/Platform/NetworkWatcher.swift
+  s_a43cb585378514::t_5e4e3c608ce90e 1-47
+apps/mobile/client-apple/Vetta/Platform/ReadAloud.swift
+  s_a43cb585378514::t_69dc44a36ac82e 1-101
+apps/mobile/client-apple/Vetta/Platform/SpeechDictation.swift
+  s_a43cb585378514::t_cc193290883360 24-25
+apps/mobile/client-apple/Vetta/Views/HomeView.swift
+  s_a43cb585378514::t_6f59919dd8f6fc 124-126
+apps/mobile/client-apple/Vetta/Views/RemoteDesktopScreen.swift
+  s_a43cb585378514::t_f37816bf440558 42,125-128,258
+apps/mobile/client-apple/Vetta/Views/SessionView.swift
+  s_a43cb585378514::t_2849ffe81f48ec 24-32,35-40,59-63,67-77,84,100,106-107,115-123,205-214,243,268,294-329,348-356,383-438
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/AppModel.swift
+  s_a43cb585378514::t_632e3a4e3cc71a 62-64,87-88,113,292-297,317-322,334,348-359,365,392,419-420,426-427,512,581,584-585,595-627
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/ChatTurns.swift
+  s_a43cb585378514::t_e9f33326b318e4 77-79,110
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/ReadAloud.swift
+  s_a43cb585378514::t_9f53850384a9f5 1-193
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/RemoteDesktopInput.swift
+  s_a43cb585378514::t_d0747334b4d26a 55-62
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/RemoteNetworkRoute.swift
+  s_a43cb585378514::t_afd279e12ae048 1-100
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/RemoteStreamStats.swift
+  s_a43cb585378514::t_2fda5e35055374 13-16,54-55
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/RemoteStreamStatsReader.swift
+  s_a43cb585378514::t_ea93dbff6efa41 1-72
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/RemoteTwoFingerGesture.swift
+  s_a43cb585378514::t_abee99c59fdfbb 1-50
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/App/Strings.swift
+  s_a43cb585378514::t_9cf3a8c6313e10 69,199-201,291-292
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/InviteCode.swift
+  s_a43cb585378514::t_1de916d98cbdcc 124
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteAPI.swift
+  s_a43cb585378514::t_226d017ad59855 243-244,466-467
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteConnection.swift
+  s_a43cb585378514::t_a0eaaaba4b30f4 199-206
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Protocol/RemoteDesktopProtocol.swift
+  s_a43cb585378514::t_77a52d1bdb7cd4 53-56,191-199
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/ChannelManager.swift
+  s_a43cb585378514::t_5f54f77a941bc5 14,16-18,21-22,26-28,37-39,48-50,56-60,69-74,80-82,95-97,99,135,144-182,194,206,224-226,268-277,325-327,335-336,350,357-359,366-428,441-458,671-672,675,678,681,686-699
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/NetworkRoute.swift
+  s_a43cb585378514::t_3228ce0bc9a939 1-21
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/RttWindow.swift
+  s_a43cb585378514::t_f3d4a108187adc 1-22
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Remote/Transcript.swift
+  s_a43cb585378514::t_5192480b6d8a6b 69-70,75-81,83-86,109,122-123,125-130
+apps/mobile/client-apple/VettaKit/Sources/VettaKit/Resources/Localizable.xcstrings
+  s_a43cb585378514::t_a053b5d867c0c8 402-418,946-962,1094-1110,1912-1928,3540,3546,3755-3788,4283,4289
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/AppModelRelayTests.swift
+  s_a43cb585378514::t_fffc807ce9e220 1-63
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/AppModelScreenTests.swift
+  s_a43cb585378514::t_89d761e20abb6a 7-14,22,45-53,61-82,136-150
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/ChannelManagerP2PTests.swift
+  s_a43cb585378514::t_f8a2f72fb17bf0 24,167-303,309-319
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/NetworkChangeTests.swift
+  s_a43cb585378514::t_ca7b57f714d901 1-100
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/ReadAloudTests.swift
+  s_a43cb585378514::t_c1751eb652dcd4 1-94
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/RemoteDesktopInputTests.swift
+  s_a43cb585378514::t_6b58c048b417ec 46-52
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/RemoteDesktopProtocolTests.swift
+  s_a43cb585378514::t_c5daa25b49719e 66-72
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/RemoteScreenProtocolTests.swift
+  s_a43cb585378514::t_2d794f4c2d5871 52
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/RemoteStreamStatsTests.swift
+  s_a43cb585378514::t_41c90f058e1d53 6-45,48-57,60,63-130,132
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/RemoteTwoFingerGestureTests.swift
+  s_a43cb585378514::t_9335176f6a20bd 1-47
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/RttWindowTests.swift
+  s_a43cb585378514::t_7357c57fa72a04 1-26
+apps/mobile/client-apple/VettaKit/Tests/VettaKitTests/StateTests.swift
+  s_a43cb585378514::t_cb694f5da9fc4d 315-319,665-696
+apps/mobile/client-apple/VettaRTC/Sources/VettaRTC/RemoteDesktopSession.swift
+  s_a43cb585378514::t_f59244f836d4d0 47-50,57,59-62,65-66,93-98,132,140-141,181-197,309-310,315-323,339-344,375,383-391,393-395,478-490
+apps/mobile/client-apple/VettaRTC/Sources/VettaRTC/RemoteMetalVideoView.swift
+  s_a43cb585378514::t_45775bf5da2ba5 1-91
+apps/mobile/client-apple/VettaRTC/Sources/VettaRTC/RemoteNetworkInterfaces.swift
+  s_a43cb585378514::t_3fc6ff9f6672a7 1-34
+apps/mobile/client-apple/VettaRTC/Sources/VettaRTC/RemoteScreenView.swift
+  s_a43cb585378514::t_a6894dc685e093 10-11,20-21,24-27,32,42,56,72-73,75-76,86,89-91,138,140-143,174-187,221-224,226,328,332,334,341-342,348,353,355-361,366,370-371
+apps/mobile/client-apple/VettaRTC/Sources/VettaRTC/RemoteVideoRenderer.swift
+  s_a43cb585378514::t_29bdb66a5de67d 1-29
+apps/mobile/client-apple/VettaRTC/Tests/VettaRTCTests/RemoteScreenSurfaceTests.swift
+  s_a43cb585378514::t_725d765eff690d 1-203
+apps/mobile/client-apple/VettaUITests/RemoteScreenUITests.swift
+  s_a43cb585378514::t_f14c00d5d7f297 1-98
+apps/mobile/client-apple/VettaUITests/VettaUITests.swift
+  s_a43cb585378514::t_7e355d35b77779 19-40
+apps/mobile/client-apple/project.yml
+  s_a43cb585378514::t_6c3e060c6e90e8 17,103-115,135,139
+apps/mobile/client-apple/scripts/interop-desktop.ts
+  s_a43cb585378514::t_486b2c1854cdae 38,98-99,133,273-276,301-302,331-336,340-344
+apps/mobile/client-apple/scripts/screen-interop/host.ts
+  s_a43cb585378514::t_51b6bad1b9b27f 1-63
+apps/mobile/client-apple/scripts/screen-interop/main.cjs
+  s_a43cb585378514::t_d2d3059cb45603 1-17
+apps/mobile/client-apple/scripts/screen-interop/server.ts
+  s_a43cb585378514::t_7883850784129a 1-192
+apps/mobile/client-apple/scripts/screen-test.sh
+  s_a43cb585378514::t_2249c9e29626b5 1-49
+bun.lock
+  s_a43cb585378514::t_301ac56b963cdc 66,588
+docs/adr/0128-mobile-dual-channel-e2e-and-session-mirror.md
+  s_a43cb585378514::t_ca3a0deed4766d 30-31
+docs/adr/0140-ios-p2p-and-on-demand-screen.md
+  s_a43cb585378514::t_cd91347008b40c 23,28-41,82-83,85,99
+docs/adr/0145-desktop-release-publishes-installers-per-platform.md
+  s_a43cb585378514::t_81d17cf617bf22 44-57
+docs/adr/0148-desktop-startup-granular-ui-imports.md
+  s_a43cb585378514::t_6d2c22b8aacbf6 1-58
+docs/adr/0149-remote-screen-framerate-adaptation.md
+  s_a43cb585378514::t_ba782948822d83 1-40
+docs/adr/0150-device-identity-and-pairing-rotation.md
+  s_a43cb585378514::t_7732fdbe03323c 1-39
+docs/capabilities/catalog.json
+  s_a43cb585378514::t_21631d29f66bbc 9198-9214,9434-9450
+docs/desktop/release-ci.md
+  s_a43cb585378514::t_a8e3af6ad84a7f 7-8,52-86,96
+docs/plugin/app-actions.md
+  s_a43cb585378514::t_bee47b09e30dad 93
+docs/plugin/permissions.md
+  s_a43cb585378514::t_204e87ab2f26a9 123-124
+packages/ai/src/providers/openai-codex/request.ts
+  s_a43cb585378514::t_c0083c799e2d77 2,108
+packages/ai/src/providers/openai-codex/websocket.ts
+  s_a43cb585378514::t_1beab3fb1a0f46 3,17-22,27-32
+packages/ai/src/providers/openai-responses/adapter.ts
+  s_a43cb585378514::t_4257278ac8d993 18,23-29,42-50,66,69-110
+packages/ai/src/providers/openai-responses/events.ts
+  s_a43cb585378514::t_bb4ee65ad9aabc 32-42,179-181
+packages/ai/src/providers/openai-responses/request.ts
+  s_a43cb585378514::t_8f794985531aa5 13,17,29-30,32-37,42
+packages/ai/src/providers/openai-responses/websocket.ts
+  s_a43cb585378514::t_2b1fb1df3b93fe 1-313
+packages/ai/src/providers/simple-options.ts
+  s_a43cb585378514::t_8e912f1bf87c0f 9
+packages/ai/test/openai-responses-adapters.test.ts
+  s_a43cb585378514::t_d54d1e04b48154 96,197-217,474-566,579,583,825,833,873,877,882,884,887-890,925-930
+packages/capability-sdk/src/domain/model.ts
+  s_a43cb585378514::t_4e11c1af881017 158-160
+packages/capability-sdk/test/domain/model.test.ts
+  s_a43cb585378514::t_ff3cdb055cbbbc 6,10,24-39
+packages/coding-agent/src/composition/contracts/index.ts
+  s_a43cb585378514::t_55a74a8696817e 36-39
+packages/coding-agent/src/composition/contracts/runtime-composition-options.ts
+  s_a43cb585378514::t_4b65ad54f08983 43,241-242
+packages/coding-agent/src/composition/contracts/runtime-host.ts
+  s_a43cb585378514::t_2c9fd0b7cea129 1,9-13
+packages/coding-agent/src/composition/runtime-composition.ts
+  s_a43cb585378514::t_63c851662169c7 1-2,251,335-343
+packages/coding-agent/src/model-context/system-prompt-policy.ts
+  s_a43cb585378514::t_12b26757edf16d 232
+packages/coding-agent/src/resources/runtime/context-resources.ts
+  s_a43cb585378514::t_268ee71d077865 22,26-28,32,38,49-52,54,57-59,64
+packages/coding-agent/test/composition/runtime-agent-execution.test.ts
+  s_a43cb585378514::t_65ffb4e20fa08a 4,110-146
+packages/coding-agent/test/context-resources-port.test.ts
+  s_a43cb585378514::t_7dc3a7d29874cd 52,54-58,62-66,70-86
+packages/coding-agent/test/model-registry.test.ts
+  s_a43cb585378514::t_4fe9d368fda1bf 132-144
+packages/coding-agent/test/system-prompt.test.ts
+  s_a43cb585378514::t_dfc3f45d74856e 239
+packages/plugins/AGENTS.md
+  s_a43cb585378514::t_e058fb04821a71 46
+packages/plugins/plugin-sdk/package.json
+  s_a43cb585378514::t_e7d1831863159b 3
+packages/plugins/plugin-sdk/src/app-actions.ts
+  s_a43cb585378514::t_ef22a0cbb0355b 84-88
+packages/plugins/plugin-sdk/src/models.ts
+  s_a43cb585378514::t_c0fc16980452e4 6-7
+packages/remote-control/README.md
+  s_a43cb585378514::t_a1972a472c232d 19-28
+packages/remote-control/schemas/remote-frame.schema.json
+  s_a43cb585378514::t_01dda8b702e86a 20-21,71
+packages/remote-control/src/api.ts
+  s_a43cb585378514::t_e9735ad457ab1e 98-115,271-282,305-310,356-359,369-370,389-390,597-598
+packages/remote-control/src/connection.ts
+  s_a43cb585378514::t_241ac196aae144 65,70,135,159,163-168,270-279,321,394-395,472-475,612,621
+packages/remote-control/src/index.ts
+  s_a43cb585378514::t_e1802667ba4507 29,35,37
+packages/remote-control/src/protocol.ts
+  s_a43cb585378514::t_8c8d130717df52 41-42,136-138
+packages/remote-control/src/types.ts
+  s_a43cb585378514::t_5edcb03b981e2b 22-23,98-100,167,282-283
+packages/remote-control/test/api.test.ts
+  s_a43cb585378514::t_9bbbbfe00628dc 225-236
+packages/remote-control/test/connection.test.ts
+  s_a43cb585378514::t_9e2ff8c068c41d 1-2,227,340-414,526-588
+packages/remote-control/test/protocol.test.ts
+  s_a43cb585378514::t_dfee735e076c9c 52-53
+packages/remote-control/test/schema.test.ts
+  s_a43cb585378514::t_432fde095ef968 64-65
+packages/remote-desktop/README.md
+  s_a43cb585378514::t_0b04ad0a442a95 7-22,34-38
+packages/remote-desktop/scripts/webrtc-e2e-main.cjs
+  s_a43cb585378514::t_475e16408cae92 2-4,7-13,16-22
+packages/remote-desktop/src/e2e-runner.ts
+  s_a43cb585378514::t_30ec30282cdad9 6-15,96-98,104,111,134,147,154-237,248-255,278,280-281,287,290,294-295,315,318
+packages/remote-desktop/src/index.ts
+  s_a43cb585378514::t_cd82f8f6be0fce 6-11,13,21,24-26,38
+packages/remote-desktop/src/peer-types.ts
+  s_a43cb585378514::t_426514c578da73 15-26
+packages/remote-desktop/src/peer.ts
+  s_a43cb585378514::t_65698e192d0577 3-10,27-28,47-51,53-54,62,65,77-78,102-104,106-109,111-116,131-132,139,147-148,175-178,182,192-205,209,212-213,233-237,245-268,272,279-283,285,295-300,518-520,522-532
+packages/remote-desktop/src/protocol.ts
+  s_a43cb585378514::t_91c71719a05765 1,121-131
+packages/remote-desktop/src/screen-adaptation.ts
+  s_a43cb585378514::t_4031ce1910f3c5 1-77
+packages/remote-desktop/src/screen-monitor.ts
+  s_a43cb585378514::t_d8092d1b9664ae 1-30
+packages/remote-desktop/src/screen-scale.ts
+  s_a43cb585378514::t_bfbba9548c3e05 1-50
+packages/remote-desktop/src/screen-sender.ts
+  s_a43cb585378514::t_fbc3d3d3773523 1-149
+packages/remote-desktop/src/screen-stats.ts
+  s_a43cb585378514::t_df46e0f292a738 1-115
+packages/remote-desktop/src/types.ts
+  s_a43cb585378514::t_6ad4c156046109 78-86
+packages/remote-desktop/test/peer.test.ts
+  s_a43cb585378514::t_8c5b80f504f02a 2-12,15-42,119,121,124-157,177-178,188,190-192,213,230-407,428-429,443-500,539-544,546,577,581-585,611-613,618
+packages/remote-desktop/test/protocol.test.ts
+  s_a43cb585378514::t_fd3aedf2d9eb61 2-7,32-38
+packages/remote-desktop/test/screen-adaptation.test.ts
+  s_a43cb585378514::t_ec4619fee7b378 1-60
+packages/remote-desktop/test/screen-monitor.test.ts
+  s_a43cb585378514::t_17fb47572f7696 1-56
+packages/remote-desktop/test/screen-scale.test.ts
+  s_a43cb585378514::t_08e01eec360c99 1-55
+packages/remote-desktop/test/screen-stats.test.ts
+  s_a43cb585378514::t_92ccf673b460df 1-61
+packages/runtime-core/src/contracts.ts
+  s_a43cb585378514::t_e5b52e15dfd60f 495-496
+packages/runtime-core/src/conversation/document.ts
+  s_a43cb585378514::t_ea8fe2e3af8999 69-70,319
+packages/runtime-core/src/conversation/history-projection.ts
+  s_a43cb585378514::t_a808fa6f3c7ac3 67
+packages/runtime-core/src/runtime-host/runtime-host-session-event-relay.test.ts
+  s_a43cb585378514::t_39c7c217aef7d3 207-208,225-228,233-234,237
+packages/runtime-core/src/runtime-host/runtime-host-session-event-relay.ts
+  s_a43cb585378514::t_332c6950b7f087 329-331
+packages/runtime-core/test/conversation/compaction-projection.test.ts
+  s_a43cb585378514::t_41acd2b3ebd4a2 6,57,59-92
+packages/runtime-desktop/src/backend-pool.ts
+  s_a43cb585378514::t_7ae8ddcaaea8b8 253,298-304
+packages/theme-ui/package.json
+  s_a43cb585378514::t_0baf717d317b22 124-812,814-816
+packages/theme-ui/src/action-approval/AppearanceApprovalDrawerView.tsx
+  s_a43cb585378514::t_1253e170d167eb 2-3
+packages/theme-ui/src/action-approval/BatchTasksApprovalFrameView.tsx
+  s_a43cb585378514::t_ee7665b709f5cf 2-5
+packages/theme-ui/src/action-approval/GenericActionApprovalView.tsx
+  s_a43cb585378514::t_3afbd005ff375d 2-3
+packages/theme-ui/src/action-approval/ManageActionApprovalFrameView.tsx
+  s_a43cb585378514::t_ee094cfe28aeb8 2-5
+packages/theme-ui/src/action-approval/NavigationOpenApprovalView.tsx
+  s_a43cb585378514::t_0013c40334b90d 2-3
+packages/theme-ui/src/action-approval/SchedulerActionApprovalDialogView.tsx
+  s_a43cb585378514::t_86660bbd2931df 2-4
+packages/theme-ui/src/action-approval/SchedulerEditApprovalDrawerView.tsx
+  s_a43cb585378514::t_1436f1b2c2f3a6 2-4
+packages/theme-ui/src/activity/ActivityPanel.tsx
+  s_a43cb585378514::t_87848bf5a7e51b 1
+packages/theme-ui/src/activity/ActivityPanelFrame.tsx
+  s_a43cb585378514::t_665628f00bf818 2
+packages/theme-ui/src/activity/BackgroundTasksTabPanelView.tsx
+  s_a43cb585378514::t_64b82c0fe53b78 1
+packages/theme-ui/src/activity/DebugTabPanelView.tsx
+  s_a43cb585378514::t_ff1412865d8727 1
+packages/theme-ui/src/activity/MarkdownPreviewView.tsx
+  s_a43cb585378514::t_53d2935bdec810 2,34,109,202
+packages/theme-ui/src/activity/PluginTabPickerView.tsx
+  s_a43cb585378514::t_65e95b9ed87d4c 2-3
+packages/theme-ui/src/activity/PortsTabPanelView.tsx
+  s_a43cb585378514::t_a358cf267c285e 1-2
+packages/theme-ui/src/activity/ToolCallsSubTabView.tsx
+  s_a43cb585378514::t_90ce77d1295758 1
+packages/theme-ui/src/activity/WorkflowTabPanelView.tsx
+  s_a43cb585378514::t_51bfb2cb04adea 1
+packages/theme-ui/src/app-shell/DefaultWindowControls.tsx
+  s_a43cb585378514::t_30c43960d73c3d 4
+packages/theme-ui/src/app-shell/PageHeaderActionGroup.tsx
+  s_a43cb585378514::t_f6fdc6d6b43bf9 2
+packages/theme-ui/src/app-shell/PageHeaderContent.tsx
+  s_a43cb585378514::t_01e18c43f6f811 5
+packages/theme-ui/src/app-shell/PageHeaderFrame.tsx
+  s_a43cb585378514::t_588e62631d60fd 4
+packages/theme-ui/src/app-shell/PageHeaderSidebarTrigger.tsx
+  s_a43cb585378514::t_288a135f8f5261 3
+packages/theme-ui/src/app-shell/PageHeaderTitle.tsx
+  s_a43cb585378514::t_49adb5da10703d 3
+packages/theme-ui/src/app-shell/WindowControlButton.tsx
+  s_a43cb585378514::t_ff8b6ef8e97d4e 3
+packages/theme-ui/src/app/AppBackground.tsx
+  s_a43cb585378514::t_fe7614b6f0f300 1
+packages/theme-ui/src/appearance/BackgroundImageFrame.tsx
+  s_a43cb585378514::t_533777e3a2bbf6 3
+packages/theme-ui/src/appearance/CenterSliceImageFrame.tsx
+  s_a43cb585378514::t_5699f8cb960529 2
+packages/theme-ui/src/appearance/CornerImageFrame.tsx
+  s_a43cb585378514::t_4af208c275cbbd 3
+packages/theme-ui/src/appearance/HorizontalSliceImageFrame.tsx
+  s_a43cb585378514::t_5fb210849bff53 3
+packages/theme-ui/src/appearance/NineSliceImageFrame.tsx
+  s_a43cb585378514::t_fd503575c8d94e 3
+packages/theme-ui/src/appearance/ThemeSurface.tsx
+  s_a43cb585378514::t_50102274caf619 3
+packages/theme-ui/src/batch-tasks/BatchProjectFoldersFieldView.tsx
+  s_a43cb585378514::t_80449441139684 2-3
+packages/theme-ui/src/bottom-panel/BottomPanelView.tsx
+  s_a43cb585378514::t_cea1cfbad0d1bc 1
+packages/theme-ui/src/chat/AgentAvatarView.tsx
+  s_a43cb585378514::t_bb77d818b0725b 1
+packages/theme-ui/src/chat/AssistantMessageView.tsx
+  s_a43cb585378514::t_787b62822aa597 1,28,77,85,88-94,97-99,149-175,178
+packages/theme-ui/src/chat/ChatHeaderActionsView.tsx
+  s_a43cb585378514::t_1b9d8d6b3cceee 1
+packages/theme-ui/src/chat/CompactionStepView.test.tsx
+  s_a43cb585378514::t_b56e7579f04692 1-34
+packages/theme-ui/src/chat/CompactionStepView.tsx
+  s_a43cb585378514::t_46c3a8987e38d7 1-85
+packages/theme-ui/src/chat/ExecutionModeSelectorView.tsx
+  s_a43cb585378514::t_a2befef35637ef 3-4
+packages/theme-ui/src/chat/InlineModelPicker.tsx
+  s_a43cb585378514::t_3dbaebf242c62f 1-3
+packages/theme-ui/src/chat/InputBarBackground.tsx
+  s_a43cb585378514::t_2a75d406acc7ac 1
+packages/theme-ui/src/chat/InputBarPlaceholder.tsx
+  s_a43cb585378514::t_95983671306b94 1
+packages/theme-ui/src/chat/MessageFeedLayoutView.tsx
+  s_a43cb585378514::t_60c9b249c8c519 1
+packages/theme-ui/src/chat/MessageFeedView.tsx
+  s_a43cb585378514::t_0355a52db89156 1
+packages/theme-ui/src/chat/MessageInputView.tsx
+  s_a43cb585378514::t_12f1f044d2fe78 2
+packages/theme-ui/src/chat/MessageLayoutView.tsx
+  s_a43cb585378514::t_8c23dc8430e7d2 1
+packages/theme-ui/src/chat/MessageTimelineView.tsx
+  s_a43cb585378514::t_ff2c0b03719a5c 1
+packages/theme-ui/src/chat/MessageView.tsx
+  s_a43cb585378514::t_263b7a937f6feb 1
+packages/theme-ui/src/chat/MessageVisualView.tsx
+  s_a43cb585378514::t_346abf3e40641e 1
+packages/theme-ui/src/chat/ModelConfiguration.tsx
+  s_a43cb585378514::t_e2daf1f329ba32 1-2
+packages/theme-ui/src/chat/ModelSelectorTrigger.tsx
+  s_a43cb585378514::t_ae05ed24a007df 1
+packages/theme-ui/src/chat/ModelSelectorView.tsx
+  s_a43cb585378514::t_3c65986345d647 4-5
+packages/theme-ui/src/chat/NewSessionPicker.tsx
+  s_a43cb585378514::t_3966ac70807bb8 1-2
+packages/theme-ui/src/chat/ProjectSelectorView.tsx
+  s_a43cb585378514::t_48f31e8e318cc7 4-5
+packages/theme-ui/src/chat/ReasoningStepSlider.tsx
+  s_a43cb585378514::t_b48c1b9531e6c4 1-2
+packages/theme-ui/src/chat/TodoProgress.tsx
+  s_a43cb585378514::t_be7f9827565863 2
+packages/theme-ui/src/chat/TodoStatusBarView.tsx
+  s_a43cb585378514::t_c302b77c853999 3-4
+packages/theme-ui/src/chat/index.ts
+  s_a43cb585378514::t_3490bf12e72b71 48,91-92
+packages/theme-ui/src/file-explorer/FileExplorerSettingsView.tsx
+  s_a43cb585378514::t_d53655bb1b90a3 1-4
+packages/theme-ui/src/file-explorer/FileTreeCreateRow.tsx
+  s_a43cb585378514::t_b203226d9b07a1 1
+packages/theme-ui/src/file-explorer/FileTreeNodeView.tsx
+  s_a43cb585378514::t_ba1e3ed5fbc710 1
+packages/theme-ui/src/file-preview/FilePreviewDialogView.tsx
+  s_a43cb585378514::t_08bba79520f0b4 2
+packages/theme-ui/src/file-preview/FilePreviewView.tsx
+  s_a43cb585378514::t_21f1a67956623c 1
+packages/theme-ui/src/file-preview/TextFileEditorView.tsx
+  s_a43cb585378514::t_a5d21c8c579c98 1-2
+packages/theme-ui/src/layout/AppFrame.tsx
+  s_a43cb585378514::t_d055d2b062233b 2
+packages/theme-ui/src/layout/MainContentFrame.tsx
+  s_a43cb585378514::t_dda0b7f407c750 3
+packages/theme-ui/src/layout/SidebarDock.tsx
+  s_a43cb585378514::t_0fd660022b00b4 3
+packages/theme-ui/src/layout/SidebarOverlay.tsx
+  s_a43cb585378514::t_dab908defeade1 3
+packages/theme-ui/src/markdown/MarkdownImage.tsx
+  s_a43cb585378514::t_e3b99531a5f550 1
+packages/theme-ui/src/markdown/streaming-reveal.ts
+  s_a43cb585378514::t_9b50ffa50792fd 36-40
+packages/theme-ui/src/markdown/streaming.ts
+  s_a43cb585378514::t_86539917a1c89b 7,122-130,161-162,165,198-199
+packages/theme-ui/src/overlays/CommandMenuRow.tsx
+  s_a43cb585378514::t_07d9bd12606451 3
+packages/theme-ui/src/overlays/CommandMenuView.tsx
+  s_a43cb585378514::t_a523664ee8da3b 3
+packages/theme-ui/src/overlays/UpdateRestartDialogView.tsx
+  s_a43cb585378514::t_fdba5e7859a215 3
+packages/theme-ui/src/project/ConversationTagDotsView.tsx
+  s_a43cb585378514::t_48b69224339082 1
+packages/theme-ui/src/project/ConversationTagEditorDialogView.tsx
+  s_a43cb585378514::t_93a746ba4fd50d 1-4
+packages/theme-ui/src/project/DefaultConversationSectionView.tsx
+  s_a43cb585378514::t_2999ba7d07fff6 1
+packages/theme-ui/src/project/DefaultSessionListView.tsx
+  s_a43cb585378514::t_f2af04c142bba5 1
+packages/theme-ui/src/project/DefaultSessionRowView.tsx
+  s_a43cb585378514::t_a2d0a134569e6f 1
+packages/theme-ui/src/project/NewProjectDialogView.tsx
+  s_a43cb585378514::t_7231abbd7b3d89 2-4
+packages/theme-ui/src/project/ProjectDetailPageView.test.tsx
+  s_a43cb585378514::t_c3e90732d3f67f 1-91
+packages/theme-ui/src/project/ProjectDetailPageView.tsx
+  s_a43cb585378514::t_7c718e71dea5d2 3-4,26-37,40-46,54-60,77-78,88-90,93-96,113-114,122-124,126-128,136,244,249-255,257-285,287-295,297-299,301-335,337-343,345-354,356-358,360-407,409,411-436,438-453,455-458,461
+packages/theme-ui/src/project/ProjectRowView.tsx
+  s_a43cb585378514::t_b78daddace182c 1
+packages/theme-ui/src/project/QuickScrollOverlay.tsx
+  s_a43cb585378514::t_78b30a435b6748 1
+packages/theme-ui/src/project/SessionRowMoreButton.tsx
+  s_a43cb585378514::t_8b8995f847e666 1
+packages/theme-ui/src/project/SessionRowView.tsx
+  s_a43cb585378514::t_9aca70c11fbd2b 1
+packages/theme-ui/src/project/SessionTitleMarquee.tsx
+  s_a43cb585378514::t_3e5faf8c87a3f9 1
+packages/theme-ui/src/project/SidebarProjectsSectionView.tsx
+  s_a43cb585378514::t_24557bdd07d340 1
+packages/theme-ui/src/settings/ModelsFetchedModelsDrawerView.tsx
+  s_a43cb585378514::t_80c6c3a12bf8db 1-292
+packages/theme-ui/src/settings/ModelsProvidersSectionView.tsx
+  s_a43cb585378514::t_778d87ad1cdbdc 3,20-23,33-53
+packages/theme-ui/src/settings/ShortcutRecorderView.tsx
+  s_a43cb585378514::t_529c50801d1840 2-3
+packages/theme-ui/src/settings/index.ts
+  s_a43cb585378514::t_627e57345d6e68 105-111
+packages/theme-ui/src/shared/ActivityStatusDot.tsx
+  s_a43cb585378514::t_d36df8602db883 1
+packages/theme-ui/src/shared/AvatarStackView.tsx
+  s_a43cb585378514::t_d9b24576adb88f 1
+packages/theme-ui/src/shared/ContextMenuView.tsx
+  s_a43cb585378514::t_0dcf94250001d6 1-2
+packages/theme-ui/src/sidebar/DefaultSidebar.tsx
+  s_a43cb585378514::t_bafcb5cb6694da 4
+packages/theme-ui/src/sidebar/MessageCenterDialogView.tsx
+  s_a43cb585378514::t_61ad2bfea1585b 4
+packages/theme-ui/src/sidebar/MessageCenterEmptyState.tsx
+  s_a43cb585378514::t_3960c6331a00e3 3
+packages/theme-ui/src/sidebar/MessageCenterTabs.tsx
+  s_a43cb585378514::t_3ceaad9421f806 3
+packages/theme-ui/src/sidebar/MessageCenterToolbarButton.tsx
+  s_a43cb585378514::t_a1f692d5311700 2
+packages/theme-ui/src/sidebar/MessageCenterTriggerView.tsx
+  s_a43cb585378514::t_87b7033f6b2634 2-3
+packages/theme-ui/src/sidebar/NotificationMessageListView.tsx
+  s_a43cb585378514::t_08db0c0ffb61a6 3
+packages/theme-ui/src/sidebar/SessionStatusIcon.tsx
+  s_a43cb585378514::t_d60fc0c37e1608 2
+packages/theme-ui/src/sidebar/SettingsMenuQuotaSection.tsx
+  s_a43cb585378514::t_eb9f9ebbc89754 2
+packages/theme-ui/src/sidebar/SettingsMenuThemeSection.tsx
+  s_a43cb585378514::t_39956e554491a7 2
+packages/theme-ui/src/sidebar/SettingsMenuTriggerView.tsx
+  s_a43cb585378514::t_05ba803905469e 2
+packages/theme-ui/src/sidebar/ShowMoreSessionsButton.tsx
+  s_a43cb585378514::t_4f24a400bcb370 2
+packages/theme-ui/src/sidebar/SidebarFilterSelectView.tsx
+  s_a43cb585378514::t_9da870e2437b94 2-3
+packages/theme-ui/src/sidebar/SidebarNavBadgeView.tsx
+  s_a43cb585378514::t_c94609f7f42a4b 3
+packages/theme-ui/src/sidebar/SidebarNavIcon.tsx
+  s_a43cb585378514::t_8124127daaddc5 2
+packages/theme-ui/src/sidebar/SidebarNavItemButton.tsx
+  s_a43cb585378514::t_ab4b7a07704283 3
+packages/theme-ui/src/sidebar/SidebarNavMorePanel.tsx
+  s_a43cb585378514::t_fc46ff97e85859 3
+packages/theme-ui/src/sidebar/SidebarNavigation.tsx
+  s_a43cb585378514::t_bc9f2ba5faf14b 4-5
+packages/theme-ui/src/sidebar/SidebarPanel.tsx
+  s_a43cb585378514::t_e84cc76207df96 3
+packages/theme-ui/src/sidebar/SidebarTopBar.tsx
+  s_a43cb585378514::t_548dab04c751a9 2
+packages/ui/package.json
+  s_a43cb585378514::t_bdffa4d43cdd27 15-50,53-55
+packages/ui/src/slider.tsx
+  s_a43cb585378514::t_9909d16237f723 120,122-125
+scripts/quality/desktop-release-workflow.test.mjs
+  s_a43cb585378514::t_466402e438dc7f 40,71,236-237,273,280-330
+scripts/quality/quality-gates.test.mjs
+  s_a43cb585378514::t_81907d34e71d4e 622-632
+scripts/quality/test-impact.mjs
+  s_a43cb585378514::t_36b1ac3bff8ea8 67,88-96
+scripts/release/prepare-android-release.mjs
+  s_a43cb585378514::t_461fdba30e342d 1-117
+scripts/release/prepare-android-release.test.mjs
+  s_a43cb585378514::t_65feabb27d6c68 1-154
+.github/release-notes/v0.5.61.md
+  s_a43cb585378514::t_963f86aaad9feb 7-18,35-42,46-53,62-67,82-85,90-92
+.github/workflows/desktop-release.yml
+  s_a43cb585378514::t_c9ff466e5535c3 232-234,490-565,568-569
+apps/desktop/src/main/ipc/fs.ts
+  s_a43cb585378514::t_3c2347be608162 84,86,183-184,603-612,754-755
+apps/desktop/src/preload/api-types/models.ts
+  s_a43cb585378514::t_779a3152273221 47-80,147-153
+packages/plugins/plugin-sdk/CHANGELOG.md
+  s_a43cb585378514::t_e1546ea0e69178 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "1f0b9394ba231ed4ae7446f5fca7c36c55690c9a",
+  "prompts": {},
+  "sessions": {
+    "s_a43cb585378514": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "b22cc175-81cf-4258-8eed-e69e1ecb3b37",
+        "model": "grok-4.7"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
