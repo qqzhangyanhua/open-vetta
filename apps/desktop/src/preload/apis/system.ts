@@ -212,6 +212,7 @@ export function createSystemApi(
 			onPresetsUpdated: (handler) => onIpcVoidEvent(ipc, "vetta:models:presets-updated", handler),
 			probe: (ref) => ipc.invoke("vetta:models:probe", ref),
 			fetchProviderModels: (providerName) => ipc.invoke("vetta:models:fetch-provider-models", providerName),
+			lookupModelMetadata: (modelId) => ipc.invoke("vetta:models:lookup-model-metadata", modelId),
 			loginOAuth: (providerId) => ipc.invoke("vetta:models:oauth-login", providerId),
 			logoutOAuth: (providerId) => ipc.invoke("vetta:models:oauth-logout", providerId),
 			oauthStatus: () => ipc.invoke("vetta:models:oauth-status"),
@@ -220,6 +221,7 @@ export function createSystemApi(
 			onChanged: (handler) => onIpcEvent(ipc, "vetta:models:changed", handler),
 		},
 		mcp: {
+			listTools: (serverName) => ipc.invoke("vetta:mcp:list-tools", serverName),
 			get: () => ipc.invoke("vetta:mcp:get"),
 			set: (config) => ipc.invoke("vetta:mcp:set", config),
 			login: (serverName, options) => ipc.invoke("vetta:mcp:login", serverName, options),
@@ -248,6 +250,8 @@ export function createSystemApi(
 			setServerToken: (token) => ipc.invoke("vetta:settings:set-server-token", token),
 			getServerRefreshToken: () => ipc.invoke("vetta:settings:get-server-refresh-token"),
 			setServerRefreshToken: (token) => ipc.invoke("vetta:settings:set-server-refresh-token", token),
+			getModelTransport: () => ipc.invoke("vetta:settings:get-model-transport"),
+			setModelTransport: (transport) => ipc.invoke("vetta:settings:set-model-transport", transport),
 		},
 		subscription: {
 			getStatus: () => ipc.invoke("vetta:subscription:status"),

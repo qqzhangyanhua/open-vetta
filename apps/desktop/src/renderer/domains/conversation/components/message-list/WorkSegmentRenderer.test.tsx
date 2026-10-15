@@ -21,7 +21,7 @@ vi.mock("react-i18next", () => ({
 	}),
 }));
 
-vi.mock("@vetta-org/theme-ui/chat", async (importOriginal) => ({
+vi.mock("@vetta-org/theme-ui/chat/ProgressGroupView", async (importOriginal) => ({
 	...(await importOriginal<typeof ThemeChat>()),
 	ProgressGroup: {
 		Root: ({ children, done }: { children: ReactNode; done: boolean }) => (
@@ -240,3 +240,7 @@ describe("WorkSegmentRenderer live activity", () => {
 		expect(screen.getByTestId("thinking-title").textContent).toBe("思考");
 	});
 });
+
+vi.mock("@vetta-org/theme-ui/chat/LiveThinkingView", () => import("@vetta-org/theme-ui/chat/ProgressGroupView"));
+
+vi.mock("@vetta-org/theme-ui/chat/MessageBlockSegmentsView", () => import("@vetta-org/theme-ui/chat/ProgressGroupView"));

@@ -8,6 +8,7 @@ All notable changes to `@vetta-org/plugin-sdk` are documented in this file.
 - `ctx.conversation.openSession({ cwd, sessionPath })`：打开插件自己 `createSession` 记下的已有会话并跳到对话页。外置插件不能用 `official.sessions.open`（官方来源门控）。权限同 `createSession`（`agent.session.write`）。纯运行期 API，不涉及清单字段，`pluginApiVersion` 不变。
 
 - **`official.dialog.openDirectory()`**：打开原生目录选择框，用户取消返回 `null`。与 `openFiles` 相反——选中的目录会加入宿主项目授权根（与侧边栏「打开项目」相同），之后官方插件可以对该路径执行已声明的 `ctx.command.run`（例如 `git remote -v`）。不会把目录写入工作台项目列表。仅官方来源插件可用。纯运行期 API，不涉及清单字段，`pluginApiVersion` 不变。
+- `PluginModelDefinition.input` 可声明 `text` / `image`。Desktop 模型写入合同同步保留该字段，修复网关已声明图像输入但模型注册后仍退回纯文本的问题；省略时仍采用宿主默认，旧宿主可能清除该字段。
 
 - 底部面板实例新增 `useBottomPanel().openTerminal({ command, cwd?, label? })` 与 `revealInstance(instanceId)`，配套权限 `terminal.run`，要求 Plugin API `^2.8.0`。脚本运行器一类插件此前只能用 `command.spawn` 轮询 64KB 的输出尾巴：没有伪终端、不能输入、没有颜色，也不支持远程项目。现在由宿主开内置终端、把命令敲进用户的 shell，交互、分屏、关闭确认与远程终端都直接复用；命令只在终端首次启动时敲一次，重开会话不会重跑。
 

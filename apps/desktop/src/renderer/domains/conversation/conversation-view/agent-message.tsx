@@ -3,13 +3,11 @@ import type { ConversationParticipantViewModel } from "@shared/conversation";
 import type { ChatAgentMessageViewModel, ChatToolCallPresentationViewModel } from "@shared/store/chat-atoms";
 import type { Usage } from "@vetta/ai/protocol";
 import { useThemeSurface } from "@vetta-org/theme-sdk/appearance";
-import { ThemeSurface } from "@vetta-org/theme-ui/appearance";
-import {
-	AgentAvatarView,
-	AssistantMessage as AssistantMessagePrimitive,
-	Message,
-	MessageLayout,
-} from "@vetta-org/theme-ui/chat";
+import { ThemeSurface } from "@vetta-org/theme-ui/appearance/ThemeSurface";
+import { AgentAvatarView } from "@vetta-org/theme-ui/chat/AgentAvatarView";
+import { AssistantMessage as AssistantMessagePrimitive } from "@vetta-org/theme-ui/chat/AssistantMessageView";
+import { Message } from "@vetta-org/theme-ui/chat/MessageView";
+import { MessageLayout } from "@vetta-org/theme-ui/chat/MessageLayoutView";
 import { useAtomValue } from "jotai";
 import { createContext, type ReactNode, useCallback, useContext, useId, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -98,6 +96,7 @@ function useAgentMessageLabels() {
 				count === 0
 					? t("messageList.assistantFoldTip.work.collapseZero")
 					: t("messageList.assistantFoldTip.work.collapse", { count }),
+			doneFold: t("messageList.assistantFoldTip.done", { defaultValue: "完成" }),
 			streamingPhrases: Array.isArray(phrases) ? (phrases as string[]) : [],
 		};
 	}, [t]);
@@ -106,10 +105,8 @@ function useAgentMessageLabels() {
 function useAgentMessageInputState(input: AgentMessageInput): AgentMessageState {
 	const { message, exportMode = false } = input;
 	// 展开态外置：Virtuoso 会卸载滚出视窗的高条目，组件内 state 会被清掉。
-	// Tool calls are part of the transcript's observable data. Keep process
-	// blocks visible by default; users can still collapse them with the shared
-	// fold control without changing the underlying message projection.
-	const [expanded, toggleExpanded] = useExpansion(`fold:${message.id}`, true);
+	// 已完成的消息中间步骤默认合上，用户可点击“已完成”随时展开查看。
+	const [expanded, toggleExpanded] = useExpansion(`fold:${message.id}`, false);
 	const generatedId = useId();
 	const exportFoldPanelId = exportMode ? `export-assistant-fold-${generatedId}` : undefined;
 	const model = useAssistantMessageModel({
@@ -317,10 +314,19 @@ function AgentMessageFold() {
 
 /** Thinking, tool calls and text of the reply, grouped into work segments. */
 function AgentMessageContent() {
-	const { input, model, exportFoldPanelId, isAwaitingFirstActivity, presentationFor } =
+	const { input, model, expanded, labels, exportFoldPanelId, isAwaitingFirstActivity, presentationFor } =
 		useAgentMessagePart("AgentMessage.Content");
 	const { message, exportMode = false } = input;
-	const { segments, exportProcessSegments, streamingTailIndex, isCurrentlyStreaming, liveThinkingId } = model;
+	const {
+		segments,
+		processSegments,
+		answerSegments,
+		exportProcessSegments,
+		streamingTailIndex,
+		isCurrentlyStreaming,
+		liveThinkingId,
+		foldData,
+	} = model;
 	if (message.blocks.length === 0) {
 		if (isAwaitingFirstActivity) return null;
 		return (
@@ -332,6 +338,10 @@ function AgentMessageContent() {
 			</div>
 		);
 	}
+
+	const hasFoldedProcess =
+		!exportMode && !isCurrentlyStreaming && Boolean(foldData) && (processSegments?.length ?? 0) > 0;
+
 	return (
 		<div className="flex flex-col gap-0.5">
 			{exportProcessSegments.length > 0 && (
@@ -346,19 +356,54 @@ function AgentMessageContent() {
 					))}
 				</div>
 			)}
-			{segments.map((segment, index) => (
-				<WorkSegmentRenderer
-					key={workSegmentKey(segment)}
-					segment={segment}
-					isStreamingTail={index === streamingTailIndex}
-					isLiveActivity={isCurrentlyStreaming && index === segments.length - 1}
-					liveThinkingId={liveThinkingId}
-					presentation={presentationFor(segment as BlockSegment)}
-					onTeamMemberOpen={input.openTeamMember}
-					animateIn={isCurrentlyStreaming && index === segments.length - 1}
-					exportMode={exportMode}
-				/>
-			))}
+			{hasFoldedProcess ? (
+				<>
+					{expanded && (
+						<AssistantMessagePrimitive.ProcessContainer completedLabel={labels.doneFold}>
+							{processSegments?.map((segment) => (
+								<WorkSegmentRenderer
+									key={workSegmentKey(segment)}
+									segment={segment}
+									isStreamingTail={false}
+									isLiveActivity={false}
+									liveThinkingId={null}
+									presentation={presentationFor(segment as BlockSegment)}
+									onTeamMemberOpen={input.openTeamMember}
+									animateIn={false}
+									exportMode={exportMode}
+								/>
+							))}
+						</AssistantMessagePrimitive.ProcessContainer>
+					)}
+					{(answerSegments ?? segments).map((segment, index) => (
+						<WorkSegmentRenderer
+							key={workSegmentKey(segment)}
+							segment={segment}
+							isStreamingTail={index === streamingTailIndex}
+							isLiveActivity={isCurrentlyStreaming && index === (answerSegments ?? segments).length - 1}
+							liveThinkingId={liveThinkingId}
+							presentation={presentationFor(segment as BlockSegment)}
+							onTeamMemberOpen={input.openTeamMember}
+							animateIn={isCurrentlyStreaming && index === (answerSegments ?? segments).length - 1}
+							exportMode={exportMode}
+						/>
+					))}
+				</>
+			) : (
+				segments.map((segment, index) => (
+					<WorkSegmentRenderer
+						key={workSegmentKey(segment)}
+						segment={segment}
+						isStreamingTail={index === streamingTailIndex}
+						isLiveActivity={isCurrentlyStreaming && index === segments.length - 1}
+						liveThinkingId={liveThinkingId}
+						presentation={presentationFor(segment as BlockSegment)}
+						onTeamMemberOpen={input.openTeamMember}
+						animateIn={isCurrentlyStreaming && index === segments.length - 1}
+						exportMode={exportMode}
+					/>
+				))
+			)}
 		</div>
 	);
 }
