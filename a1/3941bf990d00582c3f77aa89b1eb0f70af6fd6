@@ -1,0 +1,70 @@
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarToolbarActions.tsx
+  s_a43cb585378514::t_457d5ba9a776af 2,54,72,74-75,77,79,81-85,92-110,119,121-133
+docs/adr/0128-external-agent-invocations.md
+  s_a43cb585378514::t_457d5ba9a776af 21-22,27,35
+apps/desktop/src/renderer/domains/conversation/components/input-bar/InputBarToolbar.test.tsx
+  s_a43cb585378514::t_457d5ba9a776af 3,5-9,15-16,26-27,35-100,169-241
+  s_a43cb585378514::t_d7bf5b0f19bb25 242
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_a43cb585378514::t_457d5ba9a776af 580
+.github/release-notes/v0.5.69.md
+  s_7d9e469755b67f::t_393fdbae2d61bc 16,23-24
+apps/desktop/src/main/external-invocation/service.test.ts
+  s_a43cb585378514::t_457d5ba9a776af 504
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionOpener.ts
+  s_a43cb585378514::t_457d5ba9a776af 182,185-187,190,212,214
+apps/desktop/src/renderer/domains/conversation/components/input-bar/DefaultInputBarConnector.tsx
+  s_a43cb585378514::t_457d5ba9a776af 15,18,61,196-198,204,225-232,279,292-295,297-308,311-313,317,365
+apps/desktop/src/main/external-invocation/grok-adapter.ts
+  s_a43cb585378514::t_457d5ba9a776af 11,56,59,61,64-69,80,84,87-92
+apps/desktop/src/main/external-invocation/detect-agents.test.ts
+  s_a43cb585378514::t_457d5ba9a776af 22
+apps/desktop/src/renderer/domains/conversation/components/input-bar/types.ts
+  s_a43cb585378514::t_457d5ba9a776af 263,265-266,299,308
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationPage.test.tsx
+  s_a43cb585378514::t_457d5ba9a776af 454,479-554
+  s_a43cb585378514::t_5f2022a83dedc7 555
+apps/desktop/src/main/external-invocation/grok-adapter.test.ts
+  s_a43cb585378514::t_457d5ba9a776af 98-99,106-107,114
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionManager.session-switch.test.ts
+  s_a43cb585378514::t_457d5ba9a776af 355-426
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_a43cb585378514::t_457d5ba9a776af 580
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationPage.tsx
+  s_a43cb585378514::t_457d5ba9a776af 38,151,172,183-184,198-200,225-226,253-255,257,260,271-273,285,295-304,335
+apps/desktop/src/renderer/domains/conversation/components/external-invocation/SessionExternalInvocationView.tsx
+  s_07b33a130fea29::t_a46a0e674f67de 152-153
+  s_a43cb585378514::t_457d5ba9a776af 11,13,81-85,92,94,120-122,125-133,137-138,144-145,192
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "a13941bf990d00582c3f77aa89b1eb0f70af6fd6",
+  "prompts": {},
+  "sessions": {
+    "s_07b33a130fea29": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a18266-8c18-73e0-bb80-cb1741ab702f",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_7d9e469755b67f": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a1828b-eaa1-7601-849e-7385c134c006",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_a43cb585378514": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "b22cc175-81cf-4258-8eed-e69e1ecb3b37",
+        "model": "grok-4.7"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
