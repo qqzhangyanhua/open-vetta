@@ -75,12 +75,17 @@ export function resolveDevPluginIds(
 }
 
 export function resolveDevProcessEnvironment(environment = process.env) {
-	return {
+	const env = {
 		...environment,
 		// Keep local action/plugin iteration frictionless without weakening packaged builds.
 		// Set to "0" when manually testing the approval flow in development.
 		VETTA_DEV_AUTO_APPROVE_ACTIONS: environment.VETTA_DEV_AUTO_APPROVE_ACTIONS ?? "1",
 	};
+	// Parent Electron apps export this so their own child scripts reuse the Electron
+	// binary as Node. Inheriting it makes this GUI launch run as Node, which rejects
+	// Chromium switches such as --user-data-dir with "bad option" and exit code 9.
+	delete env.ELECTRON_RUN_AS_NODE;
+	return env;
 }
 
 async function main() {
