@@ -1,7 +1,7 @@
 {
 	"id": "vetta-ui-design",
 	"name": "%plugin.name%",
-	"version": "0.7.2",
+	"version": "0.7.6",
 	"icon": "icon.png",
 	"defaultLocale": "zh",
 	"pluginApiVersion": "^2.0.0",
@@ -46,8 +46,7 @@
 	],
 	"network": {
 		"allowedHosts": [
-			"cdn.jsdelivr.net",
-			"raw.githubusercontent.com"
+			"*"
 		]
 	},
 	"commands": [

@@ -43,6 +43,8 @@ const HEAVY_TOOLS = [
 	"vetd_notes",
 	"vetd_restore",
 	"vetd_export",
+	"vetd_direction",
+	"vetd_assets",
 ] as const;
 
 describe("重工具描述", () => {
@@ -58,6 +60,14 @@ describe("重工具描述", () => {
 		expect(description).toMatch(/existing codebase/);
 		// 排除段必须给出替代做法，否则模型只知道不能用这个，不知道该走哪条路。
 		expect(description).toMatch(/implement the page directly in that repo's own framework instead/);
+	});
+
+	it("vetd_create 的描述对任何 agent 都带着先读 skill 的要求和八荣八耻", () => {
+		// 大多数人用默认 agent，不会选「设计师」；工具描述每轮都在系统提示里，是它们唯一一定读到的地方。
+		const description = descriptions.get("vetd_create") ?? "";
+		expect(description).toMatch(/load it first/);
+		expect(description).toMatch(/Core principles/);
+		expect(description).toMatch(/only the user's words outrank them/);
 	});
 
 	it("vetd_notes 明确排除「与设计无关的收尾习惯」", () => {

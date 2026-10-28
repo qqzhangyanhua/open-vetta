@@ -1,6 +1,9 @@
 import type { PluginContext, PluginDynamicSystemPromptOperation } from "@vetta-org/plugin-sdk";
+import { corePrinciplesBlock } from "../creed";
 import { getCanvasController } from "../canvas/design-runtime";
 import { SCREENSHOT_TOOL_NAME } from "../cards/screenshot-card";
+import { ASSETS_TOOL_NAME } from "../assets/assets-tool";
+import { DIRECTION_TOOL_NAME } from "../direction/direction-tool";
 import { hasDesignInWorkspace } from "./design-presence";
 
 /**
@@ -16,6 +19,8 @@ export const DESIGN_ONLY_TOOLS = [
 	"vetd_history",
 	"vetd_restore",
 	"vetd_export",
+	DIRECTION_TOOL_NAME,
+	ASSETS_TOOL_NAME,
 ] as const;
 
 /** 这一轮该不该开闸：画布开着，或者 cwd 里确实有设计稿。 */
@@ -41,6 +46,15 @@ export function registerToolGate(ctx: PluginContext): void {
 		handler: async ({ session }): Promise<PluginDynamicSystemPromptOperation[]> => {
 			const enabled = await designToolsActive(ctx, session.cwd);
 			return DESIGN_ONLY_TOOLS.map((toolName) => ({ type: "setToolEnabled", toolName, enabled }));
+		},
+	});
+	// 八荣八耻对任何 agent 生效：不选「设计师」、用默认 agent 做设计的人是大多数。
+	// 只在设计语境里注入，普通写代码的会话不为它多花上下文。
+	ctx.agent.registerSystemPromptProvider({
+		id: "vetd-core-principles",
+		handler: async ({ session }): Promise<PluginDynamicSystemPromptOperation[]> => {
+			if (!(await designToolsActive(ctx, session.cwd))) return [];
+			return [{ type: "addBlock", block: { id: "plugin.vetta-ui-design.core-principles", content: corePrinciplesBlock() } }];
 		},
 	});
 }

@@ -83,11 +83,16 @@ you added last.
   where content was expected, an unstyled control.
 
 **5. Generated-UI tells** — taste, but taste that users read as "AI made this"
-within a second. Look for each in the shot; the fixes are in
+within a second. On a design whose direction was dealt or proposed (`vetd_direction`),
+`vetd_screenshot` measures gradients, resting shadows, glass, tiny tracked
+labels, small text, monospace, typeface count, long headlines, icon tiles,
+emoji, picture slots faked with a gradient and an icon, and a landing page with
+too few real pictures, and reports them as `tell-*` issues with their fix — clear those like any
+other issue. Look for the rest in the shot; the fixes are in
 `references/taste/anti-patterns.md`.
 
-- The scaffold palette still in place: indigo primary, slate surfaces and text,
-  amber accent.
+- The scaffold's neutral placeholder still in theme.css (`theme-placeholder`
+  reports it), or a hand-picked indigo primary on slate.
 - Display and body in the same face; an italic headline or italic emphasis word.
 - Purple/blue gradient surfaces, gradient text, blurred blobs, decorative glass.
 - Card-in-card, side-stripe cards, colored glow shadows, or lines and boxes doing
@@ -98,7 +103,8 @@ within a second. Look for each in the shot; the fixes are in
 - An eyebrow label on every section, or beside its heading.
 - Numbers presented as product proof that the user never supplied; Jane Doe,
   张三, Acme, Lorem ipsum.
-- A drawn browser bar, phone bezel or notch inside a frame.
+- A drawn browser bar, phone bezel, notch or hand-built status bar inside a frame
+  (the `StatusBar` preset is the only status bar).
 - The accent covering far more than a small share of the frame.
 
 Fix what you find and screenshot again. A frame is done when the image is
@@ -118,7 +124,8 @@ remote URL that renders perfectly on screen will still:
   of remote images turns a ~100ms shot into seconds.
 
 Local assets are served same-origin by the engine dev server and have neither
-problem.
+problem. `vetd_assets` downloads a picture into `assets/` cropped to its slot and
+records its credit, so a real picture costs one call, not a placeholder.
 
 ## When a frame fails to build
 
