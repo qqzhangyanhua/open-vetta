@@ -62,6 +62,17 @@ describe("external session catalog public entry", () => {
 		expect(reads.every((path) => basename(path) === GROK_SUMMARY_SIDECAR_NAME)).toBe(true);
 	});
 
+	it("lists a Grok summary whose pretty-printed header runs past 32 lines", async () => {
+		const root = createSessionsRoot();
+		const contents = prettyGrokSummaryPastLineCap({ id: "long-header", title: "Wrapped recap" });
+		expect(contents.split(/\r?\n/).filter((line) => line.length > 0).length).toBeGreaterThan(32);
+		const sidecarPath = writeRawSidecar(root, "long-header", contents);
+
+		const sessions = await createCatalog(root).listSessions(root);
+		expect(sessions).toMatchObject([{ id: "long-header", name: "Wrapped recap", path: sidecarPath }]);
+		expect(sessions[0]?.unavailableReason).toBeUndefined();
+	});
+
 	it("finds a structural Grok header after the first line", async () => {
 		const root = createSessionsRoot();
 		const sidecarPath = writeRawSidecar(
@@ -145,6 +156,40 @@ function writeRawSidecar(root: string, name: string, contents: string): string {
 	const sidecarPath = join(sessionDir, GROK_SUMMARY_SIDECAR_NAME);
 	writeFileSync(sidecarPath, contents);
 	return sidecarPath;
+}
+
+function prettyGrokSummaryPastLineCap(input: { id: string; title: string }): string {
+	return `${JSON.stringify(
+		{
+			info: { id: input.id, cwd: "/workspace/demo" },
+			agent_id: "agent",
+			attempt_id: "attempt",
+			session_summary: "Sanitized summary.",
+			created_at: RECENT,
+			updated_at: RECENT,
+			num_messages: 2,
+			num_chat_messages: 2,
+			current_model_id: "grok-code",
+			next_trace_turn: 1,
+			chat_format_version: 1,
+			git_root_dir: "/workspace/demo",
+			git_remotes: ["https://example.com/a.git", "https://example.com/b.git"],
+			head_commit: "deadbeef",
+			head_branch: "main",
+			request_id: "req",
+			grok_home: "/tmp/grok-home",
+			last_active_at: RECENT,
+			generated_title: input.title,
+			agent_name: "Grok",
+			sandbox_profile: "default",
+			reasoning_effort: "low",
+			last_turn_summary: "local commits",
+			last_turn_summary_prompt_id: "req",
+			last_recap: "first paragraph\nsecond paragraph",
+		},
+		null,
+		2,
+	)}\n`;
 }
 
 function grokSummaryDocument(input: {

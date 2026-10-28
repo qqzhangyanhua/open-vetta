@@ -321,6 +321,31 @@ describe("external session history reader public entry", () => {
 		expect(history.some((entry) => entry.type === "message" && entry.message.role === "toolResult")).toBe(false);
 	});
 
+	it("opens a Grok summary whose pretty-printed header runs past 32 lines", () => {
+		const root = createSessionsRoot();
+		const contents = prettyGrokSummaryPastLineCap({ id: "long-header", title: "Wrapped recap" });
+		expect(contents.split(/\r?\n/).filter((line) => line.length > 0).length).toBeGreaterThan(32);
+		const sidecarPath = writeRawSidecar(root, "long-header", contents);
+		writeFileSync(
+			join(sidecarPath, "..", GROK_CONVERSATION_BODY_NAME),
+			`${JSON.stringify({
+				type: "user",
+				prompt_index: 0,
+				content: [{ type: "text", text: "<user_query>\nStill here.\n</user_query>" }],
+			})}\n`,
+		);
+
+		const { history } = createReader(root).read(sidecarPath);
+		expect(history).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					type: "message",
+					message: expect.objectContaining({ role: "user", content: "Still here." }),
+				}),
+			]),
+		);
+	});
+
 	it("refuses to guess when the sidecar header is corrupted", () => {
 		const root = createSessionsRoot();
 		const sidecarPath = writeRawSidecar(root, "broken", '{\n  "info": {\n    "id": "broken"');
@@ -365,6 +390,40 @@ describe("external session history reader public entry", () => {
 		return directory;
 	}
 });
+
+function prettyGrokSummaryPastLineCap(input: { id: string; title: string }): string {
+	return `${JSON.stringify(
+		{
+			info: { id: input.id, cwd: "/workspace/demo" },
+			agent_id: "agent",
+			attempt_id: "attempt",
+			session_summary: "Sanitized summary.",
+			created_at: RECENT,
+			updated_at: RECENT,
+			num_messages: 2,
+			num_chat_messages: 2,
+			current_model_id: "grok-code",
+			next_trace_turn: 1,
+			chat_format_version: 1,
+			git_root_dir: "/workspace/demo",
+			git_remotes: ["https://example.com/a.git", "https://example.com/b.git"],
+			head_commit: "deadbeef",
+			head_branch: "main",
+			request_id: "req",
+			grok_home: "/tmp/grok-home",
+			last_active_at: RECENT,
+			generated_title: input.title,
+			agent_name: "Grok",
+			sandbox_profile: "default",
+			reasoning_effort: "low",
+			last_turn_summary: "local commits",
+			last_turn_summary_prompt_id: "req",
+			last_recap: "first paragraph\nsecond paragraph",
+		},
+		null,
+		2,
+	)}\n`;
+}
 
 function writeGrokSession(
 	root: string,

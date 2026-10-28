@@ -161,10 +161,12 @@ function readExternalOriginTool(history: readonly HistoryEntry[]): unknown {
 }
 
 function mapViewerLoadError(message: string, t: TFunction<"chat">): string {
-	if (message === EXTERNAL_SESSION_HISTORY_UNAVAILABLE.corrupted_header) {
+	// Electron 会把主进程错误包成
+	// "Error invoking remote method '…': Error: <code>"，不能只做全等比较。
+	if (message.includes(EXTERNAL_SESSION_HISTORY_UNAVAILABLE.corrupted_header)) {
 		return t("sessionViewer.error.corruptedHeader");
 	}
-	if (message === EXTERNAL_SESSION_HISTORY_UNAVAILABLE.unsupported_version) {
+	if (message.includes(EXTERNAL_SESSION_HISTORY_UNAVAILABLE.unsupported_version)) {
 		return t("sessionViewer.error.unsupportedVersion");
 	}
 	return message;

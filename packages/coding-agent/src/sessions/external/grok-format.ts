@@ -8,7 +8,6 @@ import {
 import {
 	findGrokSummaryHeader,
 	GROK_CONVERSATION_BODY_NAME,
-	GROK_HEADER_SCAN_LINES,
 	GROK_SUMMARY_SIDECAR_NAME,
 	GROK_TOOL_ID,
 	type GrokSummaryHeader,
@@ -20,7 +19,7 @@ export const grokFormat: ExternalSessionFormat = {
 	ownsIdentity(path, host) {
 		if (host.basename(path) !== GROK_SUMMARY_SIDECAR_NAME) return false;
 		try {
-			return findGrokSummaryHeader(host.readPrefixLines(path, GROK_HEADER_SCAN_LINES)).kind === "ok";
+			return readGrokSummaryHeader(path, host).kind === "ok";
 		} catch {
 			return false;
 		}
@@ -28,7 +27,7 @@ export const grokFormat: ExternalSessionFormat = {
 	canRead(path, host) {
 		if (host.basename(path) !== GROK_SUMMARY_SIDECAR_NAME) return false;
 		try {
-			return findGrokSummaryHeader(host.readPrefixLines(path, GROK_HEADER_SCAN_LINES)).kind !== "unrelated";
+			return readGrokSummaryHeader(path, host).kind !== "unrelated";
 		} catch {
 			return false;
 		}
@@ -54,7 +53,7 @@ export const grokFormat: ExternalSessionFormat = {
 	async projectListItem(path, host, cutoff) {
 		let header: GrokSummaryHeader;
 		try {
-			header = findGrokSummaryHeader(host.readPrefixLines(path, GROK_HEADER_SCAN_LINES));
+			header = readGrokSummaryHeader(path, host);
 		} catch {
 			return unavailableGrokItem(host, path, "corrupted_header", cutoff, undefined);
 		}
@@ -81,7 +80,7 @@ export const grokFormat: ExternalSessionFormat = {
 		return unavailableGrokItem(host, path, "corrupted_header", cutoff, undefined);
 	},
 	readHistory(path, host) {
-		const header = findGrokSummaryHeader(host.readPrefixLines(path, GROK_HEADER_SCAN_LINES));
+		const header = readGrokSummaryHeader(path, host);
 		if (header.kind === "corrupted_header" || header.kind === "unrelated") {
 			throw new Error(EXTERNAL_SESSION_HISTORY_UNAVAILABLE.corrupted_header);
 		}
@@ -93,7 +92,7 @@ export const grokFormat: ExternalSessionFormat = {
 		return projectGrokConversationDisplay(host.readText(bodyPath));
 	},
 	readBriefingSource(path, host) {
-		const header = findGrokSummaryHeader(host.readPrefixLines(path, GROK_HEADER_SCAN_LINES));
+		const header = readGrokSummaryHeader(path, host);
 		if (header.kind === "corrupted_header" || header.kind === "unrelated") {
 			return { error: "corrupted_header" };
 		}
@@ -114,6 +113,12 @@ export const grokFormat: ExternalSessionFormat = {
 		} satisfies ExternalSessionBriefingSource;
 	},
 };
+
+function readGrokSummaryHeader(path: string, host: ExternalSessionFileHost): GrokSummaryHeader {
+	// summary.json 是一份 pretty-printed 对象。按行截断会把 last_recap 等字段切成残缺 JSON，
+	// 再被误判成损坏头。
+	return findGrokSummaryHeader(host.readText(path));
+}
 
 async function unavailableGrokItem(
 	host: ExternalSessionFileHost,

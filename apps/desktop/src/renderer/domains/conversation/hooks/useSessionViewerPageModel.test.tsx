@@ -111,4 +111,28 @@ describe("useSessionViewerPageModel external Grok viewer", () => {
 		expect(result.current.canContinueFrom).toBe(false);
 		expect(result.current.messages).toEqual([]);
 	});
+
+	it("maps Electron's wrapped corrupted-header error to the localized message", async () => {
+		captured.openViewer.mockRejectedValue(
+			new Error(
+				"Error invoking remote method 'vetta:session:viewer-open': Error: EXTERNAL_SESSION_CORRUPTED_HEADER",
+			),
+		);
+		Object.defineProperty(window, "vetta", {
+			configurable: true,
+			value: {
+				session: {
+					openViewer: captured.openViewer,
+					subscribeViewer: captured.subscribeViewer,
+				},
+			},
+		});
+
+		const store = createStore();
+		const { result } = renderHook(() => useSessionViewerPageModel(), {
+			wrapper: ({ children }: { children: ReactNode }) => <Provider store={store}>{children}</Provider>,
+		});
+
+		await waitFor(() => expect(result.current.error).toBe("sessionViewer.error.corruptedHeader"));
+	});
 });
