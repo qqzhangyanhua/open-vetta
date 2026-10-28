@@ -31,10 +31,34 @@ packages/plugins/presets/github-issue-board/test/github-issues.test.ts
   "base_commit_sha": "0e307e550443cd466749d096e9d3958c40f0ff39",
   "prompts": {},
   "sessions": {
+    "s_48abd181f55886": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "11c05900-6848-4956-9be6-14b59c39a631",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
     "s_5a50e8c8454680": {
       "agent_id": {
         "tool": "grok",
         "id": "01a0bef5-4adf-7041-aa77-1269f0f5f48c",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_7cef1a69629cfc": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "dbe6a5a0-450b-42c8-a464-d3205c3f3df6",
+        "model": "grok-4.6"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_e1a46e06f1d73d": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0bf2c-e6d5-79a0-bce6-68721ee39954",
         "model": "grok-4.6"
       },
       "human_author": "张艳华 <939593210@qq.com>"
