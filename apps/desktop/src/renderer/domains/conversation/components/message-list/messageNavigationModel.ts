@@ -8,7 +8,7 @@ import type { ChatConversationItem } from "./types";
 export type { RenderedFeedItem as RenderedMessageItem } from "@shared/components/message-feed/visibleItemModel";
 export { findTopVisibleItemIndex as findTopVisibleMessageIndex } from "@shared/components/message-feed/visibleItemModel";
 
-export const MESSAGE_NAVIGATION_MIN_TURNS = 8;
+export const MESSAGE_NAVIGATION_MIN_TURNS = 3;
 
 function visibleMessageText(message: ChatConversationItem): string {
 	if (message.kind === "event") return "";

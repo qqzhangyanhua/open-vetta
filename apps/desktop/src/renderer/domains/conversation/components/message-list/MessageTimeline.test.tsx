@@ -55,9 +55,14 @@ function conversation(turns: number): ChatConversationItem[] {
 }
 
 describe("MessageTimeline", () => {
-	it("stays hidden below the long-conversation threshold", () => {
-		render(<MessageTimeline activeMessageIndex={0} messages={conversation(7)} onNavigate={vi.fn()} />);
+	it("stays hidden below three questions", () => {
+		render(<MessageTimeline activeMessageIndex={0} messages={conversation(2)} onNavigate={vi.fn()} />);
 		expect(screen.queryByRole("button", { name: "View questions" })).toBeNull();
+	});
+
+	it("shows the outline once there are three questions", () => {
+		render(<MessageTimeline activeMessageIndex={0} messages={conversation(3)} onNavigate={vi.fn()} />);
+		expect(screen.getByRole("button", { name: "View questions" })).toBeTruthy();
 	});
 
 	it("keeps the question list closed until the outline is opened", () => {
