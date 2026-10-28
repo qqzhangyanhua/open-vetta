@@ -1,0 +1,32 @@
+.github/release-notes/v0.5.69.md
+  s_7d9e469755b67f::t_ea8ab56f4c7701 19
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerPageModel.test.tsx
+  s_7d9e469755b67f::t_15f1c9d10d2439 114-137
+packages/coding-agent/test/sessions/external/external-session-catalog.test.ts
+  s_7d9e469755b67f::t_581d7502e67a01 65-75,161-192
+  s_7d9e469755b67f::t_6f9d5ad90c0045 193-194
+apps/desktop/src/renderer/domains/conversation/hooks/useSessionViewerPageModel.ts
+  s_7d9e469755b67f::t_171c3c5e0b1ed7 164-166,169
+packages/coding-agent/src/sessions/external/grok-format.ts
+  s_7d9e469755b67f::t_6286a67b307958 22,30,56,83,95,117-121
+  s_7d9e469755b67f::t_78dbe447970ff2 122
+packages/coding-agent/test/sessions/external/external-session-history-reader.test.ts
+  s_7d9e469755b67f::t_b210a22b1d2e62 324-348,394-426
+  s_7d9e469755b67f::t_ff72fc6ff3dccc 427
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "bdac610b24e362764b5ea5a0151180356dbafeb3",
+  "prompts": {},
+  "sessions": {
+    "s_7d9e469755b67f": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a1828b-eaa1-7601-849e-7385c134c006",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
