@@ -577,7 +577,7 @@
 			"droid": "droid",
 			"opencode": "opencode"
 		},
-		"placeholder": "这条消息会交给 {{agent}} 在终端里执行，输出保留在本会话",
+		"placeholder": "这条消息会交给 {{agent}}，回复显示在这个会话里",
 		"interactivePlaceholder": "第一条交给 {{agent}} 打开它的终端，之后直接在终端里接着聊",
 		"continueInTerminal": "在终端里继续对话",
 		"permission": "由 {{agent}} 自己的权限设置决定，需要确认时会在终端里询问",

@@ -1,5 +1,5 @@
 import { MessageInput } from "@vetta-org/theme-ui/chat/MessageInputView";
-import type { ReactNode } from "react";
+import { createContext, useContext, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { InputBarMention } from "./InputBarMention";
 import {
 	InputBarActiveActions,
@@ -51,6 +51,7 @@ export function InputBarLeadingActions({ model }: { readonly model: InputBarMode
 					model={tool.model}
 				/>
 			))}
+			<InputBarRecipientAnchor hidden={slashOpen} />
 			<InputBarActiveActions
 				items={model.activeActions}
 				removeHint={model.labels.capsule.removeDefault}
@@ -68,20 +69,43 @@ export function InputBarTrailingActions({ model }: { readonly model: InputBarMod
 				<InputBarContextAction key={tool.kind} visible={!slashOpen} model={tool.model} render={tool.render} />
 			))}
 			{slashOpen ? null : <InputBarSpeechAction input={model.speechInput} />}
-			{model.sendingExternally ? null : (
+			{slashOpen || (model.sendingExternally === true && model.externalInvocation?.hideComposer === true) ? null : (
 				<InputBarSendAction
-					canSend={model.canSend}
-					canQueue={model.sendBehavior === "queueable"}
+					canSend={model.sendingExternally === true ? model.canSendExternally === true : model.canSend}
+					canQueue={model.sendingExternally !== true && model.sendBehavior === "queueable"}
 					isEmpty={model.isEmpty}
-					isStreaming={model.isStreaming}
+					isStreaming={model.sendingExternally === true ? false : model.isStreaming}
 					queueTitle={model.labels.toolbar.queue}
-					pending={model.sendPending}
+					pending={model.sendingExternally === true ? undefined : model.sendPending}
 					onAbort={model.actions.handleAbort}
-					onSend={model.actions.handleSend}
+					onSend={
+						model.sendingExternally === true
+							? () => model.externalInvocation?.onEditorSend()
+							: model.actions.handleSend
+					}
 				/>
 			)}
 		</>
 	);
+}
+
+const ToolbarRecipientElementContext = createContext<HTMLElement | null>(null);
+const SetToolbarRecipientElementContext = createContext<(element: HTMLElement | null) => void>(() => {});
+
+/** 输入栏左侧「发给」锚点。工具栏外（标题栏、终端会话）没有这个锚点，下拉框留在原处。 */
+export function useToolbarRecipientElement(): HTMLElement | null {
+	return useContext(ToolbarRecipientElementContext);
+}
+
+function InputBarRecipientAnchor({ hidden }: { readonly hidden: boolean }): JSX.Element {
+	const setElement = useContext(SetToolbarRecipientElementContext);
+	const ref = useRef<HTMLDivElement>(null);
+	useLayoutEffect(() => {
+		setElement(ref.current);
+		return () => setElement(null);
+	}, [setElement]);
+	// contents：没有「发给」时不占位，也不给左侧工具栏多出一条缝。
+	return <div ref={ref} className={hidden ? "hidden" : "contents"} />;
 }
 
 /** Shared toolbar recipe: callers compose the model controls, common actions keep their order. */
@@ -92,15 +116,20 @@ export function InputBarToolbar({
 	readonly model: InputBarModel;
 	readonly children: ReactNode;
 }): JSX.Element {
+	const [recipientElement, setRecipientElement] = useState<HTMLElement | null>(null);
 	return (
-		<>
-			<MessageInput.ToolbarLeading>
-				<InputBarLeadingActions model={model} />
-			</MessageInput.ToolbarLeading>
-			<MessageInput.ToolbarTrailing>
-				<div className={model.commands?.slashOpen ? "hidden" : "min-w-0 shrink"}>{children}</div>
-				<InputBarTrailingActions model={model} />
-			</MessageInput.ToolbarTrailing>
-		</>
+		<SetToolbarRecipientElementContext.Provider value={setRecipientElement}>
+			<ToolbarRecipientElementContext.Provider value={recipientElement}>
+				<MessageInput.ToolbarLeading>
+					<InputBarLeadingActions model={model} />
+				</MessageInput.ToolbarLeading>
+				<MessageInput.ToolbarTrailing>
+					<div className={model.commands?.slashOpen ? "hidden" : "flex min-w-0 shrink items-center gap-1"}>
+						{children}
+					</div>
+					<InputBarTrailingActions model={model} />
+				</MessageInput.ToolbarTrailing>
+			</ToolbarRecipientElementContext.Provider>
+		</SetToolbarRecipientElementContext.Provider>
 	);
 }

@@ -179,12 +179,15 @@ export function useSessionOpener(): SessionOpenerController {
 			const navigateBeforeCreate =
 				sessionPath === undefined && shouldNavigate && options?.navigateBeforeCreate === true;
 			const stageExistingSessionOpen = isExistingSessionOpen && shouldNavigate;
+			const pendingInteractionId = interactionId ?? "";
 			const clearOwnPendingTransition = (): void => {
 				if (navigateBeforeCreate) {
-					setPendingSessionCreation((current) => (current?.interactionId === interactionId ? null : current));
+					setPendingSessionCreation((current) =>
+						current?.interactionId === pendingInteractionId ? null : current,
+					);
 				}
 				if (stageExistingSessionOpen) {
-					setPendingSessionOpen((current) => (current?.interactionId === interactionId ? null : current));
+					setPendingSessionOpen((current) => (current?.interactionId === pendingInteractionId ? null : current));
 				}
 			};
 			const finishCancelledOpen = (): void => {
@@ -206,9 +209,9 @@ export function useSessionOpener(): SessionOpenerController {
 				if (isExistingSessionOpen) perfSessionSwitchComplete("failed", interactionId);
 			};
 			if (navigateBeforeCreate) {
-				setPendingSessionCreation({ cwd, interactionId: interactionId ?? "" });
+				setPendingSessionCreation({ cwd, interactionId: pendingInteractionId });
 			} else if (stageExistingSessionOpen) {
-				setPendingSessionOpen({ cwd, sessionPath, interactionId: interactionId ?? "" });
+				setPendingSessionOpen({ cwd, sessionPath, interactionId: pendingInteractionId });
 				// Draft ownership follows the user's click immediately. Runtime readiness
 				// must not be required for typing, attachments or sending to target state.
 				adoptExistingSessionInputDraft(sessionPath);

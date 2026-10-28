@@ -577,7 +577,7 @@
 			"droid": "droid",
 			"opencode": "opencode"
 		},
-		"placeholder": "This message runs in the terminal with {{agent}}. The output stays in this session",
+		"placeholder": "This message goes to {{agent}}. The reply shows in this session",
 		"interactivePlaceholder": "The first message opens {{agent}} in the terminal. Keep chatting there.",
 		"continueInTerminal": "Continue in the terminal",
 		"permission": "{{agent}} uses its own permission settings. Confirmations are asked in the terminal",

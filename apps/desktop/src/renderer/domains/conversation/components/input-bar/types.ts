@@ -260,8 +260,10 @@ export interface InputBarModel {
 			readonly onSelect: () => void;
 		}[];
 	};
-	/** 当前接收方是外部智能体：命令、模型和发送交给它自己的终端。 */
+	/** 当前接收方是外部智能体：命令和模型选择让开，发送仍用同一颗圆形按钮。 */
 	sendingExternally?: boolean;
+	/** 外部接收方时圆形发送按钮可否点击。penguin 仍看 canSend。 */
+	canSendExternally?: boolean;
 	/** 发给外部智能体。缺省时输入栏保持只发给 penguin 的样子。 */
 	externalInvocation?: {
 		readonly session: { readonly sessionId: string; readonly cwd: string } | null;
@@ -294,6 +296,7 @@ export interface InputBarModel {
 			readonly type: "running" | "queued" | "completed" | "failed" | "interrupted" | "output" | "truncated";
 			readonly invocationId: string;
 			readonly agentId?: string;
+			readonly processForm?: "one-shot" | "interactive";
 			readonly externalSessionId?: string | null;
 			readonly ordinal?: number;
 			readonly startedAt?: string;
@@ -302,6 +305,7 @@ export interface InputBarModel {
 		readonly prompt: string;
 		readonly onPromptChange: (value: string) => void;
 		readonly onRecipientChange: (recipientId: string) => void;
+		readonly onProcessFormChange?: (processForm: "one-shot" | "interactive" | undefined) => void;
 		readonly draftKey: string | null;
 		readonly images: readonly { path: string; name: string }[];
 		readonly onRemoveImage: (path: string) => void;

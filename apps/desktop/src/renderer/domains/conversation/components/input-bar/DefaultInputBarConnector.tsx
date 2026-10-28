@@ -12,10 +12,10 @@ import {
 	subscribeExternalRecipient,
 } from "@shared/store/external-recipient";
 import { isSshProjectUri } from "@vetta/ssh-transport/project-uri";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { externalAgentLabel } from "../external-invocation/external-agent-label";
-import { openExternalInvocationTabAtom } from "../external-invocation/open-external-invocation-tab";
+import { openLiveExternalInvocation } from "../external-invocation/open-external-invocation-tab";
 import { SessionExternalInvocationPage } from "../external-invocation/SessionExternalInvocationPage";
 import { useTranslation } from "react-i18next";
 import { InputBar } from "../InputBar";
@@ -58,6 +58,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 	const recipientVersion = useSyncExternalStore(subscribeExternalRecipient, externalRecipientVersion, () => 0);
 	const storedRecipient = recipientVersion >= 0 ? externalRecipientFor(draftKey) : "penguin";
 	const [externalRecipientId, setExternalRecipientId] = useState(storedRecipient);
+	const [recipientForm, setRecipientForm] = useState<"one-shot" | "interactive" | undefined>();
 	const [hideComposer, setHideComposer] = useState(false);
 	const externalSendRef = useRef<(() => void) | null>(null);
 	const bindExternalSend = useCallback((send: (() => void) | null) => {
@@ -74,7 +75,6 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		setExternalImagesBlocked(blocked);
 		return () => setExternalImagesBlocked(false);
 	}, [externalRecipientId]);
-	const placeExternalInvocation = useSetAtom(openExternalInvocationTabAtom);
 	const invocationStatus = useRef<Record<string, "running" | "finished">>({});
 	const runtimeId = session.activeSession?.runtimeId;
 	const interactions = useInputBarInteractionSource(runtimeId);
@@ -193,15 +193,15 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		if (externalRecipientId !== "penguin") {
 			const agent = externalAgentLabel(externalRecipientId, t) || externalRecipientId;
 			const key =
-				externalRecipientId === "grok"
-					? "externalInvocation.interactivePlaceholder"
-					: "externalInvocation.placeholder";
+				recipientForm === "one-shot"
+					? "externalInvocation.placeholder"
+					: "externalInvocation.interactivePlaceholder";
 			return { placeholderTexts: [t(key, { agent })], placeholderRotating: false };
 		}
 		if (session.isStreaming) return { placeholderTexts: [t("inputBar.placeholder.thinking")], placeholderRotating: false };
 		if (session.placeholderVisible && firstSuggestion) return { placeholderTexts: [t("inputBar.placeholder.suggestion", { suggestion: firstSuggestion })], placeholderRotating: false };
 		return { placeholderTexts: defaultPlaceholders, placeholderRotating: defaultPlaceholders.length > 1 };
-	}, [defaultPlaceholders, externalRecipientId, firstSuggestion, session.hasSession, session.isStreaming, session.placeholderVisible, t]);
+	}, [defaultPlaceholders, externalRecipientId, firstSuggestion, recipientForm, session.hasSession, session.isStreaming, session.placeholderVisible, t]);
 	const labels = useMemo<InputBarModel["labels"]>(() => ({
 		capsule: { removeDefault: t("inputBar.capsule.removeDefault"), removeImage: t("inputBar.capsule.removeImage"), removeTooltip: (path) => t("inputBar.capsule.removeTooltip", { path }), activeGroup: (count) => t("inputBar.capsule.activeGroup", { count }) },
 		permission: { deny: t("inputBar.permission.deny"), allow: t("inputBar.permission.allow"), allowSession: t("inputBar.permission.allowSession") },
@@ -222,6 +222,14 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 		appshotAttachment: draft.appshotAttachment,
 		hasSession: session.hasSession,
 		canSend: canSend,
+		canSendExternally:
+			externalRecipientId !== "penguin" &&
+			!hideComposer &&
+			inputValue.trim().length > 0 &&
+			imageAttachments.length === 0 &&
+			!isSshProjectUri(session.effectiveCwd) &&
+			(Boolean(session.activeSession) || Boolean(props.onEnsureSession)) &&
+			Boolean(window.vetta?.externalInvocations),
 		isEmpty: session.isBlank,
 		showPlaceholder: session.placeholderVisible,
 		hasCapsules,
@@ -268,6 +276,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 			prompt: inputValue,
 			onPromptChange: draft.setInputValue,
 			onRecipientChange: setExternalRecipientId,
+			onProcessFormChange: setRecipientForm,
 			draftKey,
 			images: imageAttachments.map((image) => ({ path: image.path, name: image.name })),
 			onRemoveImage: attachments.removeImage,
@@ -280,36 +289,32 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 			onBindSend: bindExternalSend,
 			onEditorSend: () => externalSendRef.current?.(),
 			onInvocationEvent: (event) => {
-				const active = session.activeSession;
-				const scopeKey = props.workSurface?.key ?? draftKey;
-				if (!active || !scopeKey) return;
-				if (event.type === "running" || event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
-					const status = event.type === "running" ? "running" : "finished";
-					invocationStatus.current[event.invocationId] = status;
-					placeExternalInvocation({
-						scopeKey,
-						invocationId: event.invocationId,
-						status,
-						cwd: session.effectiveCwd,
-						sessionId: active.runtimeId,
-						agentLabel: externalAgentLabel(event.agentId ?? externalRecipientId, t) || externalRecipientId,
-						externalSessionId: event.externalSessionId,
-						agentId: event.agentId,
-						createIfMissing: event.type === "running",
-					});
+				// one-shot 的结果留在会话里，不另开终端。当前外部代理都是交互式 TUI。
+				if (event.processForm === "one-shot") return;
+				if (event.type !== "running" && event.type !== "completed" && event.type !== "failed" && event.type !== "interrupted") {
+					return;
 				}
+				const status = event.type === "running" ? "running" : "finished";
+				invocationStatus.current[event.invocationId] = status;
+				openLiveExternalInvocation({
+					workSurfaceKey: props.workSurface?.key,
+					fallbackCwd: session.effectiveCwd,
+					invocationId: event.invocationId,
+					status,
+					agentLabel: externalAgentLabel(event.agentId ?? externalRecipientId, t) || externalRecipientId,
+					externalSessionId: event.externalSessionId,
+					agentId: event.agentId,
+					createIfMissing: event.type === "running",
+				});
 			},
 			onViewInTerminal: (invocationId) => {
-				const active = session.activeSession;
-				const scopeKey = props.workSurface?.key ?? draftKey;
-				if (!active || !scopeKey) return;
-				placeExternalInvocation({
-					scopeKey,
+				openLiveExternalInvocation({
+					workSurfaceKey: props.workSurface?.key,
+					fallbackCwd: session.effectiveCwd,
 					invocationId,
 					status: invocationStatus.current[invocationId] ?? "finished",
-					cwd: session.effectiveCwd,
-					sessionId: active.runtimeId,
 					agentLabel: externalAgentLabel(externalRecipientId, t) || externalRecipientId,
+					createIfMissing: true,
 				});
 			},
 		},
@@ -357,6 +362,7 @@ export const DefaultInputBarConnector = memo(function DefaultInputBarConnector(p
 							onBindSend={external.onBindSend}
 							onHideComposer={external.onHideComposer}
 							onRecipientChange={external.onRecipientChange}
+							onProcessFormChange={external.onProcessFormChange}
 							onInvocationEvent={external.onInvocationEvent}
 							onViewInTerminal={external.onViewInTerminal}
 						/>

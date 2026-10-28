@@ -451,7 +451,7 @@ describe("session page external invocation", () => {
 		const client: ExternalInvocationClient = {
 			listAgents: async () => [
 				{ id: "grok", label: "Grok", processForm: "interactive" },
-				{ id: "omp", label: "OMP", processForm: "one-shot" },
+				{ id: "omp", label: "OMP", processForm: "interactive" },
 			],
 			start: vi.fn(),
 			subscribe: (_sessionId, next) => {
@@ -474,6 +474,83 @@ describe("session page external invocation", () => {
 		expect(screen.getByRole("button", { name: "发给 Grok" })).toBeTruthy();
 		expect(screen.getByLabelText("消息")).toBeTruthy();
 		expect(screen.queryByText("在终端里继续对话")).toBeNull();
+	});
+
+	it("tells OMP the first message opens its terminal, then keeps the conversation there", async () => {
+		const user = userEvent.setup();
+		let listener: ((event: ExternalInvocationClientEvent) => void) | undefined;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "omp", label: "OMP", processForm: "interactive" }],
+			start: vi.fn(),
+			subscribe: (_sessionId, next) => {
+				listener = next;
+				return () => {
+					listener = undefined;
+				};
+			},
+		};
+		render(<Harness client={client} />);
+		await chooseRecipient(user, "OMP");
+		expect(screen.getByText("第一条交给 OMP 打开它的终端，之后直接在终端里接着聊")).toBeTruthy();
+		expect(screen.queryByText(/回复显示在这个会话里/)).toBeNull();
+		await act(async () => {
+			listener?.({
+				type: "running",
+				invocationId: "inv-omp",
+				prompt: "test123",
+				agentId: "omp",
+				processForm: "interactive",
+			});
+		});
+		expect(screen.getByText("在终端里继续对话")).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "发给 OMP" })).toBeNull();
+	});
+
+	it("opens a new terminal as soon as the input bar sends to Grok", async () => {
+		const user = userEvent.setup();
+		const start = vi.fn(async () => ({ invocationId: "inv-new" }));
+		const onInvocationEvent = vi.fn();
+		let send: (() => void) | null = null;
+		const client: ExternalInvocationClient = {
+			listAgents: async () => [{ id: "grok", label: "Grok", processForm: "interactive" }],
+			start,
+			subscribe: () => () => undefined,
+		};
+		render(
+			<SessionExternalInvocationPage
+				session={{ sessionId: "session-1", cwd: "/work/app" }}
+				client={client}
+				prompt="hello grok"
+				onPromptChange={() => undefined}
+				showPrompt={false}
+				penguinTools={null}
+				onBindSend={(next) => {
+					send = next;
+				}}
+				onInvocationEvent={onInvocationEvent}
+			/>,
+		);
+		await chooseRecipient(user, "Grok");
+		await act(async () => {
+			send?.();
+		});
+		expect(start).toHaveBeenCalledWith(
+			expect.objectContaining({
+				agentId: "grok",
+				prompt: "hello grok",
+				newSession: true,
+				externalSessionId: null,
+			}),
+		);
+		await waitFor(() => {
+			expect(onInvocationEvent).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: "running",
+					invocationId: "inv-new",
+					agentId: "grok",
+				}),
+			);
+		});
 	});
 
 });

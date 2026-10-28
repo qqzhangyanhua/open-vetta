@@ -8,7 +8,7 @@ const CURSOR_SKIP_FLAGS = ["--force", "-f", "--yolo", "--trust", "--approve-mcps
 
 export type ExternalAgentId = "grok" | "omp" | "cursor-agent" | "agy" | "codex" | "pi" | "droid" | "opencode";
 
-/** one-shot: 跑完即退出。interactive: 对方 TUI 一直开着，后续对话打在终端里。 */
+/** one-shot: 跑完即退出，结果只进会话。interactive: 对方 TUI 一直开着，后续对话只在终端里。 */
 export type ExternalAgentProcessForm = "one-shot" | "interactive";
 
 /** Orca promptInjectionMode 的启动侧子集：空 prompt 时不带参数，只起 TUI。 */
@@ -53,16 +53,20 @@ export const ompAdapter: ExternalAgentAdapter = {
 	id: "omp",
 	label: "OMP",
 	executable: "omp",
-	processForm: "one-shot",
+	processForm: "interactive",
 	singleInstructionArgs(prompt: string, referencedPaths: readonly string[] = []): readonly string[] {
 		const instruction = instructionText(prompt, referencedPaths);
-		// 底部面板「+」不带提问，应直接打开 TUI。空的 --print 会卡在 Working。
+		// 空提问只打开 TUI。有提问时作为交互式首条消息，终端保持打开，不用 --print。
 		if (instruction.length === 0) return [];
-		return guardArgs(["--print", instruction], OMP_SKIP_FLAGS, "OMP");
+		return guardArgs([instruction], OMP_SKIP_FLAGS, "OMP");
 	},
 	resumeArgs(prompt: string, externalSessionId: string, referencedPaths: readonly string[] = []): readonly string[] {
-		const instruction = ompAdapter.singleInstructionArgs(prompt, referencedPaths)[1] ?? "";
-		return guardArgs(["--print", instruction, "--resume", externalSessionId], OMP_SKIP_FLAGS, "OMP");
+		const instruction = instructionText(prompt, referencedPaths);
+		return guardArgs(
+			["--resume", externalSessionId, ...(instruction.length > 0 ? [instruction] : [])],
+			OMP_SKIP_FLAGS,
+			"OMP",
+		);
 	},
 	locateSessionId(input): string | null {
 		return locateOmpSessionId(input);
@@ -73,15 +77,19 @@ export const cursorAgentAdapter: ExternalAgentAdapter = {
 	id: "cursor-agent",
 	label: "cursor-agent",
 	executable: "cursor-agent",
-	processForm: "one-shot",
+	processForm: "interactive",
 	singleInstructionArgs(prompt: string, referencedPaths: readonly string[] = []): readonly string[] {
 		const instruction = instructionText(prompt, referencedPaths);
 		if (instruction.length === 0) return [];
-		return guardArgs(["--print", instruction], CURSOR_SKIP_FLAGS, "cursor-agent");
+		return guardArgs([instruction], CURSOR_SKIP_FLAGS, "cursor-agent");
 	},
 	resumeArgs(prompt: string, externalSessionId: string, referencedPaths: readonly string[] = []): readonly string[] {
-		const instruction = cursorAgentAdapter.singleInstructionArgs(prompt, referencedPaths)[1] ?? "";
-		return guardArgs(["--print", instruction, "--resume", externalSessionId], CURSOR_SKIP_FLAGS, "cursor-agent");
+		const instruction = instructionText(prompt, referencedPaths);
+		return guardArgs(
+			["--resume", externalSessionId, ...(instruction.length > 0 ? [instruction] : [])],
+			CURSOR_SKIP_FLAGS,
+			"cursor-agent",
+		);
 	},
 	locateSessionId(input): string | null {
 		return locateCursorAgentSessionId(input);

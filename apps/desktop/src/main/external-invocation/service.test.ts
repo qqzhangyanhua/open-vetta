@@ -501,7 +501,7 @@ describe("external invocation service", () => {
 		await h.service.start({ sessionId: "session-1", cwd: "/work/app", prompt: "from grok", agentId: "grok" });
 		expect(h.events.some((event) => event.type === "queued")).toBe(false);
 		expect(h.started).toEqual([
-			{ file: "omp", args: ["--print", "from omp"], cwd: "/work/app" },
+			{ file: "omp", args: ["from omp"], cwd: "/work/app" },
 			{ file: "grok", args: ["--", "from grok"], cwd: "/work/app" },
 		]);
 		expect(h.procs).toHaveLength(2);

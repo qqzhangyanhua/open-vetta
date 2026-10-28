@@ -352,6 +352,78 @@ it("新会话先导航并完成一帧绘制，再创建 runtime，同时保留�
 	expect(store.get(chatMessagesAtom)).toEqual([stagedUser]);
 });
 
+it("新会话没有 interactionId 时，创建完成后不再停在正在创建", { timeout: 10_000 }, async () => {
+	const { activeSessionAtom, pendingSessionCreationAtom } = await import("@shared/store/atoms");
+	const { useSessionManager } = await import("./useSessionManager");
+	const store = getDefaultStore();
+	const frames: FrameRequestCallback[] = [];
+	vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+		frames.push(callback);
+		return frames.length;
+	});
+	const sessionApi = {
+		autoTitle: vi.fn(),
+		create: vi.fn(async () => ({
+			cwd,
+			sessionId: "runtime-new",
+			sessionPath: firstCanonicalPath,
+		})),
+		getFullHistory: vi.fn(async () => []),
+		getQueueState: vi.fn(async () => ({ paused: false, entries: [] })),
+		getSessionPath: vi.fn(async () => firstCanonicalPath),
+		getState: vi.fn(async () => ({
+			activeToolNames: [],
+			contextPercent: null,
+			contextWindow: 128_000,
+			executionMode: "sandbox" as const,
+			isStreaming: false,
+			messageCount: 0,
+			model: null,
+			scenario: "project" as const,
+		})),
+		prompt: vi.fn(),
+		subscribe: vi.fn(async () => vi.fn()),
+		updateSettings: vi.fn(async () => undefined),
+	};
+	Object.defineProperty(window, "vetta", {
+		configurable: true,
+		value: {
+			batchTasks: { resumeTaskWithText: vi.fn() },
+			config: { get: vi.fn() },
+			dialog: { persistImages: vi.fn() },
+			session: withSessionAttach(sessionApi),
+		},
+	});
+	store.set(activeSessionAtom, null);
+
+	function Probe() {
+		manager = useSessionManager();
+		return null;
+	}
+
+	await act(async () => {
+		root = createRoot(container as HTMLDivElement);
+		root.render(createElement(Probe));
+	});
+
+	let opening: Promise<void> | undefined;
+	await act(async () => {
+		opening = manager?.openSession(cwd, undefined, "sandbox", { navigateBeforeCreate: true });
+		await Promise.resolve();
+	});
+
+	expect(store.get(pendingSessionCreationAtom)).toEqual({ cwd, interactionId: "" });
+
+	await act(async () => {
+		frames.shift()?.(0);
+		frames.shift()?.(16);
+		await opening;
+	});
+
+	expect(store.get(pendingSessionCreationAtom)).toBeNull();
+	expect(store.get(activeSessionAtom)?.runtimeId).toBe("runtime-new");
+});
+
 it("已有会话先提交加载态，快速切换时只有最后一次打开可以提交", { timeout: 10_000 }, async () => {
 	const { activeSessionAtom, chatMessagesAtom, pendingSessionOpenAtom } = await import("@shared/store/atoms");
 	const { useSessionManager } = await import("./useSessionManager");

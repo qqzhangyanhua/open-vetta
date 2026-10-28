@@ -35,6 +35,7 @@ export interface ExternalInvocationClientEvent {
 	readonly invocationId: string;
 	readonly prompt?: string;
 	readonly agentId?: string;
+	readonly processForm?: "one-shot" | "interactive";
 	readonly exitCode?: number | null;
 	readonly reason?: "user" | "app-exit" | "cancelled" | string;
 	readonly message?: string;
@@ -147,6 +148,7 @@ export function SessionExternalInvocationPage({
 	remote = false,
 	skills = null,
 	onRecipientChange,
+	onProcessFormChange,
 	onViewInTerminal,
 	onInvocationEvent,
 	ensureSession,
@@ -167,6 +169,7 @@ export function SessionExternalInvocationPage({
 	readonly remote?: boolean;
 	readonly skills?: ReactNode;
 	readonly onRecipientChange?: (recipientId: string) => void;
+	readonly onProcessFormChange?: (processForm: "one-shot" | "interactive" | undefined) => void;
 	readonly onViewInTerminal?: (invocationId: string) => void;
 	readonly onInvocationEvent?: (event: ExternalInvocationClientEvent) => void;
 	readonly ensureSession?: () => Promise<{ sessionId: string; cwd: string } | null>;
@@ -177,6 +180,8 @@ export function SessionExternalInvocationPage({
 	const [detected, setDetected] = useState<
 		readonly { id: string; label: string; processForm?: "one-shot" | "interactive" }[]
 	>([]);
+	const detectedRef = useRef(detected);
+	detectedRef.current = detected;
 	const historyResume = useSyncExternalStore(
 		subscribeExternalHistoryResume,
 		() => externalHistoryResumeFor(draftKey),
@@ -190,6 +195,9 @@ export function SessionExternalInvocationPage({
 	useEffect(() => {
 		onRecipientChange?.(recipientId);
 	}, [onRecipientChange, recipientId]);
+	useEffect(() => {
+		onProcessFormChange?.(detected.find((agent) => agent.id === recipientId)?.processForm);
+	}, [detected, onProcessFormChange, recipientId]);
 	const [cards, setCards] = useState<readonly ExternalInvocationCardModel[]>([]);
 	const [newSession, setNewSession] = useState(false);
 	const [resumeSessionId, setResumeSessionId] = useState<string | null>(null);
@@ -214,6 +222,8 @@ export function SessionExternalInvocationPage({
 		})),
 	];
 	const recipient = agents.find((agent) => agent.id === recipientId) ?? agents[0];
+	const recipientForm = detected.find((agent) => agent.id === recipientId)?.processForm;
+	const terminalHosted = recipientForm !== "one-shot";
 	const external = recipientId !== "penguin";
 	const sendBlocked = images.length > 0 || remote || (!session && !ensureSession);
 	const canStartNewSession = Boolean(historyResume || resumeSessionId);
@@ -240,11 +250,14 @@ export function SessionExternalInvocationPage({
 			if (event.type === "completed" || event.type === "failed" || event.type === "interrupted") {
 				void reloadExternalInvocationOrigins();
 			}
+			const processForm =
+				event.processForm ?? detectedRef.current.find((agent) => agent.id === event.agentId)?.processForm;
+			const stamped = processForm ? { ...event, processForm } : event;
 			if (event.type === "output" || event.type === "truncated") {
-				onInvocationEvent?.(event);
+				onInvocationEvent?.(stamped);
 				return;
 			}
-			onInvocationEvent?.(event);
+			onInvocationEvent?.(stamped);
 			const label = externalAgentLabel(event.agentId, t) || (recipient?.label ?? "");
 			setCards((current) =>
 				applyExternalInvocationEvent(current, event, label, (status) => t(externalInvocationStatusKey[status])),
@@ -255,7 +268,9 @@ export function SessionExternalInvocationPage({
 	sendNowRef.current = () => {
 		if (!external || sendBlocked || !client || prompt.trim().length === 0) return;
 		const text = prompt.trim();
-		const startNew = canStartNewSession && newSession;
+		// 输入栏没有「开新会话」开关。没有正在续的外部会话时，这一发就是新终端。
+		const opensNewTerminal = !showPrompt && !historyResume && !resumeSessionId;
+		const startNew = opensNewTerminal || (canStartNewSession && newSession);
 		const bound = startNew ? null : historyResume;
 		const resumeId = startNew ? null : resumeSessionId;
 		onPromptChange("");
@@ -267,7 +282,7 @@ export function SessionExternalInvocationPage({
 					onPromptChange(text);
 					return;
 				}
-				await client.start({
+				const started = await client.start({
 					sessionId: target.sessionId,
 					cwd: bound?.cwd ?? target.cwd,
 					prompt: text,
@@ -276,6 +291,16 @@ export function SessionExternalInvocationPage({
 					externalSessionId: bound?.externalSessionId ?? resumeId,
 					newSession: startNew,
 					...(bound ? { historyResume: { externalSessionId: bound.externalSessionId, cwd: bound.cwd } } : {}),
+				});
+				// 新会话页要先建会话再跳走，running 事件的订阅经常接不上。终端在 start 返回时就打开。
+				const processForm = detectedRef.current.find((agent) => agent.id === recipientId)?.processForm;
+				onInvocationEvent?.({
+					type: "running",
+					invocationId: started.invocationId,
+					agentId: recipientId,
+					prompt: text,
+					processForm,
+					externalSessionId: bound?.externalSessionId ?? resumeId,
 				});
 			} catch {
 				onPromptChange(text);
@@ -307,9 +332,7 @@ export function SessionExternalInvocationPage({
 					setRecipientId(next);
 				},
 				placeholder: t(
-					recipientId === "grok"
-						? "externalInvocation.interactivePlaceholder"
-						: "externalInvocation.placeholder",
+					terminalHosted ? "externalInvocation.interactivePlaceholder" : "externalInvocation.placeholder",
 					{ agent: recipient?.label ?? "" },
 				),
 				permissionNote: t("externalInvocation.permission", { agent: recipient?.label ?? "" }),

@@ -19,7 +19,7 @@ describe("detectExternalAgentsOnPath", () => {
 				processForm: agent.processForm,
 			})),
 		).toEqual([
-			{ id: "omp", executable: "omp", processForm: "one-shot" },
+			{ id: "omp", executable: "omp", processForm: "interactive" },
 			{ id: "codex", executable: "codex", processForm: "interactive" },
 			{ id: "pi", executable: "pi", processForm: "interactive" },
 			{ id: "droid", executable: "droid", processForm: "interactive" },

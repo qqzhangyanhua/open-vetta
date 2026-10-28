@@ -8,7 +8,9 @@ import {
 	DropdownMenuTrigger,
 } from "@vetta-org/ui";
 import type { JSX, ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import { useToolbarRecipientElement } from "../input-bar/InputBarToolbarActions";
 
 export interface ExternalInvocationAgentOption {
 	readonly id: string;
@@ -76,19 +78,20 @@ export function SessionExternalInvocationView({
 	const compact = !model.showPrompt || model.switcherOnly;
 	const selected = model.agents.find((agent) => agent.id === model.recipientId);
 	const selectedLabel = selected?.label ?? model.recipientId;
-	const switcher = (
-		<div className="flex min-w-0 items-center gap-1.5">
-			<span className={compact ? "shrink-0 text-[12px] text-muted-foreground" : undefined}>
-				{t("externalInvocation.switcher")}
-			</span>
+	const recipientSlot = useToolbarRecipientElement();
+	// 发给谁和权限一样，是这一轮交给谁。输入栏里把它放到左侧权限后面。
+	// 输入栏里的发送始终用右侧那颗圆形按钮，这里不再另画一颗「发给 XXX」。
+	const recipientControl = (
+		<div className="flex min-w-0 shrink items-center gap-1.5">
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<button
 						type="button"
 						aria-label={t("externalInvocation.switcher")}
 						title={external ? model.permissionNote : undefined}
-						className="flex h-8 max-w-[12rem] shrink-0 items-center gap-1.5 rounded-lg border border-border/50 bg-transparent px-2 text-[12px] text-foreground outline-none hover:border-primary/40 data-[state=open]:border-primary/40 data-[state=open]:bg-primary/10"
+						className="no-drag flex h-7 min-w-0 max-w-[14rem] items-center gap-1 rounded-lg px-1.5 text-[12px] font-medium text-foreground outline-none transition-colors hover:bg-accent/60 data-[state=open]:bg-accent"
 					>
+						<span className="shrink-0 text-muted-foreground">{t("externalInvocation.switcher")}</span>
 						<ExternalAgentMark agentId={model.recipientId} />
 						<span className="min-w-0 truncate">{selectedLabel}</span>
 						<span className="icon-[solar--alt-arrow-down-linear] size-3 shrink-0 text-muted-foreground" />
@@ -114,33 +117,40 @@ export function SessionExternalInvocationView({
 					})}
 				</DropdownMenuContent>
 			</DropdownMenu>
+			{model.remoteNote ? (
+				<p className={compact ? "m-0 text-[11px] text-muted-foreground" : undefined}>{model.remoteNote}</p>
+			) : null}
 		</div>
 	);
+	const recipient = recipientSlot ? createPortal(recipientControl, recipientSlot) : recipientControl;
+	const sharesRoundSendButton = recipientSlot !== null && compact;
+	// 紧凑态把下拉框挪到左侧锚点后，这一节不再占右侧的盒子，避免空盒子把模型挤到下一行。
+	const sectionClass =
+		recipientSlot && compact
+			? "contents"
+			: compact
+				? "flex min-w-0 items-center gap-1.5"
+				: undefined;
 
 	if (model.switcherOnly) {
 		return (
-			<section aria-label={model.sendLabel} className="flex min-w-0 items-center gap-1.5">
-				{switcher}
-				{model.remoteNote ? <p className="m-0 text-[11px] text-muted-foreground">{model.remoteNote}</p> : null}
+			<section aria-label={model.sendLabel} className={sectionClass}>
+				{recipient}
 			</section>
 		);
 	}
 
 	return (
-		<section
-			aria-label={model.sendLabel}
-			className={compact ? "flex min-w-0 items-center gap-1.5" : undefined}
-		>
-			{switcher}
-			{model.remoteNote ? <p className={compact ? "m-0 text-[11px] text-muted-foreground" : undefined}>{model.remoteNote}</p> : null}
+		<section aria-label={model.sendLabel} className={sectionClass}>
+			{recipient}
 			{external ? null : (skills ?? null)}
 			{external ? (
 				<>
 					{model.showPrompt && !model.hideComposer ? <p>{model.placeholder}</p> : null}
 					{model.showPrompt && !model.hideComposer ? <p>{model.permissionNote}</p> : null}
 					{model.historyResume ? (
-						<p className={compact ? "m-0 flex min-w-0 items-center gap-1 text-[11px] text-muted-foreground" : undefined}>
-							<span>{t("externalInvocation.resume.capsule", { title: model.historyResume.title })}</span>
+						<p className={compact ? "m-0 flex max-w-[16rem] shrink-0 items-center gap-1 text-[11px] text-muted-foreground" : undefined}>
+							<span className={compact ? "min-w-0 truncate" : undefined}>{t("externalInvocation.resume.capsule", { title: model.historyResume.title })}</span>
 							{model.historyResume.directoryNote ? <span>{model.historyResume.directoryNote}</span> : null}
 							<Button type="button" variant="ghost" size="sm" onClick={model.onDismissResume}>
 								{t("externalInvocation.resume.dismiss")}
@@ -179,7 +189,7 @@ export function SessionExternalInvocationView({
 						<p className={compact ? "m-0 text-[11px] text-muted-foreground" : undefined}>
 							{t("externalInvocation.continueInTerminal")}
 						</p>
-					) : (
+					) : sharesRoundSendButton ? null : (
 						<Button
 							type="button"
 							variant="primary"

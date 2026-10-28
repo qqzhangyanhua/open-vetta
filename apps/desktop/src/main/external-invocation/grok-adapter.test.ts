@@ -95,23 +95,23 @@ describe("omp and cursor-agent adapters", () => {
 			name: "omp",
 			adapter: ompAdapter,
 			executable: "omp",
-			single: ["--print", "@/work/app/src/a.ts\nfix the test"],
-			resume: ["--print", "@/work/app/src/a.ts\n继续修", "--resume", "omp-9"],
+			single: ["@/work/app/src/a.ts\nfix the test"],
+			resume: ["--resume", "omp-9", "@/work/app/src/a.ts\n继续修"],
 			skip: ["--auto-approve", "--approval-mode", "--plan-yolo"],
 		},
 		{
 			name: "cursor-agent",
 			adapter: cursorAgentAdapter,
 			executable: "cursor-agent",
-			single: ["--print", "@/work/app/src/a.ts\nfix the test"],
-			resume: ["--print", "@/work/app/src/a.ts\n继续修", "--resume", "chat-9"],
+			single: ["@/work/app/src/a.ts\nfix the test"],
+			resume: ["--resume", "chat-9", "@/work/app/src/a.ts\n继续修"],
 			skip: ["--force", "-f", "--yolo", "--trust", "--approve-mcps"],
 		},
 	])(
 		"$name builds a single instruction and a resume, and keeps confirmation flags out",
 		({ adapter, executable, single, resume, skip }) => {
 			expect(adapter.executable).toBe(executable);
-			expect(adapter.processForm).toBe("one-shot");
+			expect(adapter.processForm).toBe("interactive");
 			expect(adapter.singleInstructionArgs("")).toEqual([]);
 			expect(adapter.singleInstructionArgs("fix the test", ["/work/app/src/a.ts"])).toEqual(single);
 			expect(
