@@ -604,6 +604,8 @@
 		},
 		"resume": {
 			"action": "在当前会话里用 {{agent}} 续跑",
+			"inTerminal": "在终端里用 {{agent}} 续跑",
+			"terminalFailed": "没能打开 {{agent}} 的终端来续跑",
 			"unavailable": "在当前会话里用 {{agent}} 续跑不可用：目录已不存在",
 			"capsule": "续跑：{{title}}",
 			"directory": "将在 {{directory}} 中续跑",

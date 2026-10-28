@@ -8,6 +8,7 @@ import {
 	pageHeaderLeftSlotAtom,
 	pageHeaderRightSlotAtom,
 } from "@shared/store/atoms";
+import { externalHistoryResumeFor } from "@shared/store/external-history-resume";
 import {
 	externalRecipientFor,
 	externalRecipientVersion,
@@ -162,12 +163,26 @@ export function ChatView(props: ChatViewProps): JSX.Element {
 		return () => setHeaderLeftSlot(null);
 	}, [draftKey, model.cwd, model.sessionId, setHeaderLeftSlot, surface]);
 
-	const previousRecipient = useRef("penguin");
+	const externalSurface = useRef({ recipient: "penguin", scopeKey: "" });
 	useEffect(() => {
-		if (previousRecipient.current === recipient) return;
-		previousRecipient.current = recipient;
-		dispatchBottomPanel({ type: "set-filled", filled: recipient !== "penguin" });
-	}, [dispatchBottomPanel, recipient]);
+		const previous = externalSurface.current;
+		if (previous.recipient === recipient && previous.scopeKey === scopeKey) return;
+		const recipientChanged = previous.recipient !== recipient;
+		// 首屏 scope 还是空的，不算换了面板。真正换主键时要在新面板上再铺一次。
+		const scopeChanged = previous.scopeKey !== "" && previous.scopeKey !== scopeKey;
+		externalSurface.current = { recipient, scopeKey };
+		if (recipient !== "penguin" && (recipientChanged || scopeChanged)) {
+			// 续跑要人在输入栏里看到胶囊再发一条。这时铺满终端会把输入栏卸掉，点击就像没反应。
+			dispatchBottomPanel({
+				type: "set-filled",
+				filled: externalHistoryResumeFor(draftKey) === null,
+			});
+			return;
+		}
+		if (recipientChanged && recipient === "penguin") {
+			dispatchBottomPanel({ type: "set-filled", filled: false });
+		}
+	}, [dispatchBottomPanel, draftKey, recipient, scopeKey]);
 
 	return (
 		<DefaultChatView

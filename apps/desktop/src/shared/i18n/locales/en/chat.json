@@ -604,6 +604,8 @@
 		},
 		"resume": {
 			"action": "Resume with {{agent}} in this session",
+			"inTerminal": "Resume with {{agent}} in a terminal",
+			"terminalFailed": "Could not open a {{agent}} terminal to resume",
 			"unavailable": "Cannot resume with {{agent}}: the directory is gone",
 			"capsule": "Resume: {{title}}",
 			"directory": "Will resume in {{directory}}",

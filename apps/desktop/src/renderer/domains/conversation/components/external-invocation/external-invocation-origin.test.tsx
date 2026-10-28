@@ -1,13 +1,22 @@
 // @vitest-environment jsdom
 
 import { i18n, initI18n } from "@shared/i18n";
-import { activeInputDraftKeyAtom, openSessionFnRef, sessionContextMenuAtom, sessionsMapAtom } from "@shared/store/atoms";
+import {
+	activeInputDraftKeyAtom,
+	activeSessionAtom,
+	bottomPanelStateAtomFamily,
+	dispatchBottomPanelAtomFamily,
+	findBottomPanelTab,
+	openSessionFnRef,
+	sessionContextMenuAtom,
+	sessionsMapAtom,
+} from "@shared/store/atoms";
 import { clearExternalInvocationOrigins } from "@shared/store/external-invocation-origins";
 import { clearExternalHistoryResumes } from "@shared/store/external-history-resume";
 import { clearExternalRecipients } from "@shared/store/external-recipient";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useAtomValue, useSetAtom } from "jotai";
+import { getDefaultStore, useAtomValue, useSetAtom } from "jotai";
 import { useState, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionContextMenu } from "../../../project/components/SessionContextMenu";
@@ -137,7 +146,7 @@ afterEach(() => {
 });
 
 describe("penguin-initiated external history", () => {
-	it("marks rows started by penguin, offers a jump back, and resumes inside that session without a capsule", async () => {
+	it("marks rows started by penguin, offers a jump back, and shows a resume capsule in that session", async () => {
 		const user = userEvent.setup();
 		const openSession = vi.fn(async () => undefined);
 		openSessionFnRef.current = openSession;
@@ -190,23 +199,112 @@ describe("penguin-initiated external history", () => {
 		expect(openSession).toHaveBeenCalledWith("/work", DRAFT);
 
 		await user.click(within(started).getByRole("button", { name: "更多" }));
-		await waitFor(() =>
-			expect(
-				(screen.getByRole("menuitem", { name: "在当前会话里用 Grok 续跑" }) as HTMLButtonElement).disabled,
-			).toBe(false),
-		);
+		await waitFor(() => {
+			const item = screen.getByRole("menuitem", { name: "在当前会话里用 Grok 续跑" });
+			expect(item.getAttribute("data-disabled")).toBeNull();
+			expect(item.getAttribute("aria-disabled")).not.toBe("true");
+		});
+		const store = (await import("jotai")).getDefaultStore();
+		store.set(activeSessionAtom, { cwd: "/work", sessionPath: DRAFT, runtimeId: "vetta-1" });
+		window.location.hash = "#/";
+		openSession.mockClear();
 		await user.click(screen.getByRole("menuitem", { name: "在当前会话里用 Grok 续跑" }));
-		expect(screen.queryByText("续跑：Fix the login bug")).toBeNull();
+		expect(screen.getByText("续跑：Fix the login bug")).toBeTruthy();
+		expect(openSession).not.toHaveBeenCalled();
 		await waitFor(() => expect(screen.getByLabelText("发给").textContent).toContain("Grok"));
 
+		window.location.hash = "#/viewer/grok";
+		await user.click(within(started).getByRole("button", { name: "更多" }));
+		await user.click(await screen.findByRole("menuitem", { name: "在当前会话里用 Grok 续跑" }));
+		expect(openSession).toHaveBeenCalledWith("/work", DRAFT);
+		window.location.hash = "";
+
 		originDropped = true;
-		const store = (await import("jotai")).getDefaultStore();
 		store.set(sessionsMapAtom, new Map());
 		await waitFor(() =>
 			expect(screen.getByRole("button", { name: /Fix the login bug/ }).textContent).not.toContain("由 penguin 发起"),
 		);
 		await user.click(within(started).getByRole("button", { name: "更多" }));
 		expect(screen.queryByRole("menuitem", { name: "打开发起它的会话" })).toBeNull();
+	});
+
+	it("opens a terminal with the agent resume command when no session is open", async () => {
+		const user = userEvent.setup();
+		const store = getDefaultStore();
+		store.set(activeInputDraftKeyAtom, null);
+		const start = vi.fn(async () => ({ invocationId: "inv-resume" }));
+		const openSession = vi.fn(async () => undefined);
+		openSessionFnRef.current = openSession;
+		Object.defineProperty(window, "vetta", {
+			configurable: true,
+			value: {
+				externalInvocations: {
+					recordedDirectoryExists: async () => true,
+					origins: async () => [],
+					start,
+				},
+				shell: { showInFolder: () => undefined },
+			},
+		});
+		render(
+			<>
+				<DefaultSessionList
+					activeSessionPath=""
+					activeTeamSessionId=""
+					cwd="/tmp/grok"
+					filter="external"
+					loading={false}
+					onRenameSession={() => undefined}
+					onSelectSession={() => undefined}
+					scrollParent={null}
+					sessions={[externalSession("sess-9", "Fix the login bug")]}
+				/>
+				<MenuHost />
+			</>,
+		);
+		const row = screen.getByRole("button", { name: /Fix the login bug/ }).parentElement;
+		if (!row) throw new Error("missing row");
+		await user.click(within(row).getByRole("button", { name: "更多" }));
+		const item = await screen.findByRole("menuitem", { name: "在终端里用 Grok 续跑" });
+		await waitFor(() => {
+			expect(item.getAttribute("data-disabled")).toBeNull();
+			expect(item.getAttribute("aria-disabled")).not.toBe("true");
+		});
+		await user.click(item);
+		expect(start).not.toHaveBeenCalled();
+		expect(openSession).toHaveBeenCalledWith(
+			"/work/other",
+			undefined,
+			undefined,
+			expect.objectContaining({ navigateBeforeCreate: true }),
+		);
+		const options = openSession.mock.calls[0]?.[3] as { onPromptReady?: (sessionId: string) => void };
+		store.set(activeSessionAtom, {
+			cwd: "/work/other",
+			sessionPath: "/sessions/new.jsonl",
+			runtimeId: "rt-new",
+		});
+		options.onPromptReady?.("rt-new");
+		await waitFor(() =>
+			expect(start).toHaveBeenCalledWith({
+				sessionId: "rt-new",
+				cwd: "/work/other",
+				prompt: "",
+				agentId: "grok",
+				newSession: false,
+				historyResume: { externalSessionId: "sess-9", cwd: "/work/other" },
+			}),
+		);
+		const panel = store.get(bottomPanelStateAtomFamily("/sessions/new.jsonl"));
+		expect(panel.filled).toBe(true);
+		expect(findBottomPanelTab(panel.root, "inv-resume")?.tab.payload).toMatchObject({
+			invocationId: "inv-resume",
+			status: "running",
+			agentId: "grok",
+			sessionId: "rt-new",
+		});
+		store.set(dispatchBottomPanelAtomFamily("/sessions/new.jsonl"), { type: "close-tab", tabId: "inv-resume" });
+		store.set(activeSessionAtom, null);
 	});
 
 	it("shows the penguin marker after the run finishes, without remounting the sidebar", async () => {

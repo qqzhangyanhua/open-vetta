@@ -1,7 +1,13 @@
-import { type SessionInfo, sessionDisplayLabel } from "@shared/store/atoms";
+import {
+	activeSessionAtom,
+	dispatchBottomPanelAtomFamily,
+	openSessionFnRef,
+	type SessionInfo,
+	sessionDisplayLabel,
+	sessionsMapAtom,
+} from "@shared/store/atoms";
 import { getDefaultStore } from "jotai";
 import { rememberExternalRecipient } from "./external-recipient";
-import { activeInputDraftKeyAtom } from "./session-input-draft";
 
 export interface ExternalHistoryResume {
 	readonly agentId: string;
@@ -56,6 +62,43 @@ export function historyResumeFromSession(
 	};
 }
 
-export function currentDraftKey(): string | null {
-	return getDefaultStore().get(activeInputDraftKeyAtom);
+/**
+ * 续跑绑在当前输入草稿上。人若正看着只读记录或别的页面，要回到这份草稿所在的会话，
+ * 否则胶囊画在看不见的输入栏上，点击就像没发生。已经铺满的外部终端先收起，输入栏才能出来。
+ */
+export function revealExternalHistoryResume(draftKey: string): void {
+	const store = getDefaultStore();
+	if (!draftKey.startsWith("new:")) {
+		store.set(dispatchBottomPanelAtomFamily(draftKey), { type: "set-filled", filled: false });
+	}
+	const path = rendererPathname();
+	if (draftKey.startsWith("new:")) {
+		if (path.startsWith("/new-session/")) return;
+		const cwd = draftKey.slice("new:".length);
+		void import("../../router").then(({ router }) => {
+			void router.navigate({ to: "/new-session/$cwd", params: { cwd: encodeURIComponent(cwd) } });
+		});
+		return;
+	}
+	const active = store.get(activeSessionAtom);
+	if ((path === "/" || path === "") && active?.sessionPath === draftKey) return;
+	const session = sessionForPath(store.get(sessionsMapAtom), draftKey);
+	if (!session) return;
+	void openSessionFnRef.current?.(session.cwd, session.path);
+}
+
+function rendererPathname(): string {
+	if (typeof window === "undefined") return "/";
+	const hash = window.location.hash;
+	const raw = hash.startsWith("#") ? hash.slice(1) : "";
+	const path = raw.split("?")[0] || "/";
+	return path.startsWith("/") ? path : `/${path}`;
+}
+
+function sessionForPath(sessions: ReadonlyMap<string, readonly SessionInfo[]>, path: string): SessionInfo | null {
+	for (const list of sessions.values()) {
+		const found = list.find((item) => item.path === path);
+		if (found) return found;
+	}
+	return null;
 }

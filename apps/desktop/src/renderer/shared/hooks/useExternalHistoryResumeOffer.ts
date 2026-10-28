@@ -1,13 +1,12 @@
-import { useExternalInvocationOrigins } from "@shared/hooks/useExternalInvocationOrigins";
-import type { SessionInfo } from "@shared/store/atoms";
+import { launchExternalHistoryResumeTerminal } from "@domains/conversation/components/external-invocation/launch-history-resume-terminal";
+import { activeInputDraftKeyAtom, type SessionInfo } from "@shared/store/atoms";
 import {
 	bindExternalHistoryResume,
-	currentDraftKey,
 	historyResumeFromSession,
+	revealExternalHistoryResume,
 } from "@shared/store/external-history-resume";
-import { externalInvocationOriginFor, vettaSessionIdFromDraftKey } from "@shared/store/external-invocation-origins";
-import { rememberExternalRecipient } from "@shared/store/external-recipient";
 import type { TFunction } from "i18next";
+import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,7 +21,7 @@ export function useExternalHistoryResumeOffer(
 	session: Pick<SessionInfo, "id" | "cwd" | "name" | "firstMessage" | "origin"> | null,
 ): ExternalHistoryResumeOffer {
 	const { t } = useTranslation("chat");
-	useExternalInvocationOrigins();
+	const draftKey = useAtomValue(activeInputDraftKeyAtom);
 	const record = session ? historyResumeFromSession(session) : null;
 	const cwd = record?.cwd ?? "";
 	const [exists, setExists] = useState<boolean | null>(cwd.length > 0 ? null : false);
@@ -33,36 +32,39 @@ export function useExternalHistoryResumeOffer(
 		}
 		let cancelled = false;
 		setExists(null);
-		void window.vetta.externalInvocations.recordedDirectoryExists(cwd).then(
-			(available) => {
-				if (!cancelled) setExists(available);
-			},
-			() => {
-				if (!cancelled) setExists(false);
-			},
-		);
+		void Promise.resolve()
+			.then(() => window.vetta.externalInvocations.recordedDirectoryExists(cwd))
+			.then(
+				(available) => {
+					if (!cancelled) setExists(available);
+				},
+				() => {
+					if (!cancelled) setExists(false);
+				},
+			);
 		return () => {
 			cancelled = true;
 		};
 	}, [cwd]);
 	const agent = agentLabel(record?.agentId, t);
 	const missing = exists === false;
+	const noSession = draftKey === null;
 	return {
 		visible: record !== null,
 		label: missing
 			? t("externalInvocation.resume.unavailable", { agent })
-			: t("externalInvocation.resume.action", { agent }),
-		disabled: exists !== true || currentDraftKey() === null,
+			: noSession
+				? t("externalInvocation.resume.inTerminal", { agent })
+				: t("externalInvocation.resume.action", { agent }),
+		disabled: exists !== true,
 		onSelect: () => {
 			if (!record || exists !== true) return;
-			const draftKey = currentDraftKey();
-			if (!draftKey) return;
-			const origin = externalInvocationOriginFor(record.externalSessionId);
-			if (origin && vettaSessionIdFromDraftKey(draftKey) === origin.sessionId) {
-				rememberExternalRecipient(draftKey, record.agentId);
+			if (!draftKey) {
+				launchExternalHistoryResumeTerminal(record, agent);
 				return;
 			}
 			bindExternalHistoryResume(draftKey, record);
+			revealExternalHistoryResume(draftKey);
 		},
 	};
 }
