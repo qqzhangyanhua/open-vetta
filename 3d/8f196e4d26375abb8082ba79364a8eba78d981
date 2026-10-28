@@ -1,0 +1,24 @@
+apps/desktop/src/renderer/domains/conversation/components/message-list/messageNavigationModel.ts
+  s_07b33a130fea29::t_d02f933ca85b65 11
+apps/desktop/src/renderer/domains/conversation/components/message-list/MessageTimeline.test.tsx
+  s_07b33a130fea29::t_8d947d8979c55c 58-59,63-65
+  s_07b33a130fea29::t_06b0787a9cee59 66-67
+.github/release-notes/v0.5.69.md
+  s_07b33a130fea29::t_d2540befd500f1 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "3d8f196e4d26375abb8082ba79364a8eba78d981",
+  "prompts": {},
+  "sessions": {
+    "s_07b33a130fea29": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a18266-8c18-73e0-bb80-cb1741ab702f",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
