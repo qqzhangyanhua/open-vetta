@@ -2,10 +2,11 @@
 
 import type { DesktopMemoryApi, GlobalMemoryEntry, ProjectMemoryProject } from "@/shared/memory";
 import { i18n, initI18n } from "@shared/i18n";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemorySettings } from "./MemorySettings";
+import { useMemorySettingsModel } from "./useMemorySettingsModel";
 
 const ENTRY: GlobalMemoryEntry = {
 	id: "11111111-1111-4111-8111-111111111111",
@@ -374,6 +375,46 @@ describe("设置页记忆列表", () => {
 		await user.click(await screen.findByRole("button", { name: "全部分类" }));
 		expect(screen.getByText("这个仓库用 bun")).toBeTruthy();
 		expect(screen.queryByRole("button", { name: "新建" })).toBeNull();
+	});
+
+	it("保存还没返回时再点一次不会再发请求，编辑控件也不能改", async () => {
+		const user = userEvent.setup();
+		let releaseHook: (() => void) | undefined;
+		const updateEntry = vi.fn(
+			() =>
+				new Promise<void>((resolve) => {
+					releaseHook = resolve;
+				}),
+		);
+		const memoryClient = client(async () => [ENTRY], { updateEntry });
+		const { result } = renderHook(() => useMemorySettingsModel(memoryClient));
+		await waitFor(() => expect(result.current.status).toBe("ready"));
+		act(() => result.current.actions.startEdit(ENTRY));
+		act(() => {
+			result.current.actions.saveEdit();
+			result.current.actions.saveEdit();
+		});
+		expect(updateEntry).toHaveBeenCalledTimes(1);
+
+		let releaseView: (() => void) | undefined;
+		const updateEntryView = vi.fn(
+			() =>
+				new Promise<void>((resolve) => {
+					releaseView = resolve;
+				}),
+		);
+		render(<MemorySettings client={client(async () => [ENTRY], { updateEntry: updateEntryView })} />);
+		await user.click(await screen.findByRole("button", { name: "编辑「我住在昆山」" }));
+		await user.click(screen.getByRole("button", { name: "保存这条记忆" }));
+		expect(screen.getByRole("textbox", { name: "记忆正文" })).toHaveProperty("disabled", true);
+		expect(screen.getByRole("button", { name: "分类", exact: true })).toHaveProperty("disabled", true);
+		expect(screen.getByRole("button", { name: "范围", exact: true })).toHaveProperty("disabled", true);
+		expect(updateEntryView).toHaveBeenCalledTimes(1);
+		releaseView?.();
+		await waitFor(() => expect(screen.queryByRole("textbox", { name: "记忆正文" })).toBeNull());
+		await act(async () => {
+			releaseHook?.();
+		});
 	});
 
 	it("保存失败时条目保持原样", async () => {

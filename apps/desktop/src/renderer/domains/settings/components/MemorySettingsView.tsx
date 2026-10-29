@@ -238,6 +238,7 @@ function MemoryEntryEditor({
 			<Textarea
 				aria-label={model.labels.editText}
 				value={draft.text}
+				disabled={model.savingEntry}
 				onChange={(event) => model.actions.setDraftText(event.target.value)}
 				className="min-h-16 text-[13px]"
 			/>
@@ -245,6 +246,7 @@ function MemoryEntryEditor({
 				<MotionSelect
 					aria-label={model.labels.editCategory}
 					value={draft.category}
+					disabled={model.savingEntry}
 					onValueChange={(value) => {
 						if (isMemoryCategory(value)) model.actions.setDraftCategory(value);
 					}}
@@ -254,6 +256,7 @@ function MemoryEntryEditor({
 				<MotionSelect
 					aria-label={model.labels.editScope}
 					value={draft.scope}
+					disabled={model.savingEntry}
 					onValueChange={(value) => {
 						if (value === "global" || value === "project") model.actions.setDraftScope(value);
 					}}
@@ -267,6 +270,7 @@ function MemoryEntryEditor({
 					<MotionSelect
 						aria-label={model.labels.moveProject}
 						value={draft.projectPath}
+						disabled={model.savingEntry}
 						onValueChange={model.actions.setDraftProject}
 						options={model.projects.map((project) => ({
 							value: project.path,

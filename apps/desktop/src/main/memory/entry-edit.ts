@@ -1,6 +1,8 @@
 import type { GlobalMemoryEntry, MemoryScope, UpdateMemoryEntry } from "../../shared/memory.js";
 import { containsCredential } from "./parse.js";
 import {
+	emptyGlobalMemoryDocument,
+	emptyProjectMemoryDocument,
 	type GlobalMemoryDocument,
 	type ProjectMemoryDocument,
 	parseDeleteMemoryEntryId,
@@ -31,21 +33,98 @@ interface MutableProjectBucket {
 	entries: GlobalMemoryEntry[];
 }
 
+type Loaded<T> = { readonly ok: true; readonly document: T } | { readonly ok: false; readonly error: unknown };
+
 export async function updateStoredMemoryEntry(access: MemoryDocumentAccess, input: UpdateMemoryEntry): Promise<void> {
 	const parsed = parseUpdateMemoryEntry(input);
 	if (containsCredential(parsed.text)) throw new Error("memory:invalid-entry");
-	const globalDocument = await access.readGlobal();
-	const projectDocument = await access.readProject();
-	const next = applyMemoryEntryUpdate(globalDocument, projectDocument, parsed);
-	await commitMemoryDocuments(access, globalDocument, projectDocument, next);
+	const global = await loadDocument(() => access.readGlobal());
+	const project = await loadDocument(() => access.readProject());
+	if (global.ok && project.ok) {
+		const next = applyMemoryEntryUpdate(global.document, project.document, parsed);
+		await commitMemoryDocuments(access, global.document, project.document, next);
+		return;
+	}
+	// The other file stays as it is unless this edit has to write it.
+	if (global.ok && !project.ok) {
+		const error = asStoreError(project.error);
+		assertReadableUpdate(parsed, global.document.entries, [], error, "global");
+		const next = applyMemoryEntryUpdate(global.document, emptyProjectMemoryDocument(), parsed);
+		await commitMemoryDocuments(access, global.document, emptyProjectMemoryDocument(), next);
+		return;
+	}
+	if (!global.ok && project.ok) {
+		const error = asStoreError(global.error);
+		assertReadableUpdate(parsed, [], project.document.projects, error, "project");
+		const next = applyMemoryEntryUpdate(emptyGlobalMemoryDocument(), project.document, parsed);
+		await commitMemoryDocuments(access, emptyGlobalMemoryDocument(), project.document, next);
+		return;
+	}
+	throw unreadableError(global);
 }
 
 export async function deleteStoredMemoryEntry(access: MemoryDocumentAccess, id: string): Promise<void> {
 	const parsedId = parseDeleteMemoryEntryId(id);
-	const globalDocument = await access.readGlobal();
-	const projectDocument = await access.readProject();
-	const next = applyMemoryEntryDelete(globalDocument, projectDocument, parsedId);
-	await commitMemoryDocuments(access, globalDocument, projectDocument, next);
+	const global = await loadDocument(() => access.readGlobal());
+	const project = await loadDocument(() => access.readProject());
+	if (global.ok && project.ok) {
+		const next = applyMemoryEntryDelete(global.document, project.document, parsedId);
+		await commitMemoryDocuments(access, global.document, project.document, next);
+		return;
+	}
+	if (global.ok && !project.ok) {
+		assertReadableDelete(parsedId, global.document.entries, [], asStoreError(project.error));
+		const next = applyMemoryEntryDelete(global.document, emptyProjectMemoryDocument(), parsedId);
+		await commitMemoryDocuments(access, global.document, emptyProjectMemoryDocument(), next);
+		return;
+	}
+	if (!global.ok && project.ok) {
+		assertReadableDelete(parsedId, [], project.document.projects, asStoreError(global.error));
+		const next = applyMemoryEntryDelete(emptyGlobalMemoryDocument(), project.document, parsedId);
+		await commitMemoryDocuments(access, emptyGlobalMemoryDocument(), project.document, next);
+		return;
+	}
+	throw unreadableError(global);
+}
+
+async function loadDocument<T>(read: () => Promise<T>): Promise<Loaded<T>> {
+	try {
+		return { ok: true, document: await read() };
+	} catch (error) {
+		return { ok: false, error };
+	}
+}
+
+function asStoreError(error: unknown): Error {
+	return error instanceof Error ? error : new Error("memory:store-rejected");
+}
+
+function unreadableError(loaded: Loaded<unknown>): Error {
+	if (!loaded.ok) return asStoreError(loaded.error);
+	return new Error("memory:store-rejected");
+}
+
+function assertReadableUpdate(
+	update: UpdateMemoryEntry,
+	globalEntries: readonly GlobalMemoryEntry[],
+	projects: readonly { readonly path: string; readonly entries: readonly GlobalMemoryEntry[] }[],
+	siblingError: Error,
+	readableScope: MemoryScope,
+): void {
+	const hits = memoryEntryHits(update.id, globalEntries, projects);
+	if (hits.length > 1) throw new Error("memory:store-rejected");
+	if (hits.length !== 1 || update.scope !== readableScope) throw siblingError;
+}
+
+function assertReadableDelete(
+	id: string,
+	globalEntries: readonly GlobalMemoryEntry[],
+	projects: readonly { readonly path: string; readonly entries: readonly GlobalMemoryEntry[] }[],
+	siblingError: Error,
+): void {
+	const hits = memoryEntryHits(id, globalEntries, projects);
+	if (hits.length > 1) throw new Error("memory:store-rejected");
+	if (hits.length !== 1) throw siblingError;
 }
 
 function applyMemoryEntryUpdate(
@@ -122,11 +201,11 @@ function copyMemoryBodies(
 	};
 }
 
-function takeMemoryEntry(
+function memoryEntryHits(
 	id: string,
-	globalEntries: GlobalMemoryEntry[],
-	projects: MutableProjectBucket[],
-): TakenMemoryEntry {
+	globalEntries: readonly GlobalMemoryEntry[],
+	projects: readonly { readonly path: string; readonly entries: readonly GlobalMemoryEntry[] }[],
+): TakenMemoryEntry[] {
 	const hits: TakenMemoryEntry[] = [];
 	globalEntries.forEach((entry, index) => {
 		if (entry.id === id) hits.push({ entry, scope: "global", index });
@@ -136,6 +215,15 @@ function takeMemoryEntry(
 			if (entry.id === id) hits.push({ entry, scope: "project", projectPath: project.path, index });
 		});
 	}
+	return hits;
+}
+
+function takeMemoryEntry(
+	id: string,
+	globalEntries: GlobalMemoryEntry[],
+	projects: MutableProjectBucket[],
+): TakenMemoryEntry {
+	const hits = memoryEntryHits(id, globalEntries, projects);
 	const hit = hits[0];
 	if (!hit || hits.length !== 1) {
 		throw new Error(hits.length === 0 ? "memory:entry-not-found" : "memory:store-rejected");

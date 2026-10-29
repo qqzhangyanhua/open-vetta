@@ -139,6 +139,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 	const [entryError, setEntryError] = useState<"save" | "delete" | null>(null);
 	const entriesRef = useRef(entries);
 	const projectsRef = useRef(projects);
+	const entryMutation = useRef(false);
 	entriesRef.current = entries;
 	projectsRef.current = projects;
 
@@ -253,7 +254,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 	};
 
 	const saveEdit = () => {
-		if (!client || !draft || !canSaveEdit) return;
+		if (!client || !draft || !canSaveEdit || entryMutation.current) return;
 		const update: UpdateMemoryEntry = {
 			id: draft.id,
 			text: draft.text.trim(),
@@ -261,10 +262,12 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 			scope: draft.scope,
 			...(draft.scope === "project" ? { projectPath: draft.projectPath } : {}),
 		};
+		entryMutation.current = true;
 		setSavingEntry(true);
 		setEntryError(null);
 		void client.updateEntry(update).then(
 			() => {
+				entryMutation.current = false;
 				const next = relocateMemoryEntry(entriesRef.current, projectsRef.current, update);
 				setEntries(next.entries);
 				setProjects(next.projects);
@@ -272,6 +275,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 				setSavingEntry(false);
 			},
 			() => {
+				entryMutation.current = false;
 				setEntryError("save");
 				setSavingEntry(false);
 			},
@@ -279,12 +283,14 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 	};
 
 	const confirmDelete = () => {
-		if (!client || !confirmDeleteId || savingEntry) return;
+		if (!client || !confirmDeleteId || entryMutation.current) return;
 		const id = confirmDeleteId;
+		entryMutation.current = true;
 		setSavingEntry(true);
 		setEntryError(null);
 		void client.deleteEntry(id).then(
 			() => {
+				entryMutation.current = false;
 				const next = removeMemoryEntry(entriesRef.current, projectsRef.current, id);
 				setEntries(next.entries);
 				setProjects(next.projects);
@@ -292,6 +298,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 				setSavingEntry(false);
 			},
 			() => {
+				entryMutation.current = false;
 				setEntryError("delete");
 				setSavingEntry(false);
 			},
