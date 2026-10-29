@@ -739,6 +739,73 @@ describe("desktop global memory service", () => {
 			expect.objectContaining({ entries: [expect.objectContaining({ text: "这个仓库用 bun" })] }),
 		]);
 	});
+
+	it("persists a pin on one scope without changing the other", async () => {
+		const directory = await mkdtemp(join(tmpdir(), "vetta-memory-pin-"));
+		directories.push(directory);
+		const projectDir = await mkdtemp(join(tmpdir(), "vetta-memory-pin-project-"));
+		directories.push(projectDir);
+		const globalEntry = {
+			id: IDS[0],
+			text: "住在昆山",
+			category: "location" as const,
+			recordedAt: "2026-10-28",
+		};
+		const projectEntry = {
+			id: IDS[1],
+			text: "这个仓库用 bun",
+			category: "work" as const,
+			recordedAt: "2026-10-28",
+		};
+		await writeFile(
+			globalMemoryFilePath(directory),
+			JSON.stringify({ schemaVersion: 1, globalEnabled: false, entries: [globalEntry] }),
+		);
+		await writeFile(
+			projectMemoryFilePath(directory),
+			JSON.stringify({ schemaVersion: 1, projects: [{ path: projectDir, entries: [projectEntry] }] }),
+		);
+		const { service } = openService(directory);
+		const before = await readFile(globalMemoryFilePath(directory), "utf8");
+
+		await expect(service.setPinned({ id: IDS[2], scope: "global", pinned: true })).rejects.toThrow(
+			"memory:not-found",
+		);
+		await expect(service.setPinned({ id: projectEntry.id, scope: "project", pinned: true })).rejects.toThrow(
+			"memory:not-found",
+		);
+		expect(await readFile(globalMemoryFilePath(directory), "utf8")).toBe(before);
+
+		const pinned = await service.setPinned({ id: globalEntry.id, scope: "global", pinned: true });
+		expect(pinned).toEqual({ ...globalEntry, pinned: true });
+		expect(await service.listGlobal()).toEqual([pinned]);
+		const stored = JSON.parse(await readFile(globalMemoryFilePath(directory), "utf8")) as {
+			globalEnabled: boolean;
+			entries: unknown[];
+		};
+		expect(stored.globalEnabled).toBe(false);
+		expect(stored.entries).toEqual([pinned]);
+		expect(await openService(directory).service.listGlobal()).toEqual([pinned]);
+		expect(await service.listProjects()).toEqual([
+			expect.objectContaining({ path: projectDir, entries: [projectEntry] }),
+		]);
+
+		const unpinned = await service.setPinned({ id: globalEntry.id, scope: "global", pinned: false });
+		expect(unpinned).toEqual(globalEntry);
+		expect(JSON.parse(await readFile(globalMemoryFilePath(directory), "utf8")).entries).toEqual([globalEntry]);
+
+		const projectPinned = await service.setPinned({
+			id: projectEntry.id,
+			scope: "project",
+			projectPath: projectDir,
+			pinned: true,
+		});
+		expect(projectPinned).toEqual({ ...projectEntry, pinned: true });
+		expect(await service.listGlobal()).toEqual([globalEntry]);
+		expect(await openService(directory).service.listProjects()).toEqual([
+			expect.objectContaining({ path: projectDir, entries: [projectPinned] }),
+		]);
+	});
 });
 
 function openService(

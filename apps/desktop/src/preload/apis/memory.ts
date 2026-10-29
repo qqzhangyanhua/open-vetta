@@ -16,6 +16,7 @@ export function createMemoryApi(ipc: IpcRenderer): Pick<DesktopApi, "memory"> {
 			getModelOverride: () => ipc.invoke(MEMORY_CHANNELS.GET_MODEL_OVERRIDE),
 			setModelOverride: (modelKey) => ipc.invoke(MEMORY_CHANNELS.SET_MODEL_OVERRIDE, modelKey),
 			listModels: () => ipc.invoke(MEMORY_CHANNELS.LIST_MODELS),
+			setPinned: (input) => ipc.invoke(MEMORY_CHANNELS.SET_PINNED, input),
 		},
 	};
 }

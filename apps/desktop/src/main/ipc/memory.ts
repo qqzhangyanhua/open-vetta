@@ -4,8 +4,10 @@ import {
 	type GenerateGlobalMemoryResult,
 	type GlobalMemoryEntry,
 	MEMORY_CHANNELS,
+	MEMORY_SCOPES,
 	type MemoryModelChoice,
 	type ProjectMemoryProject,
+	type SetMemoryPinnedInput,
 } from "../../shared/memory.js";
 import { parseSaveMemoryCandidates } from "../memory/schema.js";
 import type { DesktopMemoryService } from "../memory/service.js";
@@ -26,7 +28,15 @@ export interface MemoryIpcService {
 	getModelOverride(): Promise<string | null>;
 	setModelOverride(modelKey: string | null): Promise<void>;
 	listModels(): Promise<readonly MemoryModelChoice[]>;
+	setPinned(input: SetMemoryPinnedInput): Promise<GlobalMemoryEntry>;
 }
+
+const setPinnedSchema = z.object({
+	id: z.uuid(),
+	scope: z.enum(MEMORY_SCOPES),
+	projectPath: z.string().trim().min(1).max(4_096).optional(),
+	pinned: z.boolean(),
+});
 
 export function registerMemoryIpc(service: MemoryIpcService | DesktopMemoryService): () => void {
 	ipcMain.handle(MEMORY_CHANNELS.LIST_GLOBAL, () => service.listGlobal());
@@ -52,6 +62,9 @@ export function registerMemoryIpc(service: MemoryIpcService | DesktopMemoryServi
 		if (!parsed.success) throw new Error("memory:invalid-model");
 		return service.setModelOverride(parsed.data);
 	});
+	ipcMain.handle(MEMORY_CHANNELS.SET_PINNED, (_event, input: unknown) =>
+		service.setPinned(setPinnedSchema.parse(input)),
+	);
 	return () => {
 		for (const channel of Object.values(MEMORY_CHANNELS)) ipcMain.removeHandler(channel);
 	};

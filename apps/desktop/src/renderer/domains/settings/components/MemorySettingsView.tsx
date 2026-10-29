@@ -1,7 +1,8 @@
+import { Button } from "@shared/components/ui/button";
 import { cn } from "@shared/lib/utils";
 import { MotionSelect, SettingRow, SettingSection, SettingsPageShellView } from "@vetta-org/theme-ui/settings";
 import { Switch } from "@vetta-org/ui";
-import type { MemoryScope, ProjectMemoryProject } from "@/shared/memory";
+import type { GlobalMemoryEntry, MemoryScope, ProjectMemoryProject } from "@/shared/memory";
 import { SETTINGS_SECTION } from "../registry";
 import type { MemorySettingsModel } from "./useMemorySettingsModel";
 
@@ -146,11 +147,36 @@ function MemoryEntryList({ model }: { readonly model: MemorySettingsModel }): JS
 						<span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[12px] text-primary">
 							{model.labels.categories[entry.category]}
 						</span>
+						<PinToggle model={model} entry={entry} />
 					</div>
 					<p className="whitespace-pre-wrap text-[13px] text-foreground">{entry.text}</p>
 				</li>
 			))}
 		</ul>
+	);
+}
+
+function PinToggle({
+	model,
+	entry,
+}: {
+	readonly model: MemorySettingsModel;
+	readonly entry: GlobalMemoryEntry;
+}): JSX.Element {
+	const pinned = entry.pinned === true;
+	return (
+		<Button
+			type="button"
+			variant="ghost"
+			size="xs"
+			aria-pressed={pinned}
+			aria-label={pinned ? model.labels.unpinAria(entry.text) : model.labels.pinAria(entry.text)}
+			onClick={() => model.actions.setPinned(entry.id, !pinned)}
+			className={cn("ml-auto", pinned && "text-primary")}
+		>
+			<span className={cn("h-3.5 w-3.5", pinned ? "icon-[solar--pin-bold]" : "icon-[solar--pin-linear]")} />
+			{pinned ? model.labels.unpin : model.labels.pin}
+		</Button>
 	);
 }
 

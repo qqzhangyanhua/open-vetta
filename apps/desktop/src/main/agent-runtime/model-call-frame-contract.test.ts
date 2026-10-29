@@ -22,6 +22,7 @@ import {
 	textResponseEvents,
 	toolCallResponseEvents,
 } from "../../../../cli-host/test/support/openai-responses-test-server.js";
+import { MEMORY_SCOPE_CHAR_BUDGET } from "../../shared/memory.js";
 import { getModePrompt } from "../agent-modes/index.js";
 import { getDesktopUserQuestionBroker } from "../conversations/user-question-broker.js";
 import { memoryProjectPath } from "../memory/project-path.js";
@@ -407,6 +408,7 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 			const second = comparableSystemPrompt(server.requests[1]?.body);
 			expect(first).toContain("USER_MEMORY_JSON");
 			expect(first).toContain("住在昆山");
+			expect(first).not.toContain("MEMORY_CATEGORY_CATALOG");
 			expect(first).not.toContain("PROJECT_MEMORY_JSON");
 			expect(first).not.toContain("FROZEN SNAPSHOT");
 			expect(toolNames(server.requests[0]?.body.tools)).not.toContain("memory");
@@ -578,6 +580,105 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 		}
 	}, 60_000);
 
+	it("loads pinned and newest memories per scope when over budget, without shrinking the other scope", async () => {
+		const home = await temporaryDirectory("desktop-frame-memory-budget-home-");
+		const previousHome = process.env.VETTA_HOME;
+		process.env.VETTA_HOME = home;
+		try {
+			const projectA = await temporaryDirectory("desktop-frame-memory-budget-project-");
+			await mkdir(join(home, "memory"), { recursive: true });
+			const pin = "住在昆山";
+			const chunk = "n".repeat(Math.min(2_000, MEMORY_SCOPE_CHAR_BUDGET - pin.length));
+			const droppedGlobal = "o".repeat(chunk.length);
+			const projectPin = "项目常驻";
+			const projectNewest = "m".repeat(chunk.length);
+			const droppedProject = "q".repeat(chunk.length);
+			await writeFile(
+				globalMemoryFilePath(join(home, "memory")),
+				JSON.stringify({
+					schemaVersion: 1,
+					entries: [
+						memoryEntry("11111111-1111-4111-8111-111111111111", pin, "location", "2020-01-01", true),
+						memoryEntry("22222222-2222-4222-8222-222222222222", chunk, "preference", "2026-10-28"),
+						memoryEntry("33333333-3333-4333-8333-333333333333", droppedGlobal, "interest", "2024-01-01"),
+					],
+				}),
+			);
+			await writeFile(
+				projectMemoryFilePath(join(home, "memory")),
+				JSON.stringify({
+					schemaVersion: 1,
+					projects: [
+						{
+							path: memoryProjectPath(projectA),
+							entries: [
+								memoryEntry("44444444-4444-4444-8444-444444444444", projectPin, "work", "2020-01-01", true),
+								memoryEntry("55555555-5555-4555-8555-555555555555", projectNewest, "work", "2026-10-28"),
+								memoryEntry("66666666-6666-4666-8666-666666666666", droppedProject, "other", "2024-01-01"),
+							],
+						},
+					],
+				}),
+			);
+			const server = await createServer();
+			const model = { ...MODEL, baseUrl: server.baseUrl };
+			const agentStateDir = await temporaryDirectory("desktop-frame-memory-budget-agent-");
+			const fixture = createRuntimeFixture("runtime", agentStateDir, model);
+			fixtures.push(fixture);
+			const created = await fixture.runtime.createSession({
+				cwd: projectA,
+				agentDir: agentStateDir,
+				sessionDir: await temporaryDirectory("desktop-frame-memory-budget-sessions-"),
+				model,
+				thinkingLevel: "off",
+				agent: createCodingAgentRuntimeSessionSelection({
+					scenario: "project",
+					agentMode: "work",
+					includeAgentSkills: false,
+				}),
+				executionMode: "full-access",
+			});
+
+			await fixture.runtime.prompt(created.sessionId, { text: "Use the budgeted memories" });
+			const prompt = comparableSystemPrompt(server.requests[0]?.body);
+			const userAt = prompt.indexOf("# User memory");
+			const projectAt = prompt.indexOf("# Project memory");
+			expect(userAt).toBeGreaterThanOrEqual(0);
+			expect(projectAt).toBeGreaterThan(userAt);
+			const userBlock = prompt.slice(userAt, projectAt);
+			const projectBlock = prompt.slice(projectAt);
+			expect(JSON.parse(betweenMarkers(userBlock, "USER_MEMORY_JSON", "END_USER_MEMORY_JSON"))).toEqual([
+				{ category: "location", recordedAt: "2020-01-01", text: pin },
+				{ category: "preference", recordedAt: "2026-10-28", text: chunk },
+			]);
+			expect(
+				JSON.parse(betweenMarkers(userBlock, "MEMORY_CATEGORY_CATALOG", "END_MEMORY_CATEGORY_CATALOG")),
+			).toEqual([
+				{ category: "location", count: 1 },
+				{ category: "preference", count: 1 },
+				{ category: "interest", count: 1 },
+			]);
+			expect(JSON.parse(betweenMarkers(projectBlock, "PROJECT_MEMORY_JSON", "END_PROJECT_MEMORY_JSON"))).toEqual([
+				{ category: "work", recordedAt: "2020-01-01", text: projectPin },
+				{ category: "work", recordedAt: "2026-10-28", text: projectNewest },
+			]);
+			expect(
+				JSON.parse(betweenMarkers(projectBlock, "MEMORY_CATEGORY_CATALOG", "END_MEMORY_CATEGORY_CATALOG")),
+			).toEqual([
+				{ category: "work", count: 2 },
+				{ category: "other", count: 1 },
+			]);
+			expect(prompt).not.toContain(droppedGlobal);
+			expect(prompt).not.toContain(droppedProject);
+			expect(userBlock).not.toContain(projectPin);
+			expect(projectBlock).not.toContain(pin);
+			expect(toolNames(server.requests[0]?.body.tools)).not.toContain("memory");
+		} finally {
+			if (previousHome === undefined) delete process.env.VETTA_HOME;
+			else process.env.VETTA_HOME = previousHome;
+		}
+	}, 60_000);
+
 	async function observeBackends(
 		cwd: string,
 		scenario: ConversationScenario,
@@ -680,8 +781,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
 }
 
-function memoryEntry(id: string, text: string, category: string) {
-	return { id, text, category, recordedAt: "2026-10-28" };
+function memoryEntry(id: string, text: string, category: string, recordedAt = "2026-10-28", pinned = false) {
+	return { id, text, category, recordedAt, ...(pinned ? { pinned: true } : {}) };
+}
+
+function betweenMarkers(text: string, start: string, end: string): string {
+	const from = text.indexOf(start);
+	const to = text.indexOf(end, from + start.length);
+	return text.slice(from + start.length, to).trim();
 }
 
 function comparableSystemPrompt(body: unknown): string {

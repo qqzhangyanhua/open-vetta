@@ -6,9 +6,11 @@ import {
 	type MemoryCandidate,
 	type MemoryModelChoice,
 	type MemoryScope,
+	memoryEntryWithPinned,
 	memoryScopeOf,
 	type ProjectMemoryProject,
 	type SaveMemoryCandidate,
+	type SetMemoryPinnedInput,
 } from "../../shared/memory.js";
 import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
 import { containsCredential, parseMemoryCandidateOutput } from "./parse.js";
@@ -143,6 +145,44 @@ export class DesktopMemoryService {
 			});
 			return enabled;
 		});
+	}
+
+	async setPinned(input: SetMemoryPinnedInput): Promise<GlobalMemoryEntry> {
+		return this.enqueueMutation(async () => {
+			if (input.scope === "project") return this.writeProjectPinned(input);
+			const document = await this.readDocument();
+			const current = document.entries.find((entry) => entry.id === input.id);
+			if (!current) throw new Error("memory:not-found");
+			const nextEntry = memoryEntryWithPinned(current, input.pinned);
+			if (nextEntry === current) return current;
+			await this.store.write({
+				schemaVersion: document.schemaVersion,
+				entries: document.entries.map((entry) => (entry.id === input.id ? nextEntry : entry)),
+				...(document.globalEnabled === undefined ? {} : { globalEnabled: document.globalEnabled }),
+			});
+			return nextEntry;
+		});
+	}
+
+	private async writeProjectPinned(input: SetMemoryPinnedInput): Promise<GlobalMemoryEntry> {
+		const projectPath = input.projectPath?.trim();
+		if (!projectPath) throw new Error("memory:not-found");
+		const document = await this.readProjectDocument();
+		const project = document.projects.find((item) => item.path === projectPath);
+		const current = project?.entries.find((entry) => entry.id === input.id);
+		if (!project || !current) throw new Error("memory:not-found");
+		const nextEntry = memoryEntryWithPinned(current, input.pinned);
+		if (nextEntry === current) return current;
+		await this.projectStore.write({
+			schemaVersion: document.schemaVersion,
+			projects: document.projects.map((item) =>
+				item.path === projectPath
+					? { ...item, entries: item.entries.map((entry) => (entry.id === input.id ? nextEntry : entry)) }
+					: item,
+			),
+			...(document.projectEnabled === undefined ? {} : { projectEnabled: document.projectEnabled }),
+		});
+		return nextEntry;
 	}
 
 	async listModels(): Promise<readonly MemoryModelChoice[]> {

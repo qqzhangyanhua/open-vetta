@@ -2,6 +2,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { MEMORY_SCOPE_CHAR_BUDGET } from "../../shared/memory.js";
 import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
 import {
 	readCuratedMemoryPromptBlocks,
@@ -119,6 +120,7 @@ describe("readGlobalMemoryPromptBlock", () => {
 		expect(blocks[1]).toContain("这个仓库用 bun");
 		expect(blocks[1]).not.toContain("另一项目用 cargo");
 		expect(blocks[1]).not.toContain("对话里约定用中文");
+		expect(blocks.join("\n")).not.toContain("MEMORY_CATEGORY_CATALOG");
 		expect(blocks.join("\n").indexOf("# User memory")).toBeLessThan(blocks.join("\n").indexOf("# Project memory"));
 
 		const other = readCuratedMemoryPromptBlocks({ directory: dir, cwd: projectB });
@@ -192,4 +194,119 @@ describe("readGlobalMemoryPromptBlock", () => {
 		expect(brokenProject[0]).toContain("USER_MEMORY_JSON");
 		expect(brokenProject[0]).not.toContain("PROJECT_MEMORY_JSON");
 	});
+
+	it("applies each scope's budget on its own and catalogs only the scope that is over", async () => {
+		const dir = await directory();
+		const projectA = join(dir, "project-a");
+		const pin = "住在昆山";
+		const chunk = "n".repeat(Math.min(2_000, MEMORY_SCOPE_CHAR_BUDGET - pin.length));
+		const dropped = "o".repeat(chunk.length);
+		await writeFile(
+			globalMemoryFilePath(dir),
+			JSON.stringify({
+				schemaVersion: 1,
+				entries: [
+					{ ...ENTRY, text: pin, recordedAt: "2020-01-01", pinned: true },
+					{
+						...ENTRY,
+						id: "22222222-2222-4222-8222-222222222222",
+						text: chunk,
+						category: "preference",
+						recordedAt: "2026-10-28",
+					},
+					{
+						...ENTRY,
+						id: "33333333-3333-4333-8333-333333333333",
+						text: dropped,
+						category: "interest",
+						recordedAt: "2024-01-01",
+					},
+				],
+			}),
+		);
+		await writeFile(
+			projectMemoryFilePath(dir),
+			JSON.stringify({
+				schemaVersion: 1,
+				projects: [
+					{
+						path: projectA,
+						entries: [{ ...ENTRY, id: "44444444-4444-4444-8444-444444444444", text: "这个仓库用 bun" }],
+					},
+				],
+			}),
+		);
+
+		const blocks = readCuratedMemoryPromptBlocks({ directory: dir, cwd: projectA });
+		expect(blocks).toHaveLength(2);
+		expect(JSON.parse(between(blocks[0] ?? "", "USER_MEMORY_JSON", "END_USER_MEMORY_JSON"))).toEqual([
+			{ category: "location", recordedAt: "2020-01-01", text: pin },
+			{ category: "preference", recordedAt: "2026-10-28", text: chunk },
+		]);
+		expect(JSON.parse(between(blocks[0] ?? "", "MEMORY_CATEGORY_CATALOG", "END_MEMORY_CATEGORY_CATALOG"))).toEqual([
+			{ category: "location", count: 1 },
+			{ category: "preference", count: 1 },
+			{ category: "interest", count: 1 },
+		]);
+		expect(blocks[0]).not.toContain(dropped);
+		expect(blocks[1]).toContain("这个仓库用 bun");
+		expect(blocks[1]).not.toContain("MEMORY_CATEGORY_CATALOG");
+		expect(blocks[1]).not.toContain(dropped);
+
+		await writeFile(globalMemoryFilePath(dir), JSON.stringify({ schemaVersion: 1, entries: [ENTRY] }));
+		await writeFile(
+			projectMemoryFilePath(dir),
+			JSON.stringify({
+				schemaVersion: 1,
+				projects: [
+					{
+						path: projectA,
+						entries: [
+							{
+								...ENTRY,
+								id: "55555555-5555-4555-8555-555555555555",
+								text: "项目常驻",
+								category: "work",
+								recordedAt: "2020-01-01",
+								pinned: true,
+							},
+							{
+								...ENTRY,
+								id: "66666666-6666-4666-8666-666666666666",
+								text: "m".repeat(chunk.length),
+								category: "work",
+								recordedAt: "2026-10-28",
+							},
+							{
+								...ENTRY,
+								id: "77777777-7777-4777-8777-777777777777",
+								text: "q".repeat(chunk.length),
+								category: "other",
+								recordedAt: "2024-01-01",
+							},
+						],
+					},
+				],
+			}),
+		);
+		const swapped = readCuratedMemoryPromptBlocks({ directory: dir, cwd: projectA });
+		expect(swapped[0]).toContain("住在昆山");
+		expect(swapped[0]).not.toContain("MEMORY_CATEGORY_CATALOG");
+		expect(JSON.parse(between(swapped[1] ?? "", "PROJECT_MEMORY_JSON", "END_PROJECT_MEMORY_JSON"))).toEqual([
+			{ category: "work", recordedAt: "2020-01-01", text: "项目常驻" },
+			{ category: "work", recordedAt: "2026-10-28", text: "m".repeat(chunk.length) },
+		]);
+		expect(JSON.parse(between(swapped[1] ?? "", "MEMORY_CATEGORY_CATALOG", "END_MEMORY_CATEGORY_CATALOG"))).toEqual([
+			{ category: "work", count: 2 },
+			{ category: "other", count: 1 },
+		]);
+		expect(swapped[1]).not.toContain("q".repeat(chunk.length));
+		expect(swapped[0]).not.toContain("项目常驻");
+	});
 });
+
+function between(text: string, start: string, end: string): string {
+	const from = text.indexOf(start);
+	const to = text.indexOf(end, from + start.length);
+	return text.slice(from + start.length, to).trim();
+}
