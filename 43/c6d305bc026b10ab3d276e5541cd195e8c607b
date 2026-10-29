@@ -1,0 +1,157 @@
+apps/desktop/src/main/ipc/memory.ts
+  s_0f5d78b41d3ee1::t_782850912f7ce9 3,5
+  s_0f5d78b41d3ee1::t_f3bab168688716 1-2,4,6-27
+apps/desktop/src/preload/api.ts
+  s_0f5d78b41d3ee1::t_3d09be9863cb20 2,101
+apps/desktop/src/main/ipc/index.ts
+  s_0f5d78b41d3ee1::t_6d2e3e4a5baa40 3,24,93,147,194
+apps/desktop/src/shared/i18n/locales/en/settings.json
+  s_0f5d78b41d3ee1::t_89f8b63a2ba138 2380-2387,2389
+  s_1136ead924c77a::t_0f5d390d6e467c 2388
+apps/desktop/src/renderer/domains/conversation/components/memory/SessionMemoryControl.test.tsx
+  s_0f5d78b41d3ee1::t_b7ebd1a7756edd 79,168
+  s_0f5d78b41d3ee1::t_7ce8500aae8b27 148
+  s_a9c4e41304980f::t_d443779d2fb99a 107-116,199-210,213-217,219-222
+  s_1136ead924c77a::t_0f5d390d6e467c 87,126,141,165,186-187,193,211-212,218,229-230,236
+  s_0f5d78b41d3ee1::t_8c837b3aaa8e51 1-4,6-78,80-86,88-91,95-98,117-125,127-130,132-140,142-143,145-147,149-164,166-167,174-185,192,194-196,198,225-228,235,237-249,251-256
+  s_0f5d78b41d3ee1::t_266a1f6d326281 5,92,99-105,169-173
+  s_0f5d78b41d3ee1::t_72470f85d6a798 93-94,131,144,223-224,250
+  s_0f5d78b41d3ee1::t_7790833cd78aa3 188-191,231-234
+  s_0f5d78b41d3ee1::t_8ac430aa616eec 106,197
+apps/desktop/src/main/memory/transcript.ts
+  s_f8aedb914abe42::t_1b2254f0b25fcb 7-8,10-11,13,15,17,19-32
+  s_1136ead924c77a::t_0f5d390d6e467c 1-6,9,12,14,16,18
+apps/desktop/src/renderer/domains/conversation/components/ChatView.tsx
+  s_1136ead924c77a::t_0f5d390d6e467c 28
+  s_0f5d78b41d3ee1::t_0575dcf97138cd 27,88,90,219
+  s_a9c4e41304980f::t_75972b2c7c5042 135,138
+  s_0f5d78b41d3ee1::t_5877e8a6add60b 87,89,91-92
+apps/desktop/src/main/memory/service.test.ts
+  s_0f5d78b41d3ee1::t_782850912f7ce9 60,171,187
+  s_1136ead924c77a::t_0f5d390d6e467c 7,181-183,185-186,192
+  s_0f5d78b41d3ee1::t_fe9270b49777e8 91-94
+  s_0f5d78b41d3ee1::t_b52d68b0400985 16-22,51,74,101,159
+  s_a9c4e41304980f::t_4ebfac277ddc5f 162
+  s_0f5d78b41d3ee1::t_0564340ba64e7d 42,55-59,66-70,163,168
+  s_a9c4e41304980f::t_fa7082abfe7e49 26,40,48,71,98,103,107-156,164,178,205
+  s_0f5d78b41d3ee1::t_3924254a54d05f 167,184,206
+  s_1136ead924c77a::t_a936033afde513 1-6,8-15,23-25,27-39,41,43-47,49-50,52-54,61-65,72-73,75-90,95-97,99-100,102,104-106,157-158,160-161,165-166,169-170,172-177,179-180,188-191,193-204,207
+apps/desktop/src/renderer/domains/settings/registry.ts
+  s_0f5d78b41d3ee1::t_ae5a9f7c88ec4c 20-21,89,157
+.github/release-notes/v0.5.69.md
+  s_0f5d78b41d3ee1::t_0aac3bd7f6559b 11
+apps/desktop/src/shared/i18n/locales/zh/settings.json
+  s_0f5d78b41d3ee1::t_bfa79d4f0cf2ed 2380-2387,2389
+  s_1136ead924c77a::t_0f5d390d6e467c 2388
+apps/desktop/src/renderer/shared/store/ui-atoms.ts
+  s_0f5d78b41d3ee1::t_ce889e82be5777 70-71
+apps/desktop/src/main/memory/service.ts
+  s_1136ead924c77a::t_0f5d390d6e467c 10-56,64,68-71,77-94,103
+  s_a9c4e41304980f::t_3e99c38ad02954 65
+  s_1136ead924c77a::t_306feb0ff0d55c 1-9,57-63,66-67,72-76,95-102,104-112
+apps/desktop/src/main/memory/host.ts
+  s_f8aedb914abe42::t_1b2254f0b25fcb 1-7,9-23,25-27,29-35,37-40,44-66
+  s_1136ead924c77a::t_0f5d390d6e467c 8,24,28,36,41-43
+apps/desktop/src/main/memory/schema.ts
+  s_0f5d78b41d3ee1::t_782850912f7ce9 1-56
+apps/desktop/src/renderer/domains/settings/components/SettingsPage.tsx
+  s_0f5d78b41d3ee1::t_52f898abab3ef4 27
+apps/desktop/src/main/memory/parse.ts
+  s_a9c4e41304980f::t_ccc32536ba849c 8-11,13-17
+  s_a9c4e41304980f::t_4eed32e87c362f 12
+  s_1136ead924c77a::t_28da9738480db2 1-7,18-67
+apps/desktop/src/renderer/domains/conversation/components/memory/useMemoryReviewModel.ts
+  s_0f5d78b41d3ee1::t_782850912f7ce9 5,53,114-116
+  s_1136ead924c77a::t_0f5d390d6e467c 3,132
+  s_a9c4e41304980f::t_9bd6d06b764cd9 47-49
+  s_0f5d78b41d3ee1::t_834f6a0cf42587 1-2,4,6-46,50-52,54-113,117-131,133-178
+apps/desktop/src/renderer/domains/settings/components/useMemorySettingsModel.ts
+  s_0f5d78b41d3ee1::t_c0cc00f4ba5fd5 1-3,5-62
+  s_0f5d78b41d3ee1::t_782850912f7ce9 4
+apps/desktop/src/renderer/domains/settings/components/settings-tab-loaders.ts
+  s_0f5d78b41d3ee1::t_ad065819f041cb 18
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_0f5d78b41d3ee1::t_35a3507ec9210c 453-480
+apps/desktop/src/preload/apis/memory.ts
+  s_0f5d78b41d3ee1::t_6f7c47c5271971 1-13
+apps/desktop/src/renderer/domains/settings/components/MemorySettings.tsx
+  s_0f5d78b41d3ee1::t_88cc216567a363 1-12
+apps/desktop/src/renderer/domains/conversation/components/memory/SessionMemoryMenu.tsx
+  s_0f5d78b41d3ee1::t_2820d47afe8627 1-36
+apps/desktop/src/renderer/domains/settings/registry.test.ts
+  s_0f5d78b41d3ee1::t_782850912f7ce9 35
+docs/adr/0009-im-gateway-memory-rollover-and-dated-worklog.md
+  s_1136ead924c77a::t_0f5d390d6e467c 36
+apps/desktop/src/renderer/domains/settings/components/MemorySettingsView.test.tsx
+  s_0f5d78b41d3ee1::t_187dd05257f568 1-39,41-43,46-52,54-63,65-69
+  s_0f5d78b41d3ee1::t_352e85f999b1c8 40,44-45,53,64
+apps/desktop/src/renderer/shared/memory/category-labels.ts
+  s_0f5d78b41d3ee1::t_592934d722d5c7 1-14
+apps/desktop/src/preload/index.ts
+  s_0f5d78b41d3ee1::t_9c8552b5561291 17,47
+apps/desktop/src/main/ipc/memory.test.ts
+  s_0f5d78b41d3ee1::t_3d4ec4d3ff4eb6 60-63
+  s_0f5d78b41d3ee1::t_6cdfdaf7710240 1-4,6-31,38-59,64-69
+  s_0f5d78b41d3ee1::t_782850912f7ce9 5,32-37
+apps/desktop/src/renderer/domains/settings/components/MemorySettingsView.tsx
+  s_0f5d78b41d3ee1::t_e18faaf51d2fcf 1-42
+apps/desktop/src/shared/memory.ts
+  s_0f5d78b41d3ee1::t_782850912f7ce9 1-41
+docs/adr/0151-desktop-user-curated-global-and-project-memory.md
+  s_1136ead924c77a::t_0f5d390d6e467c 1-32
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_0f5d78b41d3ee1::t_117f4940969d63 453-480
+apps/desktop/src/main/memory/store.ts
+  s_1136ead924c77a::t_0f5d390d6e467c 5
+  s_0f5d78b41d3ee1::t_782850912f7ce9 1-4,6-27
+apps/desktop/src/renderer/domains/conversation/components/memory/MemoryReviewPanelView.tsx
+  s_a9c4e41304980f::t_9291a06c3c8a48 28,30,58,60,64,66,103
+  s_0f5d78b41d3ee1::t_ac163473608c67 2-5,21-27,29,31-57,59,61-63,65,67-81,83-102,104-112
+  s_0f5d78b41d3ee1::t_059cd060ac5c30 1,6-20,82
+apps/desktop/src/renderer/domains/conversation/components/memory/sessionMemoryElements.tsx
+  s_0f5d78b41d3ee1::t_57f74c71467571 1-21
+apps/desktop/src/main/memory/prompt.ts
+  s_1136ead924c77a::t_0f5d390d6e467c 1-22
+CONTEXT.md
+  s_1136ead924c77a::t_433c64e84503e1 57,176-239
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "43c6d305bc026b10ab3d276e5541cd195e8c607b",
+  "prompts": {},
+  "sessions": {
+    "s_0f5d78b41d3ee1": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a182d8-aade-7ff0-ac68-93ef0ba5bb32",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_1136ead924c77a": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a18311-2fed-7360-8671-b92f65db7414",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_a9c4e41304980f": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a18303-bb73-7220-955b-80e7032f7965",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    },
+    "s_f8aedb914abe42": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a18365-a935-75c2-9950-020ae972a31b",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
