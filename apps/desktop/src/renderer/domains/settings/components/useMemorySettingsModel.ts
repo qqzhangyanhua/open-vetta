@@ -1,6 +1,6 @@
 import { memoryCategoryLabels } from "@shared/memory/category-labels";
 import { confirmDialogAtom } from "@shared/store/atoms";
-import { sameProjectLocation } from "@vetta/ssh-transport";
+import { sameProjectLocation } from "@vetta/ssh-transport/project-uri";
 import { useSetAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
