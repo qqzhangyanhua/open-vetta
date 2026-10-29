@@ -1,0 +1,24 @@
+apps/desktop/src/renderer/domains/settings/components/useMemorySettingsModel.ts
+  s_93ec717f5b2132::t_1da75ed35b2a71 3
+apps/desktop/src/renderer/ssh-transport-browser-boundary.test.ts
+  s_93ec717f5b2132::t_6abe6194fecee2 91,154
+  s_93ec717f5b2132::t_8c73b4df233095 1-90,92-153,155-176
+.github/release-notes/v0.5.69.md
+  s_93ec717f5b2132::t_3b6e735afa3ce3 30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "e691ada96e3f92189c4968d79f843ea9c30af96d",
+  "prompts": {},
+  "sessions": {
+    "s_93ec717f5b2132": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a1861d-b21c-73c3-93bd-42ef48831dc4",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
