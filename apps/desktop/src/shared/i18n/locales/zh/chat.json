@@ -1290,6 +1290,7 @@
 			"ls": "列目录",
 			"memory": "记忆",
 			"read": "读取",
+			"recall": "检索记忆",
 			"render_pdf_page": "渲染 PDF 页",
 			"send_message": "发送消息",
 			"shell": "执行命令",

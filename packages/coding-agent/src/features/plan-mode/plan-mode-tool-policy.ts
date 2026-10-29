@@ -14,6 +14,7 @@ const ALLOWED: PlanModeToolVerdict = Object.freeze({ allowed: true });
  */
 const READ_ONLY_TOOL_NAMES: ReadonlySet<string> = new Set([
 	"read",
+	"recall",
 	"grep",
 	"glob",
 	"find",

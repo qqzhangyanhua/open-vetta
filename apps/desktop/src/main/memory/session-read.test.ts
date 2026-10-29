@@ -121,6 +121,7 @@ describe("readGlobalMemoryPromptBlock", () => {
 		expect(blocks[1]).not.toContain("另一项目用 cargo");
 		expect(blocks[1]).not.toContain("对话里约定用中文");
 		expect(blocks.join("\n")).not.toContain("MEMORY_CATEGORY_CATALOG");
+		expect(blocks.join("\n")).not.toContain("recall");
 		expect(blocks.join("\n").indexOf("# User memory")).toBeLessThan(blocks.join("\n").indexOf("# Project memory"));
 
 		const other = readCuratedMemoryPromptBlocks({ directory: dir, cwd: projectB });
@@ -249,8 +250,10 @@ describe("readGlobalMemoryPromptBlock", () => {
 			{ category: "interest", count: 1 },
 		]);
 		expect(blocks[0]).not.toContain(dropped);
+		expect(blocks[0]).toContain("looked up with the recall tool");
 		expect(blocks[1]).toContain("这个仓库用 bun");
 		expect(blocks[1]).not.toContain("MEMORY_CATEGORY_CATALOG");
+		expect(blocks[1]).not.toContain("recall");
 		expect(blocks[1]).not.toContain(dropped);
 
 		await writeFile(globalMemoryFilePath(dir), JSON.stringify({ schemaVersion: 1, entries: [ENTRY] }));
@@ -292,6 +295,7 @@ describe("readGlobalMemoryPromptBlock", () => {
 		const swapped = readCuratedMemoryPromptBlocks({ directory: dir, cwd: projectA });
 		expect(swapped[0]).toContain("住在昆山");
 		expect(swapped[0]).not.toContain("MEMORY_CATEGORY_CATALOG");
+		expect(swapped[0]).not.toContain("recall");
 		expect(JSON.parse(between(swapped[1] ?? "", "PROJECT_MEMORY_JSON", "END_PROJECT_MEMORY_JSON"))).toEqual([
 			{ category: "work", recordedAt: "2020-01-01", text: "项目常驻" },
 			{ category: "work", recordedAt: "2026-10-28", text: "m".repeat(chunk.length) },
@@ -300,6 +304,7 @@ describe("readGlobalMemoryPromptBlock", () => {
 			{ category: "work", count: 2 },
 			{ category: "other", count: 1 },
 		]);
+		expect(swapped[1]).toContain("looked up with the recall tool");
 		expect(swapped[1]).not.toContain("q".repeat(chunk.length));
 		expect(swapped[0]).not.toContain("项目常驻");
 	});

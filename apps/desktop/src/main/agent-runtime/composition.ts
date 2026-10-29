@@ -67,6 +67,7 @@ import { getKnowledgeRoot } from "../knowledge/knowledge-layout.js";
 import { getAppLogger } from "../logger.js";
 import { getDesktopMcpAppRegistry } from "../mcp/mcp-app-runtime.js";
 import { getDesktopMcpTaskCoordinator } from "../mcp/mcp-task-runtime.js";
+import { createCuratedRecallSessionExtensions } from "../memory/recall-tool.js";
 import { createDesktopPluginHookAdapterFactory } from "../plugins/coding-agent-hook-adapter.js";
 import { pluginAgentContributionService } from "../plugins/plugin-catalog.js";
 import { getDesktopCodingAgentPluginRuntimeSource } from "../plugins/plugin-runtime-service.js";
@@ -194,6 +195,7 @@ export function createDesktopRuntimeComposition(): DesktopRuntimeComposition {
 				modelRegistry: modelRuntime,
 				resolveCompactionSettings: () => runtimeConfiguration.readCompactionSettings(),
 				createPromptRuntimeSources: createDesktopPromptRuntimeSources,
+				createSessionExtensionDefinitions: (sessionOptions) => createCuratedRecallSessionExtensions(sessionOptions),
 				createPluginRuntime: () => getDesktopCodingAgentPluginRuntimeSource(),
 				// 工作模式注册表归 desktop 所有（ADR-0071 修订）：coding-agent 只保留 core.mode
 				// 槽位，正文由这里按会话固化的 agentMode 解析注入。

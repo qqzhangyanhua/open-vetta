@@ -1290,6 +1290,7 @@
 			"ls": "List",
 			"memory": "Memory",
 			"read": "Read",
+			"recall": "Recall",
 			"render_pdf_page": "Render PDF page",
 			"send_message": "Send message",
 			"shell": "Run command",

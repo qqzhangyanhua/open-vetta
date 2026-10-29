@@ -57,9 +57,20 @@ describe("plan mode command policy", () => {
 
 describe("plan mode tool policy", () => {
 	it("keeps only read-only and argument-gated tools on the model tool surface", () => {
-		for (const name of ["read", "grep", "glob", "dir_tree", "bash", "shell", "spawn_agent", "exit_plan_mode"]) {
+		for (const name of [
+			"read",
+			"recall",
+			"grep",
+			"glob",
+			"dir_tree",
+			"bash",
+			"shell",
+			"spawn_agent",
+			"exit_plan_mode",
+		]) {
 			expect(isToolVisibleInPlanMode(name)).toBe(true);
 		}
+		expect(evaluatePlanModeToolCall("recall", { keyword: "昆山" })).toEqual({ allowed: true });
 		for (const name of ["write", "edit", "doc_to_pdf", "kb_write_page", "dispatch_workflows", "mcp__github__push"]) {
 			expect(isToolVisibleInPlanMode(name)).toBe(false);
 		}

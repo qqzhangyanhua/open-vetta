@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Api, Model } from "@vetta/ai";
@@ -26,6 +26,7 @@ import { MEMORY_SCOPE_CHAR_BUDGET } from "../../shared/memory.js";
 import { getModePrompt } from "../agent-modes/index.js";
 import { getDesktopUserQuestionBroker } from "../conversations/user-question-broker.js";
 import { memoryProjectPath } from "../memory/project-path.js";
+import { createCuratedRecallSessionExtensions } from "../memory/recall-tool.js";
 import { globalMemoryFilePath, projectMemoryFilePath } from "../memory/store.js";
 import { createDesktopCodingAgentFunctionSource } from "./function-extension-source.js";
 import { createDesktopMcpSupervisor } from "./mcp-supervisor.js";
@@ -742,6 +743,134 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 		}
 	}, 60_000);
 
+	it("offers read-only recall for unloaded memories and hides it when the session is not interactive or both switches are off", async () => {
+		const home = await temporaryDirectory("desktop-frame-recall-home-");
+		const previousHome = process.env.VETTA_HOME;
+		process.env.VETTA_HOME = home;
+		try {
+			const projectA = await temporaryDirectory("desktop-frame-recall-project-");
+			const projectB = await temporaryDirectory("desktop-frame-recall-other-");
+			await mkdir(join(home, "memory"), { recursive: true });
+			const pin = "住在昆山";
+			const chunkLen = Math.min(2_000, MEMORY_SCOPE_CHAR_BUDGET - pin.length);
+			const loadedGlobal = `UNLOADED-NEW${"n".repeat(chunkLen - "UNLOADED-NEW".length)}`;
+			const unloadedGlobal = `UNLOADED-OLD${"o".repeat(chunkLen - "UNLOADED-OLD".length)}`;
+			const loadedProject = `UNLOADED-PROJ-NEW${"m".repeat(chunkLen - "UNLOADED-PROJ-NEW".length)}`;
+			const unloadedProject = `UNLOADED-PROJ-OLD${"q".repeat(chunkLen - "UNLOADED-PROJ-OLD".length)}`;
+			const globalPath = globalMemoryFilePath(join(home, "memory"));
+			const projectPath = projectMemoryFilePath(join(home, "memory"));
+			const globalDocument = {
+				schemaVersion: 1,
+				entries: [
+					memoryEntry("11111111-1111-4111-8111-111111111111", pin, "location", "2020-01-01", true),
+					memoryEntry("22222222-2222-4222-8222-222222222222", loadedGlobal, "preference", "2026-10-28"),
+					memoryEntry("33333333-3333-4333-8333-333333333333", unloadedGlobal, "interest", "2024-01-01"),
+				],
+			};
+			const projectDocument = {
+				schemaVersion: 1,
+				projects: [
+					{
+						path: memoryProjectPath(projectA),
+						entries: [
+							memoryEntry("44444444-4444-4444-8444-444444444444", "项目常驻", "work", "2020-01-01", true),
+							memoryEntry("55555555-5555-4555-8555-555555555555", loadedProject, "work", "2026-10-28"),
+							memoryEntry("66666666-6666-4666-8666-666666666666", unloadedProject, "other", "2024-01-01"),
+						],
+					},
+					{
+						path: memoryProjectPath(projectB),
+						entries: [memoryEntry("77777777-7777-4777-8777-777777777777", "UNLOADED-OTHER", "work")],
+					},
+				],
+			};
+			await writeFile(globalPath, JSON.stringify(globalDocument));
+			await writeFile(projectPath, JSON.stringify(projectDocument));
+			const globalBefore = await readFile(globalPath);
+			const projectBefore = await readFile(projectPath);
+			const server = await startOpenAiResponsesTestServer(async (_request, index) => {
+				if (index === 0) {
+					return {
+						kind: "events",
+						events: toolCallResponseEvents(
+							"recall",
+							{ keyword: "UNLOADED" },
+							{ callId: "call_recall", itemId: "fc_recall", responseId: "resp_recall" },
+						),
+					};
+				}
+				return { kind: "events", events: textResponseEvents(`recall turn ${index}`) };
+			});
+			servers.push(server);
+			const model = { ...MODEL, baseUrl: server.baseUrl };
+			const agentStateDir = await temporaryDirectory("desktop-frame-recall-agent-");
+			const fixture = createRuntimeFixture("runtime", agentStateDir, model);
+			fixtures.push(fixture);
+			const created = await fixture.runtime.createSession({
+				cwd: projectA,
+				agentDir: agentStateDir,
+				sessionDir: await temporaryDirectory("desktop-frame-recall-sessions-"),
+				model,
+				thinkingLevel: "off",
+				agent: createCodingAgentRuntimeSessionSelection({
+					scenario: "project",
+					agentMode: "work",
+					includeAgentSkills: false,
+				}),
+				executionMode: "full-access",
+			});
+
+			await fixture.runtime.prompt(created.sessionId, { text: "Look up the memories that were not loaded" });
+			const names = toolNames(server.requests[0]?.body.tools);
+			expect(names).toContain("recall");
+			expect(names).not.toContain("memory");
+			const recall = findNamedTool(server.requests[0]?.body.tools, "recall");
+			expect(recall?.name).toBe("recall");
+			const schema = JSON.stringify(recall?.parameters);
+			expect(schema).toContain("keyword");
+			expect(schema).not.toContain('"action"');
+			const prompt = comparableSystemPrompt(server.requests[0]?.body);
+			expect(prompt).toContain("looked up with the recall tool");
+			expect(prompt).toContain("UNLOADED-NEW");
+			expect(prompt).toContain("UNLOADED-PROJ-NEW");
+			expect(prompt).not.toContain("UNLOADED-OLD");
+			expect(prompt).not.toContain("UNLOADED-PROJ-OLD");
+			expect(prompt).not.toContain("UNLOADED-OTHER");
+
+			const output = functionCallOutputText(server.requests[1]?.body);
+			expect(JSON.parse(output)).toEqual([
+				{ scope: "global", category: "interest", recordedAt: "2024-01-01", text: unloadedGlobal },
+				{ scope: "project", category: "other", recordedAt: "2024-01-01", text: unloadedProject },
+			]);
+			expect(await readFile(globalPath)).toEqual(globalBefore);
+			expect(await readFile(projectPath)).toEqual(projectBefore);
+
+			const batch = await fixture.runtime.createSession({
+				cwd: projectA,
+				agentDir: agentStateDir,
+				sessionDir: await temporaryDirectory("desktop-frame-recall-batch-sessions-"),
+				model,
+				thinkingLevel: "off",
+				agent: createCodingAgentRuntimeSessionSelection({
+					scenario: "batch",
+					enableBackgroundTasks: false,
+					includeAgentSkills: false,
+				}),
+				executionMode: "full-access",
+			});
+			await fixture.runtime.prompt(batch.sessionId, { text: "Run the batch step" });
+			expect(toolNames(server.requests[2]?.body.tools)).not.toContain("recall");
+
+			await writeFile(globalPath, JSON.stringify({ ...globalDocument, globalEnabled: false }));
+			await writeFile(projectPath, JSON.stringify({ ...projectDocument, projectEnabled: false }));
+			await fixture.runtime.prompt(created.sessionId, { text: "Stop offering recall" });
+			expect(toolNames(server.requests[3]?.body.tools)).not.toContain("recall");
+		} finally {
+			if (previousHome === undefined) delete process.env.VETTA_HOME;
+			else process.env.VETTA_HOME = previousHome;
+		}
+	}, 90_000);
+
 	async function observeBackends(
 		cwd: string,
 		scenario: ConversationScenario,
@@ -840,6 +969,22 @@ function toolNames(value: unknown): string[] {
 	});
 }
 
+function findNamedTool(value: unknown, name: string): Record<string, unknown> | undefined {
+	if (!Array.isArray(value)) return undefined;
+	const found = value.find((tool) => isRecord(tool) && tool.name === name);
+	return isRecord(found) ? found : undefined;
+}
+
+function functionCallOutputText(body: unknown): string {
+	if (!isRecord(body) || !Array.isArray(body.input)) return "";
+	return body.input
+		.flatMap((item) => {
+			if (!isRecord(item) || item.type !== "function_call_output" || typeof item.output !== "string") return [];
+			return [item.output];
+		})
+		.join("\n");
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
 }
@@ -930,6 +1075,7 @@ function createRuntimeFixture(
 			initialThinkingLevel: "off",
 			sessionExtensionFunctions: createDesktopCodingAgentFunctionSource({ logger: TEST_FUNCTION_LOGGER }),
 			createPromptRuntimeSources: createDesktopPromptRuntimeSources,
+			createSessionExtensionDefinitions: (sessionOptions) => createCuratedRecallSessionExtensions(sessionOptions),
 			resolveModePrompt: getModePrompt,
 			createPluginRuntime: pluginRuntime ? () => pluginRuntime : undefined,
 			createPluginMcpRuntime: ({ cwd, agentDir }) =>
