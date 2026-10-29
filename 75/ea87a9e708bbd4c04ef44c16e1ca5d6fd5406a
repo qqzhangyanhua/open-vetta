@@ -1,0 +1,53 @@
+apps/desktop/src/main/agent-runtime/composition.ts
+  s_097787f5aa74ad::t_d975b9b91f859f 198
+  s_097787f5aa74ad::t_9b14251a7bc70d 70
+.github/release-notes/v0.5.69.md
+  s_097787f5aa74ad::t_6b5ce9ee5ae4e5 19
+packages/coding-agent/test/features/plan-mode/plan-mode-policy.test.ts
+  s_097787f5aa74ad::t_9b14251a7bc70d 60-70
+  s_097787f5aa74ad::t_d80d854a338f52 73
+packages/coding-agent/src/features/plan-mode/plan-mode-tool-policy.ts
+  s_097787f5aa74ad::t_ffc8ddfd156f8f 17
+apps/desktop/src/main/memory/session-read.ts
+  s_097787f5aa74ad::t_2a394d8d0d9ff8 3,37
+apps/desktop/src/shared/i18n/locales/en/chat.json
+  s_097787f5aa74ad::t_15bb4d568ab9c7 1293
+apps/desktop/src/shared/i18n/locales/zh/chat.json
+  s_097787f5aa74ad::t_bb4c626c16cd6b 1293
+apps/desktop/src/main/agent-runtime/model-call-frame-contract.test.ts
+  s_097787f5aa74ad::t_211a9bce3c6082 746-755,760-873,972-986
+  s_097787f5aa74ad::t_711285788eb764 756-759
+  s_097787f5aa74ad::t_0af0bab37f63b2 1,29,1078
+  s_097787f5aa74ad::t_785e0db7c12110 987
+apps/desktop/src/main/memory/session-read.test.ts
+  s_097787f5aa74ad::t_485f305bc2f6b9 124,253,256,298,307
+apps/desktop/src/main/memory/recall.test.ts
+  s_097787f5aa74ad::t_748a913a5fff94 74-117,195-200,204-228
+  s_097787f5aa74ad::t_4929ece6624316 127-194,201-203
+  s_097787f5aa74ad::t_9b14251a7bc70d 7-11
+  s_097787f5aa74ad::t_d3ea59a9d4c979 1-6,12-73,118-126,229-248
+apps/desktop/src/main/memory/recall.ts
+  s_097787f5aa74ad::t_daefe7cf7832bf 1-4,6-15,17-124
+  s_097787f5aa74ad::t_5288d1eef2db99 16
+  s_097787f5aa74ad::t_9b14251a7bc70d 5
+apps/desktop/src/main/memory/recall-tool.ts
+  s_097787f5aa74ad::t_1f1feb5d567f5c 1-4,6-8,10-55,63,71-155
+  s_097787f5aa74ad::t_9b14251a7bc70d 5,9
+  s_097787f5aa74ad::t_44ca95fe6f14fa 56-62,64-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.23",
+  "base_commit_sha": "75ea87a9e708bbd4c04ef44c16e1ca5d6fd5406a",
+  "prompts": {},
+  "sessions": {
+    "s_097787f5aa74ad": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a185e7-8efe-7942-af0f-7cc66267e80d",
+        "model": "grok-4.7-build-fast"
+      },
+      "human_author": "张艳华 <939593210@qq.com>"
+    }
+  }
+}
