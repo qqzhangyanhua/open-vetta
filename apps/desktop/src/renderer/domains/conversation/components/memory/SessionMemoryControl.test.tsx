@@ -53,6 +53,8 @@ function reviewClient(client: Pick<DesktopMemoryApi, "generate" | "save">): Desk
 		getModelOverride: async () => null,
 		setModelOverride: async () => undefined,
 		listModels: async () => [],
+		updateEntry: async () => undefined,
+		deleteEntry: async () => undefined,
 	};
 }
 

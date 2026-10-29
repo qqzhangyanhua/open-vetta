@@ -1,9 +1,11 @@
+import { Button } from "@shared/components/ui/button";
+import { Textarea } from "@shared/components/ui/textarea";
 import { cn } from "@shared/lib/utils";
 import { MotionSelect, SettingRow, SettingSection, SettingsPageShellView } from "@vetta-org/theme-ui/settings";
 import { Switch } from "@vetta-org/ui";
-import type { MemoryScope, ProjectMemoryProject } from "@/shared/memory";
+import { MEMORY_CATEGORIES, type GlobalMemoryEntry, type MemoryCategory, type MemoryScope, type ProjectMemoryProject } from "@/shared/memory";
 import { SETTINGS_SECTION } from "../registry";
-import type { MemorySettingsModel } from "./useMemorySettingsModel";
+import type { MemoryEntryDraft, MemorySettingsModel } from "./useMemorySettingsModel";
 
 export function MemorySettingsView({ model }: { readonly model: MemorySettingsModel }): JSX.Element {
 	return (
@@ -71,6 +73,25 @@ export function MemorySettingsView({ model }: { readonly model: MemorySettingsMo
 							/>
 						</div>
 					) : null}
+					{showCategoryFilter(model) ? (
+						<div className="px-5 pt-3">
+							<MotionSelect
+								aria-label={model.labels.categoryFilter}
+								value={model.categoryFilter}
+								onValueChange={model.actions.setCategoryFilter}
+								options={[
+									{ value: "all", label: model.labels.categoryAll },
+									...Object.entries(model.labels.categories).map(([value, label]) => ({ value, label })),
+								]}
+								triggerClassName="h-8 min-w-[160px]"
+							/>
+						</div>
+					) : null}
+					{model.entryError ? (
+						<p role="alert" className="px-5 pt-3 text-[13px] text-foreground">
+							{model.entryError === "delete" ? model.labels.deleteError : model.labels.entrySaveError}
+						</p>
+					) : null}
 					<MemoryEntryList model={model} />
 				</SettingSection>
 			)}
@@ -128,30 +149,179 @@ function MemoryEntryList({ model }: { readonly model: MemorySettingsModel }): JS
 			</p>
 		);
 	}
-	if (model.entries.length === 0) {
+	if (model.scopeEntryCount === 0) {
 		return (
 			<p className="px-5 py-4 text-[13px] text-muted-foreground">
 				{model.scope === "project" ? model.labels.projectEmpty : model.labels.empty}
 			</p>
 		);
 	}
+	if (model.entries.length === 0) {
+		return <p className="px-5 py-4 text-[13px] text-muted-foreground">{model.labels.categoryEmpty}</p>;
+	}
 	return (
 		<ul className="m-0 list-none p-0">
 			{model.entries.map((entry) => (
-				<li key={entry.id} className="border-b border-border px-5 py-4 last:border-b-0">
-					<div className="mb-2 flex items-center gap-2">
-						<time dateTime={entry.recordedAt} className="text-[12px] text-muted-foreground">
-							{entry.recordedAt}
-						</time>
-						<span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[12px] text-primary">
-							{model.labels.categories[entry.category]}
-						</span>
-					</div>
-					<p className="whitespace-pre-wrap text-[13px] text-foreground">{entry.text}</p>
-				</li>
+				<MemoryEntryRow key={entry.id} model={model} entry={entry} />
 			))}
 		</ul>
 	);
+}
+
+function MemoryEntryRow({
+	model,
+	entry,
+}: {
+	readonly model: MemorySettingsModel;
+	readonly entry: GlobalMemoryEntry;
+}): JSX.Element {
+	const editing = model.draft?.id === entry.id;
+	const confirming = model.confirmDeleteId === entry.id;
+	const category = editing && model.draft ? model.draft.category : entry.category;
+	return (
+		<li className="group border-b border-border px-5 py-4 last:border-b-0">
+			<div className="mb-2 flex items-center gap-2">
+				<time dateTime={entry.recordedAt} className="text-[12px] text-muted-foreground">
+					{entry.recordedAt}
+				</time>
+				<span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[12px] text-primary">
+					{model.labels.categories[category]}
+				</span>
+				{editing || confirming ? null : (
+					<div className="ml-auto flex items-center gap-0.5">
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-xs"
+							className="text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100"
+							aria-label={model.labels.editEntry(entry.text)}
+							title={model.labels.editEntry(entry.text)}
+							disabled={model.savingEntry}
+							onClick={() => model.actions.startEdit(entry)}
+						>
+							<span className="icon-[solar--pen-2-linear] h-3.5 w-3.5" />
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-xs"
+							className="text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
+							aria-label={model.labels.deleteEntry(entry.text)}
+							title={model.labels.deleteEntry(entry.text)}
+							disabled={model.savingEntry}
+							onClick={() => model.actions.requestDelete(entry.id)}
+						>
+							<span className="icon-[solar--trash-bin-trash-linear] h-3.5 w-3.5" />
+						</Button>
+					</div>
+				)}
+			</div>
+			{editing && model.draft ? (
+				<MemoryEntryEditor model={model} draft={model.draft} />
+			) : (
+				<p className="whitespace-pre-wrap text-[13px] text-foreground">{entry.text}</p>
+			)}
+			{confirming ? <MemoryDeleteConfirm model={model} /> : null}
+		</li>
+	);
+}
+
+function MemoryEntryEditor({
+	model,
+	draft,
+}: {
+	readonly model: MemorySettingsModel;
+	readonly draft: MemoryEntryDraft;
+}): JSX.Element {
+	return (
+		<div className="flex flex-col gap-2">
+			<Textarea
+				aria-label={model.labels.editText}
+				value={draft.text}
+				onChange={(event) => model.actions.setDraftText(event.target.value)}
+				className="min-h-16 text-[13px]"
+			/>
+			<div className="flex flex-wrap items-center gap-2">
+				<MotionSelect
+					aria-label={model.labels.editCategory}
+					value={draft.category}
+					onValueChange={(value) => {
+						if (isMemoryCategory(value)) model.actions.setDraftCategory(value);
+					}}
+					options={Object.entries(model.labels.categories).map(([value, label]) => ({ value, label }))}
+					triggerClassName="h-8 min-w-[140px]"
+				/>
+				<MotionSelect
+					aria-label={model.labels.editScope}
+					value={draft.scope}
+					onValueChange={(value) => {
+						if (value === "global" || value === "project") model.actions.setDraftScope(value);
+					}}
+					options={[
+						{ value: "global", label: model.labels.scopeToGlobal },
+						{ value: "project", label: model.labels.scopeToProject },
+					]}
+					triggerClassName="h-8 min-w-[140px]"
+				/>
+				{draft.scope === "project" && model.projects.length > 0 ? (
+					<MotionSelect
+						aria-label={model.labels.moveProject}
+						value={draft.projectPath}
+						onValueChange={model.actions.setDraftProject}
+						options={model.projects.map((project) => ({
+							value: project.path,
+							label: projectOptionLabel(project, model.labels.conversationProject),
+						}))}
+						triggerClassName="h-8 min-w-[220px] max-w-full"
+					/>
+				) : null}
+			</div>
+			{draft.scope === "project" && model.projects.length === 0 ? (
+				<p className="text-[13px] text-muted-foreground">{model.labels.noProjectTarget}</p>
+			) : null}
+			<div className="flex items-center gap-2">
+				<Button
+					type="button"
+					size="xs"
+					disabled={!model.canSaveEdit}
+					title={model.labels.saveEntryTitle}
+					onClick={model.actions.saveEdit}
+				>
+					{model.labels.saveEntry}
+				</Button>
+				<Button type="button" size="xs" variant="outline" disabled={model.savingEntry} onClick={model.actions.cancelEdit}>
+					{model.labels.cancelEdit}
+				</Button>
+			</div>
+		</div>
+	);
+}
+
+function MemoryDeleteConfirm({ model }: { readonly model: MemorySettingsModel }): JSX.Element {
+	return (
+		<div role="group" aria-label={model.labels.deleteConfirmTitle} className="mt-2">
+			<p className="text-[13px] text-muted-foreground">{model.labels.deleteConfirmMessage}</p>
+			<div className="mt-2 flex items-center gap-2">
+				<Button type="button" size="xs" variant="destructive" disabled={model.savingEntry} onClick={model.actions.confirmDelete}>
+					{model.labels.deleteConfirm}
+				</Button>
+				<Button type="button" size="xs" variant="outline" disabled={model.savingEntry} onClick={model.actions.cancelDelete}>
+					{model.labels.cancelDelete}
+				</Button>
+			</div>
+		</div>
+	);
+}
+
+function showCategoryFilter(model: MemorySettingsModel): boolean {
+	if (model.scopeEntryCount === 0) return false;
+	if (model.status === "error" && model.scope === "global") return false;
+	if (model.scope === "project" && model.projectLoadError) return false;
+	return true;
+}
+
+function isMemoryCategory(value: string): value is MemoryCategory {
+	return (MEMORY_CATEGORIES as readonly string[]).includes(value);
 }
 
 function projectOptionLabel(project: ProjectMemoryProject, conversationLabel: string): string {

@@ -2405,6 +2405,27 @@
     "modelDescription": "When this is unset, generation uses the session's current model.",
     "modelUnset": "Use the session model",
     "modelInvalid": "The memory model setting could not be read and was left unchanged.",
-    "modelSaveError": "The memory model was not changed."
+    "modelSaveError": "The memory model was not changed.",
+    "categoryFilter": "Filter by category",
+    "categoryAll": "All categories",
+    "categoryEmpty": "No memories in this category.",
+    "editEntry": "Edit \"{{text}}\"",
+    "deleteEntry": "Delete \"{{text}}\"",
+    "editText": "Memory text",
+    "editCategory": "Category",
+    "editScope": "Scope",
+    "scopeToGlobal": "Move to global",
+    "scopeToProject": "Move to project",
+    "moveProject": "Target project",
+    "noProjectTarget": "There is no project to move this into yet. Generate a project memory in one of that project's chats first.",
+    "saveEntry": "Save this memory",
+    "saveEntryTitle": "Applies on the next message",
+    "cancelEdit": "Cancel",
+    "entrySaveError": "This memory was not changed and was left as it was.",
+    "deleteConfirmTitle": "Delete this memory?",
+    "deleteConfirmMessage": "After you delete it, every chat stops including it on the next message.",
+    "deleteConfirm": "Confirm delete",
+    "cancelDelete": "Cancel",
+    "deleteError": "This memory was not deleted and was left as it was."
   }
 }

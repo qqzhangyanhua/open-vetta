@@ -1,23 +1,42 @@
 import { memoryCategoryLabels } from "@shared/memory/category-labels";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type {
-	DesktopMemoryApi,
-	GlobalMemoryEntry,
-	MemoryCategory,
-	MemoryModelChoice,
-	MemoryScope,
-	ProjectMemoryProject,
+import {
+	type DesktopMemoryApi,
+	type GlobalMemoryEntry,
+	MEMORY_CATEGORIES,
+	type MemoryCategory,
+	type MemoryModelChoice,
+	type MemoryScope,
+	type ProjectMemoryProject,
+	type UpdateMemoryEntry,
 } from "@/shared/memory";
+import { relocateMemoryEntry, removeMemoryEntry } from "./memory-entry-relocate";
+
+export interface MemoryEntryDraft {
+	readonly id: string;
+	readonly text: string;
+	readonly category: MemoryCategory;
+	readonly scope: MemoryScope;
+	readonly projectPath: string;
+}
 
 export interface MemorySettingsModel {
 	readonly status: "loading" | "ready" | "error";
 	readonly scope: MemoryScope;
-	/** 当前范围下要展示的条目。全局读失败时为空，避免把失败画成空列表。 */
+	/** 当前范围下、经过分类筛选后要展示的条目。全局读失败时为空，避免把失败画成空列表。 */
 	readonly entries: readonly GlobalMemoryEntry[];
+	/** 当前范围里筛选前的条数，用来区分「没有记忆」和「这个分类是空的」。 */
+	readonly scopeEntryCount: number;
+	readonly categoryFilter: MemoryCategory | "all";
 	readonly projects: readonly ProjectMemoryProject[];
 	readonly selectedProjectPath: string;
 	readonly projectLoadError: boolean;
+	readonly draft: MemoryEntryDraft | null;
+	readonly confirmDeleteId: string | null;
+	readonly canSaveEdit: boolean;
+	readonly savingEntry: boolean;
+	readonly entryError: "save" | "delete" | null;
 	readonly readEnabled: boolean;
 	readonly projectReadEnabled: boolean;
 	readonly modelOverride: string | null;
@@ -31,6 +50,17 @@ export interface MemorySettingsModel {
 		readonly setScope: (scope: MemoryScope) => void;
 		readonly setSelectedProject: (path: string) => void;
 		readonly setModelOverride: (modelKey: string | null) => void;
+		readonly setCategoryFilter: (value: string) => void;
+		readonly startEdit: (entry: GlobalMemoryEntry) => void;
+		readonly cancelEdit: () => void;
+		readonly setDraftText: (text: string) => void;
+		readonly setDraftCategory: (category: MemoryCategory) => void;
+		readonly setDraftScope: (scope: MemoryScope) => void;
+		readonly setDraftProject: (path: string) => void;
+		readonly saveEdit: () => void;
+		readonly requestDelete: (id: string) => void;
+		readonly cancelDelete: () => void;
+		readonly confirmDelete: () => void;
 	};
 	readonly labels: {
 		readonly title: string;
@@ -60,6 +90,27 @@ export interface MemorySettingsModel {
 		readonly modelInvalid: string;
 		readonly modelSaveError: string;
 		readonly categories: Record<MemoryCategory, string>;
+		readonly categoryFilter: string;
+		readonly categoryAll: string;
+		readonly categoryEmpty: string;
+		readonly editEntry: (text: string) => string;
+		readonly deleteEntry: (text: string) => string;
+		readonly editText: string;
+		readonly editCategory: string;
+		readonly editScope: string;
+		readonly scopeToGlobal: string;
+		readonly scopeToProject: string;
+		readonly moveProject: string;
+		readonly noProjectTarget: string;
+		readonly saveEntry: string;
+		readonly saveEntryTitle: string;
+		readonly cancelEdit: string;
+		readonly entrySaveError: string;
+		readonly deleteConfirmTitle: string;
+		readonly deleteConfirmMessage: string;
+		readonly deleteConfirm: string;
+		readonly cancelDelete: string;
+		readonly deleteError: string;
 	};
 }
 
@@ -81,6 +132,15 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 	const [modelInvalid, setModelInvalid] = useState(false);
 	const [savingModel, setSavingModel] = useState(false);
 	const [modelSaveError, setModelSaveError] = useState(false);
+	const [categoryFilter, setCategoryFilter] = useState<MemoryCategory | "all">("all");
+	const [draft, setDraft] = useState<MemoryEntryDraft | null>(null);
+	const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+	const [savingEntry, setSavingEntry] = useState(false);
+	const [entryError, setEntryError] = useState<"save" | "delete" | null>(null);
+	const entriesRef = useRef(entries);
+	const projectsRef = useRef(projects);
+	entriesRef.current = entries;
+	projectsRef.current = projects;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -162,13 +222,94 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 	};
 
 	const selectedProject = projects.find((project) => project.path === selectedProjectPath) ?? projects[0] ?? null;
-	const visibleEntries = scope === "global" ? entries : (selectedProject?.entries ?? []);
+	const scopedEntries = scope === "global" ? entries : (selectedProject?.entries ?? []);
+	const visibleEntries =
+		categoryFilter === "all" ? scopedEntries : scopedEntries.filter((entry) => entry.category === categoryFilter);
+	const trimmedDraft = draft?.text.trim() ?? "";
+	const canSaveEdit =
+		draft !== null &&
+		trimmedDraft.length > 0 &&
+		(draft.scope === "global" || draft.projectPath.length > 0) &&
+		!savingEntry;
+
+	const setCategoryFilterFromUser = (value: string) => {
+		if (value === "all") {
+			setCategoryFilter("all");
+			return;
+		}
+		if ((MEMORY_CATEGORIES as readonly string[]).includes(value)) setCategoryFilter(value as MemoryCategory);
+	};
+
+	const startEdit = (entry: GlobalMemoryEntry) => {
+		setConfirmDeleteId(null);
+		setEntryError(null);
+		setDraft({
+			id: entry.id,
+			text: entry.text,
+			category: entry.category,
+			scope,
+			projectPath: selectedProject?.path ?? projects[0]?.path ?? "",
+		});
+	};
+
+	const saveEdit = () => {
+		if (!client || !draft || !canSaveEdit) return;
+		const update: UpdateMemoryEntry = {
+			id: draft.id,
+			text: draft.text.trim(),
+			category: draft.category,
+			scope: draft.scope,
+			...(draft.scope === "project" ? { projectPath: draft.projectPath } : {}),
+		};
+		setSavingEntry(true);
+		setEntryError(null);
+		void client.updateEntry(update).then(
+			() => {
+				const next = relocateMemoryEntry(entriesRef.current, projectsRef.current, update);
+				setEntries(next.entries);
+				setProjects(next.projects);
+				setDraft(null);
+				setSavingEntry(false);
+			},
+			() => {
+				setEntryError("save");
+				setSavingEntry(false);
+			},
+		);
+	};
+
+	const confirmDelete = () => {
+		if (!client || !confirmDeleteId || savingEntry) return;
+		const id = confirmDeleteId;
+		setSavingEntry(true);
+		setEntryError(null);
+		void client.deleteEntry(id).then(
+			() => {
+				const next = removeMemoryEntry(entriesRef.current, projectsRef.current, id);
+				setEntries(next.entries);
+				setProjects(next.projects);
+				setConfirmDeleteId(null);
+				setSavingEntry(false);
+			},
+			() => {
+				setEntryError("delete");
+				setSavingEntry(false);
+			},
+		);
+	};
 
 	return {
 		status,
 		scope,
 		entries: visibleEntries,
+		scopeEntryCount: scopedEntries.length,
+		categoryFilter,
 		projects,
+		draft,
+		confirmDeleteId,
+		canSaveEdit,
+		savingEntry,
+		entryError,
 		selectedProjectPath: selectedProject?.path ?? "",
 		projectLoadError,
 		readEnabled,
@@ -183,6 +324,39 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 			setProjectReadEnabled: setProjectReadEnabledFromUser,
 			setScope,
 			setSelectedProject: setSelectedProjectPath,
+			setCategoryFilter: setCategoryFilterFromUser,
+			startEdit,
+			cancelEdit() {
+				setDraft(null);
+				setEntryError(null);
+			},
+			setDraftText(text) {
+				setDraft((current) => (current ? { ...current, text } : current));
+			},
+			setDraftCategory(category) {
+				setDraft((current) => (current ? { ...current, category } : current));
+			},
+			setDraftScope(nextScope) {
+				setDraft((current) =>
+					current
+						? { ...current, scope: nextScope, projectPath: current.projectPath || projects[0]?.path || "" }
+						: current,
+				);
+			},
+			setDraftProject(path) {
+				setDraft((current) => (current ? { ...current, projectPath: path } : current));
+			},
+			saveEdit,
+			requestDelete(id) {
+				setDraft(null);
+				setEntryError(null);
+				setConfirmDeleteId(id);
+			},
+			cancelDelete() {
+				setConfirmDeleteId(null);
+				setEntryError(null);
+			},
+			confirmDelete,
 			setModelOverride(modelKey) {
 				if (!client) return;
 				setSavingModel(true);
@@ -228,6 +402,27 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 			modelInvalid: t("memoryPage.modelInvalid"),
 			modelSaveError: t("memoryPage.modelSaveError"),
 			categories: memoryCategoryLabels(tChat),
+			categoryFilter: t("memoryPage.categoryFilter"),
+			categoryAll: t("memoryPage.categoryAll"),
+			categoryEmpty: t("memoryPage.categoryEmpty"),
+			editEntry: (text) => t("memoryPage.editEntry", { text }),
+			deleteEntry: (text) => t("memoryPage.deleteEntry", { text }),
+			editText: t("memoryPage.editText"),
+			editCategory: t("memoryPage.editCategory"),
+			editScope: t("memoryPage.editScope"),
+			scopeToGlobal: t("memoryPage.scopeToGlobal"),
+			scopeToProject: t("memoryPage.scopeToProject"),
+			moveProject: t("memoryPage.moveProject"),
+			noProjectTarget: t("memoryPage.noProjectTarget"),
+			saveEntry: t("memoryPage.saveEntry"),
+			saveEntryTitle: t("memoryPage.saveEntryTitle"),
+			cancelEdit: t("memoryPage.cancelEdit"),
+			entrySaveError: t("memoryPage.entrySaveError"),
+			deleteConfirmTitle: t("memoryPage.deleteConfirmTitle"),
+			deleteConfirmMessage: t("memoryPage.deleteConfirmMessage"),
+			deleteConfirm: t("memoryPage.deleteConfirm"),
+			cancelDelete: t("memoryPage.cancelDelete"),
+			deleteError: t("memoryPage.deleteError"),
 		},
 	};
 }

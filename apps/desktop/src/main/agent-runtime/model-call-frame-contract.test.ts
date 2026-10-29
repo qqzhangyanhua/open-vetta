@@ -578,6 +578,69 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 		}
 	}, 60_000);
 
+	it("sends an edited memory on the next interactive message and omits a deleted entry", async () => {
+		const home = await temporaryDirectory("desktop-frame-memory-edit-home-");
+		const previousHome = process.env.VETTA_HOME;
+		process.env.VETTA_HOME = home;
+		try {
+			const memoryPath = globalMemoryFilePath(join(home, "memory"));
+			await mkdir(join(home, "memory"), { recursive: true });
+			const original = {
+				schemaVersion: 1,
+				entries: [memoryEntry("11111111-1111-4111-8111-111111111111", "住在昆山", "location")],
+			};
+			await writeFile(memoryPath, JSON.stringify(original));
+			const cwd = await temporaryDirectory("desktop-frame-memory-edit-workspace-");
+			const server = await createServer();
+			const model = { ...MODEL, baseUrl: server.baseUrl };
+			const agentStateDir = await temporaryDirectory("desktop-frame-memory-edit-agent-");
+			const fixture = createRuntimeFixture("runtime", agentStateDir, model);
+			fixtures.push(fixture);
+			const created = await fixture.runtime.createSession({
+				cwd,
+				agentDir: agentStateDir,
+				sessionDir: await temporaryDirectory("desktop-frame-memory-edit-sessions-"),
+				model,
+				thinkingLevel: "off",
+				agent: createCodingAgentRuntimeSessionSelection({
+					scenario: "conversation",
+					agentMode: "work",
+					includeAgentSkills: false,
+				}),
+				executionMode: "full-access",
+			});
+
+			await fixture.runtime.prompt(created.sessionId, { text: "Use the saved fact" });
+			const first = comparableSystemPrompt(server.requests[0]?.body);
+			expect(first).toContain("USER_MEMORY_JSON");
+			expect(first).toContain("住在昆山");
+			expect(first).toContain("location");
+
+			await writeFile(
+				memoryPath,
+				JSON.stringify({
+					schemaVersion: 1,
+					entries: [memoryEntry("11111111-1111-4111-8111-111111111111", "住在苏州", "preference")],
+				}),
+			);
+			await fixture.runtime.prompt(created.sessionId, { text: "Use the edited fact" });
+			const edited = comparableSystemPrompt(server.requests[1]?.body);
+			expect(edited).toContain("住在苏州");
+			expect(edited).toContain("preference");
+			expect(edited).not.toContain("住在昆山");
+
+			await writeFile(memoryPath, JSON.stringify({ schemaVersion: 1, entries: [] }));
+			await fixture.runtime.prompt(created.sessionId, { text: "The fact was deleted" });
+			const deleted = comparableSystemPrompt(server.requests[2]?.body);
+			expect(deleted).not.toContain("USER_MEMORY_JSON");
+			expect(deleted).not.toContain("住在苏州");
+			expect(deleted).not.toContain("住在昆山");
+		} finally {
+			if (previousHome === undefined) delete process.env.VETTA_HOME;
+			else process.env.VETTA_HOME = previousHome;
+		}
+	}, 60_000);
+
 	async function observeBackends(
 		cwd: string,
 		scenario: ConversationScenario,

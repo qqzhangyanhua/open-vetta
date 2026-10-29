@@ -9,6 +9,8 @@ export function createMemoryApi(ipc: IpcRenderer): Pick<DesktopApi, "memory"> {
 			listProjects: () => ipc.invoke(MEMORY_CHANNELS.LIST_PROJECTS),
 			generate: (runtimeId) => ipc.invoke(MEMORY_CHANNELS.GENERATE, runtimeId),
 			save: (candidates) => ipc.invoke(MEMORY_CHANNELS.SAVE, candidates),
+			updateEntry: (input) => ipc.invoke(MEMORY_CHANNELS.UPDATE_ENTRY, input),
+			deleteEntry: (id) => ipc.invoke(MEMORY_CHANNELS.DELETE_ENTRY, id),
 			getReadEnabled: () => ipc.invoke(MEMORY_CHANNELS.GET_READ_ENABLED),
 			setReadEnabled: (enabled) => ipc.invoke(MEMORY_CHANNELS.SET_READ_ENABLED, enabled),
 			getProjectReadEnabled: () => ipc.invoke(MEMORY_CHANNELS.GET_PROJECT_READ_ENABLED),

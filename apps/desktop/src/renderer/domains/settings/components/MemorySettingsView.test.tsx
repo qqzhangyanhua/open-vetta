@@ -34,6 +34,8 @@ function client(
 			| "getModelOverride"
 			| "setModelOverride"
 			| "listModels"
+			| "updateEntry"
+			| "deleteEntry"
 		>
 	> = {},
 ): DesktopMemoryApi {
@@ -42,6 +44,8 @@ function client(
 		listProjects: options.listProjects ?? (async () => []),
 		generate: vi.fn(),
 		save: vi.fn(),
+		updateEntry: options.updateEntry ?? vi.fn(async () => undefined),
+		deleteEntry: options.deleteEntry ?? vi.fn(async () => undefined),
 		getReadEnabled: options.getReadEnabled ?? (async () => true),
 		setReadEnabled: options.setReadEnabled ?? (async (enabled) => enabled),
 		getProjectReadEnabled: options.getProjectReadEnabled ?? (async () => true),
@@ -76,8 +80,9 @@ describe("设置页记忆列表", () => {
 		expect(await screen.findByText("我住在昆山")).toBeTruthy();
 		expect(screen.getByText("位置")).toBeTruthy();
 		expect(screen.getByText("2026-10-28").tagName).toBe("TIME");
-		expect(screen.queryByRole("button", { name: "删除" })).toBeNull();
+		expect(screen.queryByRole("button", { name: "新建" })).toBeNull();
 		expect(screen.queryByRole("textbox")).toBeNull();
+		expect(screen.getByRole("button", { name: "编辑「我住在昆山」" }).className).toContain("opacity-0");
 	});
 
 	it("没有记忆时说明从标题栏生成", async () => {
@@ -115,7 +120,8 @@ describe("设置页记忆列表", () => {
 		expect(toggle.getAttribute("aria-checked")).toBe("true");
 		expect(toggle.getAttribute("title")).toBe("从下一条消息起生效");
 		expect(screen.getByText("我住在昆山")).toBeTruthy();
-		expect(screen.queryByRole("button", { name: "删除" })).toBeNull();
+		expect(screen.queryByRole("button", { name: "新建" })).toBeNull();
+		expect(screen.queryByRole("textbox")).toBeNull();
 
 		await user.click(toggle);
 		expect(setReadEnabled).toHaveBeenCalledWith(false);
@@ -274,6 +280,125 @@ describe("设置页记忆列表", () => {
 		expect(screen.getByRole("switch", { name: "在对话里使用全局记忆" })).toBeTruthy();
 	});
 
+	it("可以改文字、改分类、改范围，按分类筛选，并在确认后删除", async () => {
+		const user = userEvent.setup();
+		const updateEntry = vi.fn(async () => undefined);
+		const deleteEntry = vi.fn(async () => undefined);
+		const tea: GlobalMemoryEntry = {
+			id: "44444444-4444-4444-8444-444444444444",
+			text: "喜欢喝茶",
+			category: "preference",
+			recordedAt: "2026-10-28",
+		};
+		const projects: ProjectMemoryProject[] = [
+			{
+				path: "/tmp/alpha",
+				kind: "local",
+				entries: [projectEntry("22222222-2222-4222-8222-222222222222", "这个仓库用 bun", "work")],
+			},
+		];
+		render(
+			<MemorySettings
+				client={client(async () => [ENTRY, tea], {
+					listProjects: async () => projects,
+					updateEntry,
+					deleteEntry,
+				})}
+			/>,
+		);
+
+		expect(await screen.findByText("我住在昆山")).toBeTruthy();
+		expect(screen.getByText("喜欢喝茶")).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "新建" })).toBeNull();
+		expect(screen.queryByRole("textbox")).toBeNull();
+
+		await user.click(screen.getByRole("button", { name: "筛选分类" }));
+		await user.click(await screen.findByRole("button", { name: "位置" }));
+		expect(screen.getByText("我住在昆山")).toBeTruthy();
+		expect(screen.queryByText("喜欢喝茶")).toBeNull();
+
+		await user.click(screen.getByRole("button", { name: "筛选分类" }));
+		await user.click(await screen.findByRole("button", { name: "全部分类" }));
+		expect(screen.getByText("喜欢喝茶")).toBeTruthy();
+
+		await user.click(screen.getByRole("button", { name: "编辑「我住在昆山」" }));
+		const textbox = screen.getByRole("textbox", { name: "记忆正文" });
+		await user.clear(textbox);
+		await user.type(textbox, "我住在苏州");
+		await user.click(screen.getByRole("button", { name: "分类" }));
+		await user.click(await screen.findByRole("button", { name: "家庭" }));
+		await user.click(screen.getByRole("button", { name: "范围" }));
+		await user.click(await screen.findByRole("button", { name: "放到项目" }));
+		expect(screen.getByRole("button", { name: "目标项目" }).textContent).toContain("/tmp/alpha");
+		expect(screen.getByRole("button", { name: "保存这条记忆" }).getAttribute("title")).toBe("从下一条消息起生效");
+
+		await user.click(screen.getByRole("button", { name: "保存这条记忆" }));
+		await waitFor(() =>
+			expect(updateEntry).toHaveBeenCalledWith({
+				id: ENTRY.id,
+				text: "我住在苏州",
+				category: "family",
+				scope: "project",
+				projectPath: "/tmp/alpha",
+			}),
+		);
+		expect(screen.queryByText("我住在昆山")).toBeNull();
+		expect(screen.queryByText("我住在苏州")).toBeNull();
+		expect(screen.getByText("喜欢喝茶")).toBeTruthy();
+
+		await user.click(screen.getByRole("tab", { name: "项目" }));
+		expect(screen.getByText("我住在苏州")).toBeTruthy();
+		expect(screen.getByText("家庭")).toBeTruthy();
+		expect(screen.getByText("这个仓库用 bun")).toBeTruthy();
+
+		await user.click(screen.getByRole("button", { name: "筛选分类" }));
+		await user.click(await screen.findByRole("button", { name: "家庭" }));
+		expect(screen.getByText("我住在苏州")).toBeTruthy();
+		expect(screen.queryByText("这个仓库用 bun")).toBeNull();
+
+		await user.click(screen.getByRole("button", { name: "删除「我住在苏州」" }));
+		expect(screen.getByText("我住在苏州")).toBeTruthy();
+		expect(deleteEntry).not.toHaveBeenCalled();
+		expect(screen.getByRole("group", { name: "删除这条记忆？" }).textContent).toContain("从下一条消息起");
+		await user.click(screen.getByRole("button", { name: "取消" }));
+		expect(screen.queryByRole("group", { name: "删除这条记忆？" })).toBeNull();
+		expect(screen.getByText("我住在苏州")).toBeTruthy();
+
+		await user.click(screen.getByRole("button", { name: "删除「我住在苏州」" }));
+		await user.click(screen.getByRole("button", { name: "确认删除" }));
+		await waitFor(() => expect(deleteEntry).toHaveBeenCalledWith(ENTRY.id));
+		expect(screen.queryByText("我住在苏州")).toBeNull();
+		expect(screen.getByText("这个分类下没有记忆。")).toBeTruthy();
+
+		await user.click(screen.getByRole("button", { name: "筛选分类" }));
+		await user.click(await screen.findByRole("button", { name: "全部分类" }));
+		expect(screen.getByText("这个仓库用 bun")).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "新建" })).toBeNull();
+	});
+
+	it("保存失败时条目保持原样", async () => {
+		const user = userEvent.setup();
+		render(
+			<MemorySettings
+				client={client(async () => [ENTRY], {
+					updateEntry: async () => {
+						throw new Error("memory:store-rejected");
+					},
+				})}
+			/>,
+		);
+		await user.click(await screen.findByRole("button", { name: "编辑「我住在昆山」" }));
+		const textbox = screen.getByRole("textbox", { name: "记忆正文" });
+		await user.clear(textbox);
+		await user.type(textbox, "我住在苏州");
+		await user.click(screen.getByRole("button", { name: "保存这条记忆" }));
+		expect((await screen.findByRole("alert")).textContent).toContain("没有改成这条记忆，已保持原样");
+		expect(screen.getByRole("textbox", { name: "记忆正文" })).toBeTruthy();
+		await user.click(screen.getByRole("button", { name: "取消" }));
+		expect(screen.getByText("我住在昆山")).toBeTruthy();
+		expect(screen.queryByText("我住在苏州")).toBeNull();
+	});
+
 	it("英文界面使用记忆范围文案", async () => {
 		const user = userEvent.setup();
 		await i18n.changeLanguage("en");
@@ -287,6 +412,10 @@ describe("设置页记忆列表", () => {
 		render(<MemorySettings client={client(async () => [ENTRY], { listProjects: async () => projects })} />);
 		expect(await screen.findByRole("switch", { name: "Use global memory in chat" })).toBeTruthy();
 		expect(screen.getByRole("switch", { name: "Use project memory in chat" })).toBeTruthy();
+		expect(screen.getByRole("button", { name: 'Edit "我住在昆山"' })).toBeTruthy();
+		expect(screen.getByRole("button", { name: 'Delete "我住在昆山"' })).toBeTruthy();
+		expect(screen.getByRole("button", { name: "Filter by category" })).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "New memory" })).toBeNull();
 		expect(screen.getByRole("tab", { name: "Global" }).getAttribute("aria-selected")).toBe("true");
 		await user.click(screen.getByRole("tab", { name: "Project" }));
 		expect(screen.getByRole("button", { name: "Filter by project" }).textContent).toContain("Conversation");

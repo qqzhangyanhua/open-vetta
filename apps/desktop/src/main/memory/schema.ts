@@ -7,6 +7,7 @@ import {
 	PROJECT_MEMORY_SCHEMA_VERSION,
 	type ProjectMemoryKind,
 	type SaveMemoryCandidate,
+	type UpdateMemoryEntry,
 } from "../../shared/memory.js";
 
 export const MEMORY_GENERATION_SCHEMA_VERSION = 1;
@@ -123,6 +124,42 @@ export function parseSaveMemoryCandidates(value: unknown): SaveMemoryCandidate[]
 	const parsed = saveMemoryCandidatesSchema.safeParse(Array.isArray(value) ? { candidates: value } : value);
 	if (!parsed.success) throw new Error("memory:invalid-candidates");
 	return parsed.data.candidates;
+}
+
+export const updateMemoryEntrySchema = z.object({
+	id: z.uuid(),
+	text: z.string().trim().min(1).max(2_000),
+	category: memoryCategorySchema,
+	scope: z.enum(MEMORY_SCOPES),
+	projectPath: z.string().trim().min(1).max(4_096).optional(),
+});
+
+export function parseUpdateMemoryEntry(value: unknown): UpdateMemoryEntry {
+	const parsed = updateMemoryEntrySchema.safeParse(value);
+	if (!parsed.success) throw new Error("memory:invalid-entry");
+	if (parsed.data.scope === "global") {
+		return {
+			id: parsed.data.id,
+			text: parsed.data.text,
+			category: parsed.data.category,
+			scope: "global",
+		};
+	}
+	const projectPath = parsed.data.projectPath;
+	if (!projectPath) throw new Error("memory:invalid-entry");
+	return {
+		id: parsed.data.id,
+		text: parsed.data.text,
+		category: parsed.data.category,
+		scope: "project",
+		projectPath,
+	};
+}
+
+export function parseDeleteMemoryEntryId(value: unknown): string {
+	const parsed = z.uuid().safeParse(value);
+	if (!parsed.success) throw new Error("memory:invalid-entry");
+	return parsed.data;
 }
 
 const memoryModelKeySchema = z.string().regex(MEMORY_MODEL_KEY).max(300);
