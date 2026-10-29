@@ -1,13 +1,14 @@
 import { memoryCategoryLabels } from "@shared/memory/category-labels";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type {
-	DesktopMemoryApi,
-	GlobalMemoryEntry,
-	MemoryCategory,
-	MemoryModelChoice,
-	MemoryScope,
-	ProjectMemoryProject,
+import {
+	type DesktopMemoryApi,
+	type GlobalMemoryEntry,
+	type MemoryCategory,
+	type MemoryModelChoice,
+	type MemoryScope,
+	memoryEntryWithPinned,
+	type ProjectMemoryProject,
 } from "@/shared/memory";
 
 export interface MemorySettingsModel {
@@ -31,6 +32,7 @@ export interface MemorySettingsModel {
 		readonly setScope: (scope: MemoryScope) => void;
 		readonly setSelectedProject: (path: string) => void;
 		readonly setModelOverride: (modelKey: string | null) => void;
+		readonly setPinned: (id: string, pinned: boolean) => void;
 	};
 	readonly labels: {
 		readonly title: string;
@@ -59,6 +61,10 @@ export interface MemorySettingsModel {
 		readonly modelUnset: string;
 		readonly modelInvalid: string;
 		readonly modelSaveError: string;
+		readonly pin: string;
+		readonly unpin: string;
+		readonly pinAria: (text: string) => string;
+		readonly unpinAria: (text: string) => string;
 		readonly categories: Record<MemoryCategory, string>;
 	};
 }
@@ -81,6 +87,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 	const [modelInvalid, setModelInvalid] = useState(false);
 	const [savingModel, setSavingModel] = useState(false);
 	const [modelSaveError, setModelSaveError] = useState(false);
+	const pinGeneration = useRef(new Map<string, number>());
 
 	useEffect(() => {
 		let cancelled = false;
@@ -164,6 +171,20 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 	const selectedProject = projects.find((project) => project.path === selectedProjectPath) ?? projects[0] ?? null;
 	const visibleEntries = scope === "global" ? entries : (selectedProject?.entries ?? []);
 
+	const replacePinned = (targetScope: MemoryScope, projectPath: string, id: string, next: GlobalMemoryEntry) => {
+		if (targetScope === "global") {
+			setEntries((current) => current.map((entry) => (entry.id === id ? next : entry)));
+			return;
+		}
+		setProjects((current) =>
+			current.map((project) =>
+				project.path === projectPath
+					? { ...project, entries: project.entries.map((entry) => (entry.id === id ? next : entry)) }
+					: project,
+			),
+		);
+	};
+
 	return {
 		status,
 		scope,
@@ -199,6 +220,34 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 					},
 				);
 			},
+			setPinned(id, pinned) {
+				if (!client) return;
+				const current = visibleEntries.find((entry) => entry.id === id);
+				if (!current) return;
+				const targetScope = scope;
+				const projectPath = selectedProject?.path ?? "";
+				if (targetScope === "project" && !projectPath) return;
+				const generation = (pinGeneration.current.get(id) ?? 0) + 1;
+				pinGeneration.current.set(id, generation);
+				replacePinned(targetScope, projectPath, id, memoryEntryWithPinned(current, pinned));
+				void client
+					.setPinned({
+						id,
+						scope: targetScope,
+						...(targetScope === "project" ? { projectPath } : {}),
+						pinned,
+					})
+					.then(
+						(stored) => {
+							if (pinGeneration.current.get(id) === generation)
+								replacePinned(targetScope, projectPath, id, stored);
+						},
+						() => {
+							if (pinGeneration.current.get(id) === generation)
+								replacePinned(targetScope, projectPath, id, current);
+						},
+					);
+			},
 		},
 		labels: {
 			title: t("memoryPage.title"),
@@ -227,6 +276,10 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 			modelUnset: t("memoryPage.modelUnset"),
 			modelInvalid: t("memoryPage.modelInvalid"),
 			modelSaveError: t("memoryPage.modelSaveError"),
+			pin: t("memoryPage.pin"),
+			unpin: t("memoryPage.unpin"),
+			pinAria: (text) => t("memoryPage.pinAria", { text }),
+			unpinAria: (text) => t("memoryPage.unpinAria", { text }),
 			categories: memoryCategoryLabels(tChat),
 		},
 	};

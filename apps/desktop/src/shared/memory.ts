@@ -19,6 +19,21 @@ export interface GlobalMemoryEntry {
 	readonly text: string;
 	readonly category: MemoryCategory;
 	readonly recordedAt: string;
+	/** Absent means not pinned. Only `true` is pinned. */
+	readonly pinned?: boolean;
+}
+
+/**
+ * Characters of entry text loaded for one scope.
+ * Global and project each get this full amount; one scope being over does not shrink the other.
+ * Pinned text may exceed it.
+ */
+export const MEMORY_SCOPE_CHAR_BUDGET = 4_000;
+
+export function memoryEntryWithPinned(entry: GlobalMemoryEntry, pinned: boolean): GlobalMemoryEntry {
+	if (pinned) return entry.pinned === true ? entry : { ...entry, pinned: true };
+	if (entry.pinned !== true) return entry;
+	return { id: entry.id, text: entry.text, category: entry.category, recordedAt: entry.recordedAt };
 }
 
 export interface MemoryCandidate {
@@ -63,6 +78,14 @@ export interface MemoryModelChoice {
 	readonly label: string;
 }
 
+export interface SetMemoryPinnedInput {
+	readonly id: string;
+	readonly scope: MemoryScope;
+	/** Required when scope is project. Ignored for global. */
+	readonly projectPath?: string;
+	readonly pinned: boolean;
+}
+
 export interface DesktopMemoryApi {
 	listGlobal: () => Promise<GlobalMemoryEntry[]>;
 	listProjects: () => Promise<ProjectMemoryProject[]>;
@@ -76,6 +99,7 @@ export interface DesktopMemoryApi {
 	getModelOverride: () => Promise<string | null>;
 	setModelOverride: (modelKey: string | null) => Promise<void>;
 	listModels: () => Promise<readonly MemoryModelChoice[]>;
+	setPinned: (input: SetMemoryPinnedInput) => Promise<GlobalMemoryEntry>;
 }
 
 export const MEMORY_CHANNELS = {
@@ -90,4 +114,5 @@ export const MEMORY_CHANNELS = {
 	GET_MODEL_OVERRIDE: "memory:get-model-override",
 	SET_MODEL_OVERRIDE: "memory:set-model-override",
 	LIST_MODELS: "memory:list-models",
+	SET_PINNED: "memory:set-pinned",
 } as const;

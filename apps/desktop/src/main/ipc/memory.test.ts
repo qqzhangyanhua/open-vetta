@@ -1,7 +1,12 @@
 import type { IpcRenderer } from "electron";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createMemoryApi } from "../../preload/apis/memory.js";
-import type { GenerateGlobalMemoryResult, GlobalMemoryEntry, MemoryModelChoice } from "../../shared/memory.js";
+import type {
+	GenerateGlobalMemoryResult,
+	GlobalMemoryEntry,
+	MemoryModelChoice,
+	SetMemoryPinnedInput,
+} from "../../shared/memory.js";
 import { type MemoryIpcService, registerMemoryIpc } from "./memory.js";
 
 const bridge = vi.hoisted(() => ({ handlers: new Map<string, (event: unknown, ...args: unknown[]) => unknown>() }));
@@ -39,6 +44,14 @@ describe("memory preload/main contract", () => {
 			getModelOverride: vi.fn(async () => null),
 			setModelOverride: vi.fn(async () => undefined),
 			listModels: vi.fn(async () => [] as MemoryModelChoice[]),
+			setPinned: vi.fn(
+				async (input: SetMemoryPinnedInput): Promise<GlobalMemoryEntry> => ({
+					id: input.id,
+					text: "unused",
+					category: "other",
+					recordedAt: "2026-10-28",
+				}),
+			),
 			...overrides,
 		};
 	}
@@ -135,5 +148,34 @@ describe("memory preload/main contract", () => {
 		expect(service.setReadEnabled).toHaveBeenCalledWith(false);
 		await expect(api.setReadEnabled("no" as unknown as boolean)).rejects.toThrow();
 		expect(service.setReadEnabled).toHaveBeenCalledTimes(1);
+	});
+
+	it("forwards a pin toggle and rejects a bad payload before the service", async () => {
+		const entry: GlobalMemoryEntry = {
+			id: "11111111-1111-4111-8111-111111111111",
+			text: "住在昆山",
+			category: "location",
+			recordedAt: "2026-10-28",
+			pinned: true,
+		};
+		const setPinned = vi.fn(async () => entry);
+		const service = serviceWith({
+			listGlobal: vi.fn(async () => []),
+			generate: vi.fn(),
+			save: vi.fn(),
+			setPinned,
+		});
+		const api = install(service);
+		expect(await api.setPinned({ id: entry.id, scope: "global", pinned: true })).toEqual(entry);
+		expect(setPinned).toHaveBeenCalledWith({ id: entry.id, scope: "global", pinned: true });
+		expect(await api.setPinned({ id: entry.id, scope: "project", projectPath: "/tmp/alpha", pinned: false })).toEqual(
+			entry,
+		);
+		await expect(api.setPinned({ id: "not-a-uuid", scope: "global", pinned: true })).rejects.toThrow();
+		await expect(api.setPinned({ id: entry.id, scope: "workspace" as "global", pinned: true })).rejects.toThrow();
+		await expect(
+			api.setPinned({ id: entry.id, scope: "global", pinned: "yes" as unknown as boolean }),
+		).rejects.toThrow();
+		expect(setPinned).toHaveBeenCalledTimes(2);
 	});
 });

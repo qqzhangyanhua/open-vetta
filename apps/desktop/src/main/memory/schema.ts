@@ -23,6 +23,7 @@ export const globalMemoryEntrySchema = z.object({
 	text: z.string().trim().min(1).max(2_000),
 	category: memoryCategorySchema,
 	recordedAt: recordedAtSchema,
+	pinned: z.boolean().optional(),
 });
 
 export const globalMemoryDocumentSchema = z.object({

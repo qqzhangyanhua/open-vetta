@@ -78,6 +78,12 @@ function ReviewHarness({ children }: { readonly children: ReactNode }): JSX.Elem
 			getModelOverride: async () => null,
 			setModelOverride: async () => undefined,
 			listModels: async () => [],
+			setPinned: async (input) => ({
+				id: input.id,
+				text: "unused",
+				category: "other",
+				recordedAt: "2026-10-28",
+			}),
 		}),
 		[],
 	);

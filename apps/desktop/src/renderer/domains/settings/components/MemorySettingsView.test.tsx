@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import type { DesktopMemoryApi, GlobalMemoryEntry, ProjectMemoryProject } from "@/shared/memory";
+import type { DesktopMemoryApi, GlobalMemoryEntry, ProjectMemoryProject, SetMemoryPinnedInput } from "@/shared/memory";
 import { i18n, initI18n } from "@shared/i18n";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -34,6 +34,7 @@ function client(
 			| "getModelOverride"
 			| "setModelOverride"
 			| "listModels"
+			| "setPinned"
 		>
 	> = {},
 ): DesktopMemoryApi {
@@ -49,6 +50,14 @@ function client(
 		getModelOverride: options.getModelOverride ?? vi.fn(async () => null),
 		setModelOverride: options.setModelOverride ?? vi.fn(async () => undefined),
 		listModels: options.listModels ?? vi.fn(async () => []),
+		setPinned:
+			options.setPinned ??
+			(async (input: SetMemoryPinnedInput) => ({
+				id: input.id,
+				text: "unused",
+				category: "other",
+				recordedAt: "2026-10-28",
+			})),
 	};
 }
 
@@ -291,5 +300,60 @@ describe("设置页记忆列表", () => {
 		await user.click(screen.getByRole("tab", { name: "Project" }));
 		expect(screen.getByRole("button", { name: "Filter by project" }).textContent).toContain("Conversation");
 		expect(screen.getByText("Use Chinese in conversation")).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "Pin: 我住在昆山" })).toBeNull();
+		expect(screen.getByRole("button", { name: "Pin: Use Chinese in conversation" }).getAttribute("aria-pressed")).toBe(
+			"false",
+		);
+	});
+
+	it("可以把一条标成常驻，写失败时回到原来的状态", async () => {
+		const user = userEvent.setup();
+		const setPinned = vi.fn(async (input: SetMemoryPinnedInput) => {
+			if (!input.pinned) throw new Error("memory:not-found");
+			return { ...ENTRY, pinned: true };
+		});
+		render(<MemorySettings client={client(async () => [ENTRY], { setPinned })} />);
+		const pin = await screen.findByRole("button", { name: "设为常驻：我住在昆山" });
+		expect(pin.getAttribute("aria-pressed")).toBe("false");
+
+		await user.click(pin);
+		expect(setPinned).toHaveBeenCalledWith({ id: ENTRY.id, scope: "global", pinned: true });
+		const unpin = screen.getByRole("button", { name: "取消常驻：我住在昆山" });
+		expect(unpin.getAttribute("aria-pressed")).toBe("true");
+
+		await user.click(unpin);
+		expect(setPinned).toHaveBeenLastCalledWith({ id: ENTRY.id, scope: "global", pinned: false });
+		expect((await screen.findByRole("button", { name: "取消常驻：我住在昆山" })).getAttribute("aria-pressed")).toBe(
+			"true",
+		);
+	});
+
+	it("项目记忆的常驻只提交当前项目", async () => {
+		const user = userEvent.setup();
+		const projectId = "22222222-2222-4222-8222-222222222222";
+		const setPinned = vi.fn(async (input: SetMemoryPinnedInput) => ({
+			...projectEntry(projectId, "这个仓库用 bun", "work"),
+			...(input.pinned ? { pinned: true as const } : {}),
+		}));
+		const projects: ProjectMemoryProject[] = [
+			{
+				path: "/tmp/alpha",
+				kind: "local",
+				entries: [projectEntry(projectId, "这个仓库用 bun", "work")],
+			},
+		];
+		render(<MemorySettings client={client(async () => [ENTRY], { listProjects: async () => projects, setPinned })} />);
+		expect(await screen.findByRole("button", { name: "设为常驻：我住在昆山" })).toBeTruthy();
+
+		await user.click(screen.getByRole("tab", { name: "项目" }));
+		await user.click(screen.getByRole("button", { name: "设为常驻：这个仓库用 bun" }));
+		expect(setPinned).toHaveBeenCalledWith({
+			id: projectId,
+			scope: "project",
+			projectPath: "/tmp/alpha",
+			pinned: true,
+		});
+		expect(setPinned).toHaveBeenCalledTimes(1);
+		expect(screen.getByRole("button", { name: "取消常驻：这个仓库用 bun" }).getAttribute("aria-pressed")).toBe("true");
 	});
 });

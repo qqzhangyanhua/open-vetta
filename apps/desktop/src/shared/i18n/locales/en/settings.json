@@ -2405,6 +2405,10 @@
     "modelDescription": "When this is unset, generation uses the session's current model.",
     "modelUnset": "Use the session model",
     "modelInvalid": "The memory model setting could not be read and was left unchanged.",
-    "modelSaveError": "The memory model was not changed."
+    "modelSaveError": "The memory model was not changed.",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "pinAria": "Pin: {{text}}",
+    "unpinAria": "Unpin: {{text}}"
   }
 }

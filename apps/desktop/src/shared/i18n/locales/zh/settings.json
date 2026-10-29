@@ -2405,6 +2405,10 @@
     "modelDescription": "不指定时，用这条会话当前的模型。",
     "modelUnset": "使用会话当前模型",
     "modelInvalid": "记忆模型设置无法读取，已保持原样。",
-    "modelSaveError": "没有改成这个模型，设置保持原样。"
+    "modelSaveError": "没有改成这个模型，设置保持原样。",
+    "pin": "设为常驻",
+    "unpin": "取消常驻",
+    "pinAria": "设为常驻：{{text}}",
+    "unpinAria": "取消常驻：{{text}}"
   }
 }
