@@ -33,3 +33,4 @@ memory-mode 下启用三层：
 - 若 Read/翻目录式召回对 IM 体验不可接受，按 ADR-0006 末尾口径给 transport 加 capability，而非推翻单轨；
 - 若需要桌面查看/接管 IM 记忆会话，作为独立桥接特性正向加回（同 ADR-0005 口径），而非合并 cwd；
 - `session_search` 二期落地时，parentSession 链已就位，无需回改一期结构。
+- desktop 的全局/项目记忆没有扩展本 ADR 的 memory-mode，而是另起一套用户审阅写入的独立能力，见 ADR-0151。

@@ -450,6 +450,34 @@
 		},
 		"remoteBadge": "Remote"
 	},
+	"memoryReview": {
+		"menu": "More",
+		"generate": "Generate memory",
+		"title": "Review memory",
+		"loading": "Reading this session…",
+		"loadingHint": "You can keep using the session.",
+		"empty": "No new memory to save",
+		"error": "Generation failed. Nothing was written.",
+		"retry": "Retry",
+		"close": "Close",
+		"save": "Save",
+		"saving": "Saving",
+		"category": "Category",
+		"discardHint": "Closing without saving discards these candidates.",
+		"sessionUnavailable": "This session is unavailable. Nothing was written.",
+		"modelUnavailable": "This session has no model. Nothing was written.",
+		"storeRejected": "The memory file could not be read and was left unchanged.",
+		"saveFailed": "Save failed. Nothing was written.",
+		"categories": {
+			"identity": "Identity",
+			"family": "Family",
+			"location": "Location",
+			"work": "Work",
+			"preference": "Preference",
+			"interest": "Interest",
+			"other": "Other"
+		}
+	},
 	"contextRing": {
 		"tooltip": {
 			"compacting": "Compacting context...",

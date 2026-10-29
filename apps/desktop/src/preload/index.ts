@@ -14,6 +14,7 @@ import { createDownloadsApi } from "./apis/downloads.js";
 import { createExternalInvocationApi } from "./apis/external-invocation.js";
 import { createI18nApi } from "./apis/i18n.js";
 import { createImApi } from "./apis/im.js";
+import { createMemoryApi } from "./apis/memory.js";
 import { createMessageAnnotationsApi } from "./apis/message-annotations.js";
 import { createNotificationApi } from "./apis/notification.js";
 import { createPetApi } from "./apis/pet.js";
@@ -43,6 +44,7 @@ for (const eventName of ["keydown", "mousedown", "mousemove", "touchstart", "whe
 
 const rawApi: Omit<DesktopApi, "hostAccess"> = {
 	...createMessageAnnotationsApi(ipcRenderer),
+	...createMemoryApi(ipcRenderer),
 	...createAbilitiesApi(ipcRenderer),
 	...createMarkdownApi(ipcRenderer),
 	...createAgentTeamsApi(ipcRenderer),

@@ -2377,5 +2377,14 @@
   "sshPromptAccept": "Confirm and connect",
   "sshPromptReject": "Cancel connection",
   "section_remote-devices": "Paired phones",
-  "section_remote-cloud": "Away from home"
+  "section_remote-cloud": "Away from home",
+  "tabMemory": "Memory",
+  "section_memory-global": "Global memory",
+  "memoryPage": {
+    "title": "Memory",
+    "description": "Saved global memories are listed here.",
+    "empty": "No global memories yet. Use Generate memory in the session title bar More menu.",
+    "loadError": "The memory file could not be read and was left unchanged.",
+    "loading": "Reading memories"
+  }
 }

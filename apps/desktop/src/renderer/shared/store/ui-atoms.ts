@@ -67,7 +67,8 @@ export type SettingsTab =
 	| "knowledge"
 	| "pet"
 	| "remote"
-	| "sshHosts";
+	| "sshHosts"
+	| "memory";
 
 // ─── Theme ───
 

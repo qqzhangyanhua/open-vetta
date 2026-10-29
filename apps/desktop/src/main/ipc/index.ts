@@ -1,5 +1,6 @@
 import type { WebContents } from "electron";
 import type { ActionApprovalBroker } from "../app-actions/approval-broker.js";
+import { getDesktopMemoryService } from "../memory/host.js";
 import { getMessageAnnotationService } from "../message-annotations/host.js";
 import { registerNotificationIpc } from "../notifications/index.js";
 import type { PluginActionService } from "../plugins/plugin-action-service.js";
@@ -20,6 +21,7 @@ import { registerFsIpc } from "./fs.js";
 import { registerImIpc } from "./im.js";
 import { registerMarkdownIpc } from "./markdown.js";
 import { registerMediaIpc } from "./media.js";
+import { registerMemoryIpc } from "./memory.js";
 import { registerMessageAnnotationsIpc } from "./message-annotations.js";
 import { registerOnboardingIpc } from "./onboarding.js";
 import { registerPermissionsIpc } from "./permissions.js";
@@ -88,6 +90,7 @@ interface IpcTeardown {
 	teardownDiagnostics: () => void;
 	teardownOnboarding: () => void;
 	teardownRemotePairing: () => void;
+	teardownMemory: () => void;
 }
 
 export function registerAllIpc(
@@ -141,6 +144,7 @@ export function registerAllIpc(
 		teardownDiagnostics: registerDiagnosticsIpc(),
 		teardownOnboarding: registerOnboardingIpc(),
 		teardownRemotePairing: registerRemotePairingIpc(options.remoteAccessManager),
+		teardownMemory: registerMemoryIpc(getDesktopMemoryService()),
 	};
 }
 
@@ -187,6 +191,7 @@ export function teardownAllIpc(teardown: IpcTeardown): void {
 	teardown.teardownDiagnostics();
 	teardown.teardownOnboarding();
 	teardown.teardownRemotePairing();
+	teardown.teardownMemory();
 }
 
 export { registerBatchTasksIpc } from "./batch-tasks.js";

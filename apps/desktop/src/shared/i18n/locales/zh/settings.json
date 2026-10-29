@@ -2377,5 +2377,14 @@
   "sshPromptAccept": "确认并连接",
   "sshPromptReject": "取消连接",
   "section_remote-devices": "已配对的手机",
-  "section_remote-cloud": "外网访问"
+  "section_remote-cloud": "外网访问",
+  "tabMemory": "记忆",
+  "section_memory-global": "全局记忆",
+  "memoryPage": {
+    "title": "记忆",
+    "description": "这里只显示已经保存的全局记忆。",
+    "empty": "还没有全局记忆。可以在会话标题栏的「更多」菜单里点「生成记忆」。",
+    "loadError": "记忆文件无法读取，已保持原样。",
+    "loading": "正在读取记忆"
+  }
 }

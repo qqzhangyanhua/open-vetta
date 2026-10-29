@@ -1,4 +1,5 @@
 import type { DesktopMarkdownApi } from "../shared/markdown-ipc.js";
+import type { DesktopMemoryApi } from "../shared/memory.js";
 import type { MessageAnnotationsApi } from "../shared/message-annotations.js";
 import type { DesktopAbilitiesApi } from "./api-types/abilities.js";
 import type { DesktopActionApprovalApi } from "./api-types/action-approval.js";
@@ -97,6 +98,7 @@ export interface DesktopHostAccessApi {
 
 export interface DesktopApi {
 	markdown: DesktopMarkdownApi;
+	memory: DesktopMemoryApi;
 	messageAnnotations: MessageAnnotationsApi;
 	hostAccess: DesktopHostAccessApi;
 	abilities: DesktopAbilitiesApi;

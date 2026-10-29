@@ -450,6 +450,34 @@
 		},
 		"remoteBadge": "远程"
 	},
+	"memoryReview": {
+		"menu": "更多",
+		"generate": "生成记忆",
+		"title": "审阅记忆",
+		"loading": "正在通读这个会话…",
+		"loadingHint": "会话仍可继续使用。",
+		"empty": "没有可保存的新记忆",
+		"error": "生成失败，没有写入任何内容",
+		"retry": "重试",
+		"close": "关闭",
+		"save": "保存",
+		"saving": "正在保存",
+		"category": "分类",
+		"discardHint": "没保存就关闭，这些候选会被丢掉。",
+		"sessionUnavailable": "当前会话不可用，没有写入任何内容",
+		"modelUnavailable": "当前会话没有可用模型，没有写入任何内容",
+		"storeRejected": "记忆文件无法读取，已保持原样",
+		"saveFailed": "保存失败，没有写入任何内容",
+		"categories": {
+			"identity": "身份",
+			"family": "家庭",
+			"location": "位置",
+			"work": "工作",
+			"preference": "偏好",
+			"interest": "兴趣",
+			"other": "其他"
+		}
+	},
 	"contextRing": {
 		"tooltip": {
 			"compacting": "正在压缩上下文...",

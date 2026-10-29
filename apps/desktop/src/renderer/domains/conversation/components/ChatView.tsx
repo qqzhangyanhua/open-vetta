@@ -24,6 +24,8 @@ import { useWindowPinAction } from "../hooks/useWindowPinAction";
 import { useBottomPanelToggle } from "@domains/bottom-panel/hooks/useBottomPanelToggle";
 import { useOpenTerminal } from "@domains/bottom-panel/hooks/useOpenTerminal";
 import { ChatHeaderActions } from "@vetta-org/theme-ui/chat";
+import { sessionMemoryElements } from "./memory/sessionMemoryElements";
+import { useMemoryReviewModel } from "./memory/useMemoryReviewModel";
 import { BackgroundTasksBadge } from "./BackgroundTasksBadge";
 import { SandboxGrantsBadge } from "./SandboxGrantsBadge";
 import { ChatHeaderNewSessionButton } from "./chat-view/ChatHeaderNewSessionButton";
@@ -82,6 +84,12 @@ export function ChatView(props: ChatViewProps): JSX.Element {
 			),
 		[model.cwd, model.sessionId, runtimeIds],
 	);
+	const memory = useMemoryReviewModel(runtimeIds[0] ?? null, window.vetta?.memory ?? null);
+	// 菜单只跟文案和开始动作走。改草稿时不要换掉标题栏插槽。
+	const memoryMenu = useMemo(
+		() => sessionMemoryElements(memory).menu,
+		[memory.actions.start, memory.labels.generate, memory.labels.menu],
+	);
 	const headerActions = useMemo(
 		() => (
 			<>
@@ -124,9 +132,10 @@ export function ChatView(props: ChatViewProps): JSX.Element {
 					open={model.header.panelOpen}
 					onClick={actions.togglePanel}
 				/>
+				{surface === "conversation" ? memoryMenu : null}
 			</>
 		),
-		[actions, bottomPanel, model.header, pin, runtimeIds, t, terminal, workspace.id],
+		[actions, bottomPanel, memoryMenu, model.header, pin, runtimeIds, surface, t, terminal, workspace.id],
 	);
 	const onAbort = useCallback(() => {
 		void props.onAbort();
@@ -207,6 +216,7 @@ export function ChatView(props: ChatViewProps): JSX.Element {
 						onSend={props.onSend}
 						onAbort={onAbort}
 					/>
+					{sessionMemoryElements(memory).panel}
 					<DefaultChatComposer {...props} workSurface={model.workSurface} />
 				</>
 			) : null}
