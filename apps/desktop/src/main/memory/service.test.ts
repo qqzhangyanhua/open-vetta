@@ -1,11 +1,12 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
 import { MEMORY_GENERATION_CURSOR_LIMIT } from "./schema.js";
 import type { MemoryModelRequest, MemorySessionSource } from "./service.js";
 import { DesktopMemoryService } from "./service.js";
-import { globalMemoryFilePath, memoryGenerationFilePath } from "./store.js";
+import { globalMemoryFilePath, memoryGenerationFilePath, projectMemoryFilePath } from "./store.js";
 import type { MemoryTranscriptEntry } from "./transcript.js";
 
 const readGate = vi.hoisted(() => ({
@@ -143,11 +144,13 @@ describe("desktop global memory service", () => {
 					id: IDS[0],
 					text: "江西农村户口",
 					category: "identity",
+					scope: "global",
 				},
 				{
 					id: IDS[1],
 					text: "我住在昆山",
 					category: "location",
+					scope: "global",
 				},
 			],
 		});
@@ -582,6 +585,160 @@ describe("desktop global memory service", () => {
 		expect(stored.globalEnabled).toBe(true);
 		expect(stored.entries).toHaveLength(2);
 	});
+
+	it("saves project memory beside global memory and keeps each switch independent", async () => {
+		const projectDir = await mkdtemp(join(tmpdir(), "vetta-project-repo-"));
+		directories.push(projectDir);
+		const { service, directory, complete, source } = await createService(directories, {
+			cwd: projectDir,
+			completeText: JSON.stringify([
+				{ text: "住在昆山", category: "location", scope: "global" },
+				{ text: "这个仓库用 bun", category: "work", scope: "project" },
+			]),
+		});
+		const generated = await service.generate("runtime-1");
+		expect(generated).toMatchObject({
+			status: "candidates",
+			candidates: [
+				{ text: "住在昆山", scope: "global" },
+				{ text: "这个仓库用 bun", scope: "project" },
+			],
+		});
+		if (generated.status !== "candidates") return;
+		const [globalCandidate, projectCandidate] = generated.candidates;
+		if (!globalCandidate || !projectCandidate) throw new Error("expected two candidates");
+		await service.save([
+			{ id: globalCandidate.id, text: globalCandidate.text, category: globalCandidate.category, scope: "project" },
+			{ id: projectCandidate.id, text: projectCandidate.text, category: projectCandidate.category, scope: "global" },
+		]);
+
+		expect(await readdir(projectDir)).toEqual([]);
+		expect(await service.listGlobal()).toEqual([
+			expect.objectContaining({ text: "这个仓库用 bun", category: "work" }),
+		]);
+		expect(await service.listProjects()).toEqual([
+			{
+				path: resolve(projectDir),
+				kind: "local",
+				entries: [expect.objectContaining({ text: "住在昆山", category: "location" })],
+			},
+		]);
+		const stored = JSON.parse(await readFile(projectMemoryFilePath(directory), "utf8")) as {
+			schemaVersion: number;
+			projects: { path: string }[];
+		};
+		expect(stored.schemaVersion).toBe(1);
+		expect(stored.projects.map((project) => project.path)).toEqual([resolve(projectDir)]);
+		await expect(readFile(join(projectDir, "projects.json"), "utf8")).rejects.toThrow();
+
+		expect(await service.getProjectReadEnabled()).toBe(true);
+		expect(await service.getReadEnabled()).toBe(true);
+		await service.setReadEnabled(false);
+		expect(await service.getProjectReadEnabled()).toBe(true);
+		await service.setProjectReadEnabled(false);
+		expect(await service.getReadEnabled()).toBe(false);
+		expect(JSON.parse(await readFile(globalMemoryFilePath(directory), "utf8")).globalEnabled).toBe(false);
+		expect(JSON.parse(await readFile(projectMemoryFilePath(directory), "utf8")).projectEnabled).toBe(false);
+		expect(await service.listProjects()).toEqual([expect.objectContaining({ path: resolve(projectDir) })]);
+
+		source.mockImplementation(() => ({
+			modelKey: "openai/session-model",
+			cwd: projectDir,
+			entries: [
+				{ id: "entry-1", text: "USER: 我住在昆山，孩子要在那边上小学。" },
+				{ id: "entry-2", text: "USER: 再记一条新的消息。" },
+			],
+		}));
+		complete.mockResolvedValue("[]");
+		await service.generate("runtime-1");
+		const prompt = complete.mock.calls.at(-1)?.[0]?.user ?? "";
+		expect(prompt).toContain("住在昆山");
+		expect(prompt).toContain("这个仓库用 bun");
+		expect(prompt).toContain('"scope":"project"');
+		expect(prompt).toContain('"scope":"global"');
+	});
+
+	it("stores conversation and SSH project memory on this machine, keyed by the project root", async () => {
+		const sessionDir = join(DEFAULT_CONVERSATION_CWD, "11111111-1111-4111-8111-111111111111");
+		const otherSessionDir = join(DEFAULT_CONVERSATION_CWD, "22222222-2222-4222-8222-222222222222");
+		const { service, directory } = await createService(directories, {
+			cwd: sessionDir,
+			completeText: JSON.stringify([{ text: "对话里约定用中文", category: "preference", scope: "project" }]),
+		});
+		const generated = await service.generate("runtime-1");
+		if (generated.status !== "candidates") throw new Error("expected candidates");
+		await service.save(generated.candidates);
+		const stored = JSON.parse(await readFile(projectMemoryFilePath(directory), "utf8")) as {
+			projects: { path: string; entries: { text: string }[] }[];
+		};
+		expect(stored.projects).toEqual([
+			{
+				path: DEFAULT_CONVERSATION_CWD,
+				entries: [expect.objectContaining({ text: "对话里约定用中文" })],
+			},
+		]);
+		expect(await service.listProjects()).toEqual([
+			expect.objectContaining({ path: DEFAULT_CONVERSATION_CWD, kind: "conversation" }),
+		]);
+
+		const ssh = openService(directory, {
+			cwd: "ssh://build-01/srv/app/",
+			completeText: JSON.stringify([{ text: "远端仓库用 cargo", category: "work", scope: "project" }]),
+		});
+		const remote = await ssh.service.generate("runtime-ssh");
+		if (remote.status !== "candidates") throw new Error("expected candidates");
+		await ssh.service.save(remote.candidates);
+		expect(await ssh.service.listProjects()).toEqual([
+			expect.objectContaining({ path: DEFAULT_CONVERSATION_CWD, kind: "conversation" }),
+			expect.objectContaining({ path: "ssh://build-01/srv/app", kind: "ssh" }),
+		]);
+
+		const again = openService(directory, { cwd: otherSessionDir, completeText: "[]" });
+		await again.service.generate("runtime-2");
+		expect(again.complete.mock.calls[0]?.[0]?.user).toContain("对话里约定用中文");
+		expect(again.complete.mock.calls[0]?.[0]?.user).not.toContain("远端仓库用 cargo");
+	});
+
+	it("rejects a project candidate that has no session project, and a bad project file leaves global memory readable", async () => {
+		const { service, directory, complete } = await createService(directories);
+		await service.save([{ text: "住在昆山", category: "location" }]);
+		await expect(service.save([{ text: "这个仓库用 bun", category: "work", scope: "project" }])).rejects.toThrow(
+			"memory:invalid-candidates",
+		);
+		await writeFile(projectMemoryFilePath(directory), "{not json");
+		await expect(service.listProjects()).rejects.toThrow("memory:store-rejected");
+		expect(await service.listGlobal()).toEqual([expect.objectContaining({ text: "住在昆山" })]);
+		await expect(service.generate("runtime-1")).resolves.toEqual({ status: "empty" });
+		expect(complete.mock.calls.at(-1)?.[0]?.user).toContain("住在昆山");
+	});
+
+	it("puts the global file back when the project file cannot be saved", async () => {
+		const projectDir = await mkdtemp(join(tmpdir(), "vetta-project-repo-"));
+		directories.push(projectDir);
+		const { service, directory } = await createService(directories, {
+			cwd: projectDir,
+			completeText: JSON.stringify([
+				{ text: "住在昆山", category: "location", scope: "global" },
+				{ text: "这个仓库用 bun", category: "work", scope: "project" },
+			]),
+		});
+		const generated = await service.generate("runtime-1");
+		if (generated.status !== "candidates") throw new Error("expected candidates");
+		await mkdir(projectMemoryFilePath(directory));
+		await expect(service.save(generated.candidates)).rejects.toThrow();
+		const globalText = await readFile(globalMemoryFilePath(directory), "utf8").catch((error: unknown) => {
+			if (error instanceof Error && "code" in error && error.code === "ENOENT") return "";
+			throw error;
+		});
+		expect(globalText).not.toContain("住在昆山");
+
+		await rm(projectMemoryFilePath(directory), { recursive: true });
+		await service.save(generated.candidates);
+		expect(await service.listGlobal()).toEqual([expect.objectContaining({ text: "住在昆山" })]);
+		expect(await service.listProjects()).toEqual([
+			expect.objectContaining({ entries: [expect.objectContaining({ text: "这个仓库用 bun" })] }),
+		]);
+	});
 });
 
 function openService(
@@ -590,6 +747,7 @@ function openService(
 		readonly transcript?: string;
 		readonly entries?: MemoryTranscriptEntry[];
 		readonly completeText?: string;
+		readonly cwd?: string;
 	},
 ) {
 	const remaining = [...IDS];
@@ -603,6 +761,7 @@ function openService(
 	const source = vi.fn(
 		(_runtimeId: string): MemorySessionSource => ({
 			modelKey: "openai/session-model",
+			cwd: options?.cwd ?? "/tmp/vetta-memory-project",
 			entries,
 		}),
 	);
@@ -627,6 +786,7 @@ async function createService(
 		readonly transcript?: string;
 		readonly entries?: MemoryTranscriptEntry[];
 		readonly completeText?: string;
+		readonly cwd?: string;
 	},
 ) {
 	const directory = await mkdtemp(join(tmpdir(), "vetta-memory-"));

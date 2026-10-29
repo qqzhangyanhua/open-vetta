@@ -463,11 +463,16 @@
 		"save": "Save",
 		"saving": "Saving",
 		"category": "Category",
+		"scope": "Scope",
 		"discardHint": "Closing without saving discards these candidates.",
 		"sessionUnavailable": "This session is unavailable. Nothing was written.",
 		"modelUnavailable": "This session has no model. Nothing was written.",
 		"storeRejected": "The memory file could not be read and was left unchanged.",
 		"saveFailed": "Save failed. Nothing was written.",
+		"scopes": {
+			"global": "Global",
+			"project": "This project"
+		},
 		"categories": {
 			"identity": "Identity",
 			"family": "Family",

@@ -12,7 +12,13 @@ import {
 	useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import type { DesktopMemoryApi, MemoryCandidate, MemoryCategory, SaveMemoryCandidate } from "@/shared/memory";
+import type {
+	DesktopMemoryApi,
+	MemoryCandidate,
+	MemoryCategory,
+	MemoryScope,
+	SaveMemoryCandidate,
+} from "@/shared/memory";
 
 export type MemoryReviewPhase = "closed" | "loading" | "empty" | "error" | "candidates" | "saving";
 
@@ -20,6 +26,7 @@ export interface MemoryDraft {
 	readonly id: string;
 	readonly text: string;
 	readonly category: MemoryCategory;
+	readonly scope: MemoryScope;
 	readonly selected: boolean;
 }
 
@@ -39,8 +46,10 @@ export interface MemoryReviewModel {
 		readonly save: string;
 		readonly saving: string;
 		readonly category: string;
+		readonly scope: string;
 		readonly discardHint: string;
 		readonly categories: Record<MemoryCategory, string>;
+		readonly scopes: Record<MemoryScope, string>;
 	};
 	readonly actions: {
 		readonly start: () => Promise<void>;
@@ -49,6 +58,7 @@ export interface MemoryReviewModel {
 		readonly toggle: (id: string) => void;
 		readonly editText: (id: string, text: string) => void;
 		readonly editCategory: (id: string, category: MemoryCategory) => void;
+		readonly editScope: (id: string, scope: MemoryScope) => void;
 		readonly save: () => Promise<void>;
 	};
 }
@@ -102,7 +112,13 @@ export function useMemoryReviewModel(runtimeId: string | null, client: DesktopMe
 				setPhase("empty");
 				return;
 			}
-			setDrafts(result.candidates.map((candidate: MemoryCandidate) => ({ ...candidate, selected: true })));
+			setDrafts(
+				result.candidates.map((candidate: MemoryCandidate) => ({
+					...candidate,
+					scope: candidate.scope === "project" ? "project" : "global",
+					selected: true,
+				})),
+			);
 			setPhase("candidates");
 		} catch (error) {
 			if (generationRef.current !== generation) return;
@@ -134,12 +150,16 @@ export function useMemoryReviewModel(runtimeId: string | null, client: DesktopMe
 		setDrafts((current) => current.map((draft) => (draft.id === id ? { ...draft, category } : draft)));
 	}, []);
 
+	const editScope = useCallback((id: string, scope: MemoryScope) => {
+		setDrafts((current) => current.map((draft) => (draft.id === id ? { ...draft, scope } : draft)));
+	}, []);
+
 	const save = useCallback(async () => {
 		if (!client) return;
 		const generation = generationRef.current;
 		const selected: SaveMemoryCandidate[] = drafts
 			.filter((draft) => draft.selected && draft.text.trim())
-			.map((draft) => ({ id: draft.id, text: draft.text.trim(), category: draft.category }));
+			.map((draft) => ({ id: draft.id, text: draft.text.trim(), category: draft.category, scope: draft.scope }));
 		setPhase("saving");
 		setErrorCode(null);
 		try {
@@ -180,10 +200,12 @@ export function useMemoryReviewModel(runtimeId: string | null, client: DesktopMe
 			save: t("memoryReview.save"),
 			saving: t("memoryReview.saving"),
 			category: t("memoryReview.category"),
+			scope: t("memoryReview.scope"),
 			discardHint: t("memoryReview.discardHint"),
 			categories: memoryCategoryLabels(t),
+			scopes: { global: t("memoryReview.scopes.global"), project: t("memoryReview.scopes.project") },
 		},
-		actions: { start, close, retry: start, toggle, editText, editCategory, save },
+		actions: { start, close, retry: start, toggle, editText, editCategory, editScope, save },
 	};
 }
 

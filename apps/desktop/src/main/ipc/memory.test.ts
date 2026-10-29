@@ -33,6 +33,9 @@ describe("memory preload/main contract", () => {
 		return {
 			getReadEnabled: vi.fn(async () => true),
 			setReadEnabled: vi.fn(async (enabled: boolean) => enabled),
+			getProjectReadEnabled: vi.fn(async () => true),
+			setProjectReadEnabled: vi.fn(async (enabled: boolean) => enabled),
+			listProjects: vi.fn(async () => []),
 			getModelOverride: vi.fn(async () => null),
 			setModelOverride: vi.fn(async () => undefined),
 			listModels: vi.fn(async () => [] as MemoryModelChoice[]),
@@ -51,7 +54,9 @@ describe("memory preload/main contract", () => {
 		];
 		const generated: GenerateGlobalMemoryResult = {
 			status: "candidates",
-			candidates: [{ id: "22222222-2222-4222-8222-222222222222", text: "住在昆山", category: "location" }],
+			candidates: [
+				{ id: "22222222-2222-4222-8222-222222222222", text: "住在昆山", category: "location", scope: "global" },
+			],
 		};
 		const setModelOverride = vi.fn(async (modelKey: string | null) => {
 			if (modelKey === "not-a-model") throw new Error("memory:invalid-model");
@@ -77,12 +82,21 @@ describe("memory preload/main contract", () => {
 
 		expect(await api.save([{ text: "住在昆山", category: "location" }])).toEqual(saved);
 		expect(service.save).toHaveBeenCalledWith([{ text: "住在昆山", category: "location" }]);
-		await expect(api.save([{ text: "  ", category: "location" }])).rejects.toThrow("memory:invalid-candidates");
+		expect(await api.listProjects()).toEqual([]);
+		expect(await api.getProjectReadEnabled()).toBe(true);
+		expect(await api.setProjectReadEnabled(false)).toBe(false);
+		expect(service.setProjectReadEnabled).toHaveBeenCalledWith(false);
+		expect(await api.save([{ text: "这个仓库用 bun", category: "work", scope: "project" }])).toEqual(saved);
+		expect(service.save).toHaveBeenCalledWith([{ text: "这个仓库用 bun", category: "work", scope: "project" }]);
 		const saveUnknown = api.save as (value: unknown) => Promise<GlobalMemoryEntry[]>;
+		await expect(saveUnknown([{ text: "这个仓库用 bun", category: "work", scope: "workspace" }])).rejects.toThrow(
+			"memory:invalid-candidates",
+		);
+		await expect(api.save([{ text: "  ", category: "location" }])).rejects.toThrow("memory:invalid-candidates");
 		await expect(saveUnknown([{ text: "住在昆山", category: "project" }])).rejects.toThrow(
 			"memory:invalid-candidates",
 		);
-		expect(service.save).toHaveBeenCalledTimes(1);
+		expect(service.save).toHaveBeenCalledTimes(2);
 
 		expect(await api.getModelOverride()).toBeNull();
 		expect(await api.listModels()).toEqual([{ modelKey: "openai/memory-model", label: "Memory Model" }]);

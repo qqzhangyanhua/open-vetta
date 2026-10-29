@@ -5,6 +5,7 @@ import {
 	type GlobalMemoryEntry,
 	MEMORY_CHANNELS,
 	type MemoryModelChoice,
+	type ProjectMemoryProject,
 } from "../../shared/memory.js";
 import { parseSaveMemoryCandidates } from "../memory/schema.js";
 import type { DesktopMemoryService } from "../memory/service.js";
@@ -15,10 +16,13 @@ const modelOverrideArgumentSchema = z.union([z.null(), z.string().max(300)]);
 /** Narrow surface so IPC tests can inject a fake without constructing the service. */
 export interface MemoryIpcService {
 	listGlobal(): Promise<GlobalMemoryEntry[]>;
+	listProjects(): Promise<ProjectMemoryProject[]>;
 	generate(runtimeId: string): Promise<GenerateGlobalMemoryResult>;
 	save(candidates: unknown): Promise<GlobalMemoryEntry[]>;
 	getReadEnabled(): Promise<boolean>;
 	setReadEnabled(enabled: boolean): Promise<boolean>;
+	getProjectReadEnabled(): Promise<boolean>;
+	setProjectReadEnabled(enabled: boolean): Promise<boolean>;
 	getModelOverride(): Promise<string | null>;
 	setModelOverride(modelKey: string | null): Promise<void>;
 	listModels(): Promise<readonly MemoryModelChoice[]>;
@@ -26,6 +30,7 @@ export interface MemoryIpcService {
 
 export function registerMemoryIpc(service: MemoryIpcService | DesktopMemoryService): () => void {
 	ipcMain.handle(MEMORY_CHANNELS.LIST_GLOBAL, () => service.listGlobal());
+	ipcMain.handle(MEMORY_CHANNELS.LIST_PROJECTS, () => service.listProjects());
 	ipcMain.handle(MEMORY_CHANNELS.GENERATE, (_event, runtimeId: unknown) =>
 		service.generate(runtimeIdSchema.parse(runtimeId)),
 	);
@@ -35,6 +40,10 @@ export function registerMemoryIpc(service: MemoryIpcService | DesktopMemoryServi
 	ipcMain.handle(MEMORY_CHANNELS.GET_READ_ENABLED, () => service.getReadEnabled());
 	ipcMain.handle(MEMORY_CHANNELS.SET_READ_ENABLED, (_event, enabled: unknown) =>
 		service.setReadEnabled(z.boolean().parse(enabled)),
+	);
+	ipcMain.handle(MEMORY_CHANNELS.GET_PROJECT_READ_ENABLED, () => service.getProjectReadEnabled());
+	ipcMain.handle(MEMORY_CHANNELS.SET_PROJECT_READ_ENABLED, (_event, enabled: unknown) =>
+		service.setProjectReadEnabled(z.boolean().parse(enabled)),
 	);
 	ipcMain.handle(MEMORY_CHANNELS.GET_MODEL_OVERRIDE, () => service.getModelOverride());
 	ipcMain.handle(MEMORY_CHANNELS.LIST_MODELS, () => service.listModels());

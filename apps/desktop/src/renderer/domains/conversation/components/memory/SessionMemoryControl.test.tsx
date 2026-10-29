@@ -43,10 +43,13 @@ afterEach(() => {
 function reviewClient(client: Pick<DesktopMemoryApi, "generate" | "save">): DesktopMemoryApi {
 	return {
 		listGlobal: async () => [],
+		listProjects: async () => [],
 		generate: client.generate,
 		save: client.save,
 		getReadEnabled: async () => true,
 		setReadEnabled: async (enabled) => enabled,
+		getProjectReadEnabled: async () => true,
+		setProjectReadEnabled: async (enabled) => enabled,
 		getModelOverride: async () => null,
 		setModelOverride: async () => undefined,
 		listModels: async () => [],
@@ -75,6 +78,7 @@ const CANDIDATE = {
 	id: "11111111-1111-4111-8111-111111111111",
 	text: "我住在昆山",
 	category: "location" as const,
+	scope: "global" as const,
 };
 
 async function openMenu(user: ReturnType<typeof userEvent.setup>): Promise<void> {
@@ -136,12 +140,52 @@ describe("会话记忆审阅", () => {
 		await user.click(screen.getByRole("button", { name: "保存" }));
 
 		await waitFor(() => {
-			expect(save).toHaveBeenCalledWith([{ id: CANDIDATE.id, text: "住在昆山", category: "work" }]);
+			expect(save).toHaveBeenCalledWith([
+				{ id: CANDIDATE.id, text: "住在昆山", category: "work", scope: "global" },
+			]);
 		});
 		await waitFor(() => {
 			expect(screen.queryByRole("region", { name: "审阅记忆" })).toBeNull();
 		});
 		expect((screen.getByRole("button", { name: "发送" }) as HTMLButtonElement).disabled).toBe(false);
+	});
+
+	it("可以把模型建议的项目范围改成全局后再保存", async () => {
+		const user = userEvent.setup();
+		const save = vi.fn(async (_candidates: readonly SaveMemoryCandidate[]) => []);
+		render(
+			<Harness
+				runtimeId="runtime-1"
+				client={reviewClient({
+					generate: vi.fn(async (): Promise<GenerateGlobalMemoryResult> => ({
+						status: "candidates",
+						candidates: [
+							{ ...CANDIDATE, scope: "project", text: "这个仓库用 bun", category: "work" },
+							{ ...CANDIDATE, id: "22222222-2222-4222-8222-222222222222", text: "住在昆山" },
+						],
+					})),
+					save,
+				})}
+			/>,
+		);
+		await openMenu(user);
+		const scopeSelects = await screen.findAllByRole("combobox", { name: "范围" });
+		expect((scopeSelects[0] as HTMLSelectElement).value).toBe("project");
+		expect((scopeSelects[1] as HTMLSelectElement).value).toBe("global");
+		await user.selectOptions(scopeSelects[0]!, "global");
+		await user.selectOptions(scopeSelects[1]!, "project");
+		await user.click(screen.getByRole("button", { name: "保存" }));
+		await waitFor(() => {
+			expect(save).toHaveBeenCalledWith([
+				{ id: CANDIDATE.id, text: "这个仓库用 bun", category: "work", scope: "global" },
+				{
+					id: "22222222-2222-4222-8222-222222222222",
+					text: "住在昆山",
+					category: "location",
+					scope: "project",
+				},
+			]);
+		});
 	});
 
 	it("生成失败可以重试，关闭会丢掉还没保存的候选", async () => {

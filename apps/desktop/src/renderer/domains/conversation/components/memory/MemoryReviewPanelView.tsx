@@ -1,7 +1,11 @@
-import { MEMORY_CATEGORIES, type MemoryCategory } from "@/shared/memory";
+import { MEMORY_CATEGORIES, type MemoryCategory, type MemoryScope } from "@/shared/memory";
 import { Button } from "@shared/components/ui/button";
 import { Textarea } from "@shared/components/ui/textarea";
 import type { MemoryReviewModel } from "./useMemoryReviewModel";
+
+function readScope(value: string): MemoryScope {
+	return value === "project" ? "project" : "global";
+}
 
 function readCategory(value: string): MemoryCategory {
 	switch (value) {
@@ -86,6 +90,16 @@ export function MemoryReviewPanelView({ model }: { readonly model: MemoryReviewM
 												{labels.categories[category]}
 											</option>
 										))}
+									</select>
+									<select
+										aria-label={labels.scope}
+										className="rounded-md border border-border bg-background px-2 py-1 text-[12px] text-foreground"
+										value={draft.scope}
+										disabled={busy}
+										onChange={(event) => model.actions.editScope(draft.id, readScope(event.target.value))}
+									>
+										<option value="global">{labels.scopes.global}</option>
+										<option value="project">{labels.scopes.project}</option>
 									</select>
 									<span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[12px] text-primary">
 										{labels.categories[draft.category]}

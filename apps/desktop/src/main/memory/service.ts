@@ -1,26 +1,41 @@
 import { readFile } from "node:fs/promises";
 import type { VersionedJsonConfigStoreLogger } from "@vetta/toolkit/config-store";
-import type {
-	GenerateGlobalMemoryResult,
-	GlobalMemoryEntry,
-	MemoryCandidate,
-	MemoryModelChoice,
-	SaveMemoryCandidate,
+import {
+	type GenerateGlobalMemoryResult,
+	type GlobalMemoryEntry,
+	type MemoryCandidate,
+	type MemoryModelChoice,
+	type MemoryScope,
+	memoryScopeOf,
+	type ProjectMemoryProject,
+	type SaveMemoryCandidate,
 } from "../../shared/memory.js";
+import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
 import { containsCredential, parseMemoryCandidateOutput } from "./parse.js";
+import { memoryProjectPath } from "./project-path.js";
 import { buildMemoryCandidateUserPrompt, MEMORY_CANDIDATE_SYSTEM_PROMPT } from "./prompt.js";
 import {
 	type GlobalMemoryDocument,
 	isGlobalMemoryReadEnabled,
+	isProjectMemoryReadEnabled,
 	MEMORY_GENERATION_CURSOR_LIMIT,
 	MEMORY_GENERATION_SCHEMA_VERSION,
 	type MemoryGenerationDocument,
 	memoryGenerationCursors,
+	type ProjectMemoryDocument,
 	parseMemoryModelOverride,
 	parseSaveMemoryCandidates,
+	projectMemoryKindOf,
 } from "./schema.js";
-import { createGlobalMemoryStore, createMemoryGenerationStore, memoryGenerationFilePath } from "./store.js";
-import type { MemoryTranscriptEntry } from "./transcript.js";
+import { commitScopedMemorySave, touchesProjectMemory } from "./scoped-save.js";
+import { readProjectEntriesForGeneration } from "./session-read.js";
+import {
+	createGlobalMemoryStore,
+	createMemoryGenerationStore,
+	createProjectMemoryStore,
+	memoryGenerationFilePath,
+} from "./store.js";
+import { entriesAfterCursor, formatLocalDate, type MemoryTranscriptEntry } from "./transcript.js";
 
 export interface MemoryModelRequest {
 	readonly modelKey: string;
@@ -32,6 +47,7 @@ export interface MemoryModelRequest {
 export interface MemorySessionSource {
 	readonly modelKey: string;
 	readonly entries: readonly MemoryTranscriptEntry[];
+	readonly cwd: string;
 }
 
 export interface DesktopMemoryServiceDependencies {
@@ -48,10 +64,12 @@ export interface DesktopMemoryServiceDependencies {
 interface MemoryPendingCursor {
 	readonly runtimeId: string;
 	readonly entryId: string;
+	readonly projectPath: string;
 }
 
 export class DesktopMemoryService {
 	private readonly store: ReturnType<typeof createGlobalMemoryStore>;
+	private readonly projectStore: ReturnType<typeof createProjectMemoryStore>;
 	private readonly generationStore: ReturnType<typeof createMemoryGenerationStore>;
 	private mutationQueue: Promise<unknown> = Promise.resolve();
 	private generationTicket = 0;
@@ -64,6 +82,7 @@ export class DesktopMemoryService {
 
 	constructor(private readonly dependencies: DesktopMemoryServiceDependencies) {
 		this.store = createGlobalMemoryStore(dependencies.directory, dependencies.logger);
+		this.projectStore = createProjectMemoryStore(dependencies.directory, dependencies.logger);
 		this.generationStore = createMemoryGenerationStore(dependencies.directory, dependencies.logger);
 	}
 
@@ -79,6 +98,34 @@ export class DesktopMemoryService {
 
 	async listGlobal(): Promise<GlobalMemoryEntry[]> {
 		return [...(await this.readDocument()).entries];
+	}
+
+	async listProjects(): Promise<ProjectMemoryProject[]> {
+		const document = await this.readProjectDocument();
+		return document.projects
+			.filter((project) => project.entries.length > 0)
+			.map((project) => ({
+				path: project.path,
+				kind: projectMemoryKindOf(project.path, DEFAULT_CONVERSATION_CWD),
+				entries: [...project.entries],
+			}));
+	}
+
+	async getProjectReadEnabled(): Promise<boolean> {
+		return isProjectMemoryReadEnabled(await this.readProjectDocument());
+	}
+
+	async setProjectReadEnabled(enabled: boolean): Promise<boolean> {
+		return this.enqueueMutation(async () => {
+			const document = await this.readProjectDocument();
+			if ((document.projectEnabled ?? true) === enabled) return enabled;
+			await this.projectStore.write({
+				schemaVersion: document.schemaVersion,
+				projects: document.projects,
+				projectEnabled: enabled,
+			});
+			return enabled;
+		});
 	}
 
 	async getReadEnabled(): Promise<boolean> {
@@ -126,6 +173,8 @@ export class DesktopMemoryService {
 		const document = await this.readDocument();
 		const generation = await this.readGeneration();
 		const source = this.dependencies.source(runtimeId);
+		const projectPath = memoryProjectPath(source.cwd);
+		const projectEntries = await readProjectEntriesForGeneration(this.dependencies.directory, projectPath);
 		const modelKey = generation.modelKey ?? source.modelKey;
 		if (!modelKey.trim()) throw new Error("memory:model-unavailable");
 		const slice = entriesAfterCursor(
@@ -141,7 +190,18 @@ export class DesktopMemoryService {
 				system: MEMORY_CANDIDATE_SYSTEM_PROMPT,
 				user: buildMemoryCandidateUserPrompt({
 					transcript,
-					existing: document.entries.map((entry) => ({ text: entry.text, category: entry.category })),
+					existing: [
+						...document.entries.map((entry) => ({
+							text: entry.text,
+							category: entry.category,
+							scope: "global" as const,
+						})),
+						...(projectEntries ?? []).map((entry) => ({
+							text: entry.text,
+							category: entry.category,
+							scope: "project" as const,
+						})),
+					],
 				}),
 				signal: AbortSignal.timeout(120_000),
 			});
@@ -155,10 +215,11 @@ export class DesktopMemoryService {
 			id: this.dependencies.createId(),
 			text: candidate.text,
 			category: candidate.category,
+			scope: candidate.scope,
 		}));
 		const last = slice.at(-1);
 		if (last) {
-			const cursor = { runtimeId, entryId: last.id };
+			const cursor = { runtimeId, entryId: last.id, projectPath };
 			for (const candidate of candidates) this.cursorsByCandidateId.set(candidate.id, cursor);
 			if (ticket === this.generationTicket) this.pendingCursor = cursor;
 		}
@@ -187,7 +248,11 @@ export class DesktopMemoryService {
 					additions.push(candidate);
 					continue;
 				}
-				if (saved.text !== candidate.text || saved.category !== candidate.category) {
+				if (
+					saved.text !== candidate.text ||
+					saved.category !== candidate.category ||
+					saved.scope !== memoryScopeOf(candidate)
+				) {
 					updates.set(saved.entryId, candidate);
 				}
 			}
@@ -195,6 +260,34 @@ export class DesktopMemoryService {
 				await this.commitCursor(cursor);
 				this.forgetSaved(parsed);
 				return [...document.entries];
+			}
+			if (
+				touchesProjectMemory(additions, updates, parsed, (candidate) =>
+					candidate.id ? this.savedCandidates.get(candidate.id)?.scope : undefined,
+				)
+			) {
+				const projectPath = cursor?.projectPath;
+				if (!projectPath) throw new Error("memory:invalid-candidates");
+				const projectDocument = await this.readProjectDocument();
+				const savedScopeByEntryId = new Map<string, MemoryScope>();
+				for (const saved of this.savedCandidates.values()) {
+					if (saved.cursor === cursor) savedScopeByEntryId.set(saved.entryId, saved.scope);
+				}
+				return commitScopedMemorySave({
+					document,
+					projectDocument,
+					additions,
+					updates,
+					savedScopeByEntryId,
+					projectPath,
+					recordedAt: formatLocalDate(this.dependencies.now()),
+					createId: () => this.dependencies.createId(),
+					writeGlobal: (next) => this.store.write(next),
+					writeProject: (next) => this.projectStore.write(next),
+					remember: (savedAdditions, added) => this.rememberSaved(savedAdditions, added, parsed, cursor),
+					commitCursor: () => this.commitCursor(cursor),
+					forget: () => this.forgetSaved(parsed),
+				});
 			}
 			if ([...updates.keys()].some((entryId) => !document.entries.some((entry) => entry.id === entryId))) {
 				throw new Error("memory:store-rejected");
@@ -247,6 +340,7 @@ export class DesktopMemoryService {
 				entryId: entry.id,
 				text: candidate.text,
 				category: candidate.category,
+				scope: memoryScopeOf(candidate),
 				cursor,
 			});
 		});
@@ -254,11 +348,19 @@ export class DesktopMemoryService {
 			const id = candidate.id;
 			if (!id) continue;
 			const saved = this.savedCandidates.get(id);
-			if (!saved || (saved.text === candidate.text && saved.category === candidate.category)) continue;
+			if (
+				!saved ||
+				(saved.text === candidate.text &&
+					saved.category === candidate.category &&
+					saved.scope === memoryScopeOf(candidate))
+			) {
+				continue;
+			}
 			this.savedCandidates.set(id, {
 				entryId: saved.entryId,
 				text: candidate.text,
 				category: candidate.category,
+				scope: memoryScopeOf(candidate),
 				cursor: saved.cursor,
 			});
 		}
@@ -351,6 +453,16 @@ export class DesktopMemoryService {
 		};
 	}
 
+	/** A corrupt project file leaves global generation usable. Project facts are omitted. */
+	private async readProjectDocument(): Promise<ProjectMemoryDocument> {
+		try {
+			return await this.projectStore.read();
+		} catch (error) {
+			if (error instanceof Error && error.message === "memory:store-rejected") throw error;
+			throw new Error("memory:store-rejected");
+		}
+	}
+
 	private async readDocument(): Promise<GlobalMemoryDocument> {
 		try {
 			return await this.store.read();
@@ -379,30 +491,6 @@ interface SavedCandidateRecord {
 	readonly entryId: string;
 	readonly text: string;
 	readonly category: SaveMemoryCandidate["category"];
+	readonly scope: MemoryScope;
 	readonly cursor: MemoryPendingCursor | null;
-}
-
-function entriesAfterCursor(
-	entries: readonly MemoryTranscriptEntry[],
-	cursorEntryId: string | undefined,
-): readonly MemoryTranscriptEntry[] {
-	const visible = entries.filter((entry) => entry.text.trim());
-	if (!cursorEntryId) return visible;
-	let index = -1;
-	for (let position = visible.length - 1; position >= 0; position -= 1) {
-		if (visible[position]?.id === cursorEntryId) {
-			index = position;
-			break;
-		}
-	}
-	// A missing cursor is not a boundary on this branch, so the summary and kept tail are read again.
-	if (index < 0) return visible;
-	return visible.slice(index + 1);
-}
-
-function formatLocalDate(now: Date): string {
-	const year = now.getFullYear();
-	const month = String(now.getMonth() + 1).padStart(2, "0");
-	const day = String(now.getDate()).padStart(2, "0");
-	return `${year}-${month}-${day}`;
 }

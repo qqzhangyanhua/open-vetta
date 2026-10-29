@@ -9,6 +9,31 @@ export interface MemoryTranscriptEntry {
 	readonly text: string;
 }
 
+export function entriesAfterCursor(
+	entries: readonly MemoryTranscriptEntry[],
+	cursorEntryId: string | undefined,
+): readonly MemoryTranscriptEntry[] {
+	const visible = entries.filter((entry) => entry.text.trim());
+	if (!cursorEntryId) return visible;
+	let index = -1;
+	for (let position = visible.length - 1; position >= 0; position -= 1) {
+		if (visible[position]?.id === cursorEntryId) {
+			index = position;
+			break;
+		}
+	}
+	// A missing cursor is not a boundary on this branch, so the summary and kept tail are read again.
+	if (index < 0) return visible;
+	return visible.slice(index + 1);
+}
+
+export function formatLocalDate(now: Date): string {
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, "0");
+	const day = String(now.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
+}
+
 /**
  * Current branch text for memory extraction.
  * The newest compaction summary replaces entries before its firstKeptEntryId,

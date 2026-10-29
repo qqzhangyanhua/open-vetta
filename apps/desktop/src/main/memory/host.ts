@@ -31,8 +31,11 @@ export function getDesktopMemoryService(): DesktopMemoryService {
 			}
 			const model = snapshot.model;
 			if (!model) throw new Error("memory:model-unavailable");
+			const cwd = document.identity.cwd?.trim();
+			if (!cwd) throw new Error("memory:session-unavailable");
 			return {
 				modelKey: `${model.provider}/${model.id}`,
+				cwd,
 				entries: memoryTranscriptEntries(document),
 			};
 		},

@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 ---
 
 # desktop 用户主导的全局/项目记忆，与 memory-mode 并存

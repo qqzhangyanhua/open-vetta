@@ -68,10 +68,13 @@ function ReviewHarness({ children }: { readonly children: ReactNode }): JSX.Elem
 	const client = useMemo<DesktopMemoryApi>(
 		() => ({
 			listGlobal: async () => [],
+			listProjects: async () => [],
 			generate: () => new Promise(() => undefined),
 			save: async () => [],
 			getReadEnabled: async () => true,
 			setReadEnabled: async (enabled) => enabled,
+			getProjectReadEnabled: async () => true,
+			setProjectReadEnabled: async (enabled) => enabled,
 			getModelOverride: async () => null,
 			setModelOverride: async () => undefined,
 			listModels: async () => [],

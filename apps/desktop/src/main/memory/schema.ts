@@ -3,6 +3,9 @@ import {
 	GLOBAL_MEMORY_SCHEMA_VERSION,
 	type GlobalMemoryEntry,
 	MEMORY_CATEGORIES,
+	MEMORY_SCOPES,
+	PROJECT_MEMORY_SCHEMA_VERSION,
+	type ProjectMemoryKind,
 	type SaveMemoryCandidate,
 } from "../../shared/memory.js";
 
@@ -46,10 +49,64 @@ export const saveMemoryCandidatesSchema = z.object({
 				id: z.uuid().optional(),
 				text: z.string().trim().min(1).max(2_000),
 				category: memoryCategorySchema,
+				scope: z.enum(MEMORY_SCOPES).optional(),
 			}),
 		)
 		.max(50),
 });
+
+export const projectMemoryRecordSchema = z.object({
+	path: z.string().trim().min(1).max(4_096),
+	entries: z.array(globalMemoryEntrySchema).max(5_000),
+});
+
+export const projectMemoryDocumentSchema = z.object({
+	schemaVersion: z.literal(PROJECT_MEMORY_SCHEMA_VERSION),
+	projectEnabled: z.boolean().optional(),
+	projects: z.array(projectMemoryRecordSchema).max(2_000),
+});
+
+export interface ProjectMemoryRecord {
+	readonly path: string;
+	readonly entries: readonly GlobalMemoryEntry[];
+}
+
+export interface ProjectMemoryDocument {
+	readonly schemaVersion: typeof PROJECT_MEMORY_SCHEMA_VERSION;
+	readonly projects: readonly ProjectMemoryRecord[];
+	/** 缺省视为打开。只有用户关掉读取时才写入 false。 */
+	readonly projectEnabled?: boolean;
+}
+
+export function isProjectMemoryReadEnabled(document: Pick<ProjectMemoryDocument, "projectEnabled">): boolean {
+	return document.projectEnabled !== false;
+}
+
+export function emptyProjectMemoryDocument(): ProjectMemoryDocument {
+	return { schemaVersion: PROJECT_MEMORY_SCHEMA_VERSION, projects: [] };
+}
+
+export function normalizeProjectMemoryDocument(value: unknown): ProjectMemoryDocument {
+	if (value === undefined) return emptyProjectMemoryDocument();
+	const parsed = projectMemoryDocumentSchema.safeParse(value);
+	if (!parsed.success) throw new Error("memory:store-rejected");
+	const seen = new Set<string>();
+	for (const project of parsed.data.projects) {
+		if (seen.has(project.path)) throw new Error("memory:store-rejected");
+		seen.add(project.path);
+	}
+	return {
+		schemaVersion: parsed.data.schemaVersion,
+		projects: parsed.data.projects,
+		...(parsed.data.projectEnabled === undefined ? {} : { projectEnabled: parsed.data.projectEnabled }),
+	};
+}
+
+export function projectMemoryKindOf(path: string, conversationRoot: string): ProjectMemoryKind {
+	if (path.startsWith("ssh://")) return "ssh";
+	if (path === conversationRoot) return "conversation";
+	return "local";
+}
 
 export function emptyGlobalMemoryDocument(): GlobalMemoryDocument {
 	return { schemaVersion: GLOBAL_MEMORY_SCHEMA_VERSION, entries: [] };

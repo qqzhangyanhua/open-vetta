@@ -463,11 +463,16 @@
 		"save": "保存",
 		"saving": "正在保存",
 		"category": "分类",
+		"scope": "范围",
 		"discardHint": "没保存就关闭，这些候选会被丢掉。",
 		"sessionUnavailable": "当前会话不可用，没有写入任何内容",
 		"modelUnavailable": "当前会话没有可用模型，没有写入任何内容",
 		"storeRejected": "记忆文件无法读取，已保持原样",
 		"saveFailed": "保存失败，没有写入任何内容",
+		"scopes": {
+			"global": "全局",
+			"project": "这个项目"
+		},
 		"categories": {
 			"identity": "身份",
 			"family": "家庭",

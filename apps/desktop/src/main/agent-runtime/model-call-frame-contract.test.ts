@@ -24,7 +24,8 @@ import {
 } from "../../../../cli-host/test/support/openai-responses-test-server.js";
 import { getModePrompt } from "../agent-modes/index.js";
 import { getDesktopUserQuestionBroker } from "../conversations/user-question-broker.js";
-import { globalMemoryFilePath } from "../memory/store.js";
+import { memoryProjectPath } from "../memory/project-path.js";
+import { globalMemoryFilePath, projectMemoryFilePath } from "../memory/store.js";
 import { createDesktopCodingAgentFunctionSource } from "./function-extension-source.js";
 import { createDesktopMcpSupervisor } from "./mcp-supervisor.js";
 import { createDesktopPromptRuntimeSources } from "./resource-runtime.js";
@@ -406,6 +407,7 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 			const second = comparableSystemPrompt(server.requests[1]?.body);
 			expect(first).toContain("USER_MEMORY_JSON");
 			expect(first).toContain("住在昆山");
+			expect(first).not.toContain("PROJECT_MEMORY_JSON");
 			expect(first).not.toContain("FROZEN SNAPSHOT");
 			expect(toolNames(server.requests[0]?.body.tools)).not.toContain("memory");
 			expect(second).toBe(first);
@@ -449,6 +451,18 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 				}),
 			);
 			const cwd = await temporaryDirectory("desktop-frame-memory-batch-workspace-");
+			await writeFile(
+				projectMemoryFilePath(join(home, "memory")),
+				JSON.stringify({
+					schemaVersion: 1,
+					projects: [
+						{
+							path: memoryProjectPath(cwd),
+							entries: [memoryEntry("33333333-3333-4333-8333-333333333333", "只属于这个项目", "work")],
+						},
+					],
+				}),
+			);
 			const server = await createServer();
 			const model = { ...MODEL, baseUrl: server.baseUrl };
 			const agentStateDir = await temporaryDirectory("desktop-frame-memory-batch-agent-");
@@ -471,11 +485,98 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 			const systemPrompt = comparableSystemPrompt(server.requests[0]?.body);
 			expect(systemPrompt).not.toContain("USER_MEMORY_JSON");
 			expect(systemPrompt).not.toContain("住在昆山");
+			expect(systemPrompt).not.toContain("PROJECT_MEMORY_JSON");
+			expect(systemPrompt).not.toContain("只属于这个项目");
 		} finally {
 			if (previousHome === undefined) delete process.env.VETTA_HOME;
 			else process.env.VETTA_HOME = previousHome;
 		}
 	}, 30_000);
+
+	it("sends global memory and only the current project's memory on an interactive project session", async () => {
+		const home = await temporaryDirectory("desktop-frame-project-memory-home-");
+		const previousHome = process.env.VETTA_HOME;
+		process.env.VETTA_HOME = home;
+		try {
+			const projectA = await temporaryDirectory("desktop-frame-project-memory-a-");
+			const projectB = await temporaryDirectory("desktop-frame-project-memory-b-");
+			await mkdir(join(home, "memory"), { recursive: true });
+			const globalDocument = {
+				schemaVersion: 1,
+				entries: [memoryEntry("11111111-1111-4111-8111-111111111111", "住在昆山", "location")],
+			};
+			const projectDocument = {
+				schemaVersion: 1,
+				projects: [
+					{
+						path: memoryProjectPath(projectA),
+						entries: [memoryEntry("22222222-2222-4222-8222-222222222222", "这个仓库用 bun", "work")],
+					},
+					{
+						path: memoryProjectPath(projectB),
+						entries: [memoryEntry("33333333-3333-4333-8333-333333333333", "另一个仓库用 pnpm", "work")],
+					},
+				],
+			};
+			await writeFile(globalMemoryFilePath(join(home, "memory")), JSON.stringify(globalDocument));
+			await writeFile(projectMemoryFilePath(join(home, "memory")), JSON.stringify(projectDocument));
+			const server = await createServer();
+			const model = { ...MODEL, baseUrl: server.baseUrl };
+			const agentStateDir = await temporaryDirectory("desktop-frame-project-memory-agent-");
+			const fixture = createRuntimeFixture("runtime", agentStateDir, model);
+			fixtures.push(fixture);
+			const created = await fixture.runtime.createSession({
+				cwd: projectA,
+				agentDir: agentStateDir,
+				sessionDir: await temporaryDirectory("desktop-frame-project-memory-sessions-"),
+				model,
+				thinkingLevel: "off",
+				agent: createCodingAgentRuntimeSessionSelection({
+					scenario: "project",
+					agentMode: "work",
+					includeAgentSkills: false,
+				}),
+				executionMode: "full-access",
+			});
+
+			await fixture.runtime.prompt(created.sessionId, { text: "Use the saved facts" });
+			const first = comparableSystemPrompt(server.requests[0]?.body);
+			const userAt = first.indexOf("USER_MEMORY_JSON");
+			const projectAt = first.indexOf("PROJECT_MEMORY_JSON");
+			expect(userAt).toBeGreaterThanOrEqual(0);
+			expect(projectAt).toBeGreaterThan(first.indexOf("END_USER_MEMORY_JSON"));
+			expect(first).toContain("住在昆山");
+			expect(first).toContain("这个仓库用 bun");
+			expect(first).not.toContain("另一个仓库用 pnpm");
+
+			await writeFile(
+				projectMemoryFilePath(join(home, "memory")),
+				JSON.stringify({ ...projectDocument, projectEnabled: false }),
+			);
+			await fixture.runtime.prompt(created.sessionId, { text: "Stop including project memory" });
+			const projectOff = comparableSystemPrompt(server.requests[1]?.body);
+			expect(projectOff).toContain("USER_MEMORY_JSON");
+			expect(projectOff).toContain("住在昆山");
+			expect(projectOff).not.toContain("PROJECT_MEMORY_JSON");
+			expect(projectOff).not.toContain("这个仓库用 bun");
+
+			await writeFile(
+				globalMemoryFilePath(join(home, "memory")),
+				JSON.stringify({ ...globalDocument, globalEnabled: false }),
+			);
+			await writeFile(projectMemoryFilePath(join(home, "memory")), JSON.stringify(projectDocument));
+			await fixture.runtime.prompt(created.sessionId, { text: "Include only project memory" });
+			const globalOff = comparableSystemPrompt(server.requests[2]?.body);
+			expect(globalOff).not.toContain("USER_MEMORY_JSON");
+			expect(globalOff).not.toContain("住在昆山");
+			expect(globalOff).toContain("PROJECT_MEMORY_JSON");
+			expect(globalOff).toContain("这个仓库用 bun");
+			expect(globalOff).not.toContain("另一个仓库用 pnpm");
+		} finally {
+			if (previousHome === undefined) delete process.env.VETTA_HOME;
+			else process.env.VETTA_HOME = previousHome;
+		}
+	}, 60_000);
 
 	async function observeBackends(
 		cwd: string,

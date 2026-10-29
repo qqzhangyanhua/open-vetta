@@ -154,7 +154,7 @@ export const SETTINGS_SECTIONS = [
 	{ tab: "pet", id: "pet-decoration", title: "桌宠装饰", titleKey: "section_pet-decoration" },
 	{ tab: "pet", id: "pet-bubble", title: "气泡样式", titleKey: "section_pet-bubble" },
 	{ tab: "pet", id: "pet-developer", title: "开发调试", titleKey: "section_pet-developer" },
-	{ tab: "memory", id: "memory-global", title: "全局记忆", titleKey: "section_memory-global" },
+	{ tab: "memory", id: "memory-global", title: "已保存的记忆", titleKey: "section_memory-global" },
 ] as const satisfies readonly SettingsSectionRegistration[];
 
 export type SettingsSectionId = (typeof SETTINGS_SECTIONS)[number]["id"];

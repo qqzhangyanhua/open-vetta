@@ -1,8 +1,9 @@
-import { MEMORY_CATEGORIES, type MemoryCategory } from "../../shared/memory.js";
+import { MEMORY_CATEGORIES, type MemoryCategory, type MemoryScope, memoryScopeOf } from "../../shared/memory.js";
 
 export interface ParsedMemoryCandidate {
 	readonly text: string;
 	readonly category: MemoryCategory;
+	readonly scope: MemoryScope;
 }
 
 // No `g` flag: `RegExp.test` keeps `lastIndex` and would skip every other candidate.
@@ -49,7 +50,8 @@ function readCandidate(value: unknown): ParsedMemoryCandidate | undefined {
 	const text = "text" in value && typeof value.text === "string" ? value.text.trim() : "";
 	const category = "category" in value && typeof value.category === "string" ? value.category : "";
 	if (!text || text.length > 2_000 || !isCategory(category)) return undefined;
-	return { text, category };
+	const scope = memoryScopeOf("scope" in value && typeof value.scope === "string" ? { scope: value.scope } : {});
+	return { text, category, scope };
 }
 
 function isCategory(value: string): value is MemoryCategory {

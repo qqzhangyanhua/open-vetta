@@ -1,13 +1,15 @@
 import { join } from "node:path";
 import { createVersionedJsonConfigStore, type VersionedJsonConfigStoreLogger } from "@vetta/toolkit/config-store";
 import { migrateVersionedConfig } from "@vetta/toolkit/versioned-config";
-import { GLOBAL_MEMORY_SCHEMA_VERSION } from "../../shared/memory.js";
+import { GLOBAL_MEMORY_SCHEMA_VERSION, PROJECT_MEMORY_SCHEMA_VERSION } from "../../shared/memory.js";
 import {
 	type GlobalMemoryDocument,
 	MEMORY_GENERATION_SCHEMA_VERSION,
 	type MemoryGenerationDocument,
 	normalizeGlobalMemoryDocument,
 	normalizeMemoryGenerationDocument,
+	normalizeProjectMemoryDocument,
+	type ProjectMemoryDocument,
 } from "./schema.js";
 
 export function globalMemoryFilePath(directory: string): string {
@@ -27,6 +29,28 @@ export function createGlobalMemoryStore(directory: string, logger?: VersionedJso
 		name: "global-memory",
 		normalize: normalizeGlobalMemoryDocument,
 		migrate: migrateGlobalMemoryDocument,
+		readErrorPolicy: "throw",
+		logger,
+	});
+}
+
+export function projectMemoryFilePath(directory: string): string {
+	return join(directory, "projects.json");
+}
+
+export function migrateProjectMemoryDocument(value: unknown) {
+	return migrateVersionedConfig(value, {
+		currentVersion: PROJECT_MEMORY_SCHEMA_VERSION,
+		migrations: [],
+	});
+}
+
+export function createProjectMemoryStore(directory: string, logger?: VersionedJsonConfigStoreLogger) {
+	return createVersionedJsonConfigStore<ProjectMemoryDocument>({
+		path: projectMemoryFilePath(directory),
+		name: "project-memory",
+		normalize: normalizeProjectMemoryDocument,
+		migrate: migrateProjectMemoryDocument,
 		readErrorPolicy: "throw",
 		logger,
 	});
