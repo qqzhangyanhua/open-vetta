@@ -27,6 +27,7 @@ import {
 	nodeTextFileWatchPort,
 } from "@vetta/runtime-node/host";
 import { isSshProjectUri, parseProjectLocation } from "@vetta/ssh-transport";
+import { readGlobalMemoryPromptBlock, sessionReadsGlobalMemory } from "../memory/session-read.js";
 import { getSshConnection } from "../ssh/ssh-runtime.js";
 
 interface DesktopResourceRuntimeScope {
@@ -159,7 +160,33 @@ export async function createDesktopPromptRuntimeSources(
 		noThemes: true,
 	});
 	await resourceSource.reload();
-	return { resourceSource, settingsSource };
+	if (
+		!sessionReadsGlobalMemory({
+			scenario: context.scenario,
+			parentSessionPath: context.sessionOptions.parentSessionPath,
+		})
+	) {
+		return { resourceSource, settingsSource };
+	}
+	// 在 bindForTurn 取系统提示词快照时再读文件：本轮中途的保存或开关只对下一条用户消息可见。
+	return { resourceSource: withGlobalMemoryAppend(resourceSource), settingsSource };
+}
+
+function withGlobalMemoryAppend(source: SessionResourceRuntime): SessionResourceRuntime {
+	return new Proxy(source, {
+		get(target, property, receiver) {
+			if (property === "getAppendSystemPrompt") {
+				return () => {
+					const base = target.getAppendSystemPrompt();
+					// 每次快照再解析家目录，测试和运行中更换 VETTA_HOME 都能读到当前文件。
+					const block = readGlobalMemoryPromptBlock(join(getVettaHomePath(), "memory"));
+					return block === undefined ? base : [...base, block];
+				};
+			}
+			const value: unknown = Reflect.get(target, property, receiver);
+			return typeof value === "function" ? value.bind(target) : value;
+		},
+	});
 }
 
 export function createDesktopSkillResourceRuntime(options: {

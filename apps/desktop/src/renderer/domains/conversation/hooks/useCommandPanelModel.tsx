@@ -21,6 +21,7 @@ import { skillIconOf, useSkillIconMap } from "./useSkillIconMap";
 import { useSkillList } from "./useSkillList";
 import { useDefaultContextRingModel } from "./useContextRingModel";
 import { focusInputEditor, removeInputTrigger } from "../components/input-bar/editor/inputEditorHandle";
+import { useMemoryReviewStart } from "../components/memory/useMemoryReviewModel";
 
 export interface CommandPanelModelInput {
 	inputActions?: InputActionBarModel;
@@ -52,6 +53,7 @@ export function useCommandPanelModel({
 	allowCompaction = true,
 }: CommandPanelModelInput): CommandPanelModel {
 	const { t } = useTranslation("chat");
+	const startMemory = useMemoryReviewStart();
 	const normalizedFilter = filter.startsWith("/") ? filter.slice(1) : filter;
 	const activeSession = useAtomValue(activeSessionAtom);
 	const compactionEligibility = useAtomValue(contextCompactionEligibilityAtom);
@@ -66,6 +68,11 @@ export function useCommandPanelModel({
 		["compact", "compaction", "context", "压缩", "上下文"].some((term) =>
 			term.includes(normalizedFilter.toLocaleLowerCase()),
 		);
+	// `/m` is a prefix of both compact and memory. Keep compaction until the query is only a memory command.
+	const memoryQuery = normalizedFilter.toLocaleLowerCase();
+	const memoryMatches =
+		memoryQuery.length > 0 &&
+		["memory", "me", "mem", "记忆"].some((command) => command.startsWith(memoryQuery));
 	// 预取：命令区第一次展开时不必再等扫盘，避免与高度动画抢主线程。
 	const { items } = useSkillList({
 		open,
@@ -117,7 +124,26 @@ export function useCommandPanelModel({
 		}).finally(() => setQueueingCompaction(false));
 	}, [activeSession, contextRing?.isCompacting, onClose, queuedCompaction, queueingCompaction, t]);
 
+	const selectMemory = useCallback(() => {
+		if (!startMemory) return;
+		removeInputTrigger();
+		onClose();
+		focusInputEditor();
+		void startMemory();
+	}, [onClose, startMemory]);
+
 	const operation = useMemo<CommandPanelOperationItem | undefined>(() => {
+		if (startMemory && memoryMatches && !operationMatches) {
+			return {
+				id: "__builtin_generate_memory__",
+				label: t("memoryReview.generate"),
+				description: t("slashPanel.memory.description"),
+				contextRing: null,
+				iconClass: "icon-[solar--notebook-linear]",
+				disabled: false,
+				onSelect: selectMemory,
+			};
+		}
 		if (!allowCompaction || !activeSession || !operationMatches || compactionEligibility.status === "ineligible") return undefined;
 		const percent = contextRing ? Math.round(Math.min(100, Math.max(0, contextRing.percent))) : null;
 		const description = contextRing?.isCompacting
@@ -143,7 +169,7 @@ export function useCommandPanelModel({
 			disabled: queuedCompaction || queueingCompaction || Boolean(contextRing?.isCompacting),
 			onSelect: selectCompaction,
 		};
-	}, [activeSession, allowCompaction, compactionEligibility.status, contextRing, operationMatches, queuedCompaction, queueingCompaction, selectCompaction, t]);
+	}, [activeSession, allowCompaction, compactionEligibility.status, contextRing, memoryMatches, operationMatches, queuedCompaction, queueingCompaction, selectCompaction, selectMemory, startMemory, t]);
 
 	const keyBindings = useMemo((): ShortcutBinding[] => {
 		const itemCount = items.length + (operation ? 1 : 0);

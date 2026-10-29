@@ -1215,6 +1215,9 @@
 			"errorTitle": "Couldn't compact context",
 			"errorMessage": "Couldn't queue context compaction. Try again."
 		},
+		"memory": {
+			"description": "Propose memories you can save from this session"
+		},
 		"emptyNoMatch": "No matches found",
 		"emptyNoMatchHint": "Try another keyword, or just type your request.",
 		"emptyNoSkills": "No skills or scenes available",

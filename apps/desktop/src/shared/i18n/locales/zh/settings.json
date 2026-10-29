@@ -2385,6 +2385,15 @@
     "description": "这里只显示已经保存的全局记忆。",
     "empty": "还没有全局记忆。可以在会话标题栏的「更多」菜单里点「生成记忆」。",
     "loadError": "记忆文件无法读取，已保持原样。",
-    "loading": "正在读取记忆"
+    "loading": "正在读取记忆",
+    "readEnabled": "在对话里使用全局记忆",
+    "readEnabledDescription": "打开后，交互式会话从下一条消息起带上已保存的全局记忆。关闭后不再带上；生成和这份列表不受影响。",
+    "readEnabledAria": "在对话里使用全局记忆",
+    "readEnabledTitle": "从下一条消息起生效",
+    "model": "记忆模型",
+    "modelDescription": "不指定时，用这条会话当前的模型。",
+    "modelUnset": "使用会话当前模型",
+    "modelInvalid": "记忆模型设置无法读取，已保持原样。",
+    "modelSaveError": "没有改成这个模型，设置保持原样。"
   }
 }

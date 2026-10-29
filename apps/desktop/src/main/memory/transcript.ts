@@ -1,21 +1,54 @@
-import type { HistoryEntry } from "@vetta/runtime-core";
+import {
+	type ConversationDocument,
+	type ConversationDocumentEntry,
+	selectConversationDocumentBranch,
+} from "@vetta/runtime-core/conversation";
 
-/** Current session text for memory extraction. Tool payloads stay out; compaction summaries stay in. */
-export function serializeMemoryTranscript(history: readonly HistoryEntry[]): string {
-	const parts: string[] = [];
-	for (const entry of history) {
+export interface MemoryTranscriptEntry {
+	readonly id: string;
+	readonly text: string;
+}
+
+/**
+ * Current branch text for memory extraction.
+ * The newest compaction summary replaces entries before its firstKeptEntryId,
+ * matching the model-visible window rather than the raw dropped messages.
+ */
+export function memoryTranscriptEntries(document: ConversationDocument): MemoryTranscriptEntry[] {
+	const parts: MemoryTranscriptEntry[] = [];
+	for (const entry of memoryVisibleBranch(selectConversationDocumentBranch(document))) {
 		if (entry.type === "compaction") {
 			const summary = entry.summary.trim();
-			if (summary) parts.push(`SUMMARY: ${summary}`);
+			if (summary) parts.push({ id: entry.id, text: `SUMMARY: ${summary}` });
 			continue;
 		}
-		if (entry.type !== "message") continue;
+		if (entry.type !== "message" || entry.origin?.kind === "continuation") continue;
 		const message = entry.message;
-		if (message.role !== "user" && message.role !== "assistant") continue;
+		if (!isRecord(message) || (message.role !== "user" && message.role !== "assistant")) continue;
 		const text = messageText(message.content);
-		if (text) parts.push(`${message.role.toUpperCase()}: ${text}`);
+		if (!text) continue;
+		const role = message.role === "assistant" ? "ASSISTANT" : "USER";
+		parts.push({ id: entry.id, text: `${role}: ${text}` });
 	}
-	return parts.join("\n\n");
+	return parts;
+}
+
+function memoryVisibleBranch(branch: readonly ConversationDocumentEntry[]): readonly ConversationDocumentEntry[] {
+	let compactionIndex = -1;
+	for (let index = branch.length - 1; index >= 0; index -= 1) {
+		const entry = branch[index];
+		if (entry?.type === "compaction" && entry.summary.trim() && entry.firstKeptEntryId) {
+			compactionIndex = index;
+			break;
+		}
+	}
+	if (compactionIndex < 0) return branch;
+	const compaction = branch[compactionIndex];
+	if (!compaction || compaction.type !== "compaction") return branch;
+	const firstKeptIndex = branch.findIndex((entry) => entry.id === compaction.firstKeptEntryId);
+	if (firstKeptIndex < 0) throw new Error("memory:session-unavailable");
+	const kept = branch.filter((_, index) => index !== compactionIndex && index >= firstKeptIndex);
+	return [compaction, ...kept];
 }
 
 function messageText(content: unknown): string {
@@ -29,4 +62,8 @@ function messageText(content: unknown): string {
 		})
 		.join("\n")
 		.trim();
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }

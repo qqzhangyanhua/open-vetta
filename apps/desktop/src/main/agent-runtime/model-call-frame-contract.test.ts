@@ -24,6 +24,7 @@ import {
 } from "../../../../cli-host/test/support/openai-responses-test-server.js";
 import { getModePrompt } from "../agent-modes/index.js";
 import { getDesktopUserQuestionBroker } from "../conversations/user-question-broker.js";
+import { globalMemoryFilePath } from "../memory/store.js";
 import { createDesktopCodingAgentFunctionSource } from "./function-extension-source.js";
 import { createDesktopMcpSupervisor } from "./mcp-supervisor.js";
 import { createDesktopPromptRuntimeSources } from "./resource-runtime.js";
@@ -47,11 +48,15 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 	const questionHandlerDisposals: Array<() => void> = [];
 	const servers: OpenAiResponsesTestServer[] = [];
 	const originalAgentDir = process.env[ENV_AGENT_DIR];
+	const originalVettaHome = process.env.VETTA_HOME;
 	let isolatedGlobalAgentDir: string;
+	let isolatedVettaHome: string;
 
 	beforeAll(async () => {
 		isolatedGlobalAgentDir = await mkdtemp(join(tmpdir(), "desktop-frame-global-agent-"));
+		isolatedVettaHome = await mkdtemp(join(tmpdir(), "desktop-frame-vetta-home-"));
 		process.env[ENV_AGENT_DIR] = isolatedGlobalAgentDir;
+		process.env.VETTA_HOME = isolatedVettaHome;
 	});
 
 	afterEach(async () => {
@@ -66,7 +71,10 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 	afterAll(async () => {
 		if (originalAgentDir === undefined) delete process.env[ENV_AGENT_DIR];
 		else process.env[ENV_AGENT_DIR] = originalAgentDir;
+		if (originalVettaHome === undefined) delete process.env.VETTA_HOME;
+		else process.env.VETTA_HOME = originalVettaHome;
 		await rm(isolatedGlobalAgentDir, { recursive: true, force: true });
+		await rm(isolatedVettaHome, { recursive: true, force: true });
 	});
 
 	for (const scenario of ALL_SCENARIOS) {
@@ -341,6 +349,134 @@ describe("Desktop RuntimeHost model-call frame contract", () => {
 		expect(systemPrompt).not.toMatch(/You are "Interactive"/);
 	}, 30_000);
 
+	it("sends saved global memory on the next interactive prompt and leaves an unchanged prompt stable", async () => {
+		const home = await temporaryDirectory("desktop-frame-memory-home-");
+		const previousHome = process.env.VETTA_HOME;
+		process.env.VETTA_HOME = home;
+		try {
+			const memoryPath = globalMemoryFilePath(join(home, "memory"));
+			await mkdir(join(home, "memory"), { recursive: true });
+			const saved = {
+				schemaVersion: 1,
+				entries: [memoryEntry("11111111-1111-4111-8111-111111111111", "住在昆山", "location")],
+			};
+			const withTea = {
+				schemaVersion: 1,
+				entries: [...saved.entries, memoryEntry("22222222-2222-4222-8222-222222222222", "喜欢喝茶", "preference")],
+			};
+			await writeFile(memoryPath, JSON.stringify(saved));
+			const cwd = await temporaryDirectory("desktop-frame-memory-workspace-");
+			await writeFile(join(cwd, "source.pdf"), "%PDF-1.4\n", "utf8");
+			const server = await startOpenAiResponsesTestServer(async (_request, index) => {
+				if (index === 2) {
+					await writeFile(memoryPath, JSON.stringify(withTea));
+					return {
+						kind: "events",
+						events: toolCallResponseEvents(
+							"render_pdf_page",
+							{ input: "source.pdf", page: 1, output: "invalid.txt" },
+							{ callId: "call_memory", itemId: "fc_memory", responseId: "resp_memory" },
+						),
+					};
+				}
+				return { kind: "events", events: textResponseEvents(`memory turn ${index}`) };
+			});
+			servers.push(server);
+			const model = { ...MODEL, baseUrl: server.baseUrl };
+			const agentStateDir = await temporaryDirectory("desktop-frame-memory-agent-");
+			const fixture = createRuntimeFixture("runtime", agentStateDir, model);
+			fixtures.push(fixture);
+			const created = await fixture.runtime.createSession({
+				cwd,
+				agentDir: agentStateDir,
+				sessionDir: await temporaryDirectory("desktop-frame-memory-sessions-"),
+				model,
+				thinkingLevel: "off",
+				agent: createCodingAgentRuntimeSessionSelection({
+					scenario: "conversation",
+					agentMode: "work",
+					includeAgentSkills: false,
+				}),
+				executionMode: "full-access",
+			});
+
+			await fixture.runtime.prompt(created.sessionId, { text: "Remember the first fact" });
+			await fixture.runtime.prompt(created.sessionId, { text: "Ask again without changing memory" });
+			const first = comparableSystemPrompt(server.requests[0]?.body);
+			const second = comparableSystemPrompt(server.requests[1]?.body);
+			expect(first).toContain("USER_MEMORY_JSON");
+			expect(first).toContain("住在昆山");
+			expect(first).not.toContain("FROZEN SNAPSHOT");
+			expect(toolNames(server.requests[0]?.body.tools)).not.toContain("memory");
+			expect(second).toBe(first);
+
+			await fixture.runtime.prompt(created.sessionId, { text: "Render the relative PDF" });
+			expect(server.requests).toHaveLength(4);
+			expect(comparableSystemPrompt(server.requests[2]?.body)).toBe(first);
+			expect(comparableSystemPrompt(server.requests[2]?.body)).not.toContain("喜欢喝茶");
+			expect(comparableSystemPrompt(server.requests[3]?.body)).toBe(first);
+
+			await fixture.runtime.prompt(created.sessionId, { text: "Use the memory saved during the last turn" });
+			expect(comparableSystemPrompt(server.requests[4]?.body)).toContain("喜欢喝茶");
+
+			await writeFile(memoryPath, JSON.stringify({ ...withTea, globalEnabled: false }));
+			await fixture.runtime.prompt(created.sessionId, { text: "Stop including memory" });
+			const disabled = comparableSystemPrompt(server.requests[5]?.body);
+			expect(disabled).not.toContain("USER_MEMORY_JSON");
+			expect(disabled).not.toContain("住在昆山");
+			expect(disabled).not.toContain("喜欢喝茶");
+
+			await writeFile(memoryPath, JSON.stringify({ ...withTea, globalEnabled: true }));
+			await fixture.runtime.prompt(created.sessionId, { text: "Include memory again" });
+			expect(comparableSystemPrompt(server.requests[6]?.body)).toContain("喜欢喝茶");
+		} finally {
+			if (previousHome === undefined) delete process.env.VETTA_HOME;
+			else process.env.VETTA_HOME = previousHome;
+		}
+	}, 60_000);
+
+	it("does not send global memory on a batch session request", async () => {
+		const home = await temporaryDirectory("desktop-frame-memory-batch-home-");
+		const previousHome = process.env.VETTA_HOME;
+		process.env.VETTA_HOME = home;
+		try {
+			await mkdir(join(home, "memory"), { recursive: true });
+			await writeFile(
+				globalMemoryFilePath(join(home, "memory")),
+				JSON.stringify({
+					schemaVersion: 1,
+					entries: [memoryEntry("11111111-1111-4111-8111-111111111111", "住在昆山", "location")],
+				}),
+			);
+			const cwd = await temporaryDirectory("desktop-frame-memory-batch-workspace-");
+			const server = await createServer();
+			const model = { ...MODEL, baseUrl: server.baseUrl };
+			const agentStateDir = await temporaryDirectory("desktop-frame-memory-batch-agent-");
+			const fixture = createRuntimeFixture("runtime", agentStateDir, model);
+			fixtures.push(fixture);
+			const created = await fixture.runtime.createSession({
+				cwd,
+				agentDir: agentStateDir,
+				sessionDir: await temporaryDirectory("desktop-frame-memory-batch-sessions-"),
+				model,
+				thinkingLevel: "off",
+				agent: createCodingAgentRuntimeSessionSelection({
+					scenario: "batch",
+					enableBackgroundTasks: false,
+					includeAgentSkills: false,
+				}),
+				executionMode: "full-access",
+			});
+			await fixture.runtime.prompt(created.sessionId, { text: "Run the batch step" });
+			const systemPrompt = comparableSystemPrompt(server.requests[0]?.body);
+			expect(systemPrompt).not.toContain("USER_MEMORY_JSON");
+			expect(systemPrompt).not.toContain("住在昆山");
+		} finally {
+			if (previousHome === undefined) delete process.env.VETTA_HOME;
+			else process.env.VETTA_HOME = previousHome;
+		}
+	}, 30_000);
+
 	async function observeBackends(
 		cwd: string,
 		scenario: ConversationScenario,
@@ -441,6 +577,19 @@ function toolNames(value: unknown): string[] {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
+}
+
+function memoryEntry(id: string, text: string, category: string) {
+	return { id, text, category, recordedAt: "2026-10-28" };
+}
+
+function comparableSystemPrompt(body: unknown): string {
+	if (!isRecord(body) || !Array.isArray(body.input)) return "";
+	const system = body.input.find((item) => isRecord(item) && (item.role === "system" || item.role === "developer"));
+	if (!isRecord(system)) return "";
+	return collectStringValues(system.content)
+		.join("\n")
+		.replace(/^Current date: .*$/gm, "Current date: <turn-date>");
 }
 
 function collectStringValues(value: unknown): string[] {

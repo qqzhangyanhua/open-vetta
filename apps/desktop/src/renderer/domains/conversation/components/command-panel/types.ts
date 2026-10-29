@@ -49,6 +49,7 @@ export interface CommandPanelOperationItem {
 	label: string;
 	description: string;
 	contextRing: Omit<ContextRingViewProps, "className"> | null;
+	iconClass?: string;
 	disabled: boolean;
 	onSelect: () => void;
 }

@@ -1,4 +1,5 @@
-import { SettingSection, SettingsPageShellView } from "@vetta-org/theme-ui/settings";
+import { MotionSelect, SettingRow, SettingSection, SettingsPageShellView } from "@vetta-org/theme-ui/settings";
+import { Switch } from "@vetta-org/ui";
 import { SETTINGS_SECTION } from "../registry";
 import type { MemorySettingsModel } from "./useMemorySettingsModel";
 
@@ -12,6 +13,36 @@ export function MemorySettingsView({ model }: { readonly model: MemorySettingsMo
 		>
 			{model.status === "loading" ? null : (
 				<SettingSection section={SETTINGS_SECTION["memory-global"]} title={model.labels.section}>
+					{model.status === "error" ? null : (
+						<SettingRow title={model.labels.readEnabled} description={model.labels.readEnabledDescription}>
+							<Switch
+								checked={model.readEnabled}
+								onCheckedChange={model.actions.setReadEnabled}
+								aria-label={model.labels.readEnabledAria}
+								title={model.labels.readEnabledTitle}
+							/>
+						</SettingRow>
+					)}
+					<SettingRow title={model.labels.model} description={model.labels.modelDescription}>
+						{model.modelInvalid ? (
+							<p role="alert" className="max-w-sm text-[13px] text-foreground">
+								{model.labels.modelInvalid}
+							</p>
+						) : null}
+						<MotionSelect
+							aria-label={model.labels.model}
+							value={model.modelOverride ?? ""}
+							disabled={model.savingModel}
+							onValueChange={(value) => model.actions.setModelOverride(value ? value : null)}
+							options={modelOptions(model)}
+							triggerClassName="h-8 min-w-[220px]"
+						/>
+					</SettingRow>
+					{model.modelSaveError ? (
+						<p role="alert" className="px-5 pb-4 text-[13px] text-foreground">
+							{model.labels.modelSaveError}
+						</p>
+					) : null}
 					{model.status === "error" ? (
 						<p role="alert" className="px-5 py-4 text-[13px] text-foreground">
 							{model.labels.loadError}
@@ -39,4 +70,15 @@ export function MemorySettingsView({ model }: { readonly model: MemorySettingsMo
 			)}
 		</SettingsPageShellView>
 	);
+}
+
+function modelOptions(model: MemorySettingsModel): readonly { value: string; label: string }[] {
+	const options = [
+		{ value: "", label: model.labels.modelUnset },
+		...model.modelChoices.map((choice) => ({ value: choice.modelKey, label: choice.label })),
+	];
+	if (model.modelOverride && !options.some((option) => option.value === model.modelOverride)) {
+		options.push({ value: model.modelOverride, label: model.modelOverride });
+	}
+	return options;
 }

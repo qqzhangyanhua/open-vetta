@@ -108,6 +108,8 @@ export function CommandPanelView({
 									<span className="flex h-5 w-5 shrink-0 items-center justify-center">
 										{operation.contextRing ? (
 											<ContextRingView {...operation.contextRing} className="pointer-events-none" />
+										) : operation.iconClass ? (
+											<span className={`${operation.iconClass} h-4 w-4 text-muted-foreground`} aria-hidden="true" />
 										) : (
 											<span className="h-4 w-4 rounded-full border border-border" aria-hidden="true" />
 										)}

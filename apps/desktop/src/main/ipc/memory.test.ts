@@ -1,7 +1,7 @@
 import type { IpcRenderer } from "electron";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createMemoryApi } from "../../preload/apis/memory.js";
-import type { GenerateGlobalMemoryResult, GlobalMemoryEntry } from "../../shared/memory.js";
+import type { GenerateGlobalMemoryResult, GlobalMemoryEntry, MemoryModelChoice } from "../../shared/memory.js";
 import { type MemoryIpcService, registerMemoryIpc } from "./memory.js";
 
 const bridge = vi.hoisted(() => ({ handlers: new Map<string, (event: unknown, ...args: unknown[]) => unknown>() }));
@@ -27,6 +27,19 @@ describe("memory preload/main contract", () => {
 		} as unknown as IpcRenderer).memory;
 	}
 
+	function serviceWith(
+		overrides: Partial<MemoryIpcService> & Pick<MemoryIpcService, "listGlobal" | "generate" | "save">,
+	): MemoryIpcService {
+		return {
+			getReadEnabled: vi.fn(async () => true),
+			setReadEnabled: vi.fn(async (enabled: boolean) => enabled),
+			getModelOverride: vi.fn(async () => null),
+			setModelOverride: vi.fn(async () => undefined),
+			listModels: vi.fn(async () => [] as MemoryModelChoice[]),
+			...overrides,
+		};
+	}
+
 	it("forwards a valid generate and save, and rejects invalid payloads before the service", async () => {
 		const saved: GlobalMemoryEntry[] = [
 			{
@@ -40,11 +53,19 @@ describe("memory preload/main contract", () => {
 			status: "candidates",
 			candidates: [{ id: "22222222-2222-4222-8222-222222222222", text: "住在昆山", category: "location" }],
 		};
-		const service: MemoryIpcService = {
+		const setModelOverride = vi.fn(async (modelKey: string | null) => {
+			if (modelKey === "not-a-model") throw new Error("memory:invalid-model");
+		});
+		const service = serviceWith({
 			listGlobal: vi.fn(async () => saved),
 			generate: vi.fn(async () => generated),
 			save: vi.fn(async () => saved),
-		};
+			getModelOverride: vi.fn(async () => null),
+			setModelOverride,
+			listModels: vi.fn(
+				async () => [{ modelKey: "openai/memory-model", label: "Memory Model" }] as MemoryModelChoice[],
+			),
+		});
 		const api = install(service);
 
 		expect(await api.listGlobal()).toEqual(saved);
@@ -63,7 +84,31 @@ describe("memory preload/main contract", () => {
 		);
 		expect(service.save).toHaveBeenCalledTimes(1);
 
+		expect(await api.getModelOverride()).toBeNull();
+		expect(await api.listModels()).toEqual([{ modelKey: "openai/memory-model", label: "Memory Model" }]);
+		await expect(api.setModelOverride("not-a-model")).rejects.toThrow("memory:invalid-model");
+		await api.setModelOverride(null);
+		expect(setModelOverride).toHaveBeenLastCalledWith(null);
+		await expect(api.setModelOverride(1 as unknown as string)).rejects.toThrow("memory:invalid-model");
+		expect(setModelOverride).toHaveBeenCalledTimes(2);
+
 		teardown?.();
 		expect(bridge.handlers.size).toBe(0);
+	});
+
+	it("forwards the read switch and rejects a non-boolean before the service", async () => {
+		const service = serviceWith({
+			listGlobal: vi.fn(async () => []),
+			generate: vi.fn(),
+			save: vi.fn(),
+			getReadEnabled: vi.fn(async () => true),
+			setReadEnabled: vi.fn(async (enabled: boolean) => enabled),
+		});
+		const api = install(service);
+		expect(await api.getReadEnabled()).toBe(true);
+		expect(await api.setReadEnabled(false)).toBe(false);
+		expect(service.setReadEnabled).toHaveBeenCalledWith(false);
+		await expect(api.setReadEnabled("no" as unknown as boolean)).rejects.toThrow();
+		expect(service.setReadEnabled).toHaveBeenCalledTimes(1);
 	});
 });

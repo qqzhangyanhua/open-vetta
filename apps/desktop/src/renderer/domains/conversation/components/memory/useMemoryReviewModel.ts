@@ -1,6 +1,16 @@
 import { waitForCommittedPaint } from "@shared/lib/committed-paint";
 import { memoryCategoryLabels } from "@shared/memory/category-labels";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	createContext,
+	createElement,
+	type ReactElement,
+	type ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type { DesktopMemoryApi, MemoryCandidate, MemoryCategory, SaveMemoryCandidate } from "@/shared/memory";
 
@@ -129,7 +139,7 @@ export function useMemoryReviewModel(runtimeId: string | null, client: DesktopMe
 		const generation = generationRef.current;
 		const selected: SaveMemoryCandidate[] = drafts
 			.filter((draft) => draft.selected && draft.text.trim())
-			.map((draft) => ({ text: draft.text.trim(), category: draft.category }));
+			.map((draft) => ({ id: draft.id, text: draft.text.trim(), category: draft.category }));
 		setPhase("saving");
 		setErrorCode(null);
 		try {
@@ -175,4 +185,21 @@ export function useMemoryReviewModel(runtimeId: string | null, client: DesktopMe
 		},
 		actions: { start, close, retry: start, toggle, editText, editCategory, save },
 	};
+}
+
+const MemoryReviewStartContext = createContext<(() => Promise<void>) | null>(null);
+
+/** ChatView owns the one review model. Slash and message actions call the same start. */
+export function MemoryReviewStartProvider({
+	start,
+	children,
+}: {
+	readonly start: () => Promise<void>;
+	readonly children: ReactNode;
+}): ReactElement {
+	return createElement(MemoryReviewStartContext.Provider, { value: start, children });
+}
+
+export function useMemoryReviewStart(): (() => Promise<void>) | null {
+	return useContext(MemoryReviewStartContext);
 }

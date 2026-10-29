@@ -40,6 +40,19 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 });
 
+function reviewClient(client: Pick<DesktopMemoryApi, "generate" | "save">): DesktopMemoryApi {
+	return {
+		listGlobal: async () => [],
+		generate: client.generate,
+		save: client.save,
+		getReadEnabled: async () => true,
+		setReadEnabled: async (enabled) => enabled,
+		getModelOverride: async () => null,
+		setModelOverride: async () => undefined,
+		listModels: async () => [],
+	};
+}
+
 function Harness({
 	client,
 	runtimeId,
@@ -84,7 +97,7 @@ describe("会话记忆审阅", () => {
 		render(
 			<Harness
 				runtimeId="runtime-1"
-				client={{ listGlobal: vi.fn(async () => []), generate, save }}
+				client={reviewClient({ generate, save })}
 			/>,
 		);
 
@@ -123,7 +136,7 @@ describe("会话记忆审阅", () => {
 		await user.click(screen.getByRole("button", { name: "保存" }));
 
 		await waitFor(() => {
-			expect(save).toHaveBeenCalledWith([{ text: "住在昆山", category: "work" }]);
+			expect(save).toHaveBeenCalledWith([{ id: CANDIDATE.id, text: "住在昆山", category: "work" }]);
 		});
 		await waitFor(() => {
 			expect(screen.queryByRole("region", { name: "审阅记忆" })).toBeNull();
@@ -138,7 +151,7 @@ describe("会话记忆审阅", () => {
 			.mockRejectedValueOnce(new Error("memory:generation-failed"))
 			.mockResolvedValueOnce({ status: "empty" });
 		const save = vi.fn(async () => []);
-		render(<Harness runtimeId="runtime-1" client={{ listGlobal: vi.fn(async () => []), generate, save }} />);
+		render(<Harness runtimeId="runtime-1" client={reviewClient({ generate, save })} />);
 
 		await openMenu(user);
 		expect((await screen.findByRole("alert")).textContent).toContain("生成失败，没有写入任何内容");
@@ -162,7 +175,7 @@ describe("会话记忆审阅", () => {
 					release = resolve;
 				}),
 		);
-		render(<Harness runtimeId="runtime-1" client={{ listGlobal: vi.fn(async () => []), generate, save: vi.fn() }} />);
+		render(<Harness runtimeId="runtime-1" client={reviewClient({ generate, save: vi.fn() })} />);
 		await openMenu(user);
 		await waitFor(() => expect(generate).toHaveBeenCalled());
 		expect(screen.getByText("正在通读这个会话…")).toBeTruthy();
@@ -183,14 +196,13 @@ describe("会话记忆审阅", () => {
 		render(
 			<Harness
 				runtimeId="runtime-1"
-				client={{
-					listGlobal: vi.fn(async () => []),
+				client={reviewClient({
 					generate: vi.fn(async (): Promise<GenerateGlobalMemoryResult> => ({
 						status: "candidates",
 						candidates: [CANDIDATE],
 					})),
 					save,
-				}}
+				})}
 			/>,
 		);
 		await openMenu(user);
@@ -208,14 +220,13 @@ describe("会话记忆审阅", () => {
 		render(
 			<Harness
 				runtimeId="runtime-1"
-				client={{
-					listGlobal: vi.fn(async () => []),
+				client={reviewClient({
 					generate: vi.fn(async (): Promise<GenerateGlobalMemoryResult> => ({
 						status: "candidates",
 						candidates: [CANDIDATE],
 					})),
 					save,
-				}}
+				})}
 			/>,
 		);
 		await openMenu(user);
@@ -226,14 +237,13 @@ describe("会话记忆审阅", () => {
 
 	it("换会话后丢掉上一份候选", async () => {
 		const user = userEvent.setup();
-		const client: DesktopMemoryApi = {
-			listGlobal: vi.fn(async () => []),
+		const client: DesktopMemoryApi = reviewClient({
 			generate: vi.fn(async (): Promise<GenerateGlobalMemoryResult> => ({
 				status: "candidates",
 				candidates: [CANDIDATE],
 			})),
 			save: vi.fn(async () => []),
-		};
+		});
 		function Switchable(): JSX.Element {
 			const [runtimeId, setRuntimeId] = useState("runtime-1");
 			return (

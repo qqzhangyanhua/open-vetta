@@ -1215,6 +1215,9 @@
 			"errorTitle": "无法压缩上下文",
 			"errorMessage": "加入压缩队列失败，请重试"
 		},
+		"memory": {
+			"description": "从这次会话里提出可保存的记忆"
+		},
 		"emptyNoMatch": "未找到匹配项",
 		"emptyNoMatchHint": "换个关键词试试，或直接输入你的需求。",
 		"emptyNoSkills": "暂无可用的技能或场景",

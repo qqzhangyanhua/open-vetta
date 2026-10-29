@@ -5,7 +5,7 @@ import { getOrCreateSharedModelRuntime } from "../agent-runtime/host-services.js
 import { getAppLogger } from "../logger.js";
 import { getSharedRuntime } from "../runtime.js";
 import { DesktopMemoryService } from "./service.js";
-import { serializeMemoryTranscript } from "./transcript.js";
+import { memoryTranscriptEntries } from "./transcript.js";
 
 let service: DesktopMemoryService | undefined;
 
@@ -21,11 +21,11 @@ export function getDesktopMemoryService(): DesktopMemoryService {
 		},
 		source(runtimeId) {
 			let snapshot: ReturnType<ReturnType<typeof getSharedRuntime>["getState"]>;
-			let history: ReturnType<ReturnType<typeof getSharedRuntime>["getFullHistory"]>;
+			let document: ReturnType<ReturnType<typeof getSharedRuntime>["readSessionDocument"]>;
 			try {
 				const runtime = getSharedRuntime();
 				snapshot = runtime.getState(runtimeId);
-				history = runtime.getFullHistory(runtimeId);
+				document = runtime.readSessionDocument(runtimeId);
 			} catch {
 				throw new Error("memory:session-unavailable");
 			}
@@ -33,14 +33,18 @@ export function getDesktopMemoryService(): DesktopMemoryService {
 			if (!model) throw new Error("memory:model-unavailable");
 			return {
 				modelKey: `${model.provider}/${model.id}`,
-				transcript: serializeMemoryTranscript(history),
+				entries: memoryTranscriptEntries(document),
 			};
+		},
+		listModels() {
+			return textModels().map((model) => ({
+				modelKey: modelKeyOf(model),
+				label: model.name.trim() ? `${model.provider} / ${model.name}` : modelKeyOf(model),
+			}));
 		},
 		async complete(request) {
 			const models = getOrCreateSharedModelRuntime();
-			const model = models
-				.getAvailable()
-				.find((entry) => entry.input.includes("text") && `${entry.provider}/${entry.id}` === request.modelKey);
+			const model = textModels().find((entry) => modelKeyOf(entry) === request.modelKey);
 			if (!model) throw new Error("memory:model-unavailable");
 			const apiKey = await models.getApiKey(model);
 			if (!apiKey) throw new Error("memory:model-unavailable");
@@ -63,4 +67,14 @@ export function getDesktopMemoryService(): DesktopMemoryService {
 		},
 	});
 	return service;
+}
+
+function textModels() {
+	return getOrCreateSharedModelRuntime()
+		.getAvailable()
+		.filter((model) => model.input.includes("text"));
+}
+
+function modelKeyOf(model: { readonly provider: string; readonly id: string }): string {
+	return `${model.provider}/${model.id}`;
 }

@@ -2385,6 +2385,15 @@
     "description": "Saved global memories are listed here.",
     "empty": "No global memories yet. Use Generate memory in the session title bar More menu.",
     "loadError": "The memory file could not be read and was left unchanged.",
-    "loading": "Reading memories"
+    "loading": "Reading memories",
+    "readEnabled": "Use global memory in chat",
+    "readEnabledDescription": "When on, interactive chats include saved global memory starting with the next message. Turning it off stops that. Generating memories and this list stay available.",
+    "readEnabledAria": "Use global memory in chat",
+    "readEnabledTitle": "Applies on the next message",
+    "model": "Memory model",
+    "modelDescription": "When this is unset, generation uses the session's current model.",
+    "modelUnset": "Use the session model",
+    "modelInvalid": "The memory model setting could not be read and was left unchanged.",
+    "modelSaveError": "The memory model was not changed."
   }
 }

@@ -25,7 +25,7 @@ import { useBottomPanelToggle } from "@domains/bottom-panel/hooks/useBottomPanel
 import { useOpenTerminal } from "@domains/bottom-panel/hooks/useOpenTerminal";
 import { ChatHeaderActions } from "@vetta-org/theme-ui/chat";
 import { sessionMemoryElements } from "./memory/sessionMemoryElements";
-import { useMemoryReviewModel } from "./memory/useMemoryReviewModel";
+import { MemoryReviewStartProvider, useMemoryReviewModel } from "./memory/useMemoryReviewModel";
 import { BackgroundTasksBadge } from "./BackgroundTasksBadge";
 import { SandboxGrantsBadge } from "./SandboxGrantsBadge";
 import { ChatHeaderNewSessionButton } from "./chat-view/ChatHeaderNewSessionButton";
@@ -207,7 +207,7 @@ export function ChatView(props: ChatViewProps): JSX.Element {
 			surface={surface}
 		>
 			{surface === "conversation" ? (
-				<>
+				<MemoryReviewStartProvider start={memory.actions.start}>
 					<SessionFeed
 						workspace={workspace}
 						pendingLabel={model.pendingLabel}
@@ -218,7 +218,7 @@ export function ChatView(props: ChatViewProps): JSX.Element {
 					/>
 					{sessionMemoryElements(memory).panel}
 					<DefaultChatComposer {...props} workSurface={model.workSurface} />
-				</>
+				</MemoryReviewStartProvider>
 			) : null}
 		</DefaultChatView>
 	);
