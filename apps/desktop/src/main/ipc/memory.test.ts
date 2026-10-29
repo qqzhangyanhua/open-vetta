@@ -41,6 +41,8 @@ describe("memory preload/main contract", () => {
 			getProjectReadEnabled: vi.fn(async () => true),
 			setProjectReadEnabled: vi.fn(async (enabled: boolean) => enabled),
 			listProjects: vi.fn(async () => []),
+			updateEntry: vi.fn(async () => undefined),
+			deleteEntry: vi.fn(async () => undefined),
 			getModelOverride: vi.fn(async () => null),
 			setModelOverride: vi.fn(async () => undefined),
 			listModels: vi.fn(async () => [] as MemoryModelChoice[]),
@@ -132,6 +134,39 @@ describe("memory preload/main contract", () => {
 
 		teardown?.();
 		expect(bridge.handlers.size).toBe(0);
+	});
+
+	it("forwards an entry update and delete, and rejects an invalid entry before the service", async () => {
+		const updateEntry = vi.fn(async () => undefined);
+		const deleteEntry = vi.fn(async () => undefined);
+		const service = serviceWith({
+			listGlobal: vi.fn(async () => []),
+			generate: vi.fn(),
+			save: vi.fn(),
+			updateEntry,
+			deleteEntry,
+		});
+		const api = install(service);
+		const update = {
+			id: "11111111-1111-4111-8111-111111111111",
+			text: "住在苏州",
+			category: "family" as const,
+			scope: "project" as const,
+			projectPath: "/tmp/alpha",
+		};
+		await api.updateEntry(update);
+		expect(updateEntry).toHaveBeenCalledWith(update);
+		await expect(api.updateEntry({ ...update, id: "not-a-uuid" })).rejects.toThrow("memory:invalid-entry");
+		await expect(api.updateEntry({ ...update, text: "  " })).rejects.toThrow("memory:invalid-entry");
+		await expect(api.updateEntry({ ...update, scope: "project", projectPath: undefined })).rejects.toThrow(
+			"memory:invalid-entry",
+		);
+		expect(updateEntry).toHaveBeenCalledTimes(1);
+
+		await api.deleteEntry(update.id);
+		expect(deleteEntry).toHaveBeenCalledWith(update.id);
+		await expect(api.deleteEntry("not-a-uuid")).rejects.toThrow("memory:invalid-entry");
+		expect(deleteEntry).toHaveBeenCalledTimes(1);
 	});
 
 	it("forwards the read switch and rejects a non-boolean before the service", async () => {

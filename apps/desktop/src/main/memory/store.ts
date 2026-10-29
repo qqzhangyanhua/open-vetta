@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createVersionedJsonConfigStore, type VersionedJsonConfigStoreLogger } from "@vetta/toolkit/config-store";
 import { migrateVersionedConfig } from "@vetta/toolkit/versioned-config";
@@ -6,6 +7,7 @@ import {
 	type GlobalMemoryDocument,
 	MEMORY_GENERATION_SCHEMA_VERSION,
 	type MemoryGenerationDocument,
+	memoryGenerationCursors,
 	normalizeGlobalMemoryDocument,
 	normalizeMemoryGenerationDocument,
 	normalizeProjectMemoryDocument,
@@ -65,6 +67,28 @@ export function migrateMemoryGenerationDocument(value: unknown) {
 		currentVersion: MEMORY_GENERATION_SCHEMA_VERSION,
 		migrations: [],
 	});
+}
+
+/** Keeps cursors when the stored model key is illegal. The bad key is not returned. */
+export async function readMemoryGenerationCursorsIgnoringInvalidModel(
+	directory: string,
+): Promise<MemoryGenerationDocument> {
+	let raw: string;
+	try {
+		raw = await readFile(memoryGenerationFilePath(directory), "utf8");
+	} catch {
+		throw new Error("memory:store-rejected");
+	}
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(raw);
+	} catch {
+		throw new Error("memory:store-rejected");
+	}
+	return {
+		schemaVersion: MEMORY_GENERATION_SCHEMA_VERSION,
+		cursors: memoryGenerationCursors(parsed),
+	};
 }
 
 export function createMemoryGenerationStore(directory: string, logger?: VersionedJsonConfigStoreLogger) {

@@ -59,6 +59,15 @@ export interface SaveMemoryCandidate {
 	readonly replacesId?: string;
 }
 
+/** Settings-page edit. `projectPath` is required when `scope` is `project`. */
+export interface UpdateMemoryEntry {
+	readonly id: string;
+	readonly text: string;
+	readonly category: MemoryCategory;
+	readonly scope: MemoryScope;
+	readonly projectPath?: string;
+}
+
 export interface ProjectMemoryProject {
 	readonly path: string;
 	readonly kind: ProjectMemoryKind;
@@ -91,6 +100,8 @@ export interface DesktopMemoryApi {
 	listProjects: () => Promise<ProjectMemoryProject[]>;
 	generate: (runtimeId: string) => Promise<GenerateGlobalMemoryResult>;
 	save: (candidates: readonly SaveMemoryCandidate[]) => Promise<GlobalMemoryEntry[]>;
+	updateEntry: (input: UpdateMemoryEntry) => Promise<void>;
+	deleteEntry: (id: string) => Promise<void>;
 	getReadEnabled: () => Promise<boolean>;
 	setReadEnabled: (enabled: boolean) => Promise<boolean>;
 	getProjectReadEnabled: () => Promise<boolean>;
@@ -106,6 +117,8 @@ export const MEMORY_CHANNELS = {
 	LIST_GLOBAL: "memory:list-global",
 	GENERATE: "memory:generate",
 	SAVE: "memory:save",
+	UPDATE_ENTRY: "memory:update-entry",
+	DELETE_ENTRY: "memory:delete-entry",
 	LIST_PROJECTS: "memory:list-projects",
 	GET_READ_ENABLED: "memory:get-read-enabled",
 	SET_READ_ENABLED: "memory:set-read-enabled",

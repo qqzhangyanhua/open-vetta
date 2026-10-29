@@ -4,13 +4,18 @@ import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
 import { MEMORY_GENERATION_CURSOR_LIMIT } from "./schema.js";
-import type { MemoryModelRequest, MemorySessionSource } from "./service.js";
-import { DesktopMemoryService } from "./service.js";
+import { DesktopMemoryService, type MemoryModelRequest, type MemorySessionSource } from "./service.js";
 import { globalMemoryFilePath, memoryGenerationFilePath, projectMemoryFilePath } from "./store.js";
 import type { MemoryTranscriptEntry } from "./transcript.js";
 
 const readGate = vi.hoisted(() => ({
 	wait: undefined as undefined | (() => Promise<void>),
+}));
+const projectWriteGate = vi.hoisted(() => ({
+	error: undefined as Error | undefined,
+}));
+const globalWrites = vi.hoisted(() => ({
+	texts: [] as string[][],
 }));
 
 vi.mock("./store.js", async (importOriginal) => {
@@ -24,6 +29,20 @@ vi.mock("./store.js", async (importOriginal) => {
 				async read() {
 					await readGate.wait?.();
 					return store.read();
+				},
+				async write(document: Parameters<typeof store.write>[0]) {
+					globalWrites.texts.push(document.entries.map((entry) => entry.text));
+					return store.write(document);
+				},
+			};
+		},
+		createProjectMemoryStore(...args: Parameters<typeof original.createProjectMemoryStore>) {
+			const store = original.createProjectMemoryStore(...args);
+			return {
+				...store,
+				async write(document: Parameters<typeof store.write>[0]) {
+					if (projectWriteGate.error) throw projectWriteGate.error;
+					return store.write(document);
 				},
 			};
 		},
@@ -42,6 +61,8 @@ describe("desktop global memory service", () => {
 	const directories: string[] = [];
 	afterEach(async () => {
 		readGate.wait = undefined;
+		projectWriteGate.error = undefined;
+		globalWrites.texts.length = 0;
 		await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
 	});
 
@@ -1069,6 +1090,268 @@ describe("desktop global memory service", () => {
 		expect(await openService(directory).service.listProjects()).toEqual([
 			expect.objectContaining({ path: projectDir, entries: [projectPinned] }),
 		]);
+	});
+
+	it("edits text and category, moves an entry between global and project, and deletes it", async () => {
+		const { service, directory } = await createService(directories);
+		const saved = await service.save([{ text: "住在昆山", category: "location" }]);
+		const globalId = saved[0]?.id;
+		if (!globalId) throw new Error("missing id");
+		await service.setReadEnabled(false);
+		const projectId = IDS[1];
+		await writeFile(
+			projectMemoryFilePath(directory),
+			JSON.stringify({
+				schemaVersion: 1,
+				projectEnabled: false,
+				projects: [
+					{
+						path: "/tmp/alpha",
+						entries: [{ id: projectId, text: "这个仓库用 bun", category: "work", recordedAt: "2026-10-27" }],
+					},
+				],
+			}),
+		);
+
+		await service.updateEntry({ id: globalId, text: "住在苏州", category: "family", scope: "global" });
+		expect(await service.listGlobal()).toEqual([
+			{ id: globalId, text: "住在苏州", category: "family", recordedAt: "2026-10-28" },
+		]);
+		const edited = JSON.parse(await readFile(globalMemoryFilePath(directory), "utf8")) as {
+			globalEnabled: boolean;
+			entries: { text: string }[];
+		};
+		expect(edited.globalEnabled).toBe(false);
+		expect(edited.entries.map((entry) => entry.text)).toEqual(["住在苏州"]);
+
+		const beforeNoop = await readFile(globalMemoryFilePath(directory), "utf8");
+		await service.updateEntry({ id: globalId, text: "住在苏州", category: "family", scope: "global" });
+		expect(await readFile(globalMemoryFilePath(directory), "utf8")).toBe(beforeNoop);
+
+		await service.updateEntry({
+			id: globalId,
+			text: "住在苏州",
+			category: "family",
+			scope: "project",
+			projectPath: "/tmp/alpha",
+		});
+		expect(await service.listGlobal()).toEqual([]);
+		expect(await service.listProjects()).toEqual([
+			expect.objectContaining({
+				path: "/tmp/alpha",
+				kind: "local",
+				entries: [
+					expect.objectContaining({ id: projectId, text: "这个仓库用 bun", recordedAt: "2026-10-27" }),
+					expect.objectContaining({
+						id: globalId,
+						text: "住在苏州",
+						category: "family",
+						recordedAt: "2026-10-28",
+					}),
+				],
+			}),
+		]);
+		expect(JSON.parse(await readFile(projectMemoryFilePath(directory), "utf8")).projectEnabled).toBe(false);
+		expect(JSON.parse(await readFile(globalMemoryFilePath(directory), "utf8")).globalEnabled).toBe(false);
+
+		await service.updateEntry({ id: globalId, text: "改回全局", category: "location", scope: "global" });
+		expect(await service.listGlobal()).toEqual([
+			expect.objectContaining({ id: globalId, text: "改回全局", category: "location", recordedAt: "2026-10-28" }),
+		]);
+		expect((await service.listProjects())[0]?.entries).toEqual([
+			expect.objectContaining({ id: projectId, text: "这个仓库用 bun" }),
+		]);
+
+		await service.deleteEntry(globalId);
+		expect(await service.listGlobal()).toEqual([]);
+		await service.deleteEntry(projectId);
+		expect(await service.listProjects()).toEqual([]);
+		const projectFile = JSON.parse(await readFile(projectMemoryFilePath(directory), "utf8")) as {
+			projectEnabled: boolean;
+			projects: unknown[];
+		};
+		expect(projectFile.projectEnabled).toBe(false);
+		expect(projectFile.projects).toEqual([]);
+		expect(JSON.parse(await readFile(globalMemoryFilePath(directory), "utf8")).globalEnabled).toBe(false);
+	});
+
+	it("rejects a bad memory edit without writing, and leaves global memory unchanged when the project file cannot be read", async () => {
+		const { service, directory } = await createService(directories);
+		const saved = await service.save([{ text: "住在昆山", category: "location" }]);
+		const id = saved[0]?.id ?? "";
+		const before = await readFile(globalMemoryFilePath(directory), "utf8");
+		await expect(
+			service.updateEntry({
+				id: "99999999-9999-4999-8999-999999999999",
+				text: "不存在",
+				category: "other",
+				scope: "global",
+			}),
+		).rejects.toThrow("memory:entry-not-found");
+		await expect(
+			service.updateEntry({ id, text: "密码是 hunter2", category: "other", scope: "global" }),
+		).rejects.toThrow("memory:invalid-entry");
+		await expect(
+			service.updateEntry({ id, text: "住在苏州", category: "location", scope: "project" }),
+		).rejects.toThrow("memory:invalid-entry");
+		await expect(service.deleteEntry("not-a-uuid")).rejects.toThrow("memory:invalid-entry");
+		await expect(service.deleteEntry("99999999-9999-4999-8999-999999999999")).rejects.toThrow(
+			"memory:entry-not-found",
+		);
+		expect(await readFile(globalMemoryFilePath(directory), "utf8")).toBe(before);
+
+		await writeFile(
+			projectMemoryFilePath(directory),
+			JSON.stringify({
+				schemaVersion: 1,
+				projects: [
+					{
+						path: "/tmp/alpha",
+						entries: [{ id, text: "重复", category: "work", recordedAt: "2026-10-28" }],
+					},
+				],
+			}),
+		);
+		const globalWithEntry = await readFile(globalMemoryFilePath(directory), "utf8");
+		const projectWithDuplicate = await readFile(projectMemoryFilePath(directory), "utf8");
+		await expect(
+			service.updateEntry({ id, text: "住在苏州", category: "location", scope: "global" }),
+		).rejects.toThrow("memory:store-rejected");
+		expect(await readFile(globalMemoryFilePath(directory), "utf8")).toBe(globalWithEntry);
+		expect(await readFile(projectMemoryFilePath(directory), "utf8")).toBe(projectWithDuplicate);
+
+		await rm(projectMemoryFilePath(directory));
+		await mkdir(projectMemoryFilePath(directory));
+		await expect(
+			service.updateEntry({
+				id,
+				text: "住在昆山",
+				category: "location",
+				scope: "project",
+				projectPath: "/tmp/alpha",
+			}),
+		).rejects.toThrow();
+		expect(JSON.parse(await readFile(globalMemoryFilePath(directory), "utf8")).entries).toEqual([
+			expect.objectContaining({ text: "住在昆山" }),
+		]);
+	});
+
+	it("edits and deletes the readable memory file when the other file is corrupt", async () => {
+		const { service, directory } = await createService(directories);
+		const saved = await service.save([{ text: "住在昆山", category: "location" }]);
+		const id = saved[0]?.id ?? "";
+		const projectPath = projectMemoryFilePath(directory);
+		await writeFile(projectPath, "{not json");
+		const brokenProject = await readFile(projectPath, "utf8");
+
+		await expect(service.deleteEntry(IDS[4])).rejects.toThrow("memory:store-rejected");
+		expect((await service.listGlobal())[0]?.text).toBe("住在昆山");
+		expect(await readFile(projectPath, "utf8")).toBe(brokenProject);
+
+		await service.updateEntry({ id, text: "住在苏州", category: "family", scope: "global" });
+		expect(await service.listGlobal()).toEqual([
+			expect.objectContaining({ id, text: "住在苏州", category: "family", recordedAt: "2026-10-28" }),
+		]);
+		expect(await readFile(projectPath, "utf8")).toBe(brokenProject);
+		await expect(
+			service.updateEntry({
+				id,
+				text: "住在苏州",
+				category: "family",
+				scope: "project",
+				projectPath: "/tmp/alpha",
+			}),
+		).rejects.toThrow("memory:store-rejected");
+		expect(await readFile(projectPath, "utf8")).toBe(brokenProject);
+		expect((await service.listGlobal())[0]?.text).toBe("住在苏州");
+
+		await service.deleteEntry(id);
+		expect(await service.listGlobal()).toEqual([]);
+		expect(await readFile(projectPath, "utf8")).toBe(brokenProject);
+
+		const projectId = IDS[1];
+		await writeFile(globalMemoryFilePath(directory), "{not json");
+		await writeFile(
+			projectPath,
+			JSON.stringify({
+				schemaVersion: 1,
+				projects: [
+					{
+						path: "/tmp/alpha",
+						entries: [{ id: projectId, text: "这个仓库用 bun", category: "work", recordedAt: "2026-10-27" }],
+					},
+				],
+			}),
+		);
+		const brokenGlobal = await readFile(globalMemoryFilePath(directory), "utf8");
+		await service.updateEntry({
+			id: projectId,
+			text: "这个仓库用 cargo",
+			category: "preference",
+			scope: "project",
+			projectPath: "/tmp/beta",
+		});
+		expect(await service.listProjects()).toEqual([
+			expect.objectContaining({
+				path: "/tmp/beta",
+				entries: [
+					expect.objectContaining({
+						id: projectId,
+						text: "这个仓库用 cargo",
+						category: "preference",
+						recordedAt: "2026-10-27",
+					}),
+				],
+			}),
+		]);
+		expect(await readFile(globalMemoryFilePath(directory), "utf8")).toBe(brokenGlobal);
+		await expect(
+			service.updateEntry({ id: projectId, text: "改到全局", category: "work", scope: "global" }),
+		).rejects.toThrow("memory:store-rejected");
+		expect(await readFile(globalMemoryFilePath(directory), "utf8")).toBe(brokenGlobal);
+		await service.deleteEntry(projectId);
+		expect(await service.listProjects()).toEqual([]);
+		expect(await readFile(globalMemoryFilePath(directory), "utf8")).toBe(brokenGlobal);
+	});
+
+	it("writes the global file and puts those bytes back when the project file cannot be saved", async () => {
+		const { service, directory } = await createService(directories);
+		const saved = await service.save([{ text: "住在昆山", category: "location" }]);
+		const id = saved[0]?.id ?? "";
+		const projectPath = projectMemoryFilePath(directory);
+		await writeFile(
+			projectPath,
+			JSON.stringify({
+				schemaVersion: 1,
+				projects: [
+					{
+						path: "/tmp/alpha",
+						entries: [{ id: IDS[1], text: "这个仓库用 bun", category: "work", recordedAt: "2026-10-27" }],
+					},
+				],
+			}),
+		);
+		const globalBefore = await readFile(globalMemoryFilePath(directory), "utf8");
+		const projectBefore = await readFile(projectPath, "utf8");
+		const writesBefore = globalWrites.texts.length;
+		projectWriteGate.error = new Error("disk full");
+		try {
+			await expect(
+				service.updateEntry({
+					id,
+					text: "住在昆山",
+					category: "location",
+					scope: "project",
+					projectPath: "/tmp/alpha",
+				}),
+			).rejects.toThrow("disk full");
+		} finally {
+			projectWriteGate.error = undefined;
+		}
+		expect(globalWrites.texts.slice(writesBefore)).toEqual([[], ["住在昆山"]]);
+		expect(await readFile(globalMemoryFilePath(directory), "utf8")).toBe(globalBefore);
+		expect(await readFile(projectPath, "utf8")).toBe(projectBefore);
+		expect(await service.listGlobal()).toEqual([expect.objectContaining({ id, text: "住在昆山" })]);
 	});
 });
 

@@ -78,6 +78,8 @@ function ReviewHarness({ children }: { readonly children: ReactNode }): JSX.Elem
 			getModelOverride: async () => null,
 			setModelOverride: async () => undefined,
 			listModels: async () => [],
+			updateEntry: async () => undefined,
+			deleteEntry: async () => undefined,
 			setPinned: async (input) => ({
 				id: input.id,
 				text: "unused",

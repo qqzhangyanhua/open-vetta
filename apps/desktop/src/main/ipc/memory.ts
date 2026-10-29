@@ -8,8 +8,9 @@ import {
 	type MemoryModelChoice,
 	type ProjectMemoryProject,
 	type SetMemoryPinnedInput,
+	type UpdateMemoryEntry,
 } from "../../shared/memory.js";
-import { parseSaveMemoryCandidates } from "../memory/schema.js";
+import { parseDeleteMemoryEntryId, parseSaveMemoryCandidates, parseUpdateMemoryEntry } from "../memory/schema.js";
 import type { DesktopMemoryService } from "../memory/service.js";
 
 const runtimeIdSchema = z.string().trim().min(1).max(256);
@@ -21,6 +22,8 @@ export interface MemoryIpcService {
 	listProjects(): Promise<ProjectMemoryProject[]>;
 	generate(runtimeId: string): Promise<GenerateGlobalMemoryResult>;
 	save(candidates: unknown): Promise<GlobalMemoryEntry[]>;
+	updateEntry(input: UpdateMemoryEntry): Promise<void>;
+	deleteEntry(id: string): Promise<void>;
 	getReadEnabled(): Promise<boolean>;
 	setReadEnabled(enabled: boolean): Promise<boolean>;
 	getProjectReadEnabled(): Promise<boolean>;
@@ -46,6 +49,12 @@ export function registerMemoryIpc(service: MemoryIpcService | DesktopMemoryServi
 	);
 	ipcMain.handle(MEMORY_CHANNELS.SAVE, (_event, candidates: unknown) =>
 		service.save(parseSaveMemoryCandidates(candidates)),
+	);
+	ipcMain.handle(MEMORY_CHANNELS.UPDATE_ENTRY, (_event, input: unknown) =>
+		service.updateEntry(parseUpdateMemoryEntry(input)),
+	);
+	ipcMain.handle(MEMORY_CHANNELS.DELETE_ENTRY, (_event, id: unknown) =>
+		service.deleteEntry(parseDeleteMemoryEntryId(id)),
 	);
 	ipcMain.handle(MEMORY_CHANNELS.GET_READ_ENABLED, () => service.getReadEnabled());
 	ipcMain.handle(MEMORY_CHANNELS.SET_READ_ENABLED, (_event, enabled: unknown) =>

@@ -2409,6 +2409,27 @@
     "pin": "设为常驻",
     "unpin": "取消常驻",
     "pinAria": "设为常驻：{{text}}",
-    "unpinAria": "取消常驻：{{text}}"
+    "unpinAria": "取消常驻：{{text}}",
+    "categoryFilter": "筛选分类",
+    "categoryAll": "全部分类",
+    "categoryEmpty": "这个分类下没有记忆。",
+    "editEntry": "编辑「{{text}}」",
+    "deleteEntry": "删除「{{text}}」",
+    "editText": "记忆正文",
+    "editCategory": "分类",
+    "editScope": "范围",
+    "scopeToGlobal": "放到全局",
+    "scopeToProject": "放到项目",
+    "moveProject": "目标项目",
+    "noProjectTarget": "还没有可移入的项目。先在某个项目的会话里生成一条项目记忆。",
+    "saveEntry": "保存这条记忆",
+    "saveEntryTitle": "从下一条消息起生效",
+    "cancelEdit": "取消",
+    "entrySaveError": "没有改成这条记忆，已保持原样。",
+    "deleteConfirmTitle": "删除这条记忆？",
+    "deleteConfirmMessage": "删除后，所有会话从下一条消息起都不会再带上它。",
+    "deleteConfirm": "确认删除",
+    "cancelDelete": "取消",
+    "deleteError": "没有删除这条记忆，已保持原样。"
   }
 }

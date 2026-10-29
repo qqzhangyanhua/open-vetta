@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import type { VersionedJsonConfigStoreLogger } from "@vetta/toolkit/config-store";
 import {
 	type GenerateGlobalMemoryResult,
@@ -10,8 +9,10 @@ import {
 	type ProjectMemoryProject,
 	type SaveMemoryCandidate,
 	type SetMemoryPinnedInput,
+	type UpdateMemoryEntry,
 } from "../../shared/memory.js";
 import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
+import { deleteStoredMemoryEntry, type MemoryDocumentAccess, updateStoredMemoryEntry } from "./entry-edit.js";
 import { containsCredential, parseMemoryCandidateOutput, toReviewCandidates } from "./parse.js";
 import { memoryProjectPath } from "./project-path.js";
 import { buildMemoryCandidateUserPrompt, MEMORY_CANDIDATE_SYSTEM_PROMPT } from "./prompt.js";
@@ -20,9 +21,7 @@ import {
 	isGlobalMemoryReadEnabled,
 	isProjectMemoryReadEnabled,
 	MEMORY_GENERATION_CURSOR_LIMIT,
-	MEMORY_GENERATION_SCHEMA_VERSION,
 	type MemoryGenerationDocument,
-	memoryGenerationCursors,
 	type ProjectMemoryDocument,
 	parseMemoryModelOverride,
 	parseSaveMemoryCandidates,
@@ -41,7 +40,7 @@ import {
 	createGlobalMemoryStore,
 	createMemoryGenerationStore,
 	createProjectMemoryStore,
-	memoryGenerationFilePath,
+	readMemoryGenerationCursorsIgnoringInvalidModel,
 } from "./store.js";
 import { entriesAfterCursor, formatLocalDate, type MemoryTranscriptEntry } from "./transcript.js";
 
@@ -117,6 +116,14 @@ export class DesktopMemoryService {
 				kind: projectMemoryKindOf(project.path, DEFAULT_CONVERSATION_CWD),
 				entries: [...project.entries],
 			}));
+	}
+
+	updateEntry(input: UpdateMemoryEntry): Promise<void> {
+		return this.enqueueMutation(() => updateStoredMemoryEntry(this.memoryDocuments(), input));
+	}
+
+	deleteEntry(id: string): Promise<void> {
+		return this.enqueueMutation(() => deleteStoredMemoryEntry(this.memoryDocuments(), id));
 	}
 
 	async getProjectReadEnabled(): Promise<boolean> {
@@ -473,26 +480,15 @@ export class DesktopMemoryService {
 				throw error;
 			}
 		}
-		return this.readGenerationCursorsOnly();
+		return readMemoryGenerationCursorsIgnoringInvalidModel(this.dependencies.directory);
 	}
 
-	/** Keeps cursors when the stored model key is illegal. The bad key is not returned. */
-	private async readGenerationCursorsOnly(): Promise<MemoryGenerationDocument> {
-		let raw: string;
-		try {
-			raw = await readFile(memoryGenerationFilePath(this.dependencies.directory), "utf8");
-		} catch {
-			throw new Error("memory:store-rejected");
-		}
-		let parsed: unknown;
-		try {
-			parsed = JSON.parse(raw);
-		} catch {
-			throw new Error("memory:store-rejected");
-		}
+	private memoryDocuments(): MemoryDocumentAccess {
 		return {
-			schemaVersion: MEMORY_GENERATION_SCHEMA_VERSION,
-			cursors: memoryGenerationCursors(parsed),
+			readGlobal: () => this.readDocument(),
+			readProject: () => this.readProjectDocument(),
+			writeGlobal: (document) => this.store.write(document),
+			writeProject: (document) => this.projectStore.write(document),
 		};
 	}
 
