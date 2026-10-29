@@ -165,6 +165,7 @@
 		"export": "Export",
 		"exportTitle": "Export project (with session history)",
 		"newSession": "New session",
+		"openMemory": "View this project's memory",
 		"closeActivityPanel": "Close activity panel",
 		"openActivityPanel": "Open activity panel",
 		"sessionCount": "{{count}} sessions",

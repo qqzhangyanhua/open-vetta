@@ -4,6 +4,7 @@ import {
 	type GenerateGlobalMemoryResult,
 	type GlobalMemoryEntry,
 	type MemoryCandidate,
+	type MemoryKnownProject,
 	type MemoryModelChoice,
 	type MemoryScope,
 	memoryScopeOf,
@@ -11,6 +12,12 @@ import {
 	type SaveMemoryCandidate,
 } from "../../shared/memory.js";
 import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
+import {
+	deleteOrphanedProjectEntries,
+	knownProjectViews,
+	projectMemoryViews,
+	reattachOrphanedProjectEntries,
+} from "./orphan.js";
 import { containsCredential, parseMemoryCandidateOutput } from "./parse.js";
 import { memoryProjectPath } from "./project-path.js";
 import { buildMemoryCandidateUserPrompt, MEMORY_CANDIDATE_SYSTEM_PROMPT } from "./prompt.js";
@@ -23,9 +30,9 @@ import {
 	type MemoryGenerationDocument,
 	memoryGenerationCursors,
 	type ProjectMemoryDocument,
+	type ProjectMemoryRecord,
 	parseMemoryModelOverride,
 	parseSaveMemoryCandidates,
-	projectMemoryKindOf,
 } from "./schema.js";
 import { commitScopedMemorySave, touchesProjectMemory } from "./scoped-save.js";
 import { readProjectEntriesForGeneration } from "./session-read.js";
@@ -57,6 +64,11 @@ export interface DesktopMemoryServiceDependencies {
 	readonly source: (runtimeId: string) => MemorySessionSource;
 	readonly complete: (request: MemoryModelRequest) => Promise<string>;
 	readonly listModels: () => readonly MemoryModelChoice[];
+	/**
+	 * 缺省时不把记忆标成失联，删除和重新挂靠直接拒绝。
+	 * 空列表会把还在用的记忆变成可删的，所以不能在缺依赖时猜一份。
+	 */
+	readonly listKnownProjectPaths?: () => Promise<readonly string[]>;
 	readonly logger?: VersionedJsonConfigStoreLogger;
 }
 
@@ -102,13 +114,32 @@ export class DesktopMemoryService {
 
 	async listProjects(): Promise<ProjectMemoryProject[]> {
 		const document = await this.readProjectDocument();
-		return document.projects
-			.filter((project) => project.entries.length > 0)
-			.map((project) => ({
-				path: project.path,
-				kind: projectMemoryKindOf(project.path, DEFAULT_CONVERSATION_CWD),
-				entries: [...project.entries],
-			}));
+		return projectMemoryViews(document.projects, await this.knownProjectPathsOrNull(), DEFAULT_CONVERSATION_CWD);
+	}
+
+	async listKnownProjects(): Promise<readonly MemoryKnownProject[]> {
+		const known = await this.knownProjectPathsOrNull();
+		if (!known) return [];
+		return knownProjectViews(known, DEFAULT_CONVERSATION_CWD);
+	}
+
+	async deleteOrphanedProjectMemory(input: {
+		readonly path: string;
+		readonly entryId?: string;
+	}): Promise<ProjectMemoryProject[]> {
+		return this.mutateOrphaned((projects, known) =>
+			deleteOrphanedProjectEntries(projects, input.path, input.entryId, known),
+		);
+	}
+
+	async reattachOrphanedProjectMemory(input: {
+		readonly path: string;
+		readonly targetPath: string;
+		readonly entryId?: string;
+	}): Promise<ProjectMemoryProject[]> {
+		return this.mutateOrphaned((projects, known) =>
+			reattachOrphanedProjectEntries(projects, input.path, input.targetPath, input.entryId, known),
+		);
 	}
 
 	async getProjectReadEnabled(): Promise<boolean> {
@@ -451,6 +482,35 @@ export class DesktopMemoryService {
 			schemaVersion: MEMORY_GENERATION_SCHEMA_VERSION,
 			cursors: memoryGenerationCursors(parsed),
 		};
+	}
+
+	private async mutateOrphaned(
+		update: (projects: readonly ProjectMemoryRecord[], known: readonly string[]) => readonly ProjectMemoryRecord[],
+	): Promise<ProjectMemoryProject[]> {
+		return this.enqueueMutation(async () => {
+			const known = await this.knownProjectPaths();
+			const document = await this.readProjectDocument();
+			const projects = update(document.projects, known);
+			await this.projectStore.write({
+				schemaVersion: document.schemaVersion,
+				projects,
+				...(document.projectEnabled === undefined ? {} : { projectEnabled: document.projectEnabled }),
+			});
+			return projectMemoryViews(projects, known, DEFAULT_CONVERSATION_CWD);
+		});
+	}
+
+	/** 抛错原样传出。读失败当成空列表会把全部项目记忆标成失联。 */
+	private async knownProjectPaths(): Promise<readonly string[]> {
+		const known = await this.knownProjectPathsOrNull();
+		if (!known) throw new Error("memory:project-list-unavailable");
+		return known;
+	}
+
+	private async knownProjectPathsOrNull(): Promise<readonly string[] | null> {
+		const list = this.dependencies.listKnownProjectPaths;
+		if (!list) return null;
+		return list();
 	}
 
 	/** A corrupt project file leaves global generation usable. Project facts are omitted. */

@@ -78,6 +78,9 @@ function ReviewHarness({ children }: { readonly children: ReactNode }): JSX.Elem
 			getModelOverride: async () => null,
 			setModelOverride: async () => undefined,
 			listModels: async () => [],
+			listKnownProjects: async () => [],
+			deleteOrphanedProjectMemory: async () => [],
+			reattachOrphanedProjectMemory: async () => [],
 		}),
 		[],
 	);

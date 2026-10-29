@@ -39,6 +39,9 @@ describe("memory preload/main contract", () => {
 			getModelOverride: vi.fn(async () => null),
 			setModelOverride: vi.fn(async () => undefined),
 			listModels: vi.fn(async () => [] as MemoryModelChoice[]),
+			listKnownProjects: vi.fn(async () => []),
+			deleteOrphanedProjectMemory: vi.fn(async () => []),
+			reattachOrphanedProjectMemory: vi.fn(async () => []),
 			...overrides,
 		};
 	}
@@ -124,5 +127,52 @@ describe("memory preload/main contract", () => {
 		expect(service.setReadEnabled).toHaveBeenCalledWith(false);
 		await expect(api.setReadEnabled("no" as unknown as boolean)).rejects.toThrow();
 		expect(service.setReadEnabled).toHaveBeenCalledTimes(1);
+	});
+
+	it("forwards orphan delete and reattach, and rejects a bad payload before the service", async () => {
+		const projects = [
+			{
+				path: "/tmp/gone",
+				kind: "local" as const,
+				orphaned: true,
+				entries: [],
+			},
+		];
+		const deleteOrphanedProjectMemory = vi.fn(async () => projects);
+		const reattachOrphanedProjectMemory = vi.fn(async () => projects);
+		const listKnownProjects = vi.fn(async () => [{ path: "/tmp/live", kind: "local" as const }]);
+		const service = serviceWith({
+			listGlobal: vi.fn(async () => []),
+			generate: vi.fn(),
+			save: vi.fn(),
+			listKnownProjects,
+			deleteOrphanedProjectMemory,
+			reattachOrphanedProjectMemory,
+		});
+		const api = install(service);
+		const entryId = "11111111-1111-4111-8111-111111111111";
+
+		expect(await api.listKnownProjects()).toEqual([{ path: "/tmp/live", kind: "local" }]);
+		expect(await api.deleteOrphanedProjectMemory({ path: "/tmp/gone" })).toEqual(projects);
+		expect(deleteOrphanedProjectMemory).toHaveBeenCalledWith({ path: "/tmp/gone" });
+		expect(await api.deleteOrphanedProjectMemory({ path: " /tmp/gone ", entryId })).toEqual(projects);
+		expect(deleteOrphanedProjectMemory).toHaveBeenLastCalledWith({ path: "/tmp/gone", entryId });
+		await expect(api.deleteOrphanedProjectMemory({ path: "  " })).rejects.toThrow("memory:store-rejected");
+		await expect(api.deleteOrphanedProjectMemory({ path: "/tmp/gone", entryId: "nope" })).rejects.toThrow(
+			"memory:store-rejected",
+		);
+		expect(deleteOrphanedProjectMemory).toHaveBeenCalledTimes(2);
+
+		expect(await api.reattachOrphanedProjectMemory({ path: "/tmp/gone", targetPath: "/tmp/live", entryId })).toEqual(
+			projects,
+		);
+		expect(reattachOrphanedProjectMemory).toHaveBeenCalledWith({
+			path: "/tmp/gone",
+			targetPath: "/tmp/live",
+			entryId,
+		});
+		const reattachUnknown = api.reattachOrphanedProjectMemory as (value: unknown) => Promise<unknown>;
+		await expect(reattachUnknown({ path: "/tmp/gone" })).rejects.toThrow("memory:store-rejected");
+		expect(reattachOrphanedProjectMemory).toHaveBeenCalledTimes(1);
 	});
 });

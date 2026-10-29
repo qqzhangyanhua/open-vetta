@@ -25,6 +25,7 @@ function renderView(overrides: Partial<ProjectDetailPageViewProps> = {}) {
 		previewMode: "Preview", editMode: "Edit",
 		emptyFileTitle: "No file yet", emptyFileHint: "Start writing",
 		startEditing: "Start writing",
+		openMemory: "View memory",
 	};
 	const props: ProjectDetailPageViewProps = {
 		activityOpen: false, activityPanel: null, batchSection: null, activeDocument: "AGENTS.md",
@@ -62,6 +63,14 @@ describe("Project detail", () => {
 		const editor = container.querySelector<HTMLTextAreaElement>('textarea[aria-label="AGENTS.md"]');
 		expect(editor?.value).toBe("Project instructions");
 		expect(container.textContent).toContain("1 running session");
+	});
+
+	it("opens this project's memory from the title", () => {
+		const onOpenMemory = vi.fn();
+		renderView({ onOpenMemory });
+		const button = [...container.querySelectorAll("button")].find((item) => item.textContent?.includes("View memory"));
+		act(() => button?.click());
+		expect(onOpenMemory).toHaveBeenCalledOnce();
 	});
 
 	it("hides the recent sessions block completely when there are no sessions", () => {

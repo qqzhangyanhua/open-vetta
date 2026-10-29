@@ -2405,6 +2405,21 @@
     "modelDescription": "不指定时，用这条会话当前的模型。",
     "modelUnset": "使用会话当前模型",
     "modelInvalid": "记忆模型设置无法读取，已保持原样。",
-    "modelSaveError": "没有改成这个模型，设置保持原样。"
+    "modelSaveError": "没有改成这个模型，设置保持原样。",
+    "orphanedGroup": "项目已不存在",
+    "deleteEntry": "删除这条记忆",
+    "deleteEntryOf": "删除这条记忆：{{text}}",
+    "deleteEntryTitle": "删除这条记忆",
+    "deleteEntryMessage": "删除后，这条记忆不会再进入任何对话。",
+    "deleteGroup": "删除这组记忆",
+    "deleteGroupOf": "删除这组记忆：{{path}}",
+    "deleteGroupTitle": "删除这组记忆",
+    "deleteGroupMessage": "删除 {{path}} 下的全部项目记忆。删除后不会再进入任何对话。",
+    "reattach": "重新挂靠",
+    "reattachEntry": "挂靠这条",
+    "reattachOf": "重新挂靠这组记忆：{{path}}",
+    "reattachEntryOf": "把这条记忆挂到所选项目：{{text}}",
+    "reattachTargetOf": "把这组记忆挂到的项目：{{path}}",
+    "orphanActionError": "这次没有改成，项目记忆保持原样。"
   }
 }

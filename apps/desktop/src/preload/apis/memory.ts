@@ -16,6 +16,9 @@ export function createMemoryApi(ipc: IpcRenderer): Pick<DesktopApi, "memory"> {
 			getModelOverride: () => ipc.invoke(MEMORY_CHANNELS.GET_MODEL_OVERRIDE),
 			setModelOverride: (modelKey) => ipc.invoke(MEMORY_CHANNELS.SET_MODEL_OVERRIDE, modelKey),
 			listModels: () => ipc.invoke(MEMORY_CHANNELS.LIST_MODELS),
+			listKnownProjects: () => ipc.invoke(MEMORY_CHANNELS.LIST_KNOWN_PROJECTS),
+			deleteOrphanedProjectMemory: (input) => ipc.invoke(MEMORY_CHANNELS.DELETE_ORPHANED, input),
+			reattachOrphanedProjectMemory: (input) => ipc.invoke(MEMORY_CHANNELS.REATTACH_ORPHANED, input),
 		},
 	};
 }
