@@ -3,7 +3,6 @@ import type { VersionedJsonConfigStoreLogger } from "@vetta/toolkit/config-store
 import {
 	type GenerateGlobalMemoryResult,
 	type GlobalMemoryEntry,
-	type MemoryCandidate,
 	type MemoryModelChoice,
 	type MemoryScope,
 	memoryScopeOf,
@@ -11,7 +10,7 @@ import {
 	type SaveMemoryCandidate,
 } from "../../shared/memory.js";
 import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
-import { containsCredential, parseMemoryCandidateOutput } from "./parse.js";
+import { containsCredential, parseMemoryCandidateOutput, toReviewCandidates } from "./parse.js";
 import { memoryProjectPath } from "./project-path.js";
 import { buildMemoryCandidateUserPrompt, MEMORY_CANDIDATE_SYSTEM_PROMPT } from "./prompt.js";
 import {
@@ -27,7 +26,14 @@ import {
 	parseSaveMemoryCandidates,
 	projectMemoryKindOf,
 } from "./schema.js";
-import { commitScopedMemorySave, touchesProjectMemory } from "./scoped-save.js";
+import {
+	classifyMemorySaveCandidates,
+	commitScopedMemorySave,
+	mergeReviewedGlobalEntries,
+	replacementsNeedProjectFile,
+	resolveMemoryReplacements,
+	touchesProjectMemory,
+} from "./scoped-save.js";
 import { readProjectEntriesForGeneration } from "./session-read.js";
 import {
 	createGlobalMemoryStore,
@@ -183,40 +189,35 @@ export class DesktopMemoryService {
 		);
 		const transcript = slice.map((entry) => entry.text).join("\n\n");
 		if (!transcript.trim()) return { status: "empty" };
+		const existing = [
+			...document.entries.map((entry) => ({
+				id: entry.id,
+				text: entry.text,
+				category: entry.category,
+				scope: "global" as const,
+			})),
+			...(projectEntries ?? []).map((entry) => ({
+				id: entry.id,
+				text: entry.text,
+				category: entry.category,
+				scope: "project" as const,
+			})),
+		];
 		let text: string;
 		try {
 			text = await this.dependencies.complete({
 				modelKey,
 				system: MEMORY_CANDIDATE_SYSTEM_PROMPT,
-				user: buildMemoryCandidateUserPrompt({
-					transcript,
-					existing: [
-						...document.entries.map((entry) => ({
-							text: entry.text,
-							category: entry.category,
-							scope: "global" as const,
-						})),
-						...(projectEntries ?? []).map((entry) => ({
-							text: entry.text,
-							category: entry.category,
-							scope: "project" as const,
-						})),
-					],
-				}),
+				user: buildMemoryCandidateUserPrompt({ transcript, existing }),
 				signal: AbortSignal.timeout(120_000),
 			});
 		} catch (error) {
 			if (error instanceof Error && error.message.startsWith("memory:")) throw error;
 			throw new Error("memory:generation-failed");
 		}
-		const parsed = parseMemoryCandidateOutput(text);
-		if (parsed.length === 0) return { status: "empty" };
-		const candidates: MemoryCandidate[] = parsed.map((candidate) => ({
-			id: this.dependencies.createId(),
-			text: candidate.text,
-			category: candidate.category,
-			scope: candidate.scope,
-		}));
+		const parsed = parseMemoryCandidateOutput(text, existing);
+		const candidates = toReviewCandidates(parsed, existing, () => this.dependencies.createId());
+		if (candidates.length === 0) return { status: "empty" };
 		const last = slice.at(-1);
 		if (last) {
 			const cursor = { runtimeId, entryId: last.id, projectPath };
@@ -240,35 +241,35 @@ export class DesktopMemoryService {
 			if (parsed.some((candidate) => containsCredential(candidate.text))) {
 				throw new Error("memory:invalid-candidates");
 			}
-			const additions: SaveMemoryCandidate[] = [];
-			const updates = new Map<string, SaveMemoryCandidate>();
-			for (const candidate of parsed) {
-				const saved = candidate.id ? this.savedCandidates.get(candidate.id) : undefined;
-				if (!saved) {
-					additions.push(candidate);
-					continue;
-				}
-				if (
-					saved.text !== candidate.text ||
-					saved.category !== candidate.category ||
-					saved.scope !== memoryScopeOf(candidate)
-				) {
-					updates.set(saved.entryId, candidate);
-				}
+			const { additions, updates, replacements } = classifyMemorySaveCandidates(parsed, this.savedCandidates);
+			const globalIds = new Set(document.entries.map((entry) => entry.id));
+			const savedScope = (candidate: SaveMemoryCandidate) =>
+				candidate.id ? this.savedCandidates.get(candidate.id)?.scope : undefined;
+			const projectPath = cursor?.projectPath;
+			let resolved = replacements;
+			let projectDocument: ProjectMemoryDocument | undefined;
+			if (replacementsNeedProjectFile(replacements, globalIds)) {
+				if (projectPath) {
+					projectDocument = await this.readProjectDocument();
+					const projectIds = new Set(
+						projectDocument.projects
+							.find((project) => project.path === projectPath)
+							?.entries.map((entry) => entry.id) ?? [],
+					);
+					resolved = resolveMemoryReplacements({ replacements, globalIds, projectIds });
+				} else resolved = resolveMemoryReplacements({ replacements, globalIds, projectIds: null });
 			}
-			if (additions.length === 0 && updates.size === 0) {
+			if (additions.length === 0 && updates.size === 0 && resolved.size === 0) {
 				await this.commitCursor(cursor);
 				this.forgetSaved(parsed);
 				return [...document.entries];
 			}
 			if (
-				touchesProjectMemory(additions, updates, parsed, (candidate) =>
-					candidate.id ? this.savedCandidates.get(candidate.id)?.scope : undefined,
-				)
+				touchesProjectMemory(additions, updates, parsed, savedScope) ||
+				replacementsNeedProjectFile(resolved, globalIds)
 			) {
-				const projectPath = cursor?.projectPath;
 				if (!projectPath) throw new Error("memory:invalid-candidates");
-				const projectDocument = await this.readProjectDocument();
+				projectDocument ??= await this.readProjectDocument();
 				const savedScopeByEntryId = new Map<string, MemoryScope>();
 				for (const saved of this.savedCandidates.values()) {
 					if (saved.cursor === cursor) savedScopeByEntryId.set(saved.entryId, saved.scope);
@@ -278,6 +279,7 @@ export class DesktopMemoryService {
 					projectDocument,
 					additions,
 					updates,
+					replacements: resolved,
 					savedScopeByEntryId,
 					projectPath,
 					recordedAt: formatLocalDate(this.dependencies.now()),
@@ -289,29 +291,30 @@ export class DesktopMemoryService {
 					forget: () => this.forgetSaved(parsed),
 				});
 			}
-			if ([...updates.keys()].some((entryId) => !document.entries.some((entry) => entry.id === entryId))) {
+			if ([...updates.keys()].some((entryId) => !globalIds.has(entryId))) {
 				throw new Error("memory:store-rejected");
 			}
 			const recordedAt = formatLocalDate(this.dependencies.now());
-			const added: GlobalMemoryEntry[] = additions.map((candidate) => ({
-				id: this.dependencies.createId(),
-				text: candidate.text,
-				category: candidate.category,
+			const merged = mergeReviewedGlobalEntries({
+				entries: document.entries,
+				additions,
+				updates,
+				replacements: resolved,
 				recordedAt,
-			}));
+				createId: () => this.dependencies.createId(),
+			});
 			const next: GlobalMemoryDocument = {
 				schemaVersion: document.schemaVersion,
-				entries: [
-					...document.entries.map((entry) => {
-						const update = updates.get(entry.id);
-						return update ? { ...entry, text: update.text, category: update.category } : entry;
-					}),
-					...added,
-				],
+				entries: merged.entries,
 				...(document.globalEnabled === undefined ? {} : { globalEnabled: document.globalEnabled }),
 			};
 			await this.store.write(next);
-			this.rememberSaved(additions, added, parsed, cursor);
+			this.rememberSaved(
+				[...additions, ...merged.replaced.map((item) => item.candidate)],
+				[...merged.added, ...merged.replaced.map((item) => item.entry)],
+				parsed,
+				cursor,
+			);
 			await this.commitCursor(cursor);
 			this.forgetSaved(parsed);
 			return [...next.entries];

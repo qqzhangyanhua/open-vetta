@@ -27,6 +27,10 @@ export interface MemoryCandidate {
 	readonly category: MemoryCategory;
 	/** Model suggestion. The user can change it before save. */
 	readonly scope: MemoryScope;
+	/** Set when saving replaces this existing entry instead of adding one. */
+	readonly replacesId?: string;
+	/** Entry text at generation time, shown as the old side of old → new. */
+	readonly previousText?: string;
 }
 
 export interface SaveMemoryCandidate {
@@ -36,6 +40,8 @@ export interface SaveMemoryCandidate {
 	readonly category: MemoryCategory;
 	/** Omitted means global, so older save payloads stay global. */
 	readonly scope?: MemoryScope;
+	/** Existing entry to replace. Omitted means add. An unknown id is dropped, not inserted. */
+	readonly replacesId?: string;
 }
 
 export interface ProjectMemoryProject {

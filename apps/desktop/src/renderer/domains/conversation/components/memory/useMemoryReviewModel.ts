@@ -28,6 +28,8 @@ export interface MemoryDraft {
 	readonly category: MemoryCategory;
 	readonly scope: MemoryScope;
 	readonly selected: boolean;
+	readonly replacesId?: string;
+	readonly previousText?: string;
 }
 
 export interface MemoryReviewModel {
@@ -48,6 +50,7 @@ export interface MemoryReviewModel {
 		readonly category: string;
 		readonly scope: string;
 		readonly discardHint: string;
+		readonly updateContrast: (previous: string, next: string) => string;
 		readonly categories: Record<MemoryCategory, string>;
 		readonly scopes: Record<MemoryScope, string>;
 	};
@@ -159,7 +162,13 @@ export function useMemoryReviewModel(runtimeId: string | null, client: DesktopMe
 		const generation = generationRef.current;
 		const selected: SaveMemoryCandidate[] = drafts
 			.filter((draft) => draft.selected && draft.text.trim())
-			.map((draft) => ({ id: draft.id, text: draft.text.trim(), category: draft.category, scope: draft.scope }));
+			.map((draft) => ({
+				id: draft.id,
+				text: draft.text.trim(),
+				category: draft.category,
+				scope: draft.scope,
+				...(draft.replacesId ? { replacesId: draft.replacesId } : {}),
+			}));
 		setPhase("saving");
 		setErrorCode(null);
 		try {
@@ -202,6 +211,7 @@ export function useMemoryReviewModel(runtimeId: string | null, client: DesktopMe
 			category: t("memoryReview.category"),
 			scope: t("memoryReview.scope"),
 			discardHint: t("memoryReview.discardHint"),
+			updateContrast: (previous, next) => t("memoryReview.updateContrast", { previous, next }),
 			categories: memoryCategoryLabels(t),
 			scopes: { global: t("memoryReview.scopes.global"), project: t("memoryReview.scopes.project") },
 		},

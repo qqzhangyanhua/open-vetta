@@ -307,4 +307,55 @@ describe("会话记忆审阅", () => {
 			expect(screen.queryByRole("region", { name: "审阅记忆" })).toBeNull();
 		});
 	});
+
+	it("更新候选对照旧内容和新内容，保存时替换原条目", async () => {
+		const user = userEvent.setup();
+		const replacesId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+		const save = vi.fn(async (_candidates: readonly SaveMemoryCandidate[]) => []);
+		render(
+			<Harness
+				runtimeId="runtime-1"
+				client={reviewClient({
+					generate: vi.fn(async (): Promise<GenerateGlobalMemoryResult> => ({
+						status: "candidates",
+						candidates: [
+							{
+								...CANDIDATE,
+								text: "搬到上海",
+								replacesId,
+								previousText: "住在昆山",
+							},
+							{
+								...CANDIDATE,
+								id: "22222222-2222-4222-8222-222222222222",
+								text: "喜欢喝茶",
+								category: "preference",
+							},
+						],
+					})),
+					save,
+				})}
+			/>,
+		);
+		await openMenu(user);
+		expect(await screen.findByText("旧 住在昆山 → 新 搬到上海")).toBeTruthy();
+		expect(screen.getAllByText(/^旧 /)).toHaveLength(1);
+		expect(screen.getByRole("checkbox", { name: "喜欢喝茶" })).toBeTruthy();
+		const boxes = screen.getAllByRole("textbox");
+		await user.clear(boxes[0]!);
+		await user.type(boxes[0]!, "搬到上海市");
+		expect(screen.getByText("旧 住在昆山 → 新 搬到上海市")).toBeTruthy();
+		await user.click(screen.getByRole("button", { name: "保存" }));
+		await waitFor(() => {
+			expect(save).toHaveBeenCalledWith([
+				{ id: CANDIDATE.id, text: "搬到上海市", category: "location", scope: "global", replacesId },
+				{
+					id: "22222222-2222-4222-8222-222222222222",
+					text: "喜欢喝茶",
+					category: "preference",
+					scope: "global",
+				},
+			]);
+		});
+	});
 });

@@ -105,6 +105,11 @@ export function MemoryReviewPanelView({ model }: { readonly model: MemoryReviewM
 										{labels.categories[draft.category]}
 									</span>
 								</div>
+								{draft.previousText ? (
+									<p className="mb-2 text-[12px] text-muted-foreground">
+										{labels.updateContrast(draft.previousText, draft.text)}
+									</p>
+								) : null}
 								<Textarea
 									value={draft.text}
 									aria-label={draft.text}

@@ -50,6 +50,7 @@ export const saveMemoryCandidatesSchema = z.object({
 				text: z.string().trim().min(1).max(2_000),
 				category: memoryCategorySchema,
 				scope: z.enum(MEMORY_SCOPES).optional(),
+				replacesId: z.uuid().optional(),
 			}),
 		)
 		.max(50),

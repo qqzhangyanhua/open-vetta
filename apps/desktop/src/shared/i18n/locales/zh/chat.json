@@ -465,6 +465,7 @@
 		"category": "分类",
 		"scope": "范围",
 		"discardHint": "没保存就关闭，这些候选会被丢掉。",
+		"updateContrast": "旧 {{previous}} → 新 {{next}}",
 		"sessionUnavailable": "当前会话不可用，没有写入任何内容",
 		"modelUnavailable": "当前会话没有可用模型，没有写入任何内容",
 		"storeRejected": "记忆文件无法读取，已保持原样",
