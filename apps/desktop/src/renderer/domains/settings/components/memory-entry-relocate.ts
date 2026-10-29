@@ -60,7 +60,7 @@ export function relocateMemoryEntry(
 		placed = true;
 		return { ...project, entries: [...project.entries, moved] };
 	});
-	if (!placed) placedProjects.push({ path: targetPath, kind: "local", entries: [moved] });
+	if (!placed) placedProjects.push({ path: targetPath, kind: "local", orphaned: false, entries: [moved] });
 	return { entries: global, projects: placedProjects.filter((project) => project.entries.length > 0) };
 }
 

@@ -184,6 +184,7 @@ export function useSettingsPageModel(): SettingsPageModel {
 		},
 		tabs,
 		title: t("title"),
+		memoryProjectPath: typeof search.memoryProject === "string" ? search.memoryProject : undefined,
 	};
 }
 

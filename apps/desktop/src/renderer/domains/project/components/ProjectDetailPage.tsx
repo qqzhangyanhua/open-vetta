@@ -62,6 +62,7 @@ function ProjectDetailPageContent(): JSX.Element {
 			onNewSession={model.onNewSession}
 			onSave={model.onSave}
 			onShowInFolder={model.onShowInFolder}
+			onOpenMemory={model.onOpenMemory}
 			onToggleActivity={model.onToggleActivity}
 			projectTypeLabel={model.projectTypeLabel}
 			saveStatus={model.saveStatus}

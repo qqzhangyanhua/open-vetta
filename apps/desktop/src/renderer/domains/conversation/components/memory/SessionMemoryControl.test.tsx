@@ -61,6 +61,9 @@ function reviewClient(client: Pick<DesktopMemoryApi, "generate" | "save">): Desk
 			category: "other",
 			recordedAt: "2026-10-28",
 		}),
+		listKnownProjects: async () => [],
+		deleteOrphanedProjectMemory: async () => [],
+		reattachOrphanedProjectMemory: async () => [],
 	};
 }
 

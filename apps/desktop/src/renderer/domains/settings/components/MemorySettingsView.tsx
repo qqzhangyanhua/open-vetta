@@ -8,7 +8,7 @@ import {
 	type GlobalMemoryEntry,
 	type MemoryCategory,
 	type MemoryScope,
-	type ProjectMemoryProject,
+	type ProjectMemoryKind,
 } from "@/shared/memory";
 import { SETTINGS_SECTION } from "../registry";
 import type { MemoryEntryDraft, MemorySettingsModel } from "./useMemorySettingsModel";
@@ -155,22 +155,128 @@ function MemoryEntryList({ model }: { readonly model: MemorySettingsModel }): JS
 			</p>
 		);
 	}
-	if (model.scopeEntryCount === 0) {
-		return (
-			<p className="px-5 py-4 text-[13px] text-muted-foreground">
-				{model.scope === "project" ? model.labels.projectEmpty : model.labels.empty}
-			</p>
-		);
-	}
-	if (model.entries.length === 0) {
-		return <p className="px-5 py-4 text-[13px] text-muted-foreground">{model.labels.categoryEmpty}</p>;
-	}
+	const showEmpty =
+		model.scopeEntryCount === 0 && (model.scope === "global" || model.orphanedProjects.length === 0);
+	const showCategoryEmpty = model.scopeEntryCount > 0 && model.entries.length === 0;
 	return (
-		<ul className="m-0 list-none p-0">
-			{model.entries.map((entry) => (
-				<MemoryEntryRow key={entry.id} model={model} entry={entry} />
+		<>
+			{showEmpty ? (
+				<p className="px-5 py-4 text-[13px] text-muted-foreground">
+					{model.scope === "project" ? model.labels.projectEmpty : model.labels.empty}
+				</p>
+			) : null}
+			{showCategoryEmpty ? (
+				<p className="px-5 py-4 text-[13px] text-muted-foreground">{model.labels.categoryEmpty}</p>
+			) : null}
+			{model.entries.length > 0 ? (
+				<ul className="m-0 list-none p-0">
+					{model.entries.map((entry) => (
+						<MemoryEntryRow key={entry.id} model={model} entry={entry} />
+					))}
+				</ul>
+			) : null}
+			{model.scope === "project" ? <OrphanedMemoryGroups model={model} /> : null}
+		</>
+	);
+}
+
+function OrphanedMemoryGroups({ model }: { readonly model: MemorySettingsModel }): JSX.Element | null {
+	if (model.orphanedProjects.length === 0) return null;
+	const canReattach = model.knownProjects.length > 0;
+	return (
+		<section>
+			<h3 className="px-5 pt-4 text-[13px] text-foreground">{model.labels.orphanedGroup}</h3>
+			{model.orphanedProjects.map((project) => (
+				<div key={project.path} className="border-t border-border">
+					<div className="flex flex-wrap items-center gap-2 px-5 pt-4">
+						<p className="min-w-0 flex-1 truncate font-mono text-[12px] text-muted-foreground" title={project.path}>
+							{project.path}
+						</p>
+						<Button
+							type="button"
+							variant="destructive"
+							size="sm"
+							disabled={model.orphanBusy}
+							aria-label={model.labels.deleteGroupOf(project.path)}
+							onClick={() => model.actions.deleteOrphanedGroup(project.path)}
+						>
+							{model.labels.deleteGroup}
+						</Button>
+						{canReattach ? (
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								disabled={model.orphanBusy}
+								aria-label={model.labels.reattachOf(project.path)}
+								onClick={() => model.actions.reattachOrphaned(project.path)}
+							>
+								{model.labels.reattach}
+							</Button>
+						) : null}
+					</div>
+					{canReattach ? (
+						<div className="px-5 pt-2">
+							<MotionSelect
+								aria-label={model.labels.reattachTargetOf(project.path)}
+								value={model.reattachTarget(project.path)}
+								disabled={model.orphanBusy}
+								onValueChange={(value) => model.actions.setReattachTarget(project.path, value)}
+								options={model.knownProjects.map((known) => ({
+									value: known.path,
+									label: projectOptionLabel(known, model.labels.conversationProject),
+								}))}
+								triggerClassName="h-8 min-w-[220px] max-w-full"
+							/>
+						</div>
+					) : null}
+					<ul className="m-0 list-none p-0">
+						{project.entries.map((entry) => (
+							<li key={entry.id} className="border-b border-border px-5 py-4 last:border-b-0">
+								<div className="mb-2 flex items-center gap-2">
+									<time dateTime={entry.recordedAt} className="text-[12px] text-muted-foreground">
+										{entry.recordedAt}
+									</time>
+									<span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[12px] text-primary">
+										{model.labels.categories[entry.category]}
+									</span>
+								</div>
+								<p className="whitespace-pre-wrap text-[13px] text-foreground">{entry.text}</p>
+								<div className="mt-2 flex flex-wrap gap-2">
+									<Button
+										type="button"
+										variant="destructive"
+										size="sm"
+										disabled={model.orphanBusy}
+										aria-label={model.labels.deleteEntryOf(entry.text)}
+										onClick={() => model.actions.deleteOrphanedEntry(project.path, entry.id)}
+									>
+										{model.labels.orphanDeleteEntry}
+									</Button>
+									{canReattach ? (
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											disabled={model.orphanBusy}
+											aria-label={model.labels.reattachEntryOf(entry.text)}
+											onClick={() => model.actions.reattachOrphaned(project.path, entry.id)}
+										>
+											{model.labels.reattachEntry}
+										</Button>
+									) : null}
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
 			))}
-		</ul>
+			{model.orphanActionError ? (
+				<p role="alert" className="px-5 py-3 text-[13px] text-foreground">
+					{model.labels.orphanActionError}
+				</p>
+			) : null}
+		</section>
 	);
 }
 
@@ -379,7 +485,10 @@ function isMemoryCategory(value: string): value is MemoryCategory {
 	return (MEMORY_CATEGORIES as readonly string[]).includes(value);
 }
 
-function projectOptionLabel(project: ProjectMemoryProject, conversationLabel: string): string {
+function projectOptionLabel(
+	project: { readonly kind: ProjectMemoryKind; readonly path: string },
+	conversationLabel: string,
+): string {
 	return project.kind === "conversation" ? conversationLabel : project.path;
 }
 

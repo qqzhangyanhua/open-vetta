@@ -1,4 +1,7 @@
 import { memoryCategoryLabels } from "@shared/memory/category-labels";
+import { confirmDialogAtom } from "@shared/store/atoms";
+import { sameProjectLocation } from "@vetta/ssh-transport";
+import { useSetAtom } from "jotai";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -6,6 +9,7 @@ import {
 	type GlobalMemoryEntry,
 	MEMORY_CATEGORIES,
 	type MemoryCategory,
+	type MemoryKnownProject,
 	type MemoryModelChoice,
 	type MemoryScope,
 	memoryEntryWithPinned,
@@ -31,6 +35,8 @@ export interface MemorySettingsModel {
 	readonly scopeEntryCount: number;
 	readonly categoryFilter: MemoryCategory | "all";
 	readonly projects: readonly ProjectMemoryProject[];
+	readonly orphanedProjects: readonly ProjectMemoryProject[];
+	readonly knownProjects: readonly MemoryKnownProject[];
 	readonly selectedProjectPath: string;
 	readonly projectLoadError: boolean;
 	readonly draft: MemoryEntryDraft | null;
@@ -45,6 +51,9 @@ export interface MemorySettingsModel {
 	readonly modelInvalid: boolean;
 	readonly savingModel: boolean;
 	readonly modelSaveError: boolean;
+	readonly orphanBusy: boolean;
+	readonly orphanActionError: boolean;
+	readonly reattachTarget: (path: string) => string;
 	readonly actions: {
 		readonly setReadEnabled: (enabled: boolean) => void;
 		readonly setProjectReadEnabled: (enabled: boolean) => void;
@@ -63,6 +72,10 @@ export interface MemorySettingsModel {
 		readonly requestDelete: (id: string) => void;
 		readonly cancelDelete: () => void;
 		readonly confirmDelete: () => void;
+		readonly setReattachTarget: (path: string, targetPath: string) => void;
+		readonly deleteOrphanedEntry: (path: string, entryId: string) => void;
+		readonly deleteOrphanedGroup: (path: string) => void;
+		readonly reattachOrphaned: (path: string, entryId?: string) => void;
 	};
 	readonly labels: {
 		readonly title: string;
@@ -117,18 +130,32 @@ export interface MemorySettingsModel {
 		readonly deleteConfirm: string;
 		readonly cancelDelete: string;
 		readonly deleteError: string;
+		readonly orphanedGroup: string;
+		readonly deleteGroup: string;
+		readonly reattach: string;
+		readonly reattachEntry: string;
+		readonly orphanDeleteEntry: string;
+		readonly orphanActionError: string;
+		readonly deleteEntryOf: (text: string) => string;
+		readonly deleteGroupOf: (path: string) => string;
+		readonly reattachOf: (path: string) => string;
+		readonly reattachEntryOf: (text: string) => string;
+		readonly reattachTargetOf: (path: string) => string;
 	};
 }
 
-export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemorySettingsModel {
+export function useMemorySettingsModel(client: DesktopMemoryApi | null, projectPath?: string): MemorySettingsModel {
 	const { t } = useTranslation("settings");
 	const { t: tChat } = useTranslation("chat");
+	const { t: tCommon } = useTranslation("common");
+	const setConfirm = useSetAtom(confirmDialogAtom);
 	const [status, setStatus] = useState<MemorySettingsModel["status"]>("loading");
 	const [entries, setEntries] = useState<GlobalMemoryEntry[]>([]);
 	const [projects, setProjects] = useState<ProjectMemoryProject[]>([]);
+	const [knownProjects, setKnownProjects] = useState<readonly MemoryKnownProject[]>([]);
 	const [projectLoadError, setProjectLoadError] = useState(false);
-	const [scope, setScope] = useState<MemoryScope>("global");
-	const [selectedProjectPath, setSelectedProjectPath] = useState<string | null>(null);
+	const [scope, setScope] = useState<MemoryScope>(projectPath ? "project" : "global");
+	const [selectedProjectPath, setSelectedProjectPath] = useState<string | null>(projectPath ?? null);
 	const [readEnabled, setReadEnabled] = useState(true);
 	const [projectReadEnabled, setProjectReadEnabled] = useState(true);
 	const writeGeneration = useRef(0);
@@ -147,8 +174,18 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 	const entriesRef = useRef(entries);
 	const projectsRef = useRef(projects);
 	const entryMutation = useRef(false);
+	const orphanLock = useRef(false);
+	const [orphanBusy, setOrphanBusy] = useState(false);
+	const [orphanActionError, setOrphanActionError] = useState(false);
+	const [reattachTargets, setReattachTargets] = useState<Readonly<Record<string, string>>>({});
 	entriesRef.current = entries;
 	projectsRef.current = projects;
+
+	useEffect(() => {
+		if (!projectPath) return;
+		setScope("project");
+		setSelectedProjectPath(projectPath);
+	}, [projectPath]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -175,6 +212,10 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 				(next) => ({ ok: true as const, projects: next }),
 				() => ({ ok: false as const }),
 			),
+			client.listKnownProjects().then(
+				(next) => next,
+				() => [],
+			),
 			client.getModelOverride().then(
 				(override) => ({ ok: true as const, override }),
 				() => ({ ok: false as const }),
@@ -183,7 +224,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 				(choices) => choices,
 				() => [],
 			),
-		]).then(([list, read, projectRead, projectList, model, choices]) => {
+		]).then(([list, read, projectRead, projectList, known, model, choices]) => {
 			if (cancelled) return;
 			const ready = list.ok && read.ok;
 			setEntries(ready ? list.entries : []);
@@ -192,6 +233,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 			setProjectReadEnabled(projectRead.ok ? projectRead.enabled : true);
 			setProjects(projectList.ok ? projectList.projects : []);
 			setProjectLoadError(!projectList.ok);
+			setKnownProjects(known);
 			setModelOverride(model.ok ? model.override : null);
 			setModelInvalid(!model.ok);
 			setModelChoices(choices);
@@ -229,8 +271,11 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 		);
 	};
 
-	const selectedProject = projects.find((project) => project.path === selectedProjectPath) ?? projects[0] ?? null;
+	const liveProjects = projects.filter((project) => !project.orphaned);
+	const orphanedProjects = projects.filter((project) => project.orphaned);
+	const selectedProject = selectLiveProject(liveProjects, selectedProjectPath);
 	const scopedEntries = scope === "global" ? entries : (selectedProject?.entries ?? []);
+	const reattachTarget = (path: string) => reattachTargets[path] ?? knownProjects[0]?.path ?? "";
 	const visibleEntries =
 		categoryFilter === "all" ? scopedEntries : scopedEntries.filter((entry) => entry.category === categoryFilter);
 	const trimmedDraft = draft?.text.trim() ?? "";
@@ -256,7 +301,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 			text: entry.text,
 			category: entry.category,
 			scope,
-			projectPath: selectedProject?.path ?? projects[0]?.path ?? "",
+			projectPath: selectedProject?.path ?? liveProjects[0]?.path ?? "",
 		});
 	};
 
@@ -312,6 +357,33 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 		);
 	};
 
+	const runOrphan = async (task: () => Promise<ProjectMemoryProject[]>) => {
+		if (!client || orphanLock.current) return;
+		orphanLock.current = true;
+		setOrphanBusy(true);
+		setOrphanActionError(false);
+		try {
+			setProjects(await task());
+		} catch {
+			setOrphanActionError(true);
+		} finally {
+			orphanLock.current = false;
+			setOrphanBusy(false);
+		}
+	};
+
+	const confirmOrphanDelete = (title: string, message: string, run: () => Promise<ProjectMemoryProject[]>) => {
+		setConfirm({
+			title,
+			message,
+			confirmLabel: tCommon("actions.delete"),
+			variant: "danger",
+			onConfirm: () => {
+				void runOrphan(run);
+			},
+		});
+	};
+
 	const replacePinned = (targetScope: MemoryScope, projectPath: string, id: string, next: GlobalMemoryEntry) => {
 		if (targetScope === "global") {
 			setEntries((current) => current.map((entry) => (entry.id === id ? next : entry)));
@@ -332,7 +404,12 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 		entries: visibleEntries,
 		scopeEntryCount: scopedEntries.length,
 		categoryFilter,
-		projects,
+		projects: liveProjects,
+		orphanedProjects,
+		knownProjects,
+		orphanBusy,
+		orphanActionError,
+		reattachTarget,
 		draft,
 		confirmDeleteId,
 		canSaveEdit,
@@ -367,7 +444,7 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 			setDraftScope(nextScope) {
 				setDraft((current) =>
 					current
-						? { ...current, scope: nextScope, projectPath: current.projectPath || projects[0]?.path || "" }
+						? { ...current, scope: nextScope, projectPath: current.projectPath || liveProjects[0]?.path || "" }
 						: current,
 				);
 			},
@@ -385,6 +462,33 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 				setEntryError(null);
 			},
 			confirmDelete,
+			setReattachTarget(path, targetPath) {
+				setReattachTargets((current) => ({ ...current, [path]: targetPath }));
+			},
+			deleteOrphanedEntry(path, entryId) {
+				const project = orphanedProjects.find((item) => item.path === path);
+				const entry = project?.entries.find((item) => item.id === entryId);
+				if (!client || !project || !entry) return;
+				confirmOrphanDelete(t("memoryPage.deleteEntryTitle"), t("memoryPage.deleteEntryMessage"), () =>
+					client.deleteOrphanedProjectMemory({ path, entryId }),
+				);
+			},
+			deleteOrphanedGroup(path) {
+				const project = orphanedProjects.find((item) => item.path === path);
+				if (!client || !project) return;
+				confirmOrphanDelete(t("memoryPage.deleteGroupTitle"), t("memoryPage.deleteGroupMessage", { path }), () =>
+					client.deleteOrphanedProjectMemory({ path }),
+				);
+			},
+			reattachOrphaned(path, entryId) {
+				const targetPath = reattachTarget(path);
+				if (!client || !targetPath) return;
+				void runOrphan(() =>
+					client.reattachOrphanedProjectMemory(
+						entryId === undefined ? { path, targetPath } : { path, targetPath, entryId },
+					),
+				);
+			},
 			setModelOverride(modelKey) {
 				if (!client) return;
 				setSavingModel(true);
@@ -483,6 +587,38 @@ export function useMemorySettingsModel(client: DesktopMemoryApi | null): MemoryS
 			deleteConfirm: t("memoryPage.deleteConfirm"),
 			cancelDelete: t("memoryPage.cancelDelete"),
 			deleteError: t("memoryPage.deleteError"),
+			orphanedGroup: t("memoryPage.orphanedGroup"),
+			deleteGroup: t("memoryPage.deleteGroup"),
+			reattach: t("memoryPage.reattach"),
+			reattachEntry: t("memoryPage.reattachEntry"),
+			orphanDeleteEntry: t("memoryPage.deleteEntryTitle"),
+			orphanActionError: t("memoryPage.orphanActionError"),
+			deleteEntryOf: (text) => t("memoryPage.deleteEntryOf", { text }),
+			deleteGroupOf: (path) => t("memoryPage.deleteGroupOf", { path }),
+			reattachOf: (path) => t("memoryPage.reattachOf", { path }),
+			reattachEntryOf: (text) => t("memoryPage.reattachEntryOf", { text }),
+			reattachTargetOf: (path) => t("memoryPage.reattachTargetOf", { path }),
 		},
 	};
+}
+
+/** 指定了路径却对不上时保持空，不要退回第一个项目。 */
+function selectLiveProject(
+	live: readonly ProjectMemoryProject[],
+	selectedPath: string | null,
+): ProjectMemoryProject | null {
+	if (selectedPath === null) return live[0] ?? null;
+	return (
+		live.find((project) => project.path === selectedPath) ??
+		live.find((project) => samePath(project.path, selectedPath)) ??
+		null
+	);
+}
+
+function samePath(left: string, right: string): boolean {
+	try {
+		return sameProjectLocation(left, right);
+	} catch {
+		return false;
+	}
 }

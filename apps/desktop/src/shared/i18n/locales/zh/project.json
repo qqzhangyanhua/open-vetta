@@ -165,6 +165,7 @@
 		"export": "导出",
 		"exportTitle": "导出项目（含会话历史）",
 		"newSession": "新会话",
+		"openMemory": "查看这个项目的记忆",
 		"closeActivityPanel": "关闭活动面板",
 		"openActivityPanel": "打开活动面板",
 		"sessionCount": "{{count}} 个会话",

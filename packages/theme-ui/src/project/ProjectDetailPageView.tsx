@@ -35,6 +35,7 @@ export interface ProjectDetailPageViewLabels {
 	emptyFileTitle: string;
 	emptyFileHint: string;
 	startEditing: string;
+	openMemory: string;
 }
 
 export interface ProjectDetailRecentSession {
@@ -73,6 +74,7 @@ export interface ProjectDetailPageViewProps {
 	onNewSession: () => void;
 	onSave: () => void;
 	onShowInFolder: () => void;
+	onOpenMemory?: () => void;
 	onToggleActivity: () => void;
 	onDocumentChange: (file: "AGENTS.md" | "CLAUDE.md") => void;
 	onOpenRecentSession: (path: string) => void;
@@ -110,6 +112,7 @@ export function ProjectDetailPageView({
 	onNewSession,
 	onSave,
 	onShowInFolder,
+	onOpenMemory,
 	onDocumentChange,
 	onOpenRecentSession,
 	onToggleActivity,
@@ -171,6 +174,18 @@ export function ProjectDetailPageView({
 										<span className="icon-[solar--folder-open-linear] h-3 w-3 shrink-0 opacity-70 group-hover:opacity-100" />
 										<span className="min-w-0 truncate">{cwd}</span>
 									</button>
+									{onOpenMemory ? (
+										<Button
+											type="button"
+											variant="ghost"
+											size="sm"
+											onClick={onOpenMemory}
+											className="mt-1 h-7 w-fit px-2 text-[12px] text-primary"
+										>
+											<span className="icon-[solar--notebook-linear] h-3.5 w-3.5" />
+											{labels.openMemory}
+										</Button>
+									) : null}
 								</div>
 
 								<div className="flex shrink-0 flex-wrap items-center justify-end gap-1">

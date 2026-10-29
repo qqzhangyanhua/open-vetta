@@ -2430,6 +2430,20 @@
     "deleteConfirmMessage": "After you delete it, every chat stops including it on the next message.",
     "deleteConfirm": "Confirm delete",
     "cancelDelete": "Cancel",
-    "deleteError": "This memory was not deleted and was left as it was."
+    "deleteError": "This memory was not deleted and was left as it was.",
+    "orphanedGroup": "This project no longer exists",
+    "deleteEntryOf": "Delete this memory: {{text}}",
+    "deleteEntryTitle": "Delete this memory",
+    "deleteEntryMessage": "After deletion, this memory is no longer added to any chat.",
+    "deleteGroup": "Delete this group",
+    "deleteGroupOf": "Delete this group: {{path}}",
+    "deleteGroupTitle": "Delete this group",
+    "deleteGroupMessage": "Delete every project memory under {{path}}. They will no longer be added to any chat.",
+    "reattach": "Attach again",
+    "reattachEntry": "Attach this one",
+    "reattachOf": "Attach this group to the selected project: {{path}}",
+    "reattachEntryOf": "Attach this memory to the selected project: {{text}}",
+    "reattachTargetOf": "Project to attach this memory to: {{path}}",
+    "orphanActionError": "This change was not saved. The project memories are unchanged."
   }
 }

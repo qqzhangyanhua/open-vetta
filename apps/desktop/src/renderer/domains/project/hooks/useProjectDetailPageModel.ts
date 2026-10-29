@@ -297,6 +297,7 @@ export function useProjectDetailPageModel(
 			emptyFileTitle: t("detail.emptyFileTitle", { file: activeDocument }),
 			emptyFileHint: t("detail.emptyFileHint"),
 			startEditing: t("detail.startEditing"),
+			openMemory: t("detail.openMemory"),
 		},
 		loading,
 		projectType: project?.type,
@@ -327,6 +328,13 @@ export function useProjectDetailPageModel(
 		},
 		onShowInFolder: () => {
 			void window.vetta.shell.showInFolder(decodedCwd);
+		},
+		onOpenMemory: () => {
+			void navigate({
+				to: "/settings/$tab",
+				params: { tab: "memory" },
+				search: { memoryProject: decodedCwd },
+			});
 		},
 		onToggleActivity: () => setActivityOpen((o) => !o),
 	};

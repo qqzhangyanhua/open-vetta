@@ -33,4 +33,6 @@ export interface SettingsPageModel {
 	/** 当前内嵌视图对应的下级入口 key，用于侧栏高亮与自动展开。 */
 	activeNavigationChildKey?: string;
 	title: string;
+	/** 从项目详情打开记忆页时带上的项目路径。没有则按记忆页自己的筛选。 */
+	memoryProjectPath?: string;
 }

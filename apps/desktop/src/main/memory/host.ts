@@ -2,6 +2,7 @@ import { join } from "node:path";
 import { getVettaHomePath } from "@vetta/action-rpc";
 import { completeSimple } from "@vetta/ai";
 import { getOrCreateSharedModelRuntime } from "../agent-runtime/host-services.js";
+import { DEFAULT_CONVERSATION_CWD, readDesktopConfig } from "../config/desktop-config-store.js";
 import { getAppLogger } from "../logger.js";
 import { getSharedRuntime } from "../runtime.js";
 import { DesktopMemoryService } from "./service.js";
@@ -44,6 +45,11 @@ export function getDesktopMemoryService(): DesktopMemoryService {
 				modelKey: modelKeyOf(model),
 				label: model.name.trim() ? `${model.provider} / ${model.name}` : modelKeyOf(model),
 			}));
+		},
+		async listKnownProjectPaths() {
+			const config = await readDesktopConfig();
+			// 侧边栏里的项目：配置中的项目，加上不进配置文件的「对话」。归档不在这份列表里。
+			return [DEFAULT_CONVERSATION_CWD, ...config.projects.map((project) => project.path)];
 		},
 		async complete(request) {
 			const models = getOrCreateSharedModelRuntime();

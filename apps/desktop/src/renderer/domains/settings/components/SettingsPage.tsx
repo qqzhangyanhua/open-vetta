@@ -35,6 +35,9 @@ export function SettingsPage(): JSX.Element {
 	const contentSurface = useThemeSurface("settings.pageContent");
 	const Content =
 		model.activeTab === "mcp" ? SETTINGS_CONTENT.general : SETTINGS_CONTENT[model.activeTab];
+	const MemorySettingsContent = SETTINGS_CONTENT.memory as LazyExoticComponent<
+		ComponentType<{ readonly projectPath?: string }>
+	>;
 
 	const activeTab = model.activeTab === "mcp" ? "general" : model.activeTab;
 	const embedded = model.embeddedView;
@@ -52,7 +55,7 @@ export function SettingsPage(): JSX.Element {
 		<Suspense fallback={null}>
 			{/* key=tab：切换侧栏时重挂载，避免不同 tab 复用同一组件实例的残留状态 */}
 			<div key={activeTab} className="w-full min-h-0">
-				<Content />
+				{activeTab === "memory" ? <MemorySettingsContent projectPath={model.memoryProjectPath} /> : <Content />}
 			</div>
 		</Suspense>
 	);

@@ -5,6 +5,7 @@ import {
 	type GlobalMemoryEntry,
 	MEMORY_CHANNELS,
 	MEMORY_SCOPES,
+	type MemoryKnownProject,
 	type MemoryModelChoice,
 	type ProjectMemoryProject,
 	type SetMemoryPinnedInput,
@@ -15,6 +16,14 @@ import type { DesktopMemoryService } from "../memory/service.js";
 
 const runtimeIdSchema = z.string().trim().min(1).max(256);
 const modelOverrideArgumentSchema = z.union([z.null(), z.string().max(300)]);
+const memoryPathSchema = z.string().trim().min(1).max(4_096);
+const orphanDeleteSchema = z.object({
+	path: memoryPathSchema,
+	entryId: z.uuid().optional(),
+});
+const orphanReattachSchema = orphanDeleteSchema.extend({
+	targetPath: memoryPathSchema,
+});
 
 /** Narrow surface so IPC tests can inject a fake without constructing the service. */
 export interface MemoryIpcService {
@@ -32,6 +41,16 @@ export interface MemoryIpcService {
 	setModelOverride(modelKey: string | null): Promise<void>;
 	listModels(): Promise<readonly MemoryModelChoice[]>;
 	setPinned(input: SetMemoryPinnedInput): Promise<GlobalMemoryEntry>;
+	listKnownProjects(): Promise<readonly MemoryKnownProject[]>;
+	deleteOrphanedProjectMemory(input: {
+		readonly path: string;
+		readonly entryId?: string;
+	}): Promise<ProjectMemoryProject[]>;
+	reattachOrphanedProjectMemory(input: {
+		readonly path: string;
+		readonly targetPath: string;
+		readonly entryId?: string;
+	}): Promise<ProjectMemoryProject[]>;
 }
 
 const setPinnedSchema = z.object({
@@ -74,7 +93,33 @@ export function registerMemoryIpc(service: MemoryIpcService | DesktopMemoryServi
 	ipcMain.handle(MEMORY_CHANNELS.SET_PINNED, (_event, input: unknown) =>
 		service.setPinned(setPinnedSchema.parse(input)),
 	);
+	ipcMain.handle(MEMORY_CHANNELS.LIST_KNOWN_PROJECTS, () => service.listKnownProjects());
+	ipcMain.handle(MEMORY_CHANNELS.DELETE_ORPHANED, (_event, input: unknown) =>
+		service.deleteOrphanedProjectMemory(parseOrphanDelete(input)),
+	);
+	ipcMain.handle(MEMORY_CHANNELS.REATTACH_ORPHANED, (_event, input: unknown) =>
+		service.reattachOrphanedProjectMemory(parseOrphanReattach(input)),
+	);
 	return () => {
 		for (const channel of Object.values(MEMORY_CHANNELS)) ipcMain.removeHandler(channel);
+	};
+}
+
+function parseOrphanDelete(value: unknown): { path: string; entryId?: string } {
+	const parsed = orphanDeleteSchema.safeParse(value);
+	if (!parsed.success) throw new Error("memory:store-rejected");
+	return {
+		path: parsed.data.path,
+		...(parsed.data.entryId ? { entryId: parsed.data.entryId } : {}),
+	};
+}
+
+function parseOrphanReattach(value: unknown): { path: string; targetPath: string; entryId?: string } {
+	const parsed = orphanReattachSchema.safeParse(value);
+	if (!parsed.success) throw new Error("memory:store-rejected");
+	return {
+		path: parsed.data.path,
+		targetPath: parsed.data.targetPath,
+		...(parsed.data.entryId ? { entryId: parsed.data.entryId } : {}),
 	};
 }

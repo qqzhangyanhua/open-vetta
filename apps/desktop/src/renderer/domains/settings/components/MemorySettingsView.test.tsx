@@ -2,8 +2,10 @@
 
 import type { DesktopMemoryApi, GlobalMemoryEntry, ProjectMemoryProject, SetMemoryPinnedInput } from "@/shared/memory";
 import { i18n, initI18n } from "@shared/i18n";
+import { confirmDialogAtom } from "@shared/store/atoms";
 import { act, cleanup, render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { getDefaultStore } from "jotai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemorySettings } from "./MemorySettings";
 import { useMemorySettingsModel } from "./useMemorySettingsModel";
@@ -20,7 +22,10 @@ beforeEach(async () => {
 	await i18n.changeLanguage("zh");
 });
 
-afterEach(() => cleanup());
+afterEach(() => {
+	cleanup();
+	getDefaultStore().set(confirmDialogAtom, null);
+});
 
 function client(
 	listGlobal: DesktopMemoryApi["listGlobal"],
@@ -38,6 +43,9 @@ function client(
 			| "setPinned"
 			| "updateEntry"
 			| "deleteEntry"
+			| "listKnownProjects"
+			| "deleteOrphanedProjectMemory"
+			| "reattachOrphanedProjectMemory"
 		>
 	> = {},
 ): DesktopMemoryApi {
@@ -63,6 +71,9 @@ function client(
 				category: "other",
 				recordedAt: "2026-10-28",
 			})),
+		listKnownProjects: options.listKnownProjects ?? (async () => []),
+		deleteOrphanedProjectMemory: options.deleteOrphanedProjectMemory ?? vi.fn(async () => []),
+		reattachOrphanedProjectMemory: options.reattachOrphanedProjectMemory ?? vi.fn(async () => []),
 	};
 }
 
@@ -235,11 +246,13 @@ describe("设置页记忆列表", () => {
 			{
 				path: "/tmp/alpha",
 				kind: "local",
+				orphaned: false,
 				entries: [projectEntry("22222222-2222-4222-8222-222222222222", "这个仓库用 bun", "work")],
 			},
 			{
 				path: "/tmp/conversation",
 				kind: "conversation",
+				orphaned: false,
 				entries: [projectEntry("33333333-3333-4333-8333-333333333333", "对话里用中文", "preference")],
 			},
 		];
@@ -258,6 +271,7 @@ describe("设置页记忆列表", () => {
 		expect(screen.getByText("对话里用中文")).toBeTruthy();
 		expect(screen.queryByText("这个仓库用 bun")).toBeNull();
 		expect(screen.getByRole("button", { name: "筛选项目" }).textContent).toContain("对话");
+		expect(screen.queryByRole("button", { name: "删除这条记忆：这个仓库用 bun" })).toBeNull();
 	});
 
 	it("没有项目记忆时说明要在该项目的会话里生成", async () => {
@@ -304,6 +318,7 @@ describe("设置页记忆列表", () => {
 			{
 				path: "/tmp/alpha",
 				kind: "local",
+				orphaned: false,
 				entries: [projectEntry("22222222-2222-4222-8222-222222222222", "这个仓库用 bun", "work")],
 			},
 		];
@@ -456,7 +471,14 @@ describe("设置页记忆列表", () => {
 			{
 				path: "/tmp/conversation",
 				kind: "conversation",
+				orphaned: false,
 				entries: [projectEntry("33333333-3333-4333-8333-333333333333", "Use Chinese in conversation", "preference")],
+			},
+			{
+				path: "/tmp/gone",
+				kind: "local",
+				orphaned: true,
+				entries: [projectEntry("44444444-4444-4444-8444-444444444444", "Old project fact", "work")],
 			},
 		];
 		render(<MemorySettings client={client(async () => [ENTRY], { listProjects: async () => projects })} />);
@@ -474,6 +496,9 @@ describe("设置页记忆列表", () => {
 		expect(screen.getByRole("button", { name: "Pin: Use Chinese in conversation" }).getAttribute("aria-pressed")).toBe(
 			"false",
 		);
+		expect(screen.getByText("This project no longer exists")).toBeTruthy();
+		expect(screen.getByText("/tmp/gone")).toBeTruthy();
+		expect(screen.getByText("Old project fact")).toBeTruthy();
 	});
 
 	it("可以把一条标成常驻，写失败时回到原来的状态", async () => {
@@ -509,6 +534,7 @@ describe("设置页记忆列表", () => {
 			{
 				path: "/tmp/alpha",
 				kind: "local",
+				orphaned: false,
 				entries: [projectEntry(projectId, "这个仓库用 bun", "work")],
 			},
 		];
@@ -525,5 +551,146 @@ describe("设置页记忆列表", () => {
 		});
 		expect(setPinned).toHaveBeenCalledTimes(1);
 		expect(screen.getByRole("button", { name: "取消常驻：这个仓库用 bun" }).getAttribute("aria-pressed")).toBe("true");
+	});
+
+	it("把失联记忆单独成组，确认后才能删除一条或整组", async () => {
+		const user = userEvent.setup();
+		const orphan = {
+			path: "/tmp/gone",
+			kind: "local" as const,
+			orphaned: true,
+			entries: [
+				projectEntry("44444444-4444-4444-8444-444444444444", "旧事实", "work"),
+				projectEntry("55555555-5555-4555-8555-555555555555", "还留着", "preference"),
+			],
+		};
+		const live = {
+			path: "/tmp/alpha",
+			kind: "local" as const,
+			orphaned: false,
+			entries: [projectEntry("22222222-2222-4222-8222-222222222222", "这个仓库用 bun", "work")],
+		};
+		const deleteOrphanedProjectMemory = vi.fn(async (input: { path: string; entryId?: string }) =>
+			input.entryId ? [{ ...orphan, entries: orphan.entries.filter((entry) => entry.id !== input.entryId) }] : [live],
+		);
+		render(
+			<MemorySettings
+				client={client(async () => [], {
+					listProjects: async () => [live, orphan],
+					deleteOrphanedProjectMemory,
+				})}
+			/>,
+		);
+		await user.click(await screen.findByRole("tab", { name: "项目" }));
+		expect(screen.getByText("项目已不存在")).toBeTruthy();
+		expect(screen.getByText("/tmp/gone")).toBeTruthy();
+		expect(screen.getByText("旧事实")).toBeTruthy();
+		await user.click(screen.getByRole("button", { name: "筛选项目" }));
+		expect(screen.queryByRole("button", { name: "/tmp/gone" })).toBeNull();
+		await user.click(screen.getByRole("button", { name: "/tmp/alpha" }));
+
+		await user.click(screen.getByRole("button", { name: "删除这条记忆：旧事实" }));
+		const confirmation = getDefaultStore().get(confirmDialogAtom);
+		expect(deleteOrphanedProjectMemory).not.toHaveBeenCalled();
+		expect(confirmation).toMatchObject({ variant: "danger", confirmLabel: "删除" });
+		confirmation?.onConfirm(false);
+		await waitFor(() => expect(deleteOrphanedProjectMemory).toHaveBeenCalledWith({
+			path: "/tmp/gone",
+			entryId: "44444444-4444-4444-8444-444444444444",
+		}));
+		await waitFor(() => expect(screen.queryByText("旧事实")).toBeNull());
+		expect(screen.getByText("还留着")).toBeTruthy();
+
+		await user.click(screen.getByRole("button", { name: "删除这组记忆：/tmp/gone" }));
+		expect(deleteOrphanedProjectMemory).toHaveBeenCalledTimes(1);
+		getDefaultStore().get(confirmDialogAtom)?.onConfirm(false);
+		await waitFor(() => expect(deleteOrphanedProjectMemory).toHaveBeenCalledWith({ path: "/tmp/gone" }));
+		await waitFor(() => expect(screen.queryByText("项目已不存在")).toBeNull());
+		expect(screen.queryByText("还留着")).toBeNull();
+	});
+
+	it("把失联记忆重新挂到一个还没有记忆的项目", async () => {
+		const user = userEvent.setup();
+		const orphan = {
+			path: "/tmp/gone",
+			kind: "local" as const,
+			orphaned: true,
+			entries: [projectEntry("44444444-4444-4444-8444-444444444444", "旧事实", "work")],
+		};
+		const live = {
+			path: "/tmp/alpha",
+			kind: "local" as const,
+			orphaned: false,
+			entries: [projectEntry("22222222-2222-4222-8222-222222222222", "这个仓库用 bun", "work")],
+		};
+		const reattachOrphanedProjectMemory = vi.fn(async () => [
+			live,
+			{
+				path: "/tmp/fresh",
+				kind: "local" as const,
+				orphaned: false,
+				entries: orphan.entries,
+			},
+		]);
+		render(
+			<MemorySettings
+				client={client(async () => [], {
+					listProjects: async () => [live, orphan],
+					listKnownProjects: async () => [
+						{ path: "/tmp/alpha", kind: "local" },
+						{ path: "/tmp/fresh", kind: "local" },
+					],
+					reattachOrphanedProjectMemory,
+				})}
+			/>,
+		);
+		await user.click(await screen.findByRole("tab", { name: "项目" }));
+		expect(await screen.findByText("项目已不存在")).toBeTruthy();
+		await user.click(screen.getByRole("button", { name: "把这组记忆挂到的项目：/tmp/gone" }));
+		await user.click(await screen.findByRole("button", { name: "/tmp/fresh" }));
+		await user.click(screen.getByRole("button", { name: "重新挂靠这组记忆：/tmp/gone" }));
+		await waitFor(() =>
+			expect(reattachOrphanedProjectMemory).toHaveBeenCalledWith({ path: "/tmp/gone", targetPath: "/tmp/fresh" }),
+		);
+		await waitFor(() => expect(screen.queryByText("项目已不存在")).toBeNull());
+		await user.click(screen.getByRole("button", { name: "筛选项目" }));
+		await user.click(await screen.findByRole("button", { name: "/tmp/fresh" }));
+		expect(screen.getByText("旧事实")).toBeTruthy();
+	});
+
+	it("从项目详情打开时直接停在该项目，对不上就不退回第一个", async () => {
+		const projects: ProjectMemoryProject[] = [
+			{
+				path: "/tmp/alpha",
+				kind: "local",
+				orphaned: false,
+				entries: [projectEntry("22222222-2222-4222-8222-222222222222", "这个仓库用 bun", "work")],
+			},
+			{
+				path: "/tmp/beta",
+				kind: "local",
+				orphaned: false,
+				entries: [projectEntry("33333333-3333-4333-8333-333333333333", "beta 的事实", "work")],
+			},
+		];
+		const { unmount } = render(
+			<MemorySettings projectPath="/tmp/beta/" client={client(async () => [], { listProjects: async () => projects })} />,
+		);
+		expect((await screen.findByRole("tab", { name: "项目" })).getAttribute("aria-selected")).toBe("true");
+		expect(screen.getByText("beta 的事实")).toBeTruthy();
+		expect(screen.queryByText("这个仓库用 bun")).toBeNull();
+		expect(screen.getByRole("button", { name: "筛选项目" }).textContent).toContain("/tmp/beta");
+
+		unmount();
+		render(
+			<MemorySettings
+				projectPath="/tmp/missing"
+				client={client(async () => [], { listProjects: async () => projects })}
+			/>,
+		);
+		expect((await screen.findByRole("tab", { name: "项目" })).getAttribute("aria-selected")).toBe("true");
+		expect(screen.getByText(/还没有这个项目的记忆/)).toBeTruthy();
+		expect(screen.queryByText("这个仓库用 bun")).toBeNull();
+		expect(screen.queryByText("beta 的事实")).toBeNull();
 	});
 });

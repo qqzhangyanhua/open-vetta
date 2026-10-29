@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_CONVERSATION_CWD } from "../config/desktop-config-store.js";
 import { MEMORY_GENERATION_CURSOR_LIMIT } from "./schema.js";
 import { DesktopMemoryService, type MemoryModelRequest, type MemorySessionSource } from "./service.js";
+import { readProjectMemoryPromptBlock } from "./session-read.js";
 import { globalMemoryFilePath, memoryGenerationFilePath, projectMemoryFilePath } from "./store.js";
 import type { MemoryTranscriptEntry } from "./transcript.js";
 
@@ -641,6 +642,7 @@ describe("desktop global memory service", () => {
 			{
 				path: resolve(projectDir),
 				kind: "local",
+				orphaned: false,
 				entries: [expect.objectContaining({ text: "住在昆山", category: "location" })],
 			},
 		]);
@@ -902,6 +904,7 @@ describe("desktop global memory service", () => {
 			{
 				path: projectPath,
 				kind: "local",
+				orphaned: false,
 				entries: [
 					{ id: bun, text: "这个仓库改用 bun test", category: "work", recordedAt: "2026-10-28" },
 					{ id: kunshan, text: "搬到上海", category: "location", recordedAt: "2026-10-28" },
@@ -910,6 +913,7 @@ describe("desktop global memory service", () => {
 			{
 				path: "/vetta-other-project",
 				kind: "local",
+				orphaned: false,
 				entries: [{ id: other, text: "别的项目用 pnpm", category: "work", recordedAt: "2026-01-01" }],
 			},
 		]);
@@ -1017,6 +1021,7 @@ describe("desktop global memory service", () => {
 			{
 				path: projectPath,
 				kind: "local",
+				orphaned: false,
 				entries: [
 					{ id: blank, text: "这个仓库改用 bun test", category: "work", recordedAt: "2026-10-28" },
 					{ id: unknown, text: "这个仓库改用 vitest", category: "work", recordedAt: "2026-10-28" },
@@ -1140,6 +1145,7 @@ describe("desktop global memory service", () => {
 			expect.objectContaining({
 				path: "/tmp/alpha",
 				kind: "local",
+				orphaned: false,
 				entries: [
 					expect.objectContaining({ id: projectId, text: "这个仓库用 bun", recordedAt: "2026-10-27" }),
 					expect.objectContaining({
@@ -1353,6 +1359,199 @@ describe("desktop global memory service", () => {
 		expect(await readFile(projectPath, "utf8")).toBe(projectBefore);
 		expect(await service.listGlobal()).toEqual([expect.objectContaining({ id, text: "住在昆山" })]);
 	});
+
+	it("keeps project memory when its path leaves the project list and only deletes it while orphaned", async () => {
+		const projectA = await mkdtemp(join(tmpdir(), "vetta-orphan-a-"));
+		const projectB = await mkdtemp(join(tmpdir(), "vetta-orphan-b-"));
+		directories.push(projectA, projectB);
+		const known = [projectA, projectB];
+		const { service, directory } = await createService(directories, {
+			cwd: projectA,
+			completeText: JSON.stringify([
+				{ text: "甲的第一条", category: "work", scope: "project" },
+				{ text: "甲的第二条", category: "preference", scope: "project" },
+			]),
+			listKnownProjectPaths: async () => known,
+		});
+		const generated = await service.generate("runtime-1");
+		if (generated.status !== "candidates") throw new Error("expected candidates");
+		await service.save(generated.candidates);
+
+		const other = openService(directory, {
+			cwd: projectB,
+			completeText: JSON.stringify([{ text: "乙的事实", category: "work", scope: "project" }]),
+			listKnownProjectPaths: async () => known,
+		});
+		const savedB = await other.service.generate("runtime-b");
+		if (savedB.status !== "candidates") throw new Error("expected candidates");
+		await other.service.save(savedB.candidates);
+
+		const bare = openService(directory);
+		await expect(bare.service.deleteOrphanedProjectMemory({ path: resolve(projectA) })).rejects.toThrow(
+			"memory:project-list-unavailable",
+		);
+		await expect(
+			bare.service.reattachOrphanedProjectMemory({ path: resolve(projectA), targetPath: resolve(projectB) }),
+		).rejects.toThrow("memory:project-list-unavailable");
+		expect(await bare.service.listProjects()).toEqual(
+			expect.arrayContaining([expect.objectContaining({ path: resolve(projectA), orphaned: false })]),
+		);
+
+		known.splice(0, 1);
+		const listed = await service.listProjects();
+		const orphan = listed.find((project) => project.path === resolve(projectA));
+		const live = listed.find((project) => project.path === resolve(projectB));
+		expect(orphan).toMatchObject({ orphaned: true });
+		expect(orphan?.entries.map((entry) => entry.text)).toEqual(["甲的第一条", "甲的第二条"]);
+		expect(live).toMatchObject({ orphaned: false, entries: [expect.objectContaining({ text: "乙的事实" })] });
+		const stored = JSON.parse(await readFile(projectMemoryFilePath(directory), "utf8")) as {
+			schemaVersion: number;
+			projects: { path: string }[];
+		};
+		expect(stored.schemaVersion).toBe(1);
+		expect(stored.projects.some((project) => project.path === resolve(projectA))).toBe(true);
+		expect(await readdir(projectA)).toEqual([]);
+		expect(await readdir(projectB)).toEqual([]);
+
+		const kept = orphan?.entries[1];
+		const removed = orphan?.entries[0];
+		if (!kept || !removed) throw new Error("expected two orphan entries");
+		const afterOne = await service.deleteOrphanedProjectMemory({ path: resolve(projectA), entryId: removed.id });
+		expect(afterOne.find((project) => project.path === resolve(projectA))?.entries.map((entry) => entry.id)).toEqual([
+			kept.id,
+		]);
+		expect(readProjectMemoryPromptBlock(directory, projectB)).toContain("乙的事实");
+		await expect(service.deleteOrphanedProjectMemory({ path: resolve(projectB) })).rejects.toThrow(
+			"memory:not-orphaned",
+		);
+		await expect(service.deleteOrphanedProjectMemory({ path: "  " })).rejects.toThrow("memory:project-unavailable");
+		await expect(
+			service.deleteOrphanedProjectMemory({
+				path: resolve(projectA),
+				entryId: "99999999-9999-4999-8999-999999999999",
+			}),
+		).rejects.toThrow("memory:store-rejected");
+		expect(readProjectMemoryPromptBlock(directory, projectB)).toContain("乙的事实");
+		expect(readProjectMemoryPromptBlock(directory, projectA)).toContain("甲的第二条");
+
+		await service.deleteOrphanedProjectMemory({ path: resolve(projectA) });
+		expect((await service.listProjects()).some((project) => project.path === resolve(projectA))).toBe(false);
+		expect(readProjectMemoryPromptBlock(directory, projectA)).toBeUndefined();
+		expect(readProjectMemoryPromptBlock(directory, projectB)).toContain("乙的事实");
+		expect(await readdir(projectB)).toEqual([]);
+	});
+
+	it("reattaches orphaned memory onto a listed project and injects it into that project's chat", async () => {
+		const projectA = await mkdtemp(join(tmpdir(), "vetta-reattach-a-"));
+		const projectB = await mkdtemp(join(tmpdir(), "vetta-reattach-b-"));
+		const projectC = await mkdtemp(join(tmpdir(), "vetta-reattach-c-"));
+		directories.push(projectA, projectB, projectC);
+		const known = [projectA, projectB, projectC];
+		const { service, directory } = await createService(directories, {
+			cwd: projectA,
+			completeText: JSON.stringify([
+				{ text: "甲的第一条", category: "work", scope: "project" },
+				{ text: "甲的第二条", category: "preference", scope: "project" },
+			]),
+			listKnownProjectPaths: async () => known,
+		});
+		const generated = await service.generate("runtime-1");
+		if (generated.status !== "candidates") throw new Error("expected candidates");
+		await service.save(generated.candidates);
+		const other = openService(directory, {
+			cwd: projectB,
+			completeText: JSON.stringify([{ text: "乙的事实", category: "work", scope: "project" }]),
+			listKnownProjectPaths: async () => known,
+		});
+		const savedB = await other.service.generate("runtime-b");
+		if (savedB.status !== "candidates") throw new Error("expected candidates");
+		await other.service.save(savedB.candidates);
+
+		known.splice(0, 1);
+		expect(await service.listKnownProjects()).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ path: resolve(projectB), kind: "local" }),
+				expect.objectContaining({ path: resolve(projectC), kind: "local" }),
+			]),
+		);
+		expect((await service.listKnownProjects()).some((project) => project.path === resolve(projectA))).toBe(false);
+
+		const orphan = (await service.listProjects()).find((project) => project.path === resolve(projectA));
+		const [first, second] = orphan?.entries ?? [];
+		if (!first || !second) throw new Error("expected two orphan entries");
+		const file = JSON.parse(await readFile(projectMemoryFilePath(directory), "utf8")) as {
+			schemaVersion: number;
+			projects: { path: string; entries: { id: string; text: string; category: string; recordedAt: string }[] }[];
+		};
+		const recordB = file.projects.find((project) => project.path === resolve(projectB));
+		if (!recordB) throw new Error("expected project B");
+		recordB.entries.push({ ...first, text: "乙里已有同号" });
+		await writeFile(projectMemoryFilePath(directory), JSON.stringify(file));
+
+		await expect(
+			service.reattachOrphanedProjectMemory({ path: resolve(projectA), targetPath: "/tmp/not-a-known-project" }),
+		).rejects.toThrow("memory:invalid-target");
+		const moved = await service.reattachOrphanedProjectMemory({
+			path: resolve(projectA),
+			targetPath: `${projectB}/`,
+			entryId: first.id,
+		});
+		const stillOrphan = moved.find((project) => project.path === resolve(projectA));
+		const ontoB = moved.find((project) => project.path === resolve(projectB));
+		expect(stillOrphan).toMatchObject({ orphaned: true });
+		expect(stillOrphan?.entries.map((entry) => entry.text)).toEqual(["甲的第二条"]);
+		expect(ontoB?.entries.filter((entry) => entry.id === first.id)).toEqual([
+			expect.objectContaining({ text: "乙里已有同号" }),
+		]);
+		expect(readProjectMemoryPromptBlock(directory, projectB)).toContain("乙里已有同号");
+		expect(readProjectMemoryPromptBlock(directory, projectB)).not.toContain("甲的第一条");
+		expect(readProjectMemoryPromptBlock(directory, projectA)).toContain("甲的第二条");
+
+		await service.reattachOrphanedProjectMemory({ path: resolve(projectA), targetPath: resolve(projectB) });
+		expect((await service.listProjects()).some((project) => project.path === resolve(projectA))).toBe(false);
+		const blockB = readProjectMemoryPromptBlock(directory, projectB);
+		expect(blockB).toContain("甲的第二条");
+		expect(blockB).toContain("乙的事实");
+		expect(readProjectMemoryPromptBlock(directory, projectA)).toBeUndefined();
+		await expect(
+			service.reattachOrphanedProjectMemory({ path: resolve(projectB), targetPath: resolve(projectC) }),
+		).rejects.toThrow("memory:not-orphaned");
+		expect(await readdir(projectA)).toEqual([]);
+		expect(await readdir(projectB)).toEqual([]);
+		expect(await readdir(projectC)).toEqual([]);
+	});
+
+	it("reattaches an SSH project that left the list onto a local project", async () => {
+		const local = await mkdtemp(join(tmpdir(), "vetta-orphan-ssh-"));
+		directories.push(local);
+		const sshPath = "ssh://build-01/srv/app/";
+		const known = [sshPath, local];
+		const { service, directory } = await createService(directories, {
+			cwd: sshPath,
+			completeText: JSON.stringify([{ text: "远端仓库用 cargo", category: "work", scope: "project" }]),
+			listKnownProjectPaths: async () => known,
+		});
+		const generated = await service.generate("runtime-ssh");
+		if (generated.status !== "candidates") throw new Error("expected candidates");
+		await service.save(generated.candidates);
+		expect(await service.listProjects()).toEqual([
+			expect.objectContaining({ path: "ssh://build-01/srv/app", kind: "ssh", orphaned: false }),
+		]);
+		known.shift();
+		expect(await service.listProjects()).toEqual([
+			expect.objectContaining({ path: "ssh://build-01/srv/app", kind: "ssh", orphaned: true }),
+		]);
+		const failing = openService(directory, {
+			listKnownProjectPaths: async () => {
+				throw new Error("config down");
+			},
+		});
+		await expect(failing.service.listProjects()).rejects.toThrow("config down");
+		await service.reattachOrphanedProjectMemory({ path: "ssh://build-01/srv/app", targetPath: local });
+		expect(readProjectMemoryPromptBlock(directory, local)).toContain("远端仓库用 cargo");
+		expect(readProjectMemoryPromptBlock(directory, "ssh://build-01/srv/app")).toBeUndefined();
+		expect(await readdir(local)).toEqual([]);
+	});
 });
 
 function openService(
@@ -1362,6 +1561,7 @@ function openService(
 		readonly entries?: MemoryTranscriptEntry[];
 		readonly completeText?: string;
 		readonly cwd?: string;
+		readonly listKnownProjectPaths?: () => Promise<readonly string[]>;
 	},
 ) {
 	const remaining = [...IDS];
@@ -1390,6 +1590,7 @@ function openService(
 		source,
 		complete,
 		listModels: () => [{ modelKey: "openai/memory-model", label: "Memory Model" }],
+		...(options?.listKnownProjectPaths ? { listKnownProjectPaths: options.listKnownProjectPaths } : {}),
 	});
 	return { service, complete, source, directory };
 }
@@ -1401,6 +1602,7 @@ async function createService(
 		readonly entries?: MemoryTranscriptEntry[];
 		readonly completeText?: string;
 		readonly cwd?: string;
+		readonly listKnownProjectPaths?: () => Promise<readonly string[]>;
 	},
 ) {
 	const directory = await mkdtemp(join(tmpdir(), "vetta-memory-"));

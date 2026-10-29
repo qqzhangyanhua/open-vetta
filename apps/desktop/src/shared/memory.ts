@@ -72,6 +72,14 @@ export interface ProjectMemoryProject {
 	readonly path: string;
 	readonly kind: ProjectMemoryKind;
 	readonly entries: readonly GlobalMemoryEntry[];
+	/** 挂靠路径不在当前项目列表里。不落盘，每次列出时重算。 */
+	readonly orphaned: boolean;
+}
+
+/** 重新挂靠的目标。没有记忆的项目也在这里，否则无法把失联记忆挂过去。 */
+export interface MemoryKnownProject {
+	readonly path: string;
+	readonly kind: ProjectMemoryKind;
 }
 
 export function memoryScopeOf(candidate: { readonly scope?: string }): MemoryScope {
@@ -111,6 +119,16 @@ export interface DesktopMemoryApi {
 	setModelOverride: (modelKey: string | null) => Promise<void>;
 	listModels: () => Promise<readonly MemoryModelChoice[]>;
 	setPinned: (input: SetMemoryPinnedInput) => Promise<GlobalMemoryEntry>;
+	listKnownProjects: () => Promise<readonly MemoryKnownProject[]>;
+	deleteOrphanedProjectMemory: (input: {
+		readonly path: string;
+		readonly entryId?: string;
+	}) => Promise<ProjectMemoryProject[]>;
+	reattachOrphanedProjectMemory: (input: {
+		readonly path: string;
+		readonly targetPath: string;
+		readonly entryId?: string;
+	}) => Promise<ProjectMemoryProject[]>;
 }
 
 export const MEMORY_CHANNELS = {
@@ -128,4 +146,7 @@ export const MEMORY_CHANNELS = {
 	SET_MODEL_OVERRIDE: "memory:set-model-override",
 	LIST_MODELS: "memory:list-models",
 	SET_PINNED: "memory:set-pinned",
+	LIST_KNOWN_PROJECTS: "memory:list-known-projects",
+	DELETE_ORPHANED: "memory:delete-orphaned",
+	REATTACH_ORPHANED: "memory:reattach-orphaned",
 } as const;
