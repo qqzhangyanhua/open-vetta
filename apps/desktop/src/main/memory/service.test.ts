@@ -893,6 +893,116 @@ describe("desktop global memory service", () => {
 			},
 		]);
 	});
+
+	it("keeps the update when the same new fact was emitted first", async () => {
+		const kunshan = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+		const { service, directory } = await createService(directories, {
+			completeText: JSON.stringify([
+				{ text: "搬到上海", category: "location", scope: "global" },
+				{ replaces: kunshan, text: "搬到上海", category: "location", scope: "global" },
+				{ replaces: "", text: "喜欢喝茶", category: "preference", scope: "global" },
+				{ replaces: null, text: "喜欢喝茶", category: "preference", scope: "global" },
+				{ action: "忘记", id: kunshan, text: "忘掉昆山", category: "location", scope: "global" },
+				{ action: "update", id: kunshan, text: "不该按 id 替换", category: "location", scope: "global" },
+				{ id: kunshan, text: "另有一条", category: "other", scope: "global" },
+			]),
+		});
+		await writeFile(
+			globalMemoryFilePath(directory),
+			JSON.stringify({
+				schemaVersion: 1,
+				entries: [{ id: kunshan, text: "住在昆山", category: "location", recordedAt: "2026-01-01" }],
+			}),
+		);
+		const generated = await service.generate("runtime-1");
+		expect(generated).toEqual({
+			status: "candidates",
+			candidates: [
+				{
+					id: IDS[0],
+					text: "搬到上海",
+					category: "location",
+					scope: "global",
+					replacesId: kunshan,
+					previousText: "住在昆山",
+				},
+				{ id: IDS[1], text: "喜欢喝茶", category: "preference", scope: "global" },
+				{ id: IDS[2], text: "另有一条", category: "other", scope: "global" },
+			],
+		});
+		if (generated.status !== "candidates") return;
+		await service.save(generated.candidates);
+		expect(await service.listGlobal()).toEqual([
+			{ id: kunshan, text: "搬到上海", category: "location", recordedAt: "2026-10-28" },
+			{ id: IDS[3], text: "喜欢喝茶", category: "preference", recordedAt: "2026-10-28" },
+			{ id: IDS[4], text: "另有一条", category: "other", recordedAt: "2026-10-28" },
+		]);
+	});
+
+	it("keeps a project entry in place when an update scope is blank or unknown", async () => {
+		const blank = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+		const unknown = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+		const projectDir = await mkdtemp(join(tmpdir(), "vetta-project-repo-"));
+		directories.push(projectDir);
+		const projectPath = resolve(projectDir);
+		const { service, directory } = await createService(directories, {
+			cwd: projectDir,
+			completeText: JSON.stringify([
+				{ replaces: blank, text: "这个仓库改用 bun test", category: "work", scope: "" },
+				{ replaces: unknown, text: "这个仓库改用 vitest", category: "work", scope: "Project" },
+			]),
+		});
+		await writeFile(
+			projectMemoryFilePath(directory),
+			JSON.stringify({
+				schemaVersion: 1,
+				projects: [
+					{
+						path: projectPath,
+						entries: [
+							{ id: blank, text: "这个仓库用 bun", category: "work", recordedAt: "2026-01-01" },
+							{ id: unknown, text: "这个仓库跑测试", category: "work", recordedAt: "2026-01-01" },
+						],
+					},
+				],
+			}),
+		);
+		const generated = await service.generate("runtime-1");
+		expect(generated).toEqual({
+			status: "candidates",
+			candidates: [
+				{
+					id: IDS[0],
+					text: "这个仓库改用 bun test",
+					category: "work",
+					scope: "project",
+					replacesId: blank,
+					previousText: "这个仓库用 bun",
+				},
+				{
+					id: IDS[1],
+					text: "这个仓库改用 vitest",
+					category: "work",
+					scope: "project",
+					replacesId: unknown,
+					previousText: "这个仓库跑测试",
+				},
+			],
+		});
+		if (generated.status !== "candidates") return;
+		await service.save(generated.candidates);
+		expect(await service.listGlobal()).toEqual([]);
+		expect(await service.listProjects()).toEqual([
+			{
+				path: projectPath,
+				kind: "local",
+				entries: [
+					{ id: blank, text: "这个仓库改用 bun test", category: "work", recordedAt: "2026-10-28" },
+					{ id: unknown, text: "这个仓库改用 vitest", category: "work", recordedAt: "2026-10-28" },
+				],
+			},
+		]);
+	});
 });
 
 function openService(

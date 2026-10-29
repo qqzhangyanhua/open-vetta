@@ -216,7 +216,7 @@ export class DesktopMemoryService {
 			throw new Error("memory:generation-failed");
 		}
 		const parsed = parseMemoryCandidateOutput(text, existing);
-		const candidates = toReviewCandidates(parsed, existing, () => this.dependencies.createId());
+		const candidates = toReviewCandidates(parsed, () => this.dependencies.createId());
 		if (candidates.length === 0) return { status: "empty" };
 		const last = slice.at(-1);
 		if (last) {

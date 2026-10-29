@@ -11,6 +11,7 @@ export interface ParsedMemoryCandidate {
 	readonly category: MemoryCategory;
 	readonly scope: MemoryScope;
 	readonly replacesId?: string;
+	readonly previousText?: string;
 }
 
 export interface MemoryReference {
@@ -34,9 +35,6 @@ const CREDENTIAL = new RegExp(
 export function containsCredential(text: string): boolean {
 	return CREDENTIAL.test(text);
 }
-
-const DELETE_ACTIONS = new Set(["delete", "remove", "drop", "forget", "删除", "移除"]);
-const UPDATE_ACTIONS = new Set(["update", "replace", "更新", "替换"]);
 
 export function parseMemoryCandidateOutput(
 	text: string,
@@ -73,6 +71,11 @@ export function parseMemoryCandidateOutput(
 				continue;
 			}
 			seenReplaces.add(candidate.replacesId);
+			// The update wins: an earlier new fact with the same text would save a second row.
+			for (let index = candidates.length - 1; index >= 0; index -= 1) {
+				const earlier = candidates[index];
+				if (earlier && !earlier.replacesId && earlier.text === candidate.text) candidates.splice(index, 1);
+			}
 		} else if (seenTexts.has(candidate.text)) {
 			continue;
 		}
@@ -85,25 +88,17 @@ export function parseMemoryCandidateOutput(
 
 export function toReviewCandidates(
 	parsed: readonly ParsedMemoryCandidate[],
-	existing: readonly { readonly id: string; readonly text: string }[],
 	createId: () => string,
 ): MemoryCandidate[] {
-	const previousById = new Map(existing.map((entry) => [entry.id, entry.text]));
-	const candidates: MemoryCandidate[] = [];
-	for (const candidate of parsed) {
-		const previousText = candidate.replacesId ? previousById.get(candidate.replacesId) : undefined;
-		if (candidate.replacesId && previousText === undefined) continue;
-		candidates.push({
-			id: createId(),
-			text: candidate.text,
-			category: candidate.category,
-			scope: candidate.scope,
-			...(candidate.replacesId && previousText !== undefined
-				? { replacesId: candidate.replacesId, previousText }
-				: {}),
-		});
-	}
-	return candidates;
+	return parsed.map((candidate) => ({
+		id: createId(),
+		text: candidate.text,
+		category: candidate.category,
+		scope: candidate.scope,
+		...(candidate.replacesId === undefined
+			? {}
+			: { replacesId: candidate.replacesId, previousText: candidate.previousText }),
+	}));
 }
 
 function readItem(
@@ -111,12 +106,13 @@ function readItem(
 	existingById: ReadonlyMap<string, MemoryReference>,
 ): ParsedMemoryCandidate | undefined {
 	if (typeof value !== "object" || value === null) return undefined;
-	if (isDeleteIntent(value)) return undefined;
-	const cited = citedReplaceId(value);
-	if (cited.present) {
-		const prior = cited.id ? existingById.get(cited.id) : undefined;
+	const replaces = replacesIdOf(value);
+	if (replaces !== undefined) {
+		const prior = existingById.get(replaces);
 		return prior ? readUpdate(value, prior) : undefined;
 	}
+	// An action without a replaces citation is not a new fact.
+	if (nonEmptyAction(value)) return undefined;
 	return readCandidate(value);
 }
 
@@ -134,38 +130,22 @@ function readUpdate(value: object, existing: MemoryReference): ParsedMemoryCandi
 	const category =
 		"category" in value && typeof value.category === "string" && value.category ? value.category : existing.category;
 	if (!isCategory(category)) return undefined;
-	const scope =
-		"scope" in value && typeof value.scope === "string" ? memoryScopeOf({ scope: value.scope }) : existing.scope;
-	return { text, category, scope, replacesId: existing.id };
+	const rawScope = "scope" in value && typeof value.scope === "string" ? value.scope.trim() : "";
+	const scope = rawScope === "global" || rawScope === "project" ? rawScope : existing.scope;
+	return { text, category, scope, replacesId: existing.id, previousText: existing.text };
 }
 
-function isDeleteIntent(value: object): boolean {
-	const action = actionOf(value);
-	if (action && DELETE_ACTIONS.has(action)) return true;
-	if ("delete" in value && value.delete === true) return true;
-	if ("remove" in value && value.remove === true) return true;
+/** Blank or null `replaces` is not a citation. */
+function replacesIdOf(value: object): string | undefined {
+	if (!("replaces" in value) || typeof value.replaces !== "string") return undefined;
+	const id = value.replaces.trim();
+	return id || undefined;
+}
+
+function nonEmptyAction(value: object): boolean {
+	if ("action" in value && typeof value.action === "string" && value.action.trim() !== "") return true;
+	if ("op" in value && typeof value.op === "string" && value.op.trim() !== "") return true;
 	return false;
-}
-
-function citedReplaceId(value: object): { readonly present: boolean; readonly id?: string } {
-	const action = actionOf(value);
-	const update = action !== undefined && UPDATE_ACTIONS.has(action);
-	const replaces = "replaces" in value ? value.replaces : "replacesId" in value ? value.replacesId : undefined;
-	if (replaces === undefined && !update) return { present: false };
-	if (typeof replaces === "string" && replaces.trim()) return { present: true, id: replaces.trim() };
-	if (update && "id" in value && typeof value.id === "string" && value.id.trim()) {
-		return { present: true, id: value.id.trim() };
-	}
-	return { present: true };
-}
-
-function actionOf(value: object): string | undefined {
-	if ("action" in value && typeof value.action === "string") return value.action.trim().toLowerCase();
-	if ("op" in value && typeof value.op === "string") return value.op.trim().toLowerCase();
-	if ("operation" in value && typeof value.operation === "string") return value.operation.trim().toLowerCase();
-	if ("kind" in value && typeof value.kind === "string") return value.kind.trim().toLowerCase();
-	if ("type" in value && typeof value.type === "string") return value.type.trim().toLowerCase();
-	return undefined;
 }
 
 function isCategory(value: string): value is MemoryCategory {

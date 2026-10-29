@@ -208,7 +208,7 @@ export function replacementsNeedProjectFile(
 	return false;
 }
 
-/** Drops updates whose id is in neither the global list nor the current project. */
+/** Drops replacements whose id is in neither the global list nor the current project. */
 export function resolveMemoryReplacements(input: {
 	readonly replacements: ReadonlyMap<string, SaveMemoryCandidate>;
 	readonly globalIds: ReadonlySet<string>;
